@@ -185,16 +185,25 @@ private extension Raytracer {
         }
         
         var cameraCenterPoint: Vector3D = .zero
+        var cameraSize: Vector
+        var cameraSizeScale: Double = 0.3
         
-        var floorPlane: Plane = Plane(point: .zero, normal: .unitZ)
+        // MARK: - Scene
         
+        // AABB
+        var aabb: Geometria.AABB<Vector3D> = .init(minimum: .init(x: -20, y: 110, z: 80),
+                                                   maximum: .init(x: 60, y: 90, z: 95))
+        
+        // Sphere
         var sphere: NSphere<Vector3D> = .init(center: .init(x: 0, y: 150, z: 45), radius: 30)
+        
+        // Floor plane
+        var floorPlane: Plane = Plane(point: .zero, normal: .unitZ)
         
         /// Direction an infinitely far away point light is pointed at the scene
         @UnitVector var sunDirection: Vector3D = Vector3D(x: -20, y: 40, z: -30)
         
-        var cameraSize: Vector
-        var cameraSizeScale: Double = 0.3
+        // MARK: -
         
         init(cameraSize: Vector) {
             self.cameraSize = cameraSize
@@ -204,15 +213,15 @@ private extension Raytracer {
         }
         
         func intersect(ray: Ray, ignoring: GeometricType? = nil) -> RayHit? {
+            if ignoring as? Geometria.AABB<Vector3D> != aabb {
+                if let hit = doRayCasting(ray: ray, convex: aabb) {
+                    return hit
+                }
+            }
+            
             if ignoring as? NSphere != sphere {
-                switch sphere.intersection(with: ray) {
-                case .enter(let pt),
-                     .enterExit(let pt, _),
-                     .singlePoint(let pt):
-                    
-                    return RayHit(point: pt.point, normal: pt.normal, geometry: sphere)
-                default:
-                    break
+                if let hit = doRayCasting(ray: ray, convex: sphere) {
+                    return hit
                 }
             }
             
@@ -223,6 +232,18 @@ private extension Raytracer {
             }
             
             return nil
+        }
+        
+        func doRayCasting<C: ConvexType>(ray: Ray, convex: C) -> RayHit? where C.Vector == Vector3D {
+            switch convex.intersection(with: ray) {
+            case .enter(let pt),
+                 .enterExit(let pt, _),
+                 .singlePoint(let pt):
+                
+                return RayHit(point: pt.point, normal: pt.normal, geometry: convex)
+            default:
+                return nil
+            }
         }
         
         mutating func recomputeCamera() {
