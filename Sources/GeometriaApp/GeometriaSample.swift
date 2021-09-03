@@ -7,7 +7,8 @@ class GeometriaSample: Blend2DSample {
     var height: Int
     var sampleRenderScale: BLPoint = .one
     var time: TimeInterval = 0
-    var buffer: BLImage?
+    var raytracer: Raytracer?
+    var buffer: Blend2DBufferWriter?
     
     weak var delegate: Blend2DSampleDelegate?
     
@@ -26,22 +27,18 @@ class GeometriaSample: Blend2DSample {
     
     func recreateBackBuffer() {
         guard width > 0 && height > 0 else {
-            buffer = nil
+            raytracer = nil
             return
         }
         
         let image = BLImage(width: width, height: height, format: .prgb32)
-        guard let ctx = BLContext(image: image, options: nil) else {
-            buffer = nil
-            return
-        }
+        let viewportSize = image.size
         
-        ctx.setFillStyle(BLRgba32.cornflowerBlue)
-        ctx.fillAll()
+        let buffer = Blend2DBufferWriter(image: image)
+        self.buffer = buffer
         
-        ctx.end()
-        
-        buffer = image
+        raytracer = Raytracer(viewportSize: viewportSize, buffer: buffer)
+        raytracer?.initialize()
     }
     
     func performLayout() {
@@ -50,11 +47,21 @@ class GeometriaSample: Blend2DSample {
     
     func update(_ time: TimeInterval) {
         self.time = time
-//        delegate?.invalidate(bounds: .init(x: 0, y: 0, width: width, height: height))
+        
+        guard let raytracer = raytracer else {
+            return
+        }
+        guard raytracer.hasWork else {
+            return
+        }
+        
+        raytracer.run(steps: 2000)
+        
+        delegate?.invalidate(bounds: .init(x: 0, y: 0, width: width, height: height))
     }
     
     func render(context ctx: BLContext) {
-        if let img = buffer {
+        if let img = buffer?.image {
             ctx.blitImage(img, at: BLPointI.zero)
         } else {
             ctx.setFillStyle(BLRgba32.white)

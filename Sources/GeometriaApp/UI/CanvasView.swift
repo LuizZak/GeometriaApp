@@ -7,6 +7,7 @@ class CanvasView: NSView {
     
     var sample: Blend2DSample!
     var blImage: BLImage!
+    var imageContext: CGContext?
     var redrawBounds: [NSRect] = []
     
     override var bounds: NSRect {
@@ -48,6 +49,8 @@ class CanvasView: NSView {
         blImage = BLImage(width: sample.width * Int(sample.sampleRenderScale.x),
                           height: sample.height * Int(sample.sampleRenderScale.y),
                           format: .xrgb32)
+        
+        recreateCgImageContext()
     }
     
     override func layout() {
@@ -63,9 +66,30 @@ class CanvasView: NSView {
                           height: sample.height * Int(sample.sampleRenderScale.y),
                           format: .xrgb32)
         
+        recreateCgImageContext()
+        
         redrawBounds.append(bounds)
         
         update()
+    }
+    
+    private func recreateCgImageContext() {
+        let imageData = blImage.getImageData()
+        
+        let colorSpace = CGColorSpaceCreateDeviceRGB()
+        
+        var bitmapInfo: UInt32 = 0
+        
+        bitmapInfo |= CGImageAlphaInfo.noneSkipFirst.rawValue
+        bitmapInfo |= CGImageByteOrderInfo.order32Little.rawValue
+        
+        imageContext = CGContext(data: imageData.pixelData,
+                                 width: blImage.width,
+                                 height: blImage.height,
+                                 bitsPerComponent: 8,
+                                 bytesPerRow: imageData.stride,
+                                 space: colorSpace,
+                                 bitmapInfo: bitmapInfo)
     }
     
     override func mouseDown(with event: NSEvent) {
@@ -194,19 +218,9 @@ class CanvasView: NSView {
         guard let context = NSGraphicsContext.current else {
             return
         }
-        
-        let imageData = blImage.getImageData()
-        
-        let colorSpace = CGColorSpaceCreateDeviceRGB()
-        let imageContext = CGContext(data: imageData.pixelData,
-                                     width: blImage.width,
-                                     height: blImage.height,
-                                     bitsPerComponent: 8,
-                                     bytesPerRow: imageData.stride,
-                                     space: colorSpace,
-                                     bitmapInfo: CGImageAlphaInfo.noneSkipFirst.rawValue | CGImageByteOrderInfo.order32Little.rawValue)
-        
-        let cgImage = imageContext!.makeImage()!
+        guard let cgImage = imageContext?.makeImage() else {
+            return
+        }
         
         context.imageInterpolation = .none
         context.shouldAntialias = false

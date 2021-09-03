@@ -8,6 +8,8 @@ typealias Line = Line2D
 typealias LineSegment = LineSegment2D
 typealias Circle = Circle2D
 typealias PolyLine = LinePolygon2D
+typealias Plane = PointNormalPlane3D
+typealias Ray = DirectionalRay3D
 
 extension Vector {
     var asBLPoint: BLPoint {
@@ -58,5 +60,48 @@ extension PolyLine {
         path.lineTo(vertices[0].asBLPoint)
         
         return path
+    }
+}
+
+extension BLPointI: Vector2Type {
+    public typealias Scalar = Int32
+}
+
+extension BLPoint: Vector2Type {
+    public typealias Scalar = Double
+}
+
+extension BLSize: Vector2Type {
+    public typealias Scalar = Double
+    
+    public var x: Scalar {
+        get { w }
+        set { w = newValue }
+    }
+    public var y: Scalar {
+        get { h }
+        set { h = newValue }
+    }
+    
+    public init(x: Scalar, y: Scalar) {
+        self.init(w: x, h: y)
+    }
+}
+
+
+extension BLSizeI: Vector2Type {
+    public typealias Scalar = Int32
+    
+    public var x: Scalar {
+        get { w }
+        set { w = newValue }
+    }
+    public var y: Scalar {
+        get { h }
+        set { h = newValue }
+    }
+    
+    public init(x: Scalar, y: Scalar) {
+        self.init(w: x, h: y)
     }
 }
