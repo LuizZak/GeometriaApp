@@ -109,9 +109,17 @@ class Raytracer {
         let shade = max(0.0, min(0.4, hit.normal.dot(-ray.direction)))
         color = color.faded(towards: .black, factor: Float(1 - shade))
         
-        // Sunlight direction
-        let sunDirDot = max(0.0, min(0.8, pow(hit.normal.dot(-scene.sunDirection), 5)))
-        color = color.faded(towards: .white, factor: Float(sunDirDot))
+        // Shadow or sunlight
+        let shadowRay = Ray(start: hit.point, direction: -scene.sunDirection)
+        if scene.intersect(ray: shadowRay, ignoring: hit.geometry) != nil {
+            // Shadow
+            color = color.faded(towards: .black, factor: 0.5)
+        } else {
+            // Sunlight direction
+            let sunDirDot = max(0.0, min(0.8, pow(hit.normal.dot(-scene.sunDirection), 5)))
+            color = color.faded(towards: .white, factor: Float(sunDirDot))
+        }
+        
         
         let far = 1000.0
         let dist = ray.a.distanceSquared(to: hit.point)
@@ -195,19 +203,23 @@ private extension Raytracer {
             recomputeCamera()
         }
         
-        func intersect(ray: Ray) -> RayHit? {
-            switch sphere.intersection(with: ray) {
-            case .enter(let pt),
-                 .enterExit(let pt, _),
-                 .singlePoint(let pt):
-                
-                return RayHit(point: pt.point, normal: pt.normal, geometry: sphere)
-            default:
-                break
+        func intersect(ray: Ray, ignoring: GeometricType? = nil) -> RayHit? {
+            if ignoring as? NSphere != sphere {
+                switch sphere.intersection(with: ray) {
+                case .enter(let pt),
+                     .enterExit(let pt, _),
+                     .singlePoint(let pt):
+                    
+                    return RayHit(point: pt.point, normal: pt.normal, geometry: sphere)
+                default:
+                    break
+                }
             }
             
-            if let h = floorPlane.intersection(with: ray) {
-                return RayHit(point: h, normal: floorPlane.normal, geometry: floorPlane)
+            if ignoring as? Plane != floorPlane {
+                if let h = floorPlane.intersection(with: ray) {
+                    return RayHit(point: h, normal: floorPlane.normal, geometry: floorPlane)
+                }
             }
             
             return nil
