@@ -2,11 +2,29 @@
   "object": {
     "pins": [
       {
+        "package": "Cassowary",
+        "repositoryURL": "https://github.com/LuizZak/CassowarySwift.git",
+        "state": {
+          "branch": "master",
+          "revision": "0da17955a8e284340b1e0baeb1a41c9587a06171",
+          "version": null
+        }
+      },
+      {
         "package": "Geometria",
         "repositoryURL": "https://github.com/LuizZak/Geometria.git",
         "state": {
           "branch": "main",
-          "revision": "c0ca27d42f326bf29111fb7c2bd70bc96cb0e6aa",
+          "revision": "e6b594901c608d968cd5fc654a69e98295636b4a",
+          "version": null
+        }
+      },
+      {
+        "package": "ImagineUI",
+        "repositoryURL": "https://github.com/LuizZak/ImagineUI.git",
+        "state": {
+          "branch": "master",
+          "revision": "0e1f023ac5644bd741cba60e1fb7a994d299a196",
           "version": null
         }
       },

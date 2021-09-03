@@ -4,13 +4,17 @@ import SwiftUI
 // SwiftUI in Swift Package Manager code by:
 // https://theswiftdev.com/how-to-build-macos-apps-using-only-the-swift-package-manager/
 
-class AppDelegate: NSObject, NSApplicationDelegate {
+public class AppDelegate: NSObject, NSApplicationDelegate {
     let window = NSWindow()
     let windowDelegate = WindowDelegate()
     
     let title = "Geometria Tests"
     
-    func applicationDidFinishLaunching(_ notification: Notification) {
+    public override init() {
+        super.init()
+    }
+    
+    public func applicationDidFinishLaunching(_ notification: Notification) {
         let appMenu = NSMenuItem()
         appMenu.submenu = NSMenu()
         appMenu.submenu?.addItem(NSMenuItem(title: "Quit", action: #selector(NSApplication.terminate(_:)), keyEquivalent: "q"))

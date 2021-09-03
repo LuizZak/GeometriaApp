@@ -1,15 +1,17 @@
 import Geometria
 import SwiftBlend2D
 
-typealias Vector = Vector2D
-typealias Rectangle = Rectangle2D
-typealias AABB = AABB2D
-typealias Line = Line2D
-typealias LineSegment = LineSegment2D
-typealias Circle = Circle2D
-typealias PolyLine = LinePolygon2D
-typealias Plane = PointNormalPlane3D
-typealias Ray = DirectionalRay3D
+typealias _Vector = Vector
+typealias Vector = SIMD2<Double>
+typealias Vector3D = SIMD3<Double>
+typealias Rectangle = Rectangle2<Vector>
+typealias AABB = AABB2<Vector>
+typealias Line = Line2<Vector>
+typealias LineSegment = LineSegment2<Vector>
+typealias Circle = Circle2<Vector>
+typealias PolyLine = LinePolygon2<Vector>
+typealias Plane = PointNormalPlane3<Vector3D>
+typealias Ray = DirectionalRay3<Vector3D>
 
 extension Vector {
     var asBLPoint: BLPoint {
@@ -21,7 +23,7 @@ extension Vector {
     }
 }
 
-extension RectangleType where Vector == Vector2D {
+extension RectangleType where Vector == _Vector {
     var asBLRect: BLRect {
         BLRect(location: location.asBLPoint, size: size.asBLSize)
     }
@@ -31,7 +33,7 @@ extension RectangleType where Vector == Vector2D {
     }
 }
 
-extension LineType where Vector == Vector2D {
+extension LineType where Vector == _Vector {
     var asBLLine: BLLine {
         BLLine(start: a.asBLPoint, end: b.asBLPoint)
     }
@@ -63,12 +65,45 @@ extension PolyLine {
     }
 }
 
+extension BLBoxI: ConstructableRectangleType {
+    public var location: BLPointI {
+        BLPointI(x: x0, y: y0)
+    }
+    
+    public var size: BLPointI {
+        BLPointI(x: Int32(w), y: Int32(h))
+    }
+    
+    public typealias Vector = BLPointI
+    
+    public init(location: Vector, size: Vector) {
+        self.init(x: Int(location.x), y: Int(location.y), w: Int(size.x), h: Int(size.y))
+    }
+    
+    func union(_ other: Self) -> Self {
+        return Self(x0: min(x0, other.x0), y0: min(y0, other.y0),
+                    x1: max(x1, other.x1), y1: max(y1, other.y1))
+    }
+}
+
 extension BLPointI: Vector2Type {
     public typealias Scalar = Int32
+    
+    public init(repeating scalar: Scalar) {
+        self.init(x: scalar, y: scalar)
+    }
 }
 
 extension BLPoint: Vector2Type {
     public typealias Scalar = Double
+    
+    var asVector: Vector {
+        return Vector(x: x, y: y)
+    }
+    
+    public init(repeating scalar: Scalar) {
+        self.init(x: scalar, y: scalar)
+    }
 }
 
 extension BLSize: Vector2Type {
@@ -85,6 +120,10 @@ extension BLSize: Vector2Type {
     
     public init(x: Scalar, y: Scalar) {
         self.init(w: x, h: y)
+    }
+    
+    public init(repeating scalar: Scalar) {
+        self.init(x: scalar, y: scalar)
     }
 }
 
@@ -103,5 +142,9 @@ extension BLSizeI: Vector2Type {
     
     public init(x: Scalar, y: Scalar) {
         self.init(w: x, h: y)
+    }
+    
+    public init(repeating scalar: Scalar) {
+        self.init(x: scalar, y: scalar)
     }
 }

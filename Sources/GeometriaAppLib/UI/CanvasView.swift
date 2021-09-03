@@ -42,6 +42,9 @@ class CanvasView: NSView {
     }
     
     private func initializeSample() {
+        let url = Bundle.module.path(forResource: "NotoSans-Regular", ofType: "ttf")!
+        Fonts.defaultFontFace = try! BLFontFace(fromFile: url)
+        
         let sample = GeometriaSample(width: Int(bounds.width), height: Int(bounds.height))
         sample.delegate = self
         self.sample = sample

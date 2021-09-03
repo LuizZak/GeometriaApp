@@ -3,13 +3,25 @@ import Geometria
 import Foundation
 
 class Raytracer {
+    private var scene: Scene
+    private let numThreads = 8
+    private let batchSize = 100
+    private var totalPixels: Int64 = 0
+    
+    @ConcurrentValue private var currentPixels: Int64 = 0
+    
     var viewportSize: BLSizeI
     var buffer: RaytracerBufferWriter
     var hasWork: Bool = true
+    
+    /// The next coordinate the raytracer will fill.
     var coord: BLPointI
+    
+    /// Progress of rendering, from 0.0 to 1.0, inclusive.
+    @ConcurrentValue var progress: Double = 0.0
+    
     /// Inverts ordering of pixel fillig from X-Y to Y-X.
     var invertRender = true
-    private var scene: Scene
     
     init(viewportSize: BLSizeI, buffer: RaytracerBufferWriter) {
         self.viewportSize = viewportSize
@@ -21,6 +33,9 @@ class Raytracer {
     
     func initialize() {
         coord = .zero
+        totalPixels = Int64(buffer.size.w) * Int64(buffer.size.h)
+        currentPixels = 0
+        progress = 0.0
         buffer.clearAll(color: .cornflowerBlue)
         createScene()
     }
@@ -35,18 +50,16 @@ class Raytracer {
         }
         
         var coords: [BLPointI] = []
+        coords.reserveCapacity(steps)
         
         for _ in 0..<steps {
-            guard let next = nextCoord() else {
+            coords.append(coord)
+            
+            if !incCoord() {
+                hasWork = false
                 break
             }
-            
-            coords.append(next)
-            incCoord()
         }
-        
-        let numThreads = 8
-        let batchSize = 100
         
         let queue = OperationQueue()
         queue.maxConcurrentOperationCount = numThreads
@@ -56,11 +69,19 @@ class Raytracer {
                 for coord in batch {
                     self.doRayCasting(at: coord)
                 }
+                
+                self._currentPixels.modifyingValue { v in
+                    v += Int64(batch.count)
+                }
             }
         }
         
         queue.waitUntilAllOperationsAreFinished()
+        
+        progress = Double(currentPixels) / Double(totalPixels)
     }
+    
+    // MARK: Batching
     
     func batching<C: Collection>(_ array: C, by chunkSize: Int, _ closure: (C.SubSequence) -> Void) where C.Index == Int {
         for c in chunked(array, by: chunkSize) {
@@ -73,6 +94,48 @@ class Raytracer {
             list[$0..<min($0 + chunkSize, list.count)]
         }
     }
+    
+    // MARK: - Coordinate Management
+    
+    func incCoord() -> Bool {
+        guard let next = nextCoord(from: coord) else {
+            return false
+        }
+        
+        coord = next
+        
+        return true
+    }
+
+    func nextCoord(from coord: BLPointI) -> BLPointI? {
+        var coord = coord
+        
+        if invertRender {
+            coord.y += 1
+            if coord.y >= buffer.size.h {
+                coord.y = 0
+                coord.x += 1
+            }
+            
+            if coord.x >= buffer.size.w {
+                return nil
+            }
+        } else {
+            coord.x += 1
+            if coord.x >= buffer.size.w {
+                coord.x = 0
+                coord.y += 1
+            }
+            
+            if coord.y >= buffer.size.h {
+                return nil
+            }
+        }
+        
+        return coord
+    }
+    
+    // MARK: - Ray Casting
     
     func doRayCasting(at coord: BLPointI) {
         let ray = scene.rayFromCamera(at: coord)
@@ -128,41 +191,9 @@ class Raytracer {
         
         buffer.setPixel(at: coord, color: color)
     }
-    
-    func incCoord() {
-        coord = nextCoord() ?? coord
-    }
-
-    func nextCoord() -> BLPointI? {
-        var coord = self.coord
-        
-        if invertRender {
-            coord.y += 1
-            if coord.y >= buffer.size.h {
-                coord.y = 0
-                coord.x += 1
-            }
-            
-            if coord.x >= buffer.size.w {
-                coord = .zero
-                hasWork = false
-            }
-        } else {
-            coord.x += 1
-            if coord.x >= buffer.size.w {
-                coord.x = 0
-                coord.y += 1
-            }
-            
-            if coord.y >= buffer.size.h {
-                coord = .zero
-                hasWork = false
-            }
-        }
-        
-        return coord
-    }
 }
+
+// MARK: - Scene
 
 private extension Raytracer {
     struct Scene {
@@ -268,20 +299,5 @@ private extension Raytracer {
         var point: Vector3D
         var normal: Vector3D
         var geometry: GeometricType
-    }
-}
-
-private extension BLImageData {
-    subscript(x x: Int, y y: Int) -> BLRgba32 {
-        get {
-            let offset = (x * MemoryLayout<BLRgba32>.stride + y * stride)
-            
-            return pixelData.load(fromByteOffset: offset, as: BLRgba32.self)
-        }
-        nonmutating set {
-            let offset = (x * MemoryLayout<BLRgba32>.stride + y * stride)
-            
-            pixelData.storeBytes(of: newValue, toByteOffset: offset, as: BLRgba32.self)
-        }
     }
 }
