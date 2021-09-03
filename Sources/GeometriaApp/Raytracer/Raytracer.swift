@@ -110,13 +110,12 @@ class Raytracer {
         color = color.faded(towards: .black, factor: Float(1 - shade))
         
         // Sunlight direction
-        let sunDir = Vector3D(x: -20, y: 40, z: -30).normalized()
-        let sunDirDot = max(0.0, min(0.8, pow(hit.normal.dot(-sunDir), 5)))
+        let sunDirDot = max(0.0, min(0.8, pow(hit.normal.dot(-scene.sunDirection), 5)))
         color = color.faded(towards: .white, factor: Float(sunDirDot))
         
         let far = 1000.0
-        let dist = ray.a.distance(to: hit.point)
-        let distFactor = max(0, min(1, Float(dist / far)))
+        let dist = ray.a.distanceSquared(to: hit.point)
+        let distFactor = max(0, min(1, Float(dist / (far * far))))
         color = color.faded(towards: .cornflowerBlue, factor: distFactor)
         
         buffer.setPixel(at: coord, color: color)
@@ -159,13 +158,32 @@ class Raytracer {
 
 private extension Raytracer {
     struct Scene {
-        var cameraPlane = Plane(point: .init(x: 0, y: 0, z: 5),
-                                normal: .unitY)
-        var cameraCenterOffset = -50.0
-        var cameraZOffset = 0.0
-        var floorPlane = Plane(point: .zero, normal: .unitZ)
+        var cameraPlane: Plane = Plane(point: .unitZ * 5, normal: .unitY) {
+            didSet {
+                recomputeCamera()
+            }
+        }
         
-        var sphere = NSphere<Vector3D>(center: .init(x: 0, y: 150, z: 45), radius: 30)
+        var cameraCenterOffset: Double = -90.0 {
+            didSet {
+                recomputeCamera()
+            }
+        }
+        
+        var cameraZOffset: Double = 0.0 {
+            didSet {
+                recomputeCamera()
+            }
+        }
+        
+        var cameraCenterPoint: Vector3D = .zero
+        
+        var floorPlane: Plane = Plane(point: .zero, normal: .unitZ)
+        
+        var sphere: NSphere<Vector3D> = .init(center: .init(x: 0, y: 150, z: 45), radius: 30)
+        
+        /// Direction an infinitely far away point light is pointed at the scene
+        @UnitVector var sunDirection: Vector3D = Vector3D(x: -20, y: 40, z: -30)
         
         var cameraSize: Vector
         var cameraSizeScale: Double = 0.3
@@ -173,6 +191,8 @@ private extension Raytracer {
         init(cameraSize: Vector) {
             self.cameraSize = cameraSize
             cameraPlane.point.z = cameraSize.y * cameraSizeScale + cameraZOffset
+            
+            recomputeCamera()
         }
         
         func intersect(ray: Ray) -> RayHit? {
@@ -193,16 +213,19 @@ private extension Raytracer {
             return nil
         }
         
+        mutating func recomputeCamera() {
+            cameraCenterPoint = cameraPlane.point + cameraPlane.normal * cameraCenterOffset
+        }
+        
         func rayFromCamera(at point: BLPointI) -> Ray {
-            var cameraXY = Vector(point) * cameraSizeScale
-            cameraXY -= cameraSize * cameraSizeScale / 2
+            var cameraXY = Vector(point)
+            cameraXY -= cameraSize / 2
+            cameraXY *= cameraSizeScale
             cameraXY *= Vector(x: 1, y: -1)
             var cameraXZ = Vector3D(x: cameraXY.x, y: 0, z: cameraXY.y)
             cameraXZ += cameraPlane.point
             
-            let cameraPoint = cameraPlane.point + cameraPlane.normal * cameraCenterOffset
-            
-            let dir = cameraXZ - cameraPoint
+            let dir = cameraXZ - cameraCenterPoint
             
             return Ray(start: cameraXZ, direction: dir)
         }
