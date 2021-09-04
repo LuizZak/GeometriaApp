@@ -183,7 +183,6 @@ class Raytracer {
             color = color.faded(towards: .white, factor: Float(sunDirDot))
         }
         
-        
         let far = 1000.0
         let dist = ray.a.distanceSquared(to: hit.point)
         let distFactor = max(0, min(1, Float(dist / (far * far))))
@@ -197,7 +196,7 @@ class Raytracer {
 
 private extension Raytracer {
     struct Scene {
-        var cameraPlane: Plane = Plane(point: .unitZ * 5, normal: .unitY) {
+        var cameraPlane: Plane = Plane(point: .unitZ * 5, normal: .init(x: 0, y: 5, z: -1)) {
             didSet {
                 recomputeCamera()
             }
@@ -231,6 +230,11 @@ private extension Raytracer {
         // Floor plane
         var floorPlane: Plane = Plane(point: .zero, normal: .unitZ)
         
+        // Disk
+        var disk: Disk3<Vector3D> = Disk3(center: .init(x: -10, y: 110, z: 20),
+                                          normal: .init(x: 0, y: 1, z: 0),
+                                          radius: 12)
+        
         /// Direction an infinitely far away point light is pointed at the scene
         @UnitVector var sunDirection: Vector3D = Vector3D(x: -20, y: 40, z: -30)
         
@@ -250,14 +254,26 @@ private extension Raytracer {
                                  lastHit: nil,
                                  ignoring: ignoring)
             
-            result = doRayCasting(convex: aabb, result: result)
-            result = doRayCasting(convex: sphere, result: result)
-            result = doRayCasting(plane: floorPlane, result: result)
+            result = doPlane(plane: floorPlane, result: result)
+            result = doPlane(plane: disk, result: result)
+            result = doConvex(convex: aabb, result: result)
+            result = doConvex(convex: sphere, result: result)
             
             return result.lastHit
         }
         
-        func doRayCasting<C: ConvexType & Equatable>(convex: C, result: PartialRayResult) -> PartialRayResult where C.Vector == Vector3D {
+        func doBoundConvex<C: ConvexType & BoundableType & Equatable>(convex: C, result: PartialRayResult) -> PartialRayResult where C.Vector == Vector3D {
+            
+            if let aabb = result.rayAABB {
+                if !convex.bounds.intersects(aabb) {
+                    return result
+                }
+            }
+            
+            return doConvex(convex: convex, result: result)
+        }
+        
+        func doConvex<C: ConvexType & Equatable>(convex: C, result: PartialRayResult) -> PartialRayResult where C.Vector == Vector3D {
             if result.ignoring as? C == convex {
                 return result
             }
@@ -281,7 +297,7 @@ private extension Raytracer {
             }
         }
         
-        func doRayCasting<P: LineIntersectivePlaneType & Equatable>(plane: P, result: PartialRayResult) -> PartialRayResult where P.Vector == Vector3D {
+        func doPlane<P: LineIntersectivePlaneType & Equatable>(plane: P, result: PartialRayResult) -> PartialRayResult where P.Vector == Vector3D {
             
             guard result.ignoring as? P != plane else {
                 return result
@@ -295,9 +311,14 @@ private extension Raytracer {
                 return result
             }
             
+            var normal: Vector3D = plane.normal
+            if normal.dot(result.ray.direction) > 0 {
+                normal = -normal
+            }
+            
             return result.withHit(magnitudeSquared: dSquared,
                                   point: inter,
-                                  normal: plane.normal,
+                                  normal: normal,
                                   geometry: plane)
         }
         
@@ -320,6 +341,7 @@ private extension Raytracer {
         
         struct PartialRayResult {
             var ray: Ray
+            var rayAABB: AABB3D?
             var rayMagnitudeSquared: Double
             var lastHit: RayHit?
             var ignoring: GeometricType?
@@ -330,8 +352,11 @@ private extension Raytracer {
                          geometry: GeometricType) -> PartialRayResult {
                 
                 let hit = RayHit(point: point, normal: normal, geometry: geometry)
+                let newAABB = AABB3D(minimum: Vector3D.pointwiseMin(ray.start, point),
+                                     maximum: Vector3D.pointwiseMax(ray.start, point))
                 
                 return PartialRayResult(ray: ray,
+                                        rayAABB: newAABB,
                                         rayMagnitudeSquared: magnitudeSquared,
                                         lastHit: hit,
                                         ignoring: ignoring)

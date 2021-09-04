@@ -12,6 +12,7 @@ typealias Circle = Circle2<Vector>
 typealias PolyLine = LinePolygon2<Vector>
 typealias Plane = PointNormalPlane3<Vector3D>
 typealias Ray = DirectionalRay3<Vector3D>
+typealias AABB3D = AABB3<Vector3D>
 
 extension Vector {
     var asBLPoint: BLPoint {

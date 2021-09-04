@@ -5,3 +5,6 @@ build:
 
 run: build
 	swift run $(swiftArgs)
+
+run-rel:
+	swift run -c=release $(swiftArgs)
