@@ -90,6 +90,10 @@ extension BLBoxI: ConstructableRectangleType {
 extension BLPointI: Vector2Type {
     public typealias Scalar = Int32
     
+    var asVector: Vector2i {
+        Vector2i(x: .init(x), y: .init(y))
+    }
+    
     public init(repeating scalar: Scalar) {
         self.init(x: scalar, y: scalar)
     }
