@@ -87,13 +87,12 @@ class GeometriaSample: Blend2DSample {
         }
         
         let image = BLImage(width: width, height: height, format: .prgb32)
-        let viewportSize = image.size
+        let viewportSize = image.size.asVector2i
         
         let buffer = Blend2DBufferWriter(image: image)
         self.buffer = buffer
         
-        raytracer = Raytracer(viewportSize: viewportSize.asVector2i,
-                              buffer: buffer)
+        raytracer = Raytracer(viewportSize: viewportSize, buffer: buffer)
         raytracer?.initialize()
     }
     

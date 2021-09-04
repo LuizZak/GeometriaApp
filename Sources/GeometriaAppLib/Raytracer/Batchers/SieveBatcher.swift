@@ -37,7 +37,7 @@ class SieveBatcher: RaytracerBatcher {
     var hasBatches: Bool = false
     
     init() {
-        multiplesCounters = primes.map(createMultiplesCounter).reversed()
+        multiplesCounters = primes.map(createMultiplesCounter)
     }
     
     func initialize(viewportSize: PixelCoordinates) {
@@ -108,7 +108,7 @@ class SieveBatcher: RaytracerBatcher {
             }
             
             if sieveIsPrime(i) {
-                multiplesCounters.insert(createMultiplesCounter(base: i), at: 0)
+                multiplesCounters.append(createMultiplesCounter(base: i))
             }
         }
         
