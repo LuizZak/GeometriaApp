@@ -62,6 +62,18 @@ class CanvasView: NSView {
         resizeSample()
     }
     
+    override func viewWillStartLiveResize() {
+        super.viewWillStartLiveResize()
+        
+        sample.willStartLiveResize()
+    }
+    
+    override func viewDidEndLiveResize() {
+        super.viewDidEndLiveResize()
+        
+        sample.didEndLiveResize()
+    }
+    
     private func resizeSample() {
         sample.resize(width: Int(bounds.width), height: Int(bounds.height))
         

@@ -5,8 +5,12 @@ protocol RaytracerBatcher {
     /// If `false`, signals that the batcher has served all the pending batches.
     var hasBatches: Bool { get }
     
-    /// Resets this batcher to its initial state with a given viewport size.
-    func reset(viewportSize: Vector2i)
+    // TODO: Would be better if initialization and batching were separated out.
+    // TODO: Maybe make initialize() return an actual batcher that has nextBatch()?
+    
+    /// Initializes this batcher to its initial state with a given viewport size.
+    /// Must be invoked before ``nextBatch(maxSize:)``.
+    func initialize(viewportSize: Vector2i)
     
     /// Returns a new batch of screen-space pixels to render, with a maximal
     /// size of `maxSize`.

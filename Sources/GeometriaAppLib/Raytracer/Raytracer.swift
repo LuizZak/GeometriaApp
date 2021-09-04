@@ -29,7 +29,8 @@ class Raytracer {
     init(viewportSize: Vector2i, buffer: RaytracerBufferWriter) {
         self.viewportSize = viewportSize
         self.buffer = buffer
-        batcher = LineBatcher(viewportSize: viewportSize)
+        //batcher = RandomBatcher()
+        batcher = SieveBatcher()
         camera = Camera(cameraSize: .init(viewportSize))
         nextCoords = []
         recreateCamera()
@@ -43,16 +44,15 @@ class Raytracer {
         buffer.clearAll(color: .cornflowerBlue)
         
         recreateCamera()
-        recreateBatcher()
-    }
-    
-    func recreateBatcher() {
-        batcher = LineBatcher(viewportSize: viewportSize,
-                              direction: .vertical)
+        resetBatcher()
     }
     
     func recreateCamera() {
         camera = Camera(cameraSize: .init(viewportSize))
+    }
+    
+    func resetBatcher() {
+        batcher.initialize(viewportSize: viewportSize)
     }
     
     func run(steps: Int) {
@@ -61,9 +61,15 @@ class Raytracer {
         }
         
         guard let coords = batcher.nextBatch(maxSize: steps) else {
+            if batcher.hasBatches {
+                print("Batcher reports batches available that did not return in nextBatch(maxSize:)! Stopping raytracing...")
+            }
             hasWork = false
             return
         }
+        
+        assert(coords.count <= steps,
+               "Batcher returned more coordinates than requested: \(coords.count) vs \(steps)")
         
         nextCoords = coords
         
@@ -104,6 +110,8 @@ class Raytracer {
     // MARK: - Ray Casting
     
     func doRayCasting(at coord: Vector2i) {
+        assert(coord >= .zero && coord < viewportSize, "\(coord) is not within \(Vector2i.zero) x \(viewportSize) limits")
+        
         let ray = camera.rayFromCamera(at: coord)
         guard let hit = scene.intersect(ray: ray) else {
             return

@@ -3,29 +3,28 @@ import Geometria
 /// A batcher that serves pixels to render in straight lines, weaving around
 /// the screen space.
 class LineBatcher: RaytracerBatcher {
+    private var initialized: Bool = false
     private let direction: Direction
-    private var viewportSize: Vector2i
+    private var viewportSize: Vector2i = .zero
     
     /// The next coordinate the raytracer will fill.
-    private var coord: Vector2i
+    private var coord: Vector2i = .zero
     
-    private(set) var hasBatches: Bool = true
+    private(set) var hasBatches: Bool = false
     
-    init(viewportSize: Vector2i, direction: Direction = .horizontal) {
+    init(direction: Direction = .horizontal) {
         self.direction = direction
-        self.viewportSize = viewportSize
-        coord = .zero
-        
-        reset(viewportSize: viewportSize)
     }
     
-    func reset(viewportSize: Vector2i) {
+    func initialize(viewportSize: Vector2i) {
         self.viewportSize = viewportSize
-        coord = .zero
+        initialized = true
         hasBatches = true
+        coord = .zero
     }
     
     func nextBatch(maxSize: Int) -> [Vector2i]? {
+        assert(initialized, "Attempted to invoke nextBatch(maxSize:) before invoking initialize(viewportSize:)")
         guard hasBatches else {
             return nil
         }

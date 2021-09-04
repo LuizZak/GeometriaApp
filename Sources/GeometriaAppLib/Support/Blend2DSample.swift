@@ -10,6 +10,8 @@ protocol Blend2DSample: AnyObject {
     var height: Int { get }
     var sampleRenderScale: BLPoint { get }
     
+    func willStartLiveResize()
+    func didEndLiveResize()
     func resize(width: Int, height: Int)
     
     func update(_ time: TimeInterval)
@@ -26,14 +28,16 @@ protocol Blend2DSample: AnyObject {
 }
 
 extension Blend2DSample {
-    func update(_ time: TimeInterval) {
-        
-    }
+    func willStartLiveResize() { }
+    func didEndLiveResize() { }
+    
+    func update(_ time: TimeInterval) {}
     
     func mouseDown(event: MouseEventArgs) { }
     func mouseMoved(event: MouseEventArgs) { }
     func mouseUp(event: MouseEventArgs) { }
     func mouseScroll(event: MouseEventArgs) { }
+    
     func keyDown(event: KeyEventArgs) { }
     func keyUp(event: KeyEventArgs) { }
 }

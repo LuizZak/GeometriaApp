@@ -17,6 +17,9 @@ class Blend2DBufferWriter: RaytracerBufferWriter {
     }
     
     func setPixel(x: Int, y: Int, color: BLRgba32) {
+        assert(x >= 0 && x < size.w)
+        assert(y >= 0 && y < size.h)
+        
         let data = image.getImageData()
         
         data[x: x, y: y] = color

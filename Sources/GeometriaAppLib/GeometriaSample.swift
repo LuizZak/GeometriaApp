@@ -30,7 +30,8 @@ class GeometriaSample: Blend2DSample {
     R = Reset  |   Space = Pause   |   S = Change Stepping Length
     N = (When Paused) Render Next Pixel
     """
-    private var hasRequestedNext = false
+    private var hasRequestedNext: Bool = false
+    private var isResizing: Bool = false
     
     var width: Int
     var height: Int
@@ -51,6 +52,16 @@ class GeometriaSample: Blend2DSample {
         restartRaytracing()
     }
     
+    func willStartLiveResize() {
+        isResizing = true
+    }
+    
+    func didEndLiveResize() {
+        isResizing = false
+        
+        recreateRaytracer()
+    }
+    
     func resize(width: Int, height: Int) {
         self.width = width
         self.height = height
@@ -58,13 +69,22 @@ class GeometriaSample: Blend2DSample {
     }
     
     func restartRaytracing() {
-        guard width > 0 && height > 0 else {
+        guard !isResizing && width > 0 && height > 0 else {
+            buffer = nil
             raytracer = nil
             return
         }
         
         isPaused = false
         hasRequestedNext = false
+        
+        recreateRaytracer()
+    }
+    
+    func recreateRaytracer() {
+        guard width > 0 && height > 0 else {
+            return
+        }
         
         let image = BLImage(width: width, height: height, format: .prgb32)
         let viewportSize = image.size
