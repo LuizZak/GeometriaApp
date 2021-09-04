@@ -216,7 +216,7 @@ private extension Raytracer {
         
         var cameraCenterPoint: Vector3D = .zero
         var cameraSize: Vector
-        var cameraSizeScale: Double = 0.3
+        var cameraSizeScale: Double = 0.1
         
         // MARK: - Scene
         
