@@ -11,12 +11,12 @@ class Raytracer {
     
     @ConcurrentValue private var currentPixels: Int64 = 0
     
-    var viewportSize: BLSizeI
+    var viewportSize: Vector2i
     var buffer: RaytracerBufferWriter
     var hasWork: Bool = true
     
-    /// The next coordinate the raytracer will fill.
-    var coord: Vector2i
+    /// The next coordinates the raytracer will fill.
+    var nextCoords: [Vector2i] = []
     
     /// Progress of rendering, from 0.0 to 1.0, inclusive.
     @ConcurrentValue var progress: Double = 0.0
@@ -24,21 +24,31 @@ class Raytracer {
     /// Inverts ordering of pixel fillig from X-Y to Y-X.
     var invertRender = true
     
-    init(viewportSize: BLSizeI, buffer: RaytracerBufferWriter) {
+    var batcher: RaytracerBatcher
+    
+    init(viewportSize: Vector2i, buffer: RaytracerBufferWriter) {
         self.viewportSize = viewportSize
         self.buffer = buffer
+        batcher = LineBatcher(viewportSize: viewportSize)
         camera = Camera(cameraSize: .init(viewportSize))
-        coord = .zero
+        nextCoords = []
         recreateCamera()
     }
     
     func initialize() {
-        coord = .zero
-        totalPixels = Int64(buffer.size.w) * Int64(buffer.size.h)
+        nextCoords = []
+        totalPixels = Int64(viewportSize.x) * Int64(viewportSize.y)
         currentPixels = 0
         progress = 0.0
         buffer.clearAll(color: .cornflowerBlue)
+        
         recreateCamera()
+        recreateBatcher()
+    }
+    
+    func recreateBatcher() {
+        batcher = LineBatcher(viewportSize: viewportSize,
+                              direction: .vertical)
     }
     
     func recreateCamera() {
@@ -50,17 +60,12 @@ class Raytracer {
             return
         }
         
-        var coords: [Vector2i] = []
-        coords.reserveCapacity(steps)
-        
-        for _ in 0..<steps {
-            coords.append(coord)
-            
-            if !incCoord() {
-                hasWork = false
-                break
-            }
+        guard let coords = batcher.nextBatch(maxSize: steps) else {
+            hasWork = false
+            return
         }
+        
+        nextCoords = coords
         
         let queue = OperationQueue()
         queue.maxConcurrentOperationCount = numThreads
@@ -94,46 +99,6 @@ class Raytracer {
         return stride(from: 0, to: list.count, by: chunkSize).map {
             list[$0..<min($0 + chunkSize, list.count)]
         }
-    }
-    
-    // MARK: - Coordinate Management
-    
-    func incCoord() -> Bool {
-        guard let next = nextCoord(from: coord) else {
-            return false
-        }
-        
-        coord = next
-        
-        return true
-    }
-
-    func nextCoord(from coord: Vector2i) -> Vector2i? {
-        var coord = coord
-        
-        if invertRender {
-            coord.y += 1
-            if coord.y >= buffer.size.h {
-                coord.y = 0
-                coord.x += 1
-            }
-            
-            if coord.x >= buffer.size.w {
-                return nil
-            }
-        } else {
-            coord.x += 1
-            if coord.x >= buffer.size.w {
-                coord.x = 0
-                coord.y += 1
-            }
-            
-            if coord.y >= buffer.size.h {
-                return nil
-            }
-        }
-        
-        return coord
     }
     
     // MARK: - Ray Casting

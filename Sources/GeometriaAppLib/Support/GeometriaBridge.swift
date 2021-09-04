@@ -120,6 +120,10 @@ extension BLPoint: Vector2Type {
 extension BLSize: Vector2Type {
     public typealias Scalar = Double
     
+    var asVector: Vector {
+        return Vector(x: w, y: h)
+    }
+    
     public var x: Scalar {
         get { w }
         set { w = newValue }
@@ -141,6 +145,10 @@ extension BLSize: Vector2Type {
 
 extension BLSizeI: Vector2Type {
     public typealias Scalar = Int32
+    
+    var asVector2i: Vector2i {
+        return Vector2i(x: Int(w), y: Int(h))
+    }
     
     public var x: Scalar {
         get { w }

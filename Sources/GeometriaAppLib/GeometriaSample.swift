@@ -72,7 +72,8 @@ class GeometriaSample: Blend2DSample {
         let buffer = Blend2DBufferWriter(image: image)
         self.buffer = buffer
         
-        raytracer = Raytracer(viewportSize: viewportSize, buffer: buffer)
+        raytracer = Raytracer(viewportSize: viewportSize.asVector2i,
+                              buffer: buffer)
         raytracer?.initialize()
     }
     
@@ -140,10 +141,12 @@ class GeometriaSample: Blend2DSample {
             ctx.blitImage(img, at: BLPointI.zero)
             
             if isPaused, let raytracer = raytracer {
-                let box = BLBoxI(location: raytracer.coord.asBLPointI,
-                                 size: BLPointI(x: 1, y: 1))
-                ctx.setFillStyle(BLRgba32.red)
-                ctx.fillBox(box)
+                for next in raytracer.nextCoords {
+                    let box = BLBoxI(location: next.asBLPointI,
+                                     size: BLPointI(x: 1, y: 1))
+                    ctx.setFillStyle(BLRgba32.red)
+                    ctx.fillBox(box)
+                }
             }
         } else {
             ctx.setFillStyle(BLRgba32.white)
