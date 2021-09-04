@@ -37,7 +37,7 @@ class SieveBatcher: RaytracerBatcher {
     var hasBatches: Bool = false
     
     init() {
-        multiplesCounters = primes.map(createMultiplesCounter)
+        multiplesCounters = primes.map { createMultiplesCounter(base: $0) }
     }
     
     func initialize(viewportSize: PixelCoordinates) {
@@ -80,7 +80,7 @@ class SieveBatcher: RaytracerBatcher {
         // Attempt all prime counters for a prime multiple until we exhausted
         // them all
         while multiplesCountersIndex < multiplesCounters.count {
-            guard let p = multiplesCounters[multiplesCountersIndex].next(upTo: pixelCount) else {
+            guard let p = multiplesCounters[multiplesCountersIndex].next(upTo: pixelCount, primes: primes) else {
                 multiplesCountersIndex += 1
                 continue
             }
@@ -97,7 +97,7 @@ class SieveBatcher: RaytracerBatcher {
     private func fillMultiplesCounters() {
         // Reset prime counters
         for i in 0..<multiplesCounters.count {
-            multiplesCounters[i].currentMultiple = 1
+            multiplesCounters[i].reset()
         }
         
         let pixelCountsToCheck = Int(sqrt(Double(pixelCount)))
@@ -108,12 +108,18 @@ class SieveBatcher: RaytracerBatcher {
             }
             
             if sieveIsPrime(i) {
-                multiplesCounters.append(createMultiplesCounter(base: i))
+                let counter =
+                createMultiplesCounter(
+                    base: i,
+                    startAt: multiplesCounters.count
+                )
+                
+                multiplesCounters.append(counter)
             }
         }
         
         // Insert 1-counter at end of the list to fill remaining of screen
-        multiplesCounters.append(createMultiplesCounter(base: 1))
+        multiplesCounters.append(createMultiplesCounter(base: 1, isLinear: true))
     }
     
     private func sieveIsPrime(_ number: Int) -> Bool {
@@ -133,21 +139,42 @@ class SieveBatcher: RaytracerBatcher {
         return true
     }
     
-    private func createMultiplesCounter(base: Int) -> MultipleIndexCounter {
-        MultipleIndexCounter(base: base, currentMultiple: 1)
+    private func createMultiplesCounter(base: Int, startAt: Int = 0, isLinear: Bool = false) -> MultipleIndexCounter {
+        MultipleIndexCounter(base: base, primeIndex: startAt, isLinear: isLinear)
     }
     
     struct MultipleIndexCounter {
         var base: Int
-        var currentMultiple: Int
+        var primeIndex: Int
+        var isLinear: Bool = false
         
-        mutating func next(upTo: Int) -> Int? {
-            if base * currentMultiple >= upTo {
+        mutating func reset() {
+            if isLinear {
+                base = 1
+            }
+            primeIndex = 0
+        }
+        
+        mutating func next(upTo: Int, primes: [Int]) -> Int? {
+            if isLinear {
+                if base >= upTo {
+                    return nil
+                }
+                defer { base += 1 }
+                return base
+            }
+            
+            if primeIndex >= primes.count {
                 return nil
             }
             
-            defer { currentMultiple += 1 }
-            return base * currentMultiple
+            let p = primes[primeIndex]
+            if base * p >= upTo {
+                return nil
+            }
+            
+            defer { primeIndex += 1 }
+            return base * primeIndex
         }
     }
 }

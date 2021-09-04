@@ -5,9 +5,13 @@ import SwiftBlend2D
 class CanvasView: NSView {
     var link: CVDisplayLink?
     
+    var imageContext: CGContext?
+    var image: CGImage?
+    
+    var usingCGImage = false
+    
     var sample: Blend2DSample!
     var blImage: BLImage!
-    var imageContext: CGContext?
     var redrawBounds: [NSRect] = []
     
     override var bounds: NSRect {
@@ -93,18 +97,44 @@ class CanvasView: NSView {
         
         let colorSpace = CGColorSpaceCreateDeviceRGB()
         
-        var bitmapInfo: UInt32 = 0
-        
-        bitmapInfo |= CGImageAlphaInfo.noneSkipFirst.rawValue
-        bitmapInfo |= CGImageByteOrderInfo.order32Little.rawValue
-        
-        imageContext = CGContext(data: imageData.pixelData,
-                                 width: blImage.width,
-                                 height: blImage.height,
-                                 bitsPerComponent: 8,
-                                 bytesPerRow: imageData.stride,
-                                 space: colorSpace,
-                                 bitmapInfo: bitmapInfo)
+        if usingCGImage {
+            imageContext = nil
+            
+            var bitmapInfo: CGBitmapInfo = [.byteOrder32Little]
+            bitmapInfo.insert(CGBitmapInfo(rawValue: CGImageAlphaInfo.noneSkipFirst.rawValue))
+            
+            let length = imageData.stride * Int(imageData.size.h)
+            guard let provider = CGDataProvider(dataInfo: nil, data: imageData.pixelData, size: length, releaseData: { _, _, _ in }) else {
+                return
+            }
+            
+            image = CGImage(width: Int(imageData.size.w),
+                            height: Int(imageData.size.h),
+                            bitsPerComponent: 8,
+                            bitsPerPixel: 32,
+                            bytesPerRow: imageData.stride,
+                            space: colorSpace,
+                            bitmapInfo: bitmapInfo,
+                            provider: provider,
+                            decode: nil,
+                            shouldInterpolate: false,
+                            intent: .defaultIntent)
+        } else {
+            image = nil
+            
+            var bitmapInfo: UInt32 = 0
+            
+            bitmapInfo |= CGImageAlphaInfo.noneSkipFirst.rawValue
+            bitmapInfo |= CGImageByteOrderInfo.order32Little.rawValue
+            
+            imageContext = CGContext(data: imageData.pixelData,
+                                     width: blImage.width,
+                                     height: blImage.height,
+                                     bitsPerComponent: 8,
+                                     bytesPerRow: imageData.stride,
+                                     space: colorSpace,
+                                     bitmapInfo: bitmapInfo)
+        }
     }
     
     override func mouseDown(with event: NSEvent) {
@@ -233,14 +263,22 @@ class CanvasView: NSView {
         guard let context = NSGraphicsContext.current else {
             return
         }
-        guard let cgImage = imageContext?.makeImage() else {
-            return
-        }
-        
         context.imageInterpolation = .none
         context.shouldAntialias = false
         context.compositingOperation = .copy
-        context.cgContext.draw(cgImage, in: bounds)
+        
+        if usingCGImage {
+            recreateCgImageContext()
+            
+            if let image = image {
+                context.cgContext.draw(image, in: bounds)
+            }
+        } else {
+            if let cgImage = imageContext?.makeImage() {
+                context.cgContext.draw(cgImage, in: bounds)
+            }
+        }
+        
         context.flushGraphics()
     }
 }
@@ -274,7 +312,7 @@ func displayLinkOutputCallback(displayLink: CVDisplayLink,
         .fromOpaque(context)
         .takeUnretainedValue()
     
-    DispatchQueue.main.async {
+    DispatchQueue.main.sync {
         view.update()
     }
     
