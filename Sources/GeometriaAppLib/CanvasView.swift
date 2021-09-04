@@ -5,6 +5,8 @@ import SwiftBlend2D
 class CanvasView: NSView {
     var link: CVDisplayLink?
     
+    var workQueueLength: ConcurrentValue<Int> = .init(wrappedValue: 0)
+    
     var imageContext: CGContext?
     var image: CGImage?
     
@@ -41,8 +43,16 @@ class CanvasView: NSView {
     
     private func initializeDisplayLink() {
         CVDisplayLinkCreateWithActiveCGDisplays(&link)
-        CVDisplayLinkSetOutputCallback(link!, displayLinkOutputCallback, UnsafeMutableRawPointer(Unmanaged.passUnretained(self).toOpaque()))
-        CVDisplayLinkStart(link!)
+        guard let link = link else {
+            return
+        }
+        
+        CVDisplayLinkSetOutputCallback(
+            link,
+            displayLinkOutputCallback,
+            Unmanaged.passUnretained(self).toOpaque()
+        )
+        CVDisplayLinkStart(link)
     }
     
     private func initializeSample() {
@@ -239,6 +249,10 @@ class CanvasView: NSView {
                               clicks: clickCount)
     }
     
+    func incrementUpdateWorkQueue() {
+        workQueueLength.modifyingValue { $0 += 1 }
+    }
+    
     func update() {
         sample.update(CACurrentMediaTime())
         
@@ -256,6 +270,10 @@ class CanvasView: NSView {
             setNeedsDisplay(reduced)
             
             redrawBounds.removeAll()
+        }
+        
+        workQueueLength.modifyingValue {
+            $0 = max(0, $0 - 1)
         }
     }
     
@@ -312,10 +330,15 @@ func displayLinkOutputCallback(displayLink: CVDisplayLink,
         .fromOpaque(context)
         .takeUnretainedValue()
     
-    DispatchQueue.main.sync {
+    if view.workQueueLength.wrappedValue > 0 {
+        return kCVReturnSuccess
+    }
+    
+    view.incrementUpdateWorkQueue()
+    
+    DispatchQueue.main.async {
         view.update()
     }
     
-    //  We are going to assume that everything went well for this mock up, and pass success as the CVReturn
     return kCVReturnSuccess
 }
