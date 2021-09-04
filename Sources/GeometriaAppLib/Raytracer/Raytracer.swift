@@ -9,6 +9,9 @@ class Raytracer {
     private let batchSize = 100
     private var totalPixels: Int64 = 0
     
+    // Sky color for pixels that don't intersect with geometry
+    private var skyColor: BLRgba32 = .cornflowerBlue
+    
     @ConcurrentValue private var currentPixels: Int64 = 0
     
     var viewportSize: Vector2i
@@ -29,7 +32,6 @@ class Raytracer {
     init(viewportSize: Vector2i, buffer: RaytracerBufferWriter) {
         self.viewportSize = viewportSize
         self.buffer = buffer
-        //batcher = RandomBatcher()
         batcher = SieveBatcher()
         camera = Camera(cameraSize: .init(viewportSize))
         nextCoords = []
@@ -41,7 +43,7 @@ class Raytracer {
         totalPixels = Int64(viewportSize.x) * Int64(viewportSize.y)
         currentPixels = 0
         progress = 0.0
-        buffer.clearAll(color: .cornflowerBlue)
+        buffer.clearAll(color: .white)
         
         recreateCamera()
         resetBatcher()
@@ -114,6 +116,7 @@ class Raytracer {
         
         let ray = camera.rayFromCamera(at: coord)
         guard let hit = scene.intersect(ray: ray) else {
+            buffer.setPixel(at: coord, color: skyColor)
             return
         }
         
@@ -157,10 +160,11 @@ class Raytracer {
             color = color.faded(towards: .white, factor: Float(sunDirDot))
         }
         
+        // Fade distant pixels to skyColor
         let far = 1000.0
         let dist = ray.a.distanceSquared(to: hit.point)
         let distFactor = max(0, min(1, Float(dist / (far * far))))
-        color = color.faded(towards: .cornflowerBlue, factor: distFactor)
+        color = color.faded(towards: skyColor, factor: distFactor)
         
         buffer.setPixel(at: coord, color: color)
     }
