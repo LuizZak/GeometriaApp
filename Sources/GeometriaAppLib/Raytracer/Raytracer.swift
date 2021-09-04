@@ -16,7 +16,7 @@ class Raytracer {
     var hasWork: Bool = true
     
     /// The next coordinate the raytracer will fill.
-    var coord: BLPointI
+    var coord: Vector2i
     
     /// Progress of rendering, from 0.0 to 1.0, inclusive.
     @ConcurrentValue var progress: Double = 0.0
@@ -50,7 +50,7 @@ class Raytracer {
             return
         }
         
-        var coords: [BLPointI] = []
+        var coords: [Vector2i] = []
         coords.reserveCapacity(steps)
         
         for _ in 0..<steps {
@@ -108,7 +108,7 @@ class Raytracer {
         return true
     }
 
-    func nextCoord(from coord: BLPointI) -> BLPointI? {
+    func nextCoord(from coord: Vector2i) -> Vector2i? {
         var coord = coord
         
         if invertRender {
@@ -138,8 +138,8 @@ class Raytracer {
     
     // MARK: - Ray Casting
     
-    func doRayCasting(at coord: BLPointI) {
-        let ray = camera.rayFromCamera(at: coord.asVector)
+    func doRayCasting(at coord: Vector2i) {
+        let ray = camera.rayFromCamera(at: coord)
         guard let hit = scene.intersect(ray: ray) else {
             return
         }

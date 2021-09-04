@@ -24,6 +24,12 @@ extension Vector {
     }
 }
 
+extension Vector2i {
+    var asBLPointI: BLPointI {
+        BLPointI(x: Int32(x), y: Int32(y))
+    }
+}
+
 extension RectangleType where Vector == _Vector {
     var asBLRect: BLRect {
         BLRect(location: location.asBLPoint, size: size.asBLSize)

@@ -5,6 +5,26 @@ import Text
 import Blend2DRenderer
 
 class GeometriaSample: Blend2DSample {
+    enum StepsCount: Int {
+        /// 20 steps per cycle
+        case low = 20
+        /// 200 steps per cycle
+        case medium = 200
+        /// 2000 steps per cycle
+        case high = 2000
+        
+        var toggleUp: StepsCount {
+            switch self {
+            case .low:
+                return .medium
+            case .medium:
+                return .high
+            case .high:
+                return .low
+            }
+        }
+    }
+    
     private let font: BLFont
     private let instructions: String = """
     R = Reset  |   Space = Pause   |   S = Change Stepping Length
@@ -19,7 +39,7 @@ class GeometriaSample: Blend2DSample {
     var raytracer: Raytracer?
     var buffer: Blend2DBufferWriter?
     var isPaused: Bool = false
-    var steps: Int = 2000
+    var steps: StepsCount = .medium
     
     weak var delegate: Blend2DSampleDelegate?
     
@@ -73,11 +93,7 @@ class GeometriaSample: Blend2DSample {
             restartRaytracing()
         }
         if event.keyCode == .s {
-            if steps == 2000 {
-                steps = 20
-            } else {
-                steps = 2000
-            }
+            steps = steps.toggleUp
             
             invalidateAll()
         }
@@ -107,7 +123,7 @@ class GeometriaSample: Blend2DSample {
             return
         }
         
-        runRayTracer(steps: steps)
+        runRayTracer(steps: steps.rawValue)
     }
     
     func runRayTracer(steps: Int) {
@@ -124,7 +140,7 @@ class GeometriaSample: Blend2DSample {
             ctx.blitImage(img, at: BLPointI.zero)
             
             if isPaused, let raytracer = raytracer {
-                let box = BLBoxI(location: raytracer.coord,
+                let box = BLBoxI(location: raytracer.coord.asBLPointI,
                                  size: BLPointI(x: 1, y: 1))
                 ctx.setFillStyle(BLRgba32.red)
                 ctx.fillBox(box)
@@ -134,7 +150,7 @@ class GeometriaSample: Blend2DSample {
             ctx.fillAll()
         }
         
-        drawLabel(ctx, text: "Steps: \(steps)", topLeft: .init(x: 5, y: 5))
+        drawLabel(ctx, text: "Steps: \(steps.rawValue)", topLeft: .init(x: 5, y: 5))
         
         if let raytracer = raytracer {
             drawLabel(
