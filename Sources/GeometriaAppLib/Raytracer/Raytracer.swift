@@ -222,7 +222,7 @@ private extension Raytracer {
         // MARK: - Scene
         
         // AABB
-        var aabb: Geometria.AABB<Vector3D> = .init(minimum: .init(x: -20, y: 90, z: 80),
+        var aabb: Geometria.AABB<Vector3D> = .init(minimum: .init(x: -20, y: 90, z: 60),
                                                    maximum: .init(x: 60, y: 100, z: 95))
         
         // Sphere
@@ -244,37 +244,61 @@ private extension Raytracer {
         }
         
         func intersect(ray: Ray, ignoring: GeometricType? = nil) -> RayHit? {
-            if ignoring as? Geometria.AABB<Vector3D> != aabb {
-                if let hit = doRayCasting(ray: ray, convex: aabb) {
-                    return hit
-                }
-            }
+            var result =
+                PartialRayResult(ray: ray,
+                                 rayMagnitudeSquared: .infinity,
+                                 lastHit: nil,
+                                 ignoring: ignoring)
             
-            if ignoring as? NSphere != sphere {
-                if let hit = doRayCasting(ray: ray, convex: sphere) {
-                    return hit
-                }
-            }
+            result = doRayCasting(convex: aabb, result: result)
+            result = doRayCasting(convex: sphere, result: result)
+            result = doRayCasting(plane: floorPlane, result: result)
             
-            if ignoring as? Plane != floorPlane {
-                if let h = floorPlane.intersection(with: ray) {
-                    return RayHit(point: h, normal: floorPlane.normal, geometry: floorPlane)
-                }
-            }
-            
-            return nil
+            return result.lastHit
         }
         
-        func doRayCasting<C: ConvexType>(ray: Ray, convex: C) -> RayHit? where C.Vector == Vector3D {
-            switch convex.intersection(with: ray) {
+        func doRayCasting<C: ConvexType & Equatable>(convex: C, result: PartialRayResult) -> PartialRayResult where C.Vector == Vector3D {
+            if result.ignoring as? C == convex {
+                return result
+            }
+            
+            switch convex.intersection(with: result.ray) {
             case .enter(let pt),
                  .enterExit(let pt, _),
                  .singlePoint(let pt):
                 
-                return RayHit(point: pt.point, normal: pt.normal, geometry: convex)
+                let distSq = pt.point.distanceSquared(to: result.ray.start)
+                if distSq > result.rayMagnitudeSquared {
+                    return result
+                }
+                
+                return result.withHit(magnitudeSquared: distSq,
+                                      point: pt.point,
+                                      normal: pt.normal,
+                                      geometry: convex)
             default:
-                return nil
+                return result
             }
+        }
+        
+        func doRayCasting<P: LineIntersectivePlaneType & Equatable>(plane: P, result: PartialRayResult) -> PartialRayResult where P.Vector == Vector3D {
+            
+            guard result.ignoring as? P != plane else {
+                return result
+            }
+            guard let inter = plane.intersection(with: result.ray) else {
+                return result
+            }
+            
+            let dSquared = inter.distanceSquared(to: result.ray.start)
+            guard dSquared < result.rayMagnitudeSquared else {
+                return result
+            }
+            
+            return result.withHit(magnitudeSquared: dSquared,
+                                  point: inter,
+                                  normal: plane.normal,
+                                  geometry: plane)
         }
         
         mutating func recomputeCamera() {
@@ -292,6 +316,26 @@ private extension Raytracer {
             let dir = cameraXZ - cameraCenterPoint
             
             return Ray(start: cameraXZ, direction: dir)
+        }
+        
+        struct PartialRayResult {
+            var ray: Ray
+            var rayMagnitudeSquared: Double
+            var lastHit: RayHit?
+            var ignoring: GeometricType?
+            
+            func withHit(magnitudeSquared: Double,
+                         point: Vector3D,
+                         normal: Vector3D,
+                         geometry: GeometricType) -> PartialRayResult {
+                
+                let hit = RayHit(point: point, normal: normal, geometry: geometry)
+                
+                return PartialRayResult(ray: ray,
+                                        rayMagnitudeSquared: magnitudeSquared,
+                                        lastHit: hit,
+                                        ignoring: ignoring)
+            }
         }
     }
     
