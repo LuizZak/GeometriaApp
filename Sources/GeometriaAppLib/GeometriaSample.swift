@@ -5,13 +5,12 @@ import Text
 import Blend2DRenderer
 
 class GeometriaSample: Blend2DSample {
+    /// Specifies the number of ray-tracing steps (pixels) per frame.
     enum StepsCount: Int {
-        /// 20 steps per cycle
         case low = 20
-        /// 200 steps per cycle
         case medium = 200
-        /// 2000 steps per cycle
         case high = 2000
+        case veryHigh = 5000
         
         var toggleUp: StepsCount {
             switch self {
@@ -20,6 +19,8 @@ class GeometriaSample: Blend2DSample {
             case .medium:
                 return .high
             case .high:
+                return .veryHigh
+            case .veryHigh:
                 return .low
             }
         }

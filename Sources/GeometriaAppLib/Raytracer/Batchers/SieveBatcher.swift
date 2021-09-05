@@ -2,13 +2,13 @@ import Foundation
 import Geometria
 
 /// Batcher that feeds pixel coordinates based on multiples of prime numbers,
-/// feeding the largest prime multiples first, then reducing until
+/// then later a sweep through the remaining pixels linearly.
 class SieveBatcher: RaytracerBatcher {
     typealias PixelCoordinates = Vector2i
     
     /// Pre-computed list of prime numbers which will be incremented later while
     /// computing prime counters
-    private var primes: [Int] = [
+    fileprivate var primes: [Int] = [
         2, 3, 7, 11, 13, 17, 23, 29, 31, 37, 41, 43, 47, 53, 55, 59, 61, 65, 67,
         71, 73, 79, 83, 85, 89, 95, 97, 101, 103, 107, 109, 113, 115, 125, 127,
         131, 137, 139, 145, 149, 151, 155, 157, 163, 167, 173, 179, 181, 185,
@@ -27,23 +27,24 @@ class SieveBatcher: RaytracerBatcher {
         983, 985, 991, 995, 997, 1007, 1009, 1013, 1019, 1021, 1025, 1031
     ]
     
-    private var multiplesCounters: [MultipleIndexCounter] = []
-    private var multiplesCountersIndex: Int = 0
+    private var indexCounters: [IndexCounter] = []
+    private var nextCounterIndex: Int = 0
     
-    private var servedPixels: Set<PixelCoordinates> = []
+    /// Boolean map of all pixels that have been served
+    private var servedPixelsMap: [Bool] = []
     private var pixelCount: Int = 0
     private var viewportSize: PixelCoordinates = .zero
     
     var hasBatches: Bool = false
     
     init() {
-        multiplesCounters = primes.map { createMultiplesCounter(base: $0) }
+        indexCounters = primes.map { createPrimePairCounter(prime: $0) }
     }
     
     func initialize(viewportSize: PixelCoordinates) {
         self.viewportSize = viewportSize
         pixelCount = viewportSize.x * viewportSize.y
-        servedPixels.removeAll()
+        servedPixelsMap = .init(repeating: false, count: pixelCount)
         fillMultiplesCounters()
         
         hasBatches = true
@@ -53,7 +54,7 @@ class SieveBatcher: RaytracerBatcher {
         guard hasBatches else {
             return nil
         }
-        if multiplesCountersIndex >= multiplesCounters.count {
+        if nextCounterIndex >= indexCounters.count {
             hasBatches = false
             return nil
         }
@@ -62,31 +63,28 @@ class SieveBatcher: RaytracerBatcher {
         pixels.reserveCapacity(maxSize)
         
         while pixels.count < maxSize {
-            guard let pixel = nextPixel() else {
+            guard let pixel = nextPixelIndex() else {
                 hasBatches = false
                 break
             }
-            if !servedPixels.insert(pixel).inserted {
+            if servedPixelsMap[pixel] {
                 continue
             }
+            servedPixelsMap[pixel] = true
             
-            pixels.append(pixel)
+            let x = pixel % viewportSize.x
+            let y = pixel / viewportSize.x
+            
+            pixels.append(.init(x: x, y: y))
         }
         
         return pixels
     }
     
     private func nextPixel() -> PixelCoordinates? {
-        // Attempt all prime counters for a prime multiple until we exhausted
-        // them all
-        while multiplesCountersIndex < multiplesCounters.count {
-            guard let p = multiplesCounters[multiplesCountersIndex].next(upTo: pixelCount, primes: primes) else {
-                multiplesCountersIndex += 1
-                continue
-            }
-            
-            let x = p % viewportSize.x
-            let y = p / viewportSize.x
+        if let index = nextPixelIndex() {
+            let x = index % viewportSize.x
+            let y = index / viewportSize.x
             
             return .init(x: x, y: y)
         }
@@ -94,34 +92,65 @@ class SieveBatcher: RaytracerBatcher {
         return nil
     }
     
+    private func nextPixelIndex() -> Int? {
+        // Attempt all prime counters for a prime multiple until we exhausted
+        // them all
+        while nextCounterIndex < indexCounters.count {
+            guard let p = indexCounters[nextCounterIndex].next(upTo: pixelCount, context: self) else {
+                nextCounterIndex += 1
+                continue
+            }
+            
+            return p
+        }
+        
+        return nil
+    }
+    
     private func fillMultiplesCounters() {
         // Reset prime counters
-        for i in 0..<multiplesCounters.count {
-            multiplesCounters[i].reset()
+        for i in 0..<indexCounters.count {
+            indexCounters[i].reset()
+        }
+        
+        // List of prime multiples counters to add to the end of the list after
+        // all prime-pair multipliers.
+        var primeMultiplesCounters = primes.map {
+            createPrimeMultipleCounter(prime: $0)
         }
         
         let pixelCountsToCheck = Int(sqrt(Double(pixelCount)))
-        var i = 39
-        while i < pixelCountsToCheck {
+        var number = 39
+        while number < pixelCountsToCheck {
             defer {
-                i += 2 // Skip even numbers
+                number += 2 // Skip even numbers
             }
             
-            if sieveIsPrime(i) {
-                let counter =
-                createMultiplesCounter(
-                    base: i,
-                    startAt: multiplesCounters.count
-                )
+            if sieveIsPrime(number) {
+                let primePair =
+                    createPrimePairCounter(
+                        prime: number,
+                        startAt: primes.count
+                    )
                 
-                multiplesCounters.append(counter)
+                indexCounters.append(primePair)
+                
+                // Store also a prime multiplier counter for later insertion
+                let primeMultiple = createPrimeMultipleCounter(prime: number)
+                primeMultiplesCounters.append(primeMultiple)
             }
         }
         
+        // Now back-insert all stored prime multiple counters
+        indexCounters.append(contentsOf: primeMultiplesCounters)
+        
         // Insert 1-counter at end of the list to fill remaining of screen
-        multiplesCounters.append(createMultiplesCounter(base: 1, isLinear: true))
+        indexCounters.append(createLinearCounter())
     }
     
+    /// Attempts to insert a given number as a prime in the sieve.
+    /// Returns the index of the prime in ``primes`` array, or `nil`, in case
+    /// the value is not a prime number.
     private func sieveIsPrime(_ number: Int) -> Bool {
         let root2 = Int(sqrt(Double(number)))
         
@@ -139,42 +168,96 @@ class SieveBatcher: RaytracerBatcher {
         return true
     }
     
-    private func createMultiplesCounter(base: Int, startAt: Int = 0, isLinear: Bool = false) -> MultipleIndexCounter {
-        MultipleIndexCounter(base: base, primeIndex: startAt, isLinear: isLinear)
+    private func createPrimePairCounter(prime: Int, startAt: Int = 0) -> PrimePairMultiplierCounter {
+        PrimePairMultiplierCounter(prime: prime, nextPrimeIndex: startAt)
     }
     
-    struct MultipleIndexCounter {
-        var base: Int
-        var primeIndex: Int
-        var isLinear: Bool = false
+    private func createPrimeMultipleCounter(prime: Int) -> PrimeMultipleCounter {
+        PrimeMultipleCounter(prime: prime)
+    }
+    
+    private func createLinearCounter() -> IndexCounter {
+        LinearCounter()
+    }
+    
+    class LinearCounter: IndexCounter {
+        var index = 0
         
-        mutating func reset() {
-            if isLinear {
-                base = 1
-            }
-            primeIndex = 0
+        fileprivate func reset() {
+            index = 0
         }
         
-        mutating func next(upTo: Int, primes: [Int]) -> Int? {
-            if isLinear {
-                if base >= upTo {
-                    return nil
-                }
-                defer { base += 1 }
-                return base
-            }
-            
-            if primeIndex >= primes.count {
+        fileprivate func next(upTo: Int, context: IndexCounterContext) -> Int? {
+            if index >= upTo {
                 return nil
             }
             
-            let p = primes[primeIndex]
-            if base * p >= upTo {
-                return nil
-            }
-            
-            defer { primeIndex += 1 }
-            return base * primeIndex
+            defer { index += 1 }
+            return index
         }
     }
+    
+    class PrimeMultipleCounter: IndexCounter {
+        var prime: Int
+        var multiple: Int
+        
+        init(prime: Int, multiple: Int = 1) {
+            self.prime = prime
+            self.multiple = multiple
+        }
+        
+        fileprivate func reset() {
+            multiple = 1
+        }
+        
+        fileprivate func next(upTo: Int, context: IndexCounterContext) -> Int? {
+            if prime * multiple >= upTo {
+                return nil
+            }
+            
+            defer { multiple += 1 }
+            return prime * multiple
+        }
+    }
+    
+    class PrimePairMultiplierCounter: IndexCounter {
+        var prime: Int
+        var nextPrimeIndex: Int
+        
+        init(prime: Int, nextPrimeIndex: Int) {
+            self.prime = prime
+            self.nextPrimeIndex = nextPrimeIndex
+        }
+        
+        fileprivate func reset() {
+            nextPrimeIndex = 0
+        }
+        
+        fileprivate func next(upTo: Int, context: IndexCounterContext) -> Int? {
+            if nextPrimeIndex >= context.primes.count {
+                return nil
+            }
+            
+            let p = context.primes[nextPrimeIndex]
+            if prime * p >= upTo {
+                return nil
+            }
+            
+            defer { nextPrimeIndex += 1 }
+            return prime * p
+        }
+    }
+}
+
+extension SieveBatcher: IndexCounterContext {
+    
+}
+
+private protocol IndexCounterContext {
+    var primes: [Int] { get }
+}
+
+private protocol IndexCounter: AnyObject {
+    func reset()
+    func next(upTo: Int, context: IndexCounterContext) -> Int?
 }
