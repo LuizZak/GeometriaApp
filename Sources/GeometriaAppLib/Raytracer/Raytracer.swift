@@ -8,9 +8,14 @@ class Raytracer {
     private let numThreads = 8
     private let batchSize = 300
     private var totalPixels: Int64 = 0
+    private var steps: Int = 0
     
     // Sky color for pixels that don't intersect with geometry
     private var skyColor: BLRgba32 = .cornflowerBlue
+    
+    private var raytracingQueue: DispatchQueue
+    
+    private(set) var state: State = .unstarted
     
     @ConcurrentValue private var currentPixels: Int64 = 0
     
@@ -31,6 +36,9 @@ class Raytracer {
         self.buffer = buffer
         camera = Camera(cameraSize: .init(viewportSize))
         nextCoords = []
+        raytracingQueue = .init(label: "com.geometriaapp.raytracing",
+                                qos: .userInteractive,
+                                attributes: .concurrent)
         
         batcher = TiledBatcher(tileSize: 50)
 //        batcher = SieveBatcher()
@@ -71,16 +79,18 @@ class Raytracer {
             return
         }
         
+        self.steps = steps
+        
         assert(coords.count <= steps,
                "Batcher returned more coordinates than requested: \(coords.count) vs \(steps)")
         
         nextCoords = coords
         
-        let queue = OperationQueue()
-        queue.maxConcurrentOperationCount = numThreads
+        let opQueue = OperationQueue()
+        opQueue.maxConcurrentOperationCount = numThreads
         
         batching(coords, by: batchSize) { batch in
-            queue.addOperation {
+            opQueue.addOperation {
                 for coord in batch {
                     self.doRayCasting(at: coord)
                 }
@@ -91,7 +101,7 @@ class Raytracer {
             }
         }
         
-        queue.waitUntilAllOperationsAreFinished()
+        opQueue.waitUntilAllOperationsAreFinished()
         
         progress = Double(currentPixels) / Double(totalPixels)
     }
@@ -199,6 +209,13 @@ class Raytracer {
         }
         
         return shadowsHit / Double(rays)
+    }
+    
+    enum State {
+        case unstarted
+        case running
+        case finished
+        case paused
     }
 }
 

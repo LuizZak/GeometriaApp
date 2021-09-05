@@ -21,3 +21,10 @@ protocol RaytracerBatcher {
     /// Returns `nil`, if all batches have been served.
     func nextBatch(maxSize: Int) -> [Vector2i]?
 }
+
+/// A batch for a raytracing thread.
+protocol RaytracingBatch {
+    /// Returns the next pixel to render from this batch.
+    /// Returns `nil` in case no more pixels are available.
+    mutating func nextPixel() -> Vector2i?
+}
