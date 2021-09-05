@@ -6,32 +6,10 @@ import Text
 import Blend2DRenderer
 
 private let instructions: String = """
-R = Reset  |   Space = Pause   |   S = Change Stepping Length
-N = (When Paused) Render Next Pixel
+R = Reset  |   Space = Pause
 """
 
 class GeometriaSample: Blend2DSample {
-    /// Specifies the number of ray-tracing steps (pixels) per frame.
-    enum StepsCount: Int {
-        case low = 20
-        case medium = 500
-        case high = 2000
-        case veryHigh = 5000
-        
-        var toggleUp: StepsCount {
-            switch self {
-            case .low:
-                return .medium
-            case .medium:
-                return .high
-            case .high:
-                return .veryHigh
-            case .veryHigh:
-                return .low
-            }
-        }
-    }
-    
     private let font: BLFont
     private var hasRequestedNext: Bool = false
     private var isResizing: Bool = false
@@ -39,7 +17,6 @@ class GeometriaSample: Blend2DSample {
     private var ui: ImagineUIWrapper
     private let topLeftLabels: StackView = StackView(orientation: .vertical)
     private let bottomLeftLabels: StackView = StackView(orientation: .vertical)
-    private let stepsLabel: LabelControl = LabelControl()
     private let batcherLabel: LabelControl = LabelControl()
     private let stateLabel: LabelControl = LabelControl()
     private let progressLabel: LabelControl = LabelControl()
@@ -49,13 +26,8 @@ class GeometriaSample: Blend2DSample {
     var height: Int
     var sampleRenderScale: BLPoint = .one
     var time: TimeInterval = 0
-    var raytracer: Raytracer?
+    var raytracer: RaytracerCoordinator?
     var buffer: Blend2DBufferWriter?
-    var steps: StepsCount = .medium {
-        didSet {
-            updateLabels()
-        }
-    }
     
     weak var delegate: Blend2DSampleDelegate? {
         didSet {
@@ -82,7 +54,6 @@ class GeometriaSample: Blend2DSample {
         ui.rootView.addSubview(bottomLeftLabels)
         ui.rootView.addSubview(topLeftLabels)
         
-        topLeftLabels.addArrangedSubview(stepsLabel)
         topLeftLabels.addArrangedSubview(stateLabel)
         topLeftLabels.addArrangedSubview(batcherLabel)
         topLeftLabels.addArrangedSubview(progressLabel)
@@ -98,12 +69,10 @@ class GeometriaSample: Blend2DSample {
     }
     
     func updateLabels() {
-        stepsLabel.text = "Steps per frame: \(steps.rawValue)"
-        
         if let raytracer = raytracer {
             stateLabel.text = "State: \(raytracer.state.description)"
             batcherLabel.text = "Pixel order mode: \(raytracer.batcher.displayName)"
-            progressLabel.text = "Progress: \(String(format: "%.2lf", raytracer.progress * 100))%"
+            progressLabel.text = "Progress of pixel batches served: \(String(format: "%.2lf", raytracer.progress * 100))%"
         }
     }
     
@@ -129,6 +98,8 @@ class GeometriaSample: Blend2DSample {
     }
     
     func restartRaytracing() {
+        raytracer?.cancel()
+        
         guard !isResizing && width > 0 && height > 0 else {
             buffer = nil
             raytracer = nil
@@ -151,26 +122,29 @@ class GeometriaSample: Blend2DSample {
         let buffer = Blend2DBufferWriter(image: image)
         self.buffer = buffer
         
-        raytracer = Raytracer(viewportSize: viewportSize, buffer: buffer)
+        raytracer = RaytracerCoordinator(viewportSize: viewportSize, buffer: buffer)
+        raytracer?.stateDidChange.addListener(owner: self) { [weak self] state in
+            DispatchQueue.main.async {
+                if state == .finished {
+                    self?.invalidateAll()
+                }
+                self?.updateLabels()
+            }
+        }
         raytracer?.initialize()
-    }
-    
-    func requestNextPixel() {
-        
+        raytracer?.start()
     }
     
     func pause() {
         raytracer?.pause()
         
         invalidateAll()
-        updateLabels()
     }
     
     func resume() {
         raytracer?.resume()
         
         invalidateAll()
-        updateLabels()
     }
     
     func togglePause() {
@@ -179,7 +153,7 @@ class GeometriaSample: Blend2DSample {
         }
         
         switch raytracer.state {
-        case .unstarted, .finished:
+        case .unstarted, .finished, .cancelled:
             restartRaytracing()
         case .running:
             pause()
@@ -202,18 +176,6 @@ class GeometriaSample: Blend2DSample {
         if event.keyCode == .r {
             restartRaytracing()
             event.handled = true
-        }
-        if event.keyCode == .s {
-            steps = steps.toggleUp
-            
-            invalidateAll()
-            event.handled = true
-        }
-        if event.keyCode == .n {
-            if raytracer?.state == .paused {
-                requestNextPixel()
-                event.handled = true
-            }
         }
         
         if !event.handled {
@@ -246,14 +208,12 @@ class GeometriaSample: Blend2DSample {
     func update(_ time: TimeInterval) {
         self.time = time
         
-        if let raytracer = raytracer {
+        if let raytracer = raytracer, raytracer.state == .running {
             updateLabels()
-            
-            if raytracer.state == .running {
-                invalidateAll()
-            }
+            invalidateAll()
         }
         
+        stateLabel.isVisible = raytracer != nil
         batcherLabel.isVisible = raytracer != nil
         progressLabel.isVisible = raytracer != nil
         
@@ -265,19 +225,10 @@ class GeometriaSample: Blend2DSample {
     }
     
     func render(context ctx: BLContext) {
-        if let img = buffer?.image {
-            ctx.blitImage(img, at: BLPointI.zero)
-            
-            /*
-            if isPaused, let raytracer = raytracer {
-                for next in raytracer.nextCoords {
-                    let box = BLBoxI(location: next.asBLPointI,
-                                     size: BLPointI(x: 1, y: 1))
-                    ctx.setFillStyle(BLRgba32.red)
-                    ctx.fillBox(box)
-                }
+        if let buffer = buffer {
+            buffer.usingImage { img in
+                ctx.blitImage(img, at: BLPointI.zero)
             }
-            */
         } else {
             ctx.setFillStyle(BLRgba32.white)
             ctx.fillAll()

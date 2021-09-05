@@ -35,10 +35,12 @@ class ImagineUIWrapper {
     }
     
     func addRootView(_ view: RootView) {
+        view.invalidationDelegate = self
         rootViews.append(view)
     }
     
     func removeRootView(_ view: RootView) {
+        view.invalidationDelegate = nil
         rootViews.removeAll { $0 === view }
     }
     

@@ -11,6 +11,11 @@ class TiledBatcher: RaytracerBatcher {
     private var nextTileIndex: Int = 0
     
     var displayName: String = "Tiles/patchwork"
+    
+    var batchesServedProgress: Double {
+        Double(nextTileIndex) / Double(tiles.count)
+    }
+    
     private(set) var hasBatches: Bool = false
     
     init(tileSize: Int) {

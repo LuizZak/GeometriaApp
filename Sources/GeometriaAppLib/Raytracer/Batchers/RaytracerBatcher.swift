@@ -8,6 +8,10 @@ protocol RaytracerBatcher {
     /// If `false`, signals that the batcher has served all the pending batches.
     var hasBatches: Bool { get }
     
+    /// Returns a value, 0-1 inclusive, specifying the number of batchs that
+    /// where served vs the total.
+    var batchesServedProgress: Double { get }
+    
     // TODO: Would be better if initialization and batching were separated out.
     // TODO: Maybe make initialize() return an actual batcher that has nextBatch()?
     

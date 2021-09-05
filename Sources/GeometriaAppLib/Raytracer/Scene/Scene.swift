@@ -1,6 +1,10 @@
+import SwiftBlend2D
 import Geometria
 
 class Scene {
+    // Sky color for pixels that don't intersect with geometry
+    var skyColor: BLRgba32 = .cornflowerBlue
+    
     var geometries: [SceneGeometry] = []
     
     /// Direction an infinitely far away point light is pointed at the scene

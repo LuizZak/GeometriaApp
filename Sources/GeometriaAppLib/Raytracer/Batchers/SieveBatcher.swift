@@ -39,10 +39,14 @@ class SieveBatcher: RaytracerBatcher {
     
     let displayName: String = "Prime Sieve"
     
+    var batchesServedProgress: Double {
+        Double(nextCounterIndex) / Double(indexCounters.count)
+    }
+    
     var hasBatches: Bool = false
     
     init() {
-        indexCounters = primes.map { createPrimePairCounter(prime: $0) }
+        
     }
     
     func initialize(viewportSize: PixelCoordinates) {
@@ -64,59 +68,9 @@ class SieveBatcher: RaytracerBatcher {
         return nil
     }
     
-    /*
-    func nextBatch(maxSize: Int) -> [PixelCoordinates]? {
-        guard hasBatches else {
-            return nil
-        }
-        if nextCounterIndex >= indexCounters.count {
-            hasBatches = false
-            return nil
-        }
-        
-        var pixels: [PixelCoordinates] = []
-        pixels.reserveCapacity(maxSize)
-        
-        while pixels.count < maxSize {
-            guard let pixel = nextPixelIndex() else {
-                hasBatches = false
-                break
-            }
-            if servedPixelsMap[pixel] {
-                continue
-            }
-            servedPixelsMap[pixel] = true
-            
-            let x = pixel % viewportSize.x
-            let y = pixel / viewportSize.x
-            
-            pixels.append(.init(x: x, y: y))
-        }
-        
-        return pixels
-    }
-    */
-    
-    private func nextPixelIndex() -> Int? {
-        // Attempt all prime counters for a prime multiple until we exhausted
-        // them all
-        while nextCounterIndex < indexCounters.count {
-            guard let p = indexCounters[nextCounterIndex].nextPixelIndex(upTo: pixelCount) else {
-                nextCounterIndex += 1
-                continue
-            }
-            
-            return p
-        }
-        
-        return nil
-    }
-    
     private func fillMultiplesCounters() {
-        // Reset prime counters
-        for i in 0..<indexCounters.count {
-            indexCounters[i].reset(context: self)
-        }
+        // Pre-fill with prime pair counters
+        indexCounters = primes.map { createPrimePairCounter(prime: $0) }
         
         // List of prime multiples counters to add to the end of the list after
         // all prime-pair multipliers.
@@ -174,15 +128,15 @@ class SieveBatcher: RaytracerBatcher {
     }
     
     private func createPrimePairCounter(prime: Int, startAt: Int = 0) -> PrimePairMultiplierCounter {
-        PrimePairMultiplierCounter(prime: prime, nextPrimeIndex: startAt, viewportSize: viewportSize)
+        PrimePairMultiplierCounter(prime: prime, nextPrimeIndex: startAt, viewportSize: viewportSize, context: self)
     }
     
     private func createPrimeMultipleCounter(prime: Int) -> PrimeMultipleCounter {
-        PrimeMultipleCounter(prime: prime, viewportSize: viewportSize)
+        PrimeMultipleCounter(prime: prime, viewportSize: viewportSize, context: self)
     }
     
     private func createLinearCounter() -> IndexCounter {
-        LinearCounter(viewportSize: viewportSize)
+        LinearCounter(viewportSize: viewportSize, context: self)
     }
     
     class BaseCounter: IndexCounter {
@@ -190,12 +144,8 @@ class SieveBatcher: RaytracerBatcher {
         var viewportSize: PixelCoordinates
         var isAtEnd: Bool = false
         
-        init(viewportSize: PixelCoordinates) {
+        fileprivate init(viewportSize: PixelCoordinates, context: IndexCounterContext?) {
             self.viewportSize = viewportSize
-        }
-        
-        fileprivate func reset(context: IndexCounterContext) {
-            isAtEnd = false
             self.context = context
         }
         
@@ -211,7 +161,9 @@ class SieveBatcher: RaytracerBatcher {
                 return nil
             }
             
-            let x = p * viewportSize.x
+            assert(p < context.pixelCount)
+            
+            let x = p % viewportSize.x
             let y = p / viewportSize.x
             
             return PixelCoordinates(x: x, y: y)
@@ -220,11 +172,6 @@ class SieveBatcher: RaytracerBatcher {
     
     class LinearCounter: BaseCounter {
         var index = 0
-        
-        fileprivate override func reset(context: IndexCounterContext) {
-            super.reset(context: context)
-            index = 0
-        }
         
         fileprivate override func nextPixelIndex(upTo maxIndex: Int) -> Int? {
             if index >= maxIndex {
@@ -241,18 +188,11 @@ class SieveBatcher: RaytracerBatcher {
         var prime: Int
         var multiple: Int
         
-        init(prime: Int, viewportSize: PixelCoordinates, multiple: Int = 1) {
+        fileprivate init(prime: Int, viewportSize: PixelCoordinates, context: IndexCounterContext?, multiple: Int = 1) {
             self.prime = prime
             self.multiple = multiple
             
-            super.init(viewportSize: viewportSize)
-        }
-        
-        fileprivate override func reset(context: IndexCounterContext) {
-            super.reset(context: context)
-            
-            multiple = 1
-            isAtEnd = false
+            super.init(viewportSize: viewportSize, context: context)
         }
         
         fileprivate override func nextPixelIndex(upTo maxIndex: Int) -> Int? {
@@ -270,17 +210,11 @@ class SieveBatcher: RaytracerBatcher {
         var prime: Int
         var nextPrimeIndex: Int
         
-        init(prime: Int, nextPrimeIndex: Int, viewportSize: PixelCoordinates) {
+        fileprivate init(prime: Int, nextPrimeIndex: Int, viewportSize: PixelCoordinates, context: IndexCounterContext?) {
             self.prime = prime
             self.nextPrimeIndex = nextPrimeIndex
             
-            super.init(viewportSize: viewportSize)
-        }
-        
-        fileprivate override func reset(context: IndexCounterContext) {
-            super.reset(context: context)
-            
-            nextPrimeIndex = 0
+            super.init(viewportSize: viewportSize, context: context)
         }
         
         fileprivate override func nextPixelIndex(upTo maxIndex: Int) -> Int? {
@@ -315,6 +249,5 @@ private protocol IndexCounterContext: AnyObject {
 private protocol IndexCounter: AnyObject, RaytracingBatch {
     var isAtEnd: Bool { get }
     
-    func reset(context: IndexCounterContext)
     func nextPixelIndex(upTo maxIndex: Int) -> Int?
 }

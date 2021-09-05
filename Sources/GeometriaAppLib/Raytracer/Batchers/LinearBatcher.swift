@@ -16,6 +16,10 @@ class LinearBatcher: RaytracerBatcher {
     
     let displayName: String = "Scanline"
     
+    var batchesServedProgress: Double {
+        Double(nextLineIndex) / Double(lines.count)
+    }
+    
     private(set) var hasBatches: Bool = false
     
     init(direction: Direction = .horizontal) {
@@ -50,21 +54,23 @@ class LinearBatcher: RaytracerBatcher {
             maxLength = viewportSize.y
         }
         
+        assert(lines[nextLineIndex] < viewportSize)
+        
         return LineBatch(coord: lines[nextLineIndex], direction: direction, maxLength: maxLength)
     }
     
     private func initializeLineList() {
         lines.removeAll(keepingCapacity: true)
         
-        let max: Int
+        let lastLine: Int
         switch direction {
         case .horizontal:
-            max = viewportSize.x
+            lastLine = viewportSize.y
         case .vertical:
-            max = viewportSize.y
+            lastLine = viewportSize.x
         }
         
-        for i in 0..<max {
+        for i in 0..<lastLine {
             let x: Int
             let y: Int
             
@@ -96,27 +102,27 @@ class LinearBatcher: RaytracerBatcher {
         func nextPixel() -> Vector2i? {
             guard !isFinished else { return nil }
             
-            var coord = coord
+            let next = coord
             
             switch direction {
             case .horizontal:
+                if coord.x >= maxLength {
+                    isFinished = true
+                    return nil
+                }
+                
                 coord.x += 1
                 
+            case .vertical:
                 if coord.y >= maxLength {
                     isFinished = true
                     return nil
                 }
                 
-            case .vertical:
                 coord.y += 1
-                
-                if coord.x >= maxLength {
-                    isFinished = true
-                    return nil
-                }
             }
             
-            return coord
+            return next
         }
     }
     
