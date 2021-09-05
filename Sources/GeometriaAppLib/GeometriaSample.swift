@@ -5,6 +5,11 @@ import ImagineUI
 import Text
 import Blend2DRenderer
 
+private let instructions: String = """
+R = Reset  |   Space = Pause   |   S = Change Stepping Length
+N = (When Paused) Render Next Pixel
+"""
+
 class GeometriaSample: Blend2DSample {
     /// Specifies the number of ray-tracing steps (pixels) per frame.
     enum StepsCount: Int {
@@ -28,14 +33,15 @@ class GeometriaSample: Blend2DSample {
     }
     
     private let font: BLFont
-    private let instructions: String = """
-    R = Reset  |   Space = Pause   |   S = Change Stepping Length
-    N = (When Paused) Render Next Pixel
-    """
     private var hasRequestedNext: Bool = false
     private var isResizing: Bool = false
     
     private var ui: ImagineUIWrapper
+    private let topLeftLabels: StackView = StackView(orientation: .vertical)
+    private let bottomLeftLabels: StackView = StackView(orientation: .vertical)
+    private let stepsLabel: LabelControl = LabelControl()
+    private let progressLabel: LabelControl = LabelControl()
+    private let instructionsLabel: LabelControl = LabelControl(text: instructions)
     
     var width: Int
     var height: Int
@@ -44,9 +50,17 @@ class GeometriaSample: Blend2DSample {
     var raytracer: Raytracer?
     var buffer: Blend2DBufferWriter?
     var isPaused: Bool = false
-    var steps: StepsCount = .medium
+    var steps: StepsCount = .medium {
+        didSet {
+            updateLabels()
+        }
+    }
     
-    weak var delegate: Blend2DSampleDelegate?
+    weak var delegate: Blend2DSampleDelegate? {
+        didSet {
+            ui.delegate = delegate
+        }
+    }
     
     init(width: Int, height: Int) {
         self.width = width
@@ -55,13 +69,48 @@ class GeometriaSample: Blend2DSample {
         font = Fonts.defaultFont(size: 12)
         ui = ImagineUIWrapper(size: BLSizeI(w: Int32(width), h: Int32(height)))
         restartRaytracing()
+        createUI()
+    }
+    
+    func createUI() {
+        topLeftLabels.location = .init(x: 5, y: 5)
+        topLeftLabels.spacing = 5
+        topLeftLabels.areaIntoConstraintsMask = [.location]
+        bottomLeftLabels.areaIntoConstraintsMask = []
+        bottomLeftLabels.spacing = 5
+        ui.rootView.addSubview(bottomLeftLabels)
+        ui.rootView.addSubview(topLeftLabels)
+        
+        topLeftLabels.addArrangedSubview(stepsLabel)
+        topLeftLabels.addArrangedSubview(progressLabel)
+        
+        bottomLeftLabels.addArrangedSubview(instructionsLabel)
+        
+        bottomLeftLabels.layout.makeConstraints { make in
+            make.left == 5
+            make.bottom == ui.rootView - 5
+        }
+        
+        updateLabels()
+    }
+    
+    func updateLabels() {
+        stepsLabel.text = "Steps per frame: \(steps.rawValue)"
+        
+        if let raytracer = raytracer {
+            progressLabel.text = "Progress: \(String(format: "%.2lf", raytracer.progress * 100))%"
+        }
     }
     
     func willStartLiveResize() {
+        ui.willStartLiveResize()
+        
         isResizing = true
     }
     
     func didEndLiveResize() {
+        ui.didEndLiveResize()
+        
         isResizing = false
         
         recreateRaytracer()
@@ -145,30 +194,43 @@ class GeometriaSample: Blend2DSample {
         ui.keyUp(event: event)
     }
     
+    func mouseScroll(event: MouseEventArgs) {
+        ui.mouseScroll(event: event)
+    }
     
+    func mouseMoved(event: MouseEventArgs) {
+        ui.mouseMoved(event: event)
+    }
+    
+    func mouseDown(event: MouseEventArgs) {
+        ui.mouseDown(event: event)
+    }
+    
+    func mouseUp(event: MouseEventArgs) {
+        ui.mouseUp(event: event)
+    }
     
     // MARK: -
     
     func update(_ time: TimeInterval) {
         self.time = time
         
-        guard let raytracer = raytracer else {
-            return
-        }
-        guard raytracer.hasWork else {
-            return
-        }
-        
-        guard !isPaused else {
-            if hasRequestedNext {
-                hasRequestedNext = false
-                runRayTracer(steps: 1)
+        if let raytracer = raytracer, raytracer.hasWork {
+            if isPaused {
+                if hasRequestedNext {
+                    hasRequestedNext = false
+                    runRayTracer(steps: 1)
+                }
+            } else {
+                runRayTracer(steps: steps.rawValue)
             }
             
-            return
+            updateLabels()
         }
         
-        runRayTracer(steps: steps.rawValue)
+        progressLabel.isVisible = raytracer != nil
+        
+        ui.update(time)
     }
     
     func runRayTracer(steps: Int) {
@@ -197,17 +259,7 @@ class GeometriaSample: Blend2DSample {
             ctx.fillAll()
         }
         
-        drawLabel(ctx, text: "Steps per frame: \(steps.rawValue)", topLeft: .init(x: 5, y: 5))
-        
-        if let raytracer = raytracer {
-            drawLabel(
-                ctx,
-                text: "Progress: \(String(format: "%.2lf", raytracer.progress * 100))%",
-                topLeft: .init(x: 5, y: 30)
-            )
-        }
-        
-        drawLabel(ctx, text: instructions, bottomLeft: BLPoint(x: 5, y: Double(height) - 5))
+        ui.render(context: ctx)
     }
     
     func drawLabel(_ ctx: BLContext, text: String, topLeft: BLPoint) {
@@ -299,6 +351,59 @@ class GeometriaSample: Blend2DSample {
             break
         case .noIntersection:
             break
+        }
+    }
+}
+
+class LabelControl: ControlView {
+    private let textInset = EdgeInsets(left: 5, top: 2.5, right: 5, bottom: 2.5)
+    private var label: Label
+    
+    var text: String {
+        get { label.text }
+        set { label.text = newValue }
+    }
+    
+    var textColor: Color {
+        get { label.textColor }
+        set { label.textColor = newValue }
+    }
+    
+    var attributedText: AttributedText {
+        get { label.attributedText }
+        set { label.attributedText = newValue }
+    }
+    
+    convenience override init() {
+        let font = Fonts.defaultFont(size: 12)
+        
+        self.init(font: Blend2DFont(font: font))
+    }
+    
+    convenience init(text: String) {
+        let font = Fonts.defaultFont(size: 12)
+        
+        self.init(font: Blend2DFont(font: font))
+        
+        self.text = text
+    }
+    
+    init(font: Font) {
+        label = Label(font: font)
+        
+        super.init()
+        
+        textColor = .white
+        backColor = .black.withTransparency(60)
+    }
+    
+    override func setupHierarchy() {
+        addSubview(label)
+    }
+    
+    override func setupConstraints() {
+        label.layout.makeConstraints { make in
+            make.edges.equalTo(self, inset: textInset)
         }
     }
 }

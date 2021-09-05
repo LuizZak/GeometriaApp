@@ -5,16 +5,19 @@ import SwiftBlend2D
 
 class ImagineUIWrapper {
     private var lastFrame: TimeInterval = 0
-    private weak var delegate: Blend2DSampleDelegate?
     private var bounds: BLRect
     private var width: Int
     private var height: Int
     private let rendererContext = Blend2DRendererContext()
-    private var sampleRenderScale = BLPoint(x: 2, y: 2)
+    private var sampleRenderScale = BLPoint(x: 1, y: 1)
     private var controlSystem = DefaultControlSystem()
     private var rootViews: [RootView]
     private var currentRedrawRegion: Rectangle? = nil
     private var debugDrawFlags: Set<DebugDraw.DebugDrawFlags> = []
+    
+    let rootView = RootView()
+    
+    weak var delegate: Blend2DSampleDelegate?
     
     init(size: BLSizeI) {
         width = Int(size.w)
@@ -27,11 +30,32 @@ class ImagineUIWrapper {
         
         try! UISettings.initialize(.init(fontManager: Blend2DFontManager(),
                                          defaultFontPath: Fonts.fontFilePath))
+        
+        addRootView(rootView)
+    }
+    
+    func addRootView(_ view: RootView) {
+        rootViews.append(view)
+    }
+    
+    func removeRootView(_ view: RootView) {
+        rootViews.removeAll { $0 === view }
+    }
+    
+    func willStartLiveResize() {
+        
+    }
+    
+    func didEndLiveResize() {
+        
     }
     
     func resize(width: Int, height: Int) {
         self.width = width
         self.height = height
+        
+        rootView.location = .zero
+        rootView.size = .init(.init(x: width, y: height))
         
         bounds = BLRect(location: .zero, size: BLSize(w: Double(width), h: Double(height)))
         currentRedrawRegion = bounds.asRectangle
@@ -68,11 +92,11 @@ class ImagineUIWrapper {
         }
         
         ctx.scale(by: sampleRenderScale)
-        ctx.setFillStyle(BLRgba32.cornflowerBlue)
+//        ctx.setFillStyle(BLRgba32.cornflowerBlue)
         
         let redrawRegion = BLRegion(rectangle: BLRectI(rounding: rect.asBLRect))
         
-        ctx.fillRect(rect.asBLRect)
+//        ctx.fillRect(rect.asBLRect)
         
         let renderer = Blend2DRenderer(context: ctx)
         
