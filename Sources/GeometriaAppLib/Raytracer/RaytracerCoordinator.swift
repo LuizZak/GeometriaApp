@@ -60,7 +60,7 @@ class RaytracerCoordinator: RaytracerWorkerContext {
         _batchRequestQueue = .init(label: "com.geometriaapp.raytracing.batcher",
                                   qos: .default)
         
-        batcher = TiledBatcher(tileSize: 50)
+        batcher = TiledBatcher(tileSize: 150)
 //        batcher = SieveBatcher()
 //        batcher = LinearBatcher()
         

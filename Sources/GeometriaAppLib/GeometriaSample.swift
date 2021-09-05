@@ -4,22 +4,27 @@ import Geometria
 import ImagineUI
 import Text
 import Blend2DRenderer
+import QuartzCore
 
 private let instructions: String = """
 R = Reset  |   Space = Pause
 """
 
 class GeometriaSample: Blend2DSample {
-    private let font: BLFont
-    private var hasRequestedNext: Bool = false
-    private var isResizing: Bool = false
+    private let _font: BLFont
+    private var _isResizing: Bool = false
+    private var _timeStarted: TimeInterval = 0.0
+    private var _timeEnded: TimeInterval = 0.0
     
     private var ui: ImagineUIWrapper
+    
     private let topLeftLabels: StackView = StackView(orientation: .vertical)
-    private let bottomLeftLabels: StackView = StackView(orientation: .vertical)
     private let batcherLabel: LabelControl = LabelControl()
     private let stateLabel: LabelControl = LabelControl()
     private let progressLabel: LabelControl = LabelControl()
+    private let totalTimeLabel: LabelControl = LabelControl()
+    
+    private let bottomLeftLabels: StackView = StackView(orientation: .vertical)
     private let instructionsLabel: LabelControl = LabelControl(text: instructions)
     
     var width: Int
@@ -39,7 +44,7 @@ class GeometriaSample: Blend2DSample {
         self.width = width
         self.height = height
         time = 0
-        font = Fonts.defaultFont(size: 12)
+        _font = Fonts.defaultFont(size: 12)
         ui = ImagineUIWrapper(size: BLSizeI(w: Int32(width), h: Int32(height)))
         restartRaytracing()
         createUI()
@@ -57,6 +62,7 @@ class GeometriaSample: Blend2DSample {
         topLeftLabels.addArrangedSubview(stateLabel)
         topLeftLabels.addArrangedSubview(batcherLabel)
         topLeftLabels.addArrangedSubview(progressLabel)
+        topLeftLabels.addArrangedSubview(totalTimeLabel)
         
         bottomLeftLabels.addArrangedSubview(instructionsLabel)
         
@@ -74,18 +80,30 @@ class GeometriaSample: Blend2DSample {
             batcherLabel.text = "Pixel order mode: \(raytracer.batcher.displayName)"
             progressLabel.text = "Progress of pixel batches served: \(String(format: "%.2lf", raytracer.progress * 100))%"
         }
+        
+        if _timeStarted != 0.0 {
+            if _timeEnded != 0.0 {
+                let timeString = String(format: "%.3lf", _timeEnded - _timeStarted)
+                
+                totalTimeLabel.text = "Total time (s): \(timeString)"
+            } else {
+                totalTimeLabel.text = "Total time (s): Running..."
+            }
+        } else {
+            totalTimeLabel.text = "Total time (s): No run"
+        }
     }
     
     func willStartLiveResize() {
         ui.willStartLiveResize()
         
-        isResizing = true
+        _isResizing = true
     }
     
     func didEndLiveResize() {
         ui.didEndLiveResize()
         
-        isResizing = false
+        _isResizing = false
         
         recreateRaytracer()
     }
@@ -100,13 +118,11 @@ class GeometriaSample: Blend2DSample {
     func restartRaytracing() {
         raytracer?.cancel()
         
-        guard !isResizing && width > 0 && height > 0 else {
+        guard !_isResizing && width > 0 && height > 0 else {
             buffer = nil
             raytracer = nil
             return
         }
-        
-        hasRequestedNext = false
         
         recreateRaytracer()
     }
@@ -125,14 +141,20 @@ class GeometriaSample: Blend2DSample {
         raytracer = RaytracerCoordinator(viewportSize: viewportSize, buffer: buffer)
         raytracer?.stateDidChange.addListener(owner: self) { [weak self] state in
             DispatchQueue.main.async {
+                guard let self = self else { return }
+                
                 if state == .finished {
-                    self?.invalidateAll()
+                    self._timeEnded = CACurrentMediaTime()
+                    self.invalidateAll()
                 }
-                self?.updateLabels()
+                self.updateLabels()
             }
         }
         raytracer?.initialize()
         raytracer?.start()
+        
+        _timeStarted = CACurrentMediaTime()
+        _timeEnded = 0.0
     }
     
     func pause() {
@@ -240,7 +262,7 @@ class GeometriaSample: Blend2DSample {
     func drawLabel(_ ctx: BLContext, text: String, topLeft: BLPoint) {
         let textInset = Vector(x: 10, y: 5)
         let renderer = Blend2DRenderer(context: ctx)
-        let layout = TextLayout(font: Blend2DFont(font: font), text: text)
+        let layout = TextLayout(font: Blend2DFont(font: _font), text: text)
         let textBox = Rectangle(location: topLeft.asVector, size: layout.size + textInset)
         
         renderer.setFill(.black.withTransparency(60))
@@ -252,7 +274,7 @@ class GeometriaSample: Blend2DSample {
     func drawLabel(_ ctx: BLContext, text: String, bottomLeft: BLPoint) {
         let textInset = Vector(x: 10, y: 5)
         let renderer = Blend2DRenderer(context: ctx)
-        let layout = TextLayout(font: Blend2DFont(font: font), text: text)
+        let layout = TextLayout(font: Blend2DFont(font: _font), text: text)
         
         let textPoint = bottomLeft.asVector - Vector(x: -textInset.x / 2, y: layout.size.y + textInset.y / 2)
         let boxPoint = bottomLeft.asVector - Vector(x: 0, y: layout.size.y + textInset.y)
