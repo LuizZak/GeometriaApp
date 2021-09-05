@@ -173,7 +173,7 @@ class GeometriaSample: Blend2DSample {
             ctx.fillAll()
         }
         
-        drawLabel(ctx, text: "Steps: \(steps.rawValue)", topLeft: .init(x: 5, y: 5))
+        drawLabel(ctx, text: "Steps per frame: \(steps.rawValue)", topLeft: .init(x: 5, y: 5))
         
         if let raytracer = raytracer {
             drawLabel(

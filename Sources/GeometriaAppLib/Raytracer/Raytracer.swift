@@ -24,9 +24,6 @@ class Raytracer {
     /// Progress of rendering, from 0.0 to 1.0, inclusive.
     @ConcurrentValue var progress: Double = 0.0
     
-    /// Inverts ordering of pixel fillig from X-Y to Y-X.
-    var invertRender = true
-    
     var batcher: RaytracerBatcher
     
     init(viewportSize: Vector2i, buffer: RaytracerBufferWriter) {
@@ -35,7 +32,8 @@ class Raytracer {
         camera = Camera(cameraSize: .init(viewportSize))
         nextCoords = []
         
-        batcher = SieveBatcher()
+        //batcher = SieveBatcher()
+        batcher = LinearBatcher()
         
         recreateCamera()
     }
@@ -172,7 +170,7 @@ class Raytracer {
     }
     
     /// Calculates shadow ratio. 0 = no shadow, 1 = fully shadowed, values in
-    /// between specify the number of shadow rays that where obstructed by
+    /// between specify the percentage of shadow rays that where obstructed by
     /// geometry.
     func calculateShadow(hit: RayHit, rays: Int = 1) -> Double {
         if rays == 1 {

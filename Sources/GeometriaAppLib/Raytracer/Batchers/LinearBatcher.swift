@@ -2,7 +2,7 @@ import Geometria
 
 /// A batcher that serves pixels to render in straight lines, weaving around
 /// the screen space.
-class LineBatcher: RaytracerBatcher {
+class LinearBatcher: RaytracerBatcher {
     private var initialized: Bool = false
     private let direction: Direction
     private var viewportSize: Vector2i = .zero
@@ -84,7 +84,7 @@ class LineBatcher: RaytracerBatcher {
         return coord
     }
     
-    /// Specifies the primary direction a ``LineBatcher`` serves in.
+    /// Specifies the primary direction a ``LinearBatcher`` serves in.
     enum Direction {
         /// Serves pixels by incrementing the X axis, and wrapping around the Y
         /// axis at the end.
