@@ -25,51 +25,15 @@ class TiledBatcher: RaytracerBatcher {
         hasBatches = tiles.count > 0
     }
     
-    func nextBatch(maxSize: Int) -> [Pixel]? {
-        guard hasBatches else {
+    func nextBatch() -> RaytracingBatch? {
+        guard nextTileIndex < tiles.count else {
+            hasBatches = false
             return nil
         }
         
-        var pixels: [Pixel] = []
-        pixels.reserveCapacity(maxSize)
+        defer { nextTileIndex += 1 }
         
-        for _ in 0..<maxSize {
-            guard let pixel = nextPixel() else {
-                hasBatches = false
-                break
-            }
-            
-            pixels.append(pixel)
-        }
-        
-        if pixels.isEmpty {
-            return nil
-        }
-        
-        return pixels
-    }
-    
-    func nextPixel() -> Pixel? {
-        if tiles.isEmpty {
-            return nil
-        }
-        
-        if nextTileIndex >= tiles.count {
-            nextTileIndex = 0
-        }
-        
-        if tiles[nextTileIndex].isAtEnd {
-            tiles.remove(at: nextTileIndex)
-            
-            return nextPixel()
-        }
-        if let pixel = tiles[nextTileIndex].next() {
-            nextTileIndex += 1
-            
-            return pixel
-        }
-        
-        return nil
+        return tiles[nextTileIndex]
     }
     
     private func initializeTiles() {
@@ -106,13 +70,17 @@ class TiledBatcher: RaytracerBatcher {
         return Tile(bounds: bounds)
     }
     
-    struct Tile {
+    class Tile: RaytracingBatch {
         var bounds: PixelRect
         var index: Int = 0
         var pixelCount: Int { bounds.width * bounds.height }
         var isAtEnd: Bool { index >= pixelCount }
         
-        mutating func next() -> Pixel? {
+        init(bounds: PixelRect) {
+            self.bounds = bounds
+        }
+        
+        func nextPixel() -> Pixel? {
             guard !isAtEnd else {
                 return nil
             }

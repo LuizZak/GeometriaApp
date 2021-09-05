@@ -41,6 +41,7 @@ class GeometriaSample: Blend2DSample {
     private let bottomLeftLabels: StackView = StackView(orientation: .vertical)
     private let stepsLabel: LabelControl = LabelControl()
     private let batcherLabel: LabelControl = LabelControl()
+    private let stateLabel: LabelControl = LabelControl()
     private let progressLabel: LabelControl = LabelControl()
     private let instructionsLabel: LabelControl = LabelControl(text: instructions)
     
@@ -50,7 +51,6 @@ class GeometriaSample: Blend2DSample {
     var time: TimeInterval = 0
     var raytracer: Raytracer?
     var buffer: Blend2DBufferWriter?
-    var isPaused: Bool = false
     var steps: StepsCount = .medium {
         didSet {
             updateLabels()
@@ -83,6 +83,7 @@ class GeometriaSample: Blend2DSample {
         ui.rootView.addSubview(topLeftLabels)
         
         topLeftLabels.addArrangedSubview(stepsLabel)
+        topLeftLabels.addArrangedSubview(stateLabel)
         topLeftLabels.addArrangedSubview(batcherLabel)
         topLeftLabels.addArrangedSubview(progressLabel)
         
@@ -100,6 +101,7 @@ class GeometriaSample: Blend2DSample {
         stepsLabel.text = "Steps per frame: \(steps.rawValue)"
         
         if let raytracer = raytracer {
+            stateLabel.text = "State: \(raytracer.state.description)"
             batcherLabel.text = "Pixel order mode: \(raytracer.batcher.displayName)"
             progressLabel.text = "Progress: \(String(format: "%.2lf", raytracer.progress * 100))%"
         }
@@ -133,7 +135,6 @@ class GeometriaSample: Blend2DSample {
             return
         }
         
-        isPaused = false
         hasRequestedNext = false
         
         recreateRaytracer()
@@ -154,22 +155,49 @@ class GeometriaSample: Blend2DSample {
         raytracer?.initialize()
     }
     
-    func performLayout() {
+    func requestNextPixel() {
         
+    }
+    
+    func pause() {
+        raytracer?.pause()
+        
+        invalidateAll()
+        updateLabels()
+    }
+    
+    func resume() {
+        raytracer?.resume()
+        
+        invalidateAll()
+        updateLabels()
+    }
+    
+    func togglePause() {
+        guard let raytracer = raytracer else {
+            return
+        }
+        
+        switch raytracer.state {
+        case .unstarted, .finished:
+            restartRaytracing()
+        case .running:
+            pause()
+        case .paused:
+            resume()
+        }
     }
     
     // MARK: - UI
     
+    func performLayout() {
+        
+    }
+    
     func keyDown(event: KeyEventArgs) {
         if event.keyCode == .space {
-            if raytracer?.hasWork == false {
-                restartRaytracing()
-                event.handled = true
-            } else {
-                isPaused.toggle()
-                invalidateAll()
-                event.handled = true
-            }
+            togglePause()
+            event.handled = true
         }
         if event.keyCode == .r {
             restartRaytracing()
@@ -182,8 +210,8 @@ class GeometriaSample: Blend2DSample {
             event.handled = true
         }
         if event.keyCode == .n {
-            if isPaused {
-                hasRequestedNext = true
+            if raytracer?.state == .paused {
+                requestNextPixel()
                 event.handled = true
             }
         }
@@ -218,28 +246,18 @@ class GeometriaSample: Blend2DSample {
     func update(_ time: TimeInterval) {
         self.time = time
         
-        if let raytracer = raytracer, raytracer.hasWork {
-            if isPaused {
-                if hasRequestedNext {
-                    hasRequestedNext = false
-                    runRayTracer(steps: 1)
-                }
-            } else {
-                runRayTracer(steps: steps.rawValue)
-            }
-            
+        if let raytracer = raytracer {
             updateLabels()
+            
+            if raytracer.state == .running {
+                invalidateAll()
+            }
         }
         
         batcherLabel.isVisible = raytracer != nil
         progressLabel.isVisible = raytracer != nil
         
         ui.update(time)
-    }
-    
-    func runRayTracer(steps: Int) {
-        raytracer?.run(steps: steps)
-        invalidateAll()
     }
     
     func invalidateAll() {
@@ -250,6 +268,7 @@ class GeometriaSample: Blend2DSample {
         if let img = buffer?.image {
             ctx.blitImage(img, at: BLPointI.zero)
             
+            /*
             if isPaused, let raytracer = raytracer {
                 for next in raytracer.nextCoords {
                     let box = BLBoxI(location: next.asBLPointI,
@@ -258,6 +277,7 @@ class GeometriaSample: Blend2DSample {
                     ctx.fillBox(box)
                 }
             }
+            */
         } else {
             ctx.setFillStyle(BLRgba32.white)
             ctx.fillAll()

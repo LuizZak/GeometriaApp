@@ -5,7 +5,7 @@ import Foundation
 class Raytracer {
     private var scene: Scene = Scene()
     private var camera: Camera
-    private let numThreads = 8
+    private let threadCount = 8
     private let batchSize = 300
     private var totalPixels: Int64 = 0
     private var steps: Int = 0
@@ -40,9 +40,9 @@ class Raytracer {
                                 qos: .userInteractive,
                                 attributes: .concurrent)
         
-        batcher = TiledBatcher(tileSize: 50)
+//        batcher = TiledBatcher(tileSize: 50)
 //        batcher = SieveBatcher()
-//        batcher = LinearBatcher()
+        batcher = LinearBatcher()
         
         recreateCamera()
     }
@@ -54,8 +54,26 @@ class Raytracer {
         progress = 0.0
         buffer.clearAll(color: .white)
         
+        state = .unstarted
+        
         recreateCamera()
         resetBatcher()
+    }
+    
+    func pause() {
+        guard hasWork else {
+            return
+        }
+        
+        state = .paused
+    }
+    
+    func resume() {
+        guard hasWork else {
+            return
+        }
+        
+        state = .running
     }
     
     func recreateCamera() {
@@ -64,46 +82,6 @@ class Raytracer {
     
     func resetBatcher() {
         batcher.initialize(viewportSize: viewportSize)
-    }
-    
-    func run(steps: Int) {
-        guard hasWork else {
-            return
-        }
-        
-        guard let coords = batcher.nextBatch(maxSize: steps) else {
-            if batcher.hasBatches {
-                print("Batcher reports batches available that did not return in nextBatch(maxSize:)! Stopping raytracing...")
-            }
-            hasWork = false
-            return
-        }
-        
-        self.steps = steps
-        
-        assert(coords.count <= steps,
-               "Batcher returned more coordinates than requested: \(coords.count) vs \(steps)")
-        
-        nextCoords = coords
-        
-        let opQueue = OperationQueue()
-        opQueue.maxConcurrentOperationCount = numThreads
-        
-        batching(coords, by: batchSize) { batch in
-            opQueue.addOperation {
-                for coord in batch {
-                    self.doRayCasting(at: coord)
-                }
-                
-                self._currentPixels.modifyingValue { v in
-                    v += Int64(batch.count)
-                }
-            }
-        }
-        
-        opQueue.waitUntilAllOperationsAreFinished()
-        
-        progress = Double(currentPixels) / Double(totalPixels)
     }
     
     // MARK: Batching
@@ -211,11 +189,24 @@ class Raytracer {
         return shadowsHit / Double(rays)
     }
     
-    enum State {
+    enum State: CustomStringConvertible {
         case unstarted
         case running
         case finished
         case paused
+        
+        var description: String {
+            switch self {
+            case .unstarted:
+                return "Unstarted"
+            case .running:
+                return "Running"
+            case .finished:
+                return "Finished"
+            case .paused:
+                return "Paused"
+            }
+        }
     }
 }
 

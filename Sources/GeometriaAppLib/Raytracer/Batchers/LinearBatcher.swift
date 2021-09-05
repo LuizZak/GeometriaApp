@@ -7,6 +7,10 @@ class LinearBatcher: RaytracerBatcher {
     private let direction: Direction
     private var viewportSize: Vector2i = .zero
     
+    /// List of starts of lines to feed threads
+    private var lines: [Vector2i] = []
+    private var nextLineIndex: Int = 0
+    
     /// The next coordinate the raytracer will fill.
     private var coord: Vector2i = .zero
     
@@ -23,67 +27,97 @@ class LinearBatcher: RaytracerBatcher {
         initialized = true
         hasBatches = true
         coord = .zero
+        nextLineIndex = 0
+        
+        initializeLineList()
     }
     
-    func nextBatch(maxSize: Int) -> [Vector2i]? {
-        assert(initialized, "Attempted to invoke nextBatch(maxSize:) before invoking initialize(viewportSize:)")
-        guard hasBatches else {
+    func nextBatch() -> RaytracingBatch? {
+        guard hasBatches else { return nil }
+        
+        guard nextLineIndex < lines.count else {
+            hasBatches = false
             return nil
         }
         
-        var coords: [Vector2i] = []
-        coords.reserveCapacity(maxSize)
+        defer { nextLineIndex += 1 }
         
-        for _ in 0..<maxSize {
-            coords.append(coord)
-            
-            if !incCoord() {
-                hasBatches = false
-                break
-            }
-        }
-        
-        return coords
-    }
-    
-    private func incCoord() -> Bool {
-        guard let next = nextCoord(from: coord) else {
-            return false
-        }
-        
-        coord = next
-        
-        return true
-    }
-
-    private func nextCoord(from coord: Vector2i) -> Vector2i? {
-        var coord = coord
-        
+        let maxLength: Int
         switch direction {
         case .horizontal:
-            coord.x += 1
-            if coord.x >= viewportSize.x {
-                coord.x = 0
-                coord.y += 1
-            }
-            
-            if coord.y >= viewportSize.y {
-                return nil
-            }
-            
+            maxLength = viewportSize.x
         case .vertical:
-            coord.y += 1
-            if coord.y >= viewportSize.y {
-                coord.y = 0
-                coord.x += 1
-            }
-            
-            if coord.x >= viewportSize.x {
-                return nil
-            }
+            maxLength = viewportSize.y
         }
         
-        return coord
+        return LineBatch(coord: lines[nextLineIndex], direction: direction, maxLength: maxLength)
+    }
+    
+    private func initializeLineList() {
+        lines.removeAll(keepingCapacity: true)
+        
+        let max: Int
+        switch direction {
+        case .horizontal:
+            max = viewportSize.x
+        case .vertical:
+            max = viewportSize.y
+        }
+        
+        for i in 0..<max {
+            let x: Int
+            let y: Int
+            
+            switch direction {
+            case .horizontal:
+                x = 0
+                y = i
+            case .vertical:
+                x = i
+                y = 0
+            }
+            
+            lines.append(.init(x: x, y: y))
+        }
+    }
+    
+    private class LineBatch: RaytracingBatch {
+        var isFinished: Bool = false
+        var coord: Vector2i
+        var direction: Direction
+        var maxLength: Int
+        
+        init(coord: Vector2i, direction: Direction, maxLength: Int) {
+            self.coord = coord
+            self.direction = direction
+            self.maxLength = maxLength
+        }
+        
+        func nextPixel() -> Vector2i? {
+            guard !isFinished else { return nil }
+            
+            var coord = coord
+            
+            switch direction {
+            case .horizontal:
+                coord.x += 1
+                
+                if coord.y >= maxLength {
+                    isFinished = true
+                    return nil
+                }
+                
+            case .vertical:
+                coord.y += 1
+                
+                if coord.x >= maxLength {
+                    isFinished = true
+                    return nil
+                }
+            }
+            
+            return coord
+        }
     }
     
     /// Specifies the primary direction a ``LinearBatcher`` serves in.

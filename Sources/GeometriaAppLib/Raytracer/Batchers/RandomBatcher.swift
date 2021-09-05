@@ -1,6 +1,7 @@
 import Geometria
 import Foundation
 
+/*
 /// A batcher that serves remaining pixels at random.
 class RandomBatcher: RaytracerBatcher {
     private var hasInitialized = false
@@ -95,3 +96,4 @@ class RandomBatcher: RaytracerBatcher {
         return pixels[nextIndex]
     }
 }
+*/
