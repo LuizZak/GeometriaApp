@@ -6,7 +6,7 @@ class Raytracer {
     private var scene: Scene = Scene()
     private var camera: Camera
     private let numThreads = 8
-    private let batchSize = 100
+    private let batchSize = 300
     private var totalPixels: Int64 = 0
     
     // Sky color for pixels that don't intersect with geometry
@@ -32,9 +32,11 @@ class Raytracer {
     init(viewportSize: Vector2i, buffer: RaytracerBufferWriter) {
         self.viewportSize = viewportSize
         self.buffer = buffer
-        batcher = SieveBatcher()
         camera = Camera(cameraSize: .init(viewportSize))
         nextCoords = []
+        
+        batcher = SieveBatcher()
+        
         recreateCamera()
     }
     
@@ -150,10 +152,10 @@ class Raytracer {
         color = color.faded(towards: .black, factor: Float(1 - shade))
         
         // Shadow or sunlight
-        let shadowRay = Ray(start: hit.point, direction: -scene.sunDirection)
-        if scene.intersect(ray: shadowRay, ignoring: hit.geometry) != nil {
+        let shadow = calculateShadow(hit: hit)
+        if shadow > 0 {
             // Shadow
-            color = color.faded(towards: .black, factor: 0.5)
+            color = color.faded(towards: .black, factor: Float(0.5 * shadow))
         } else {
             // Sunlight direction
             let sunDirDot = max(0.0, min(0.8, pow(hit.normal.dot(-scene.sunDirection), 5)))
@@ -167,6 +169,28 @@ class Raytracer {
         color = color.faded(towards: skyColor, factor: distFactor)
         
         buffer.setPixel(at: coord, color: color)
+    }
+    
+    /// Calculates shadow ratio. 0 = no shadow, 1 = fully shadowed, values in
+    /// between specify the number of shadow rays that where obstructed by
+    /// geometry.
+    func calculateShadow(hit: RayHit, rays: Int = 3) -> Double {
+        let mag = 150.0
+        var shadowsHit = 0.0
+        
+        for _ in 0..<rays {
+            var shadowLine = Line3(a: hit.point, b: hit.point - scene.sunDirection * mag)
+            shadowLine.b.x += Double.random(in: -1...1)
+            shadowLine.b.y += Double.random(in: -1...1)
+            shadowLine.b.z += Double.random(in: -1...1)
+            
+            let ray = Ray.init(shadowLine)
+            if scene.intersect(ray: ray, ignoring: hit.geometry) != nil {
+                shadowsHit += 1
+            }
+        }
+        
+        return shadowsHit / Double(rays)
     }
 }
 
