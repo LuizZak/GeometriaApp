@@ -16,6 +16,8 @@ class RandomBatcher: RaytracerBatcher {
     /// initialization cost.
     var maxRandomizedSwaps: Int = 10_000
     
+    let displayName: String = "Random"
+    
     var hasBatches: Bool { nextIndex < pixels.count }
     
     init() {

@@ -32,7 +32,8 @@ class Raytracer {
         camera = Camera(cameraSize: .init(viewportSize))
         nextCoords = []
         
-        batcher = SieveBatcher()
+        batcher = TiledBatcher(tileSize: 50)
+//        batcher = SieveBatcher()
 //        batcher = LinearBatcher()
         
         recreateCamera()
@@ -150,7 +151,8 @@ class Raytracer {
         color = color.faded(towards: .black, factor: Float(1 - shade))
         
         // Shadow or sunlight
-        let shadow = calculateShadow(hit: hit)
+        //let shadow = calculateShadow(hit: hit)
+        let shadow = 0.0
         if shadow > 0 {
             // Shadow
             color = color.faded(towards: .black, factor: Float(0.5 * shadow))

@@ -14,7 +14,7 @@ class GeometriaSample: Blend2DSample {
     /// Specifies the number of ray-tracing steps (pixels) per frame.
     enum StepsCount: Int {
         case low = 20
-        case medium = 200
+        case medium = 500
         case high = 2000
         case veryHigh = 5000
         
@@ -40,6 +40,7 @@ class GeometriaSample: Blend2DSample {
     private let topLeftLabels: StackView = StackView(orientation: .vertical)
     private let bottomLeftLabels: StackView = StackView(orientation: .vertical)
     private let stepsLabel: LabelControl = LabelControl()
+    private let batcherLabel: LabelControl = LabelControl()
     private let progressLabel: LabelControl = LabelControl()
     private let instructionsLabel: LabelControl = LabelControl(text: instructions)
     
@@ -82,6 +83,7 @@ class GeometriaSample: Blend2DSample {
         ui.rootView.addSubview(topLeftLabels)
         
         topLeftLabels.addArrangedSubview(stepsLabel)
+        topLeftLabels.addArrangedSubview(batcherLabel)
         topLeftLabels.addArrangedSubview(progressLabel)
         
         bottomLeftLabels.addArrangedSubview(instructionsLabel)
@@ -98,6 +100,7 @@ class GeometriaSample: Blend2DSample {
         stepsLabel.text = "Steps per frame: \(steps.rawValue)"
         
         if let raytracer = raytracer {
+            batcherLabel.text = "Pixel order mode: \(raytracer.batcher.displayName)"
             progressLabel.text = "Progress: \(String(format: "%.2lf", raytracer.progress * 100))%"
         }
     }
@@ -228,6 +231,7 @@ class GeometriaSample: Blend2DSample {
             updateLabels()
         }
         
+        batcherLabel.isVisible = raytracer != nil
         progressLabel.isVisible = raytracer != nil
         
         ui.update(time)

@@ -10,6 +10,8 @@ class LinearBatcher: RaytracerBatcher {
     /// The next coordinate the raytracer will fill.
     private var coord: Vector2i = .zero
     
+    let displayName: String = "Scanline"
+    
     private(set) var hasBatches: Bool = false
     
     init(direction: Direction = .horizontal) {

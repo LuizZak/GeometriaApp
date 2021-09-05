@@ -2,6 +2,9 @@ import Geometria
 
 /// Used to produce batching of pixels to raytrace.
 protocol RaytracerBatcher {
+    /// Display name of this batcher for UI.
+    var displayName: String { get }
+    
     /// If `false`, signals that the batcher has served all the pending batches.
     var hasBatches: Bool { get }
     

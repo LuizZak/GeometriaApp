@@ -35,6 +35,8 @@ class SieveBatcher: RaytracerBatcher {
     private var pixelCount: Int = 0
     private var viewportSize: PixelCoordinates = .zero
     
+    let displayName: String = "Prime Sieve"
+    
     var hasBatches: Bool = false
     
     init() {
