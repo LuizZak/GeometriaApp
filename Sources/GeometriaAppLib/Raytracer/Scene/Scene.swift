@@ -2,8 +2,8 @@ import Geometria
 
 struct Scene {
     // AABB
-    var aabb: Geometria.AABB<Vector3D> = .init(minimum: .init(x: -20, y: 90, z: 60),
-                                               maximum: .init(x: 60, y: 100, z: 95))
+    var aabb: Geometria.AABB<Vector3D> = .init(minimum: .init(x: -70, y: 90, z: 60),
+                                               maximum: .init(x: 10, y: 100, z: 95))
     
     // Sphere
     var sphere: NSphere<Vector3D> = .init(center: .init(x: 0, y: 150, z: 45), radius: 30)

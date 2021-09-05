@@ -147,7 +147,7 @@ class Raytracer {
             color = isWhite ? .white : .black
         }
         
-        // Shade
+        // Shading
         let shade = max(0.0, min(0.4, hit.normal.dot(-ray.direction)))
         color = color.faded(towards: .black, factor: Float(1 - shade))
         
@@ -158,7 +158,7 @@ class Raytracer {
             color = color.faded(towards: .black, factor: Float(0.5 * shadow))
         } else {
             // Sunlight direction
-            let sunDirDot = max(0.0, min(0.8, pow(hit.normal.dot(-scene.sunDirection), 5)))
+            let sunDirDot = max(0.0, min(1, pow(hit.normal.dot(-scene.sunDirection), 5)))
             color = color.faded(towards: .white, factor: Float(sunDirDot))
         }
         
