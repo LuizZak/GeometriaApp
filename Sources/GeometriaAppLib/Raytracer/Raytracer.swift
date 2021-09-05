@@ -174,7 +174,16 @@ class Raytracer {
     /// Calculates shadow ratio. 0 = no shadow, 1 = fully shadowed, values in
     /// between specify the number of shadow rays that where obstructed by
     /// geometry.
-    func calculateShadow(hit: RayHit, rays: Int = 3) -> Double {
+    func calculateShadow(hit: RayHit, rays: Int = 1) -> Double {
+        if rays == 1 {
+            let ray = Ray(start: hit.point, direction: -scene.sunDirection)
+            if scene.intersect(ray: ray, ignoring: hit.geometry) != nil {
+                return 1.0
+            }
+            
+            return 0.0
+        }
+        
         let mag = 150.0
         var shadowsHit = 0.0
         

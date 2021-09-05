@@ -1,23 +1,57 @@
 import Geometria
 
-struct Scene {
-    // AABB
-    var aabb: Geometria.AABB<Vector3D> = .init(minimum: .init(x: -70, y: 90, z: 60),
-                                               maximum: .init(x: 10, y: 100, z: 95))
-    
-    // Sphere
-    var sphere: NSphere<Vector3D> = .init(center: .init(x: 0, y: 150, z: 45), radius: 30)
-    
-    // Floor plane
-    var floorPlane: Plane = Plane(point: .zero, normal: .unitZ)
-    
-    // Disk
-    var disk: Disk3<Vector3D> = Disk3(center: .init(x: -10, y: 110, z: 20),
-                                      normal: .init(x: 0, y: 1, z: 0),
-                                      radius: 12)
+class Scene {
+    var geometries: [SceneGeometry] = []
     
     /// Direction an infinitely far away point light is pointed at the scene
     @UnitVector var sunDirection: Vector3D = Vector3D(x: -20, y: 40, z: -30)
+    
+    init() {
+        createScene()
+    }
+    
+    func createScene() {
+        
+        // AABB
+        let aabb: Geometria.AABB<Vector3D> = .init(minimum: .init(x: -70, y: 90, z: 60),
+                                                   maximum: .init(x: 10, y: 100, z: 95))
+        
+        // Sphere
+        let sphere: NSphere<Vector3D> = .init(center: .init(x: 0, y: 150, z: 45), radius: 30)
+        
+        // Floor plane
+        let floorPlane: Plane = Plane(point: .zero, normal: .unitZ)
+        
+        // Disk
+        let disk: Disk3<Vector3D> = Disk3(center: .init(x: -10, y: 110, z: 20),
+                                          normal: .init(x: 0, y: 1, z: 0),
+                                          radius: 12)
+        
+        addAABB(aabb)
+        addSphere(sphere)
+        addDisk(disk)
+        addPlane(floorPlane)
+    }
+    
+    func addAABB(_ object: Geometria.AABB<Vector3D>) {
+        let geom = SceneGeometry(convex: object)
+        geometries.append(geom)
+    }
+    
+    func addSphere(_ object: Geometria.NSphere<Vector3D>) {
+        let geom = SceneGeometry(convex: object)
+        geometries.append(geom)
+    }
+    
+    func addDisk(_ object: Geometria.Disk3<Vector3D>) {
+        let geom = SceneGeometry(plane: object)
+        geometries.append(geom)
+    }
+    
+    func addPlane(_ object: Geometria.PointNormalPlane<Vector3D>) {
+        let geom = SceneGeometry(plane: object)
+        geometries.append(geom)
+    }
     
     @inlinable
     func intersect(ray: Ray, ignoring: GeometricType? = nil) -> RayHit? {
@@ -27,10 +61,9 @@ struct Scene {
                              lastHit: nil,
                              ignoring: ignoring)
         
-        result = doPlane(plane: floorPlane, result: result)
-        result = doPlane(plane: disk, result: result)
-        result = doConvex(convex: aabb, result: result)
-        result = doConvex(convex: sphere, result: result)
+        for geo in geometries {
+            result = geo.doRayCast(partialResult: result)
+        }
         
         return result.lastHit
     }
