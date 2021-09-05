@@ -1,3 +1,5 @@
+#if false
+
 struct Keys: Hashable {
     var rawValue: Int
     
@@ -606,3 +608,5 @@ extension Keys {
     static let command = Keys(rawValue: 283)
 #endif
 }
+
+#endif

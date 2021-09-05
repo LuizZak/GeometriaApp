@@ -1,5 +1,6 @@
 import Foundation
 import SwiftBlend2D
+import ImagineUI
 
 protocol Blend2DSampleDelegate: AnyObject {
     func invalidate(bounds: Rectangle)

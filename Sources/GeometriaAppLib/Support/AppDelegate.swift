@@ -6,7 +6,7 @@ import SwiftUI
 
 public class AppDelegate: NSObject, NSApplicationDelegate {
     let window = NSWindow()
-    let windowDelegate = WindowDelegate()
+    let windowDelegate = AppKitWindowDelegate()
     
     let title = "Geometria Tests"
     

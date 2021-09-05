@@ -1,5 +1,7 @@
 import SwiftBlend2D
 
+#if false
+
 struct MouseEventArgs {
     var location: Vector
     var buttons: MouseButton
@@ -39,3 +41,5 @@ enum MouseEventType {
     case mouseDoubleClick
     case mouseWheel
 }
+
+#endif

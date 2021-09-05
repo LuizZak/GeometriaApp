@@ -1,3 +1,5 @@
+#if false
+
 class KeyPressEventArgs {
     let keyChar: Character
     let modifiers: KeyboardModifier
@@ -58,3 +60,5 @@ struct KeyboardModifier: OptionSet {
     static let numericPad = KeyboardModifier(rawValue: 0b100000)
 #endif
 }
+
+#endif

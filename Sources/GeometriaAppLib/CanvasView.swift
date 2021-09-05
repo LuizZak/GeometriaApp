@@ -1,6 +1,7 @@
 import AppKit
 import SwiftUI
 import SwiftBlend2D
+import ImagineUI
 
 class CanvasView: NSView {
     var link: CVDisplayLink?
@@ -57,6 +58,7 @@ class CanvasView: NSView {
     
     private func initializeSample() {
         let url = Bundle.module.path(forResource: "NotoSans-Regular", ofType: "ttf")!
+        Fonts.fontFilePath = url
         Fonts.defaultFontFace = try! BLFontFace(fromFile: url)
         
         let sample = GeometriaSample(width: Int(bounds.width), height: Int(bounds.height))

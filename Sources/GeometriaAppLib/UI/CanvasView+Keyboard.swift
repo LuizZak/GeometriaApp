@@ -1,4 +1,5 @@
 import Cocoa
+import ImagineUI
 
 extension CanvasView {
     func makeKeyboardEventArgs(_ event: NSEvent) -> KeyEventArgs {

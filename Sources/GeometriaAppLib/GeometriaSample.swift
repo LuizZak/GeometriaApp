@@ -1,6 +1,7 @@
 import Foundation
 import SwiftBlend2D
 import Geometria
+import ImagineUI
 import Text
 import Blend2DRenderer
 
@@ -34,6 +35,8 @@ class GeometriaSample: Blend2DSample {
     private var hasRequestedNext: Bool = false
     private var isResizing: Bool = false
     
+    private var ui: ImagineUIWrapper
+    
     var width: Int
     var height: Int
     var sampleRenderScale: BLPoint = .one
@@ -50,6 +53,7 @@ class GeometriaSample: Blend2DSample {
         self.height = height
         time = 0
         font = Fonts.defaultFont(size: 12)
+        ui = ImagineUIWrapper(size: BLSizeI(w: Int32(width), h: Int32(height)))
         restartRaytracing()
     }
     
@@ -67,6 +71,7 @@ class GeometriaSample: Blend2DSample {
         self.width = width
         self.height = height
         restartRaytracing()
+        ui.resize(width: width, height: height)
     }
     
     func restartRaytracing() {
@@ -101,29 +106,48 @@ class GeometriaSample: Blend2DSample {
         
     }
     
+    // MARK: - UI
+    
     func keyDown(event: KeyEventArgs) {
         if event.keyCode == .space {
             if raytracer?.hasWork == false {
                 restartRaytracing()
+                event.handled = true
             } else {
                 isPaused.toggle()
                 invalidateAll()
+                event.handled = true
             }
         }
         if event.keyCode == .r {
             restartRaytracing()
+            event.handled = true
         }
         if event.keyCode == .s {
             steps = steps.toggleUp
             
             invalidateAll()
+            event.handled = true
         }
         if event.keyCode == .n {
             if isPaused {
                 hasRequestedNext = true
+                event.handled = true
             }
         }
+        
+        if !event.handled {
+            ui.keyDown(event: event)
+        }
     }
+    
+    func keyUp(event: KeyEventArgs) {
+        ui.keyUp(event: event)
+    }
+    
+    
+    
+    // MARK: -
     
     func update(_ time: TimeInterval) {
         self.time = time

@@ -1,6 +1,6 @@
 import AppKit
 
-class WindowDelegate: NSObject, NSWindowDelegate {
+class AppKitWindowDelegate: NSObject, NSWindowDelegate {
     func windowWillClose(_ notification: Notification) {
         NSApplication.shared.terminate(0)
     }
