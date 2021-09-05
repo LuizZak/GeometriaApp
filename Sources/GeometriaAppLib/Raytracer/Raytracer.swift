@@ -152,7 +152,6 @@ class Raytracer {
         
         // Shadow or sunlight
         let shadow = calculateShadow(hit: hit)
-        let shadow = 0.0
         if shadow > 0 {
             // Shadow
             color = color.faded(towards: .black, factor: Float(0.5 * shadow))
