@@ -32,8 +32,8 @@ class Raytracer {
         camera = Camera(cameraSize: .init(viewportSize))
         nextCoords = []
         
-        //batcher = SieveBatcher()
-        batcher = LinearBatcher()
+        batcher = SieveBatcher()
+//        batcher = LinearBatcher()
         
         recreateCamera()
     }
