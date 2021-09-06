@@ -23,7 +23,7 @@ class Scene {
         // Sphere
         let sphere: NSphere<Vector3D> = .init(center: .init(x: 0, y: 150, z: 45), radius: 30)
         
-        // Second
+        // Second sphere
         let sphere2: NSphere<Vector3D> = .init(center: .init(x: 70, y: 150, z: 45), radius: 30)
         
         // Floor plane
@@ -35,44 +35,44 @@ class Scene {
                                           radius: 12)
         
         addAABB(aabb)
-        addShinySphere(sphere)
+        addShinySphere(sphere, transparency: 0.5)
         addBumpySphere(sphere2)
         addDisk(disk)
         addPlane(floorPlane)
     }
     
     func addAABB(_ object: Geometria.AABB<Vector3D>) {
-        let material = SceneGeometry.Material(color: .gray)
+        let material = Material(color: .gray)
         let geom = SceneGeometry(convex: object, material: material)
         geometries.append(geom)
     }
     
     func addSphere(_ object: Geometria.NSphere<Vector3D>) {
-        let material = SceneGeometry.Material(color: .gray)
+        let material = Material(color: .gray)
         let geom = SceneGeometry(convex: object, material: material)
         geometries.append(geom)
     }
     
     func addBumpySphere(_ object: Geometria.NSphere<Vector3D>) {
-        let material = SceneGeometry.Material(color: .gray, reflectivity: 0.4)
+        let material = Material(color: .gray, reflectivity: 0.4)
         let geom = SceneGeometry(bumpySphere: object, material: material)
         geometries.append(geom)
     }
     
-    func addShinySphere(_ object: Geometria.NSphere<Vector3D>) {
-        let material = SceneGeometry.Material(color: .gray, reflectivity: 0.4)
+    func addShinySphere(_ object: Geometria.NSphere<Vector3D>, transparency: Double = 0.0) {
+        let material = Material(color: .gray, reflectivity: 0.4, transparency: transparency)
         let geom = SceneGeometry(convex: object, material: material)
         geometries.append(geom)
     }
     
     func addDisk(_ object: Geometria.Disk3<Vector3D>) {
-        let material = SceneGeometry.Material(color: .white)
+        let material = Material(color: .white)
         let geom = SceneGeometry(plane: object, material: material)
         geometries.append(geom)
     }
     
     func addPlane(_ object: Geometria.PointNormalPlane<Vector3D>) {
-        let material = SceneGeometry.Material(color: .gray)
+        let material = Material(color: .gray)
         let geom = SceneGeometry(plane: object, material: material)
         geometries.append(geom)
     }
@@ -85,7 +85,7 @@ class Scene {
                              lastHit: nil,
                              ignoring: ignoring)
         
-        for geo in geometries {
+        for geo in geometries where geo !== ignoring {
             result = geo.doRayCast(partialResult: result)
         }
         

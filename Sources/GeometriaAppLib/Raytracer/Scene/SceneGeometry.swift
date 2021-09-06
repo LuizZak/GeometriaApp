@@ -19,10 +19,6 @@ class SceneGeometry {
                 return result
             }
             
-            guard result.ignoring !== self else {
-                return result
-            }
-            
             switch bumpySphere.intersection(with: result.ray) {
             case .enter(let pt),
                  .enterExit(let pt, _),
@@ -82,10 +78,6 @@ class SceneGeometry {
                 return result
             }
             
-            guard result.ignoring !== self else {
-                return result
-            }
-            
             switch convex.intersection(with: result.ray) {
             case .enter(let pt),
                  .enterExit(let pt, _),
@@ -119,9 +111,6 @@ class SceneGeometry {
                 return result
             }
             
-            guard result.ignoring !== self else {
-                return result
-            }
             guard let inter = plane.intersection(with: result.ray) else {
                 return result
             }
@@ -153,10 +142,5 @@ class SceneGeometry {
         }
         
         return _doRayCast(partialResult)
-    }
-    
-    struct Material {
-        var color: BLRgba32
-        var reflectivity: Double = 0.0
     }
 }

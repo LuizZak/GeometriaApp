@@ -83,7 +83,9 @@ class Raytracer {
             // Raycast from normal and fade in the reflected color
             let reflection = reflect(direction: ray.direction, normal: hit.normal)
             let normRay = Ray(start: hit.point, direction: reflection)
-            let secondHit = raytrace(ray: normRay, ignoring: hit.sceneGeometry, bounceCount: bounceCount + 1)
+            let secondHit = raytrace(ray: normRay,
+                                     ignoring: hit.sceneGeometry,
+                                     bounceCount: bounceCount + 1)
             color = color.faded(towards: secondHit, factor: Float(material.reflectivity))
         }
         
@@ -96,6 +98,16 @@ class Raytracer {
             // Sunlight direction
             let sunDirDot = max(0.0, min(1, pow(hit.normal.dot(-scene.sunDirection), 5)))
             color = color.faded(towards: .white, factor: Float(sunDirDot))
+        }
+        
+        // Transparency
+        if material.transparency > 0.0 {
+            // Raycast past geometry and add color
+            let normRay = Ray(start: hit.point, direction: ray.direction)
+            let backColor = raytrace(ray: normRay,
+                                     ignoring: hit.sceneGeometry,
+                                     bounceCount: bounceCount)
+            color = color.faded(towards: backColor, factor: Float(material.transparency))
         }
         
         // Fade distant pixels to skyColor
