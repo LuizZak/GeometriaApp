@@ -81,7 +81,8 @@ class Raytracer {
         // Reflectivity
         if material.reflectivity > 0.0 && bounceCount < maxBounces {
             // Raycast from normal and fade in the reflected color
-            let normRay = Ray(start: hit.point, direction: hit.normal)
+            let reflection = reflect(direction: ray.direction, normal: hit.normal)
+            let normRay = Ray(start: hit.point, direction: reflection)
             let secondHit = raytrace(ray: normRay, ignoring: hit.sceneGeometry, bounceCount: bounceCount + 1)
             color = color.faded(towards: secondHit, factor: Float(material.reflectivity))
         }
@@ -104,6 +105,14 @@ class Raytracer {
         color = color.faded(towards: scene.skyColor, factor: distFactor)
         
         return color
+    }
+    
+    /// Reflects an incoming direction across a normal, returning a new direction
+    /// such that the angle between `direction <- normal` is the same as
+    /// `normal -> result`.
+    private func reflect(direction: Vector3D, normal: Vector3D) -> Vector3D {
+        // R = D - 2(D • N)N
+        return direction - 2 * direction.dot(normal) * normal
     }
     
     /// Calculates shadow ratio. 0 = no shadow, 1 = fully shadowed, values in
