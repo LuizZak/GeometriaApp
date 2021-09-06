@@ -18,6 +18,12 @@ class TiledBatcher: RaytracerBatcher {
     
     private(set) var hasBatches: Bool = false
     
+    convenience init(splitting viewportSize: Vector2i, threadCount: Int) {
+        let tileSize = viewportSize / (threadCount * 2)
+        
+        self.init(tileSize: tileSize.maximalComponent)
+    }
+    
     init(tileSize: Int) {
         self.tileSize = tileSize
     }

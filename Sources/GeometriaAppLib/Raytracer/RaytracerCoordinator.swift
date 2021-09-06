@@ -50,8 +50,8 @@ class RaytracerCoordinator: RaytracerWorkerContext {
         self.buffer = buffer
         
         self._raytracer = Raytracer(scene: Scene(),
-                                   camera: Camera(cameraSize: .init(viewportSize)),
-                                   viewportSize: viewportSize)
+                                    camera: Camera(cameraSize: .init(viewportSize)),
+                                    viewportSize: viewportSize)
         
         nextCoords = []
         _raytracingQueue = .init(label: "com.geometriaapp.raytracing",
@@ -60,7 +60,7 @@ class RaytracerCoordinator: RaytracerWorkerContext {
         _batchRequestQueue = .init(label: "com.geometriaapp.raytracing.batcher",
                                   qos: .default)
         
-        batcher = TiledBatcher(tileSize: 150)
+        batcher = TiledBatcher(splitting: viewportSize, threadCount: _threadCount)
 //        batcher = SieveBatcher()
 //        batcher = LinearBatcher()
         

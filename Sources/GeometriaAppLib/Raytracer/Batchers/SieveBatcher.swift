@@ -69,8 +69,14 @@ class SieveBatcher: RaytracerBatcher {
     }
     
     private func fillMultiplesCounters() {
+        indexCounters.removeAll()
+        
+        // Insert 1-counter at start of the list to fill remaining pixels of
+        // the screen while the other counters operate.
+        indexCounters.append(createLinearCounter())
+        
         // Pre-fill with prime pair counters
-        indexCounters = primes.map { createPrimePairCounter(prime: $0) }
+        indexCounters.append(contentsOf: primes.map { createPrimePairCounter(prime: $0) })
         
         // List of prime multiples counters to add to the end of the list after
         // all prime-pair multipliers.
@@ -102,9 +108,6 @@ class SieveBatcher: RaytracerBatcher {
         
         // Now back-insert all stored prime multiple counters
         indexCounters.append(contentsOf: primeMultiplesCounters)
-        
-        // Insert 1-counter at end of the list to fill remaining of screen
-        indexCounters.append(createLinearCounter())
     }
     
     /// Attempts to insert a given number as a prime in the sieve.
