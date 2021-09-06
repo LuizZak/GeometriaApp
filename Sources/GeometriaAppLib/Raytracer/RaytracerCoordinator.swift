@@ -34,9 +34,6 @@ class RaytracerCoordinator: RaytracerWorkerContext {
     var buffer: RaytracerBufferWriter
     var hasWork: Bool = true
     
-    /// The next coordinates the raytracer will fill.
-    var nextCoords: [Vector2i] = []
-    
     /// Progress of rendering, from 0.0 to 1.0, inclusive.
     /// Based on number of remaining batchers, according to ``batcher``.
     var progress: Double {
@@ -53,14 +50,15 @@ class RaytracerCoordinator: RaytracerWorkerContext {
                                     camera: Camera(cameraSize: .init(viewportSize)),
                                     viewportSize: viewportSize)
         
-        nextCoords = []
         _raytracingQueue = .init(label: "com.geometriaapp.raytracing",
                                  qos: .default,
                                 attributes: .concurrent)
         _batchRequestQueue = .init(label: "com.geometriaapp.raytracing.batcher",
                                   qos: .default)
         
-        batcher = TiledBatcher(splitting: viewportSize, estimatedThreadCount: _threadCount * 2, shuffleOrder: true)
+        batcher = TiledBatcher(splitting: viewportSize,
+                               estimatedThreadCount: _threadCount * 2,
+                               shuffleOrder: true)
 //        batcher = SieveBatcher()
 //        batcher = LinearBatcher()
         
@@ -73,7 +71,6 @@ class RaytracerCoordinator: RaytracerWorkerContext {
     
     func initialize() {
         hasWork = true
-        nextCoords = []
         _totalPixels = Int64(viewportSize.x) * Int64(viewportSize.y)
         currentPixels = 0
         buffer.clearAll(color: .white)
@@ -192,7 +189,8 @@ class RaytracerCoordinator: RaytracerWorkerContext {
     }
     
     func setBufferPixel(at coord: Vector2i, color: BLRgba32) {
-        assert(coord >= .zero && coord < viewportSize, "\(coord) is not within \(Vector2i.zero) x \(viewportSize) limits")
+        assert(coord >= .zero && coord < viewportSize,
+               "\(coord) is not within \(Vector2i.zero) x \(viewportSize) limits")
         
         buffer.setPixel(at: coord, color: color)
     }
