@@ -78,7 +78,7 @@ class Scene {
     }
     
     @inlinable
-    func intersect(ray: Ray, ignoring: GeometricType? = nil) -> RayHit? {
+    func intersect(ray: Ray, ignoring: SceneGeometry? = nil) -> RayHit? {
         var result =
             PartialRayResult(ray: ray,
                              rayMagnitudeSquared: .infinity,
@@ -97,17 +97,15 @@ class Scene {
         var rayAABB: AABB3D?
         var rayMagnitudeSquared: Double
         var lastHit: RayHit?
-        var ignoring: GeometricType?
+        var ignoring: SceneGeometry?
         
         func withHit(magnitudeSquared: Double,
                      point: Vector3D,
                      normal: Vector3D,
-                     geometry: GeometricType,
                      sceneGeometry: SceneGeometry) -> PartialRayResult {
             
             let hit = RayHit(point: point,
                              normal: normal,
-                             geometry: geometry,
                              sceneGeometry: sceneGeometry)
             
             let newAABB = AABB3D(minimum: Vector3D.pointwiseMin(ray.start, point),

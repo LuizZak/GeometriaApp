@@ -24,7 +24,7 @@ class Raytracer {
         return raytrace(ray: ray)
     }
     
-    private func raytrace(ray: Ray, ignoring: GeometricType? = nil, bounceCount: Int = 0) -> BLRgba32 {
+    private func raytrace(ray: Ray, ignoring: SceneGeometry? = nil, bounceCount: Int = 0) -> BLRgba32 {
         if bounceCount >= maxBounces {
             return scene.skyColor
         }
@@ -33,11 +33,12 @@ class Raytracer {
             return scene.skyColor
         }
         
+        let geometry = hit.sceneGeometry.geometry
         let material = hit.sceneGeometry.material
         var color = material.color
         var minimumShade: Double = 0.0
         
-        if hit.geometry is Plane {
+        if geometry is Plane {
             minimumShade = 0.6
             
             let checkerSize = 50.0
@@ -60,7 +61,7 @@ class Raytracer {
             }
             
             color = isWhite ? .white : .black
-        } else if let disk = hit.geometry as? Disk3<Vector3D> {
+        } else if let disk = geometry as? Disk3<Vector3D> {
             // Distance at which the disk color changes from white to red.
             let stripeFrequency = 5.0
             let dist = hit.point.distance(to: disk.center)
@@ -81,7 +82,7 @@ class Raytracer {
         if material.reflectivity > 0.0 && bounceCount < maxBounces {
             // Raycast from normal and fade in the reflected color
             let normRay = Ray(start: hit.point, direction: hit.normal)
-            let secondHit = raytrace(ray: normRay, ignoring: hit.geometry, bounceCount: bounceCount + 1)
+            let secondHit = raytrace(ray: normRay, ignoring: hit.sceneGeometry, bounceCount: bounceCount + 1)
             color = color.faded(towards: secondHit, factor: Float(material.reflectivity))
         }
         
@@ -111,7 +112,7 @@ class Raytracer {
     private func calculateShadow(hit: RayHit, rays: Int = 1) -> Double {
         if rays == 1 {
             let ray = Ray(start: hit.point, direction: -scene.sunDirection)
-            if scene.intersect(ray: ray, ignoring: hit.geometry) != nil {
+            if scene.intersect(ray: ray, ignoring: hit.sceneGeometry) != nil {
                 return 1.0
             }
             
@@ -128,7 +129,7 @@ class Raytracer {
             shadowLine.b.z += Double.random(in: -1...1)
             
             let ray = Ray.init(shadowLine)
-            if scene.intersect(ray: ray, ignoring: hit.geometry) != nil {
+            if scene.intersect(ray: ray, ignoring: hit.sceneGeometry) != nil {
                 shadowsHit += 1
             }
         }

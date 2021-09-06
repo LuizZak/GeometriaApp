@@ -3,50 +3,14 @@ import blend2d
 
 class SceneGeometry {
     private var _doRayCast: (_ partialResult: Scene.PartialRayResult) -> Scene.PartialRayResult
+    var geometry: GeometricType
     var bounds: AABB3<Vector3D>?
     var material: Material
-    
-    init<C: ConvexType & BoundableType & Equatable>(convex: C, material: Material) where C.Vector == Vector3D {
-        self.bounds = convex.bounds
-        self.material = material
-        
-        weak var sSelf: SceneGeometry?
-        
-        _doRayCast = { result in
-            guard let self = sSelf else {
-                return result
-            }
-            
-            if result.ignoring as? C == convex {
-                return result
-            }
-            
-            switch convex.intersection(with: result.ray) {
-            case .enter(let pt),
-                 .enterExit(let pt, _),
-                 .singlePoint(let pt):
-                
-                let distSq = pt.point.distanceSquared(to: result.ray.start)
-                if distSq > result.rayMagnitudeSquared {
-                    return result
-                }
-                
-                return result.withHit(magnitudeSquared: distSq,
-                                      point: pt.point,
-                                      normal: pt.normal,
-                                      geometry: convex,
-                                      sceneGeometry: self)
-            default:
-                return result
-            }
-        }
-        
-        sSelf = self
-    }
     
     init(bumpySphere: Sphere3<Vector3D>, material: Material) {
         self.bounds = bumpySphere.bounds
         self.material = material
+        self.geometry = bumpySphere
         
         weak var sSelf: SceneGeometry?
         
@@ -55,7 +19,7 @@ class SceneGeometry {
                 return result
             }
             
-            if result.ignoring as? Sphere3<Vector3D> == bumpySphere {
+            guard result.ignoring !== self else {
                 return result
             }
             
@@ -97,7 +61,44 @@ class SceneGeometry {
                 return result.withHit(magnitudeSquared: distSq,
                                       point: pt.point,
                                       normal: normal,
-                                      geometry: bumpySphere,
+                                      sceneGeometry: self)
+            default:
+                return result
+            }
+        }
+        
+        sSelf = self
+    }
+    
+    init<C: ConvexType & BoundableType & Equatable>(convex: C, material: Material) where C.Vector == Vector3D {
+        self.bounds = convex.bounds
+        self.material = material
+        self.geometry = convex
+        
+        weak var sSelf: SceneGeometry?
+        
+        _doRayCast = { result in
+            guard let self = sSelf else {
+                return result
+            }
+            
+            guard result.ignoring !== self else {
+                return result
+            }
+            
+            switch convex.intersection(with: result.ray) {
+            case .enter(let pt),
+                 .enterExit(let pt, _),
+                 .singlePoint(let pt):
+                
+                let distSq = pt.point.distanceSquared(to: result.ray.start)
+                if distSq > result.rayMagnitudeSquared {
+                    return result
+                }
+                
+                return result.withHit(magnitudeSquared: distSq,
+                                      point: pt.point,
+                                      normal: pt.normal,
                                       sceneGeometry: self)
             default:
                 return result
@@ -109,6 +110,7 @@ class SceneGeometry {
     
     init<P: LineIntersectivePlaneType & Equatable>(plane: P, material: Material) where P.Vector == Vector3D {
         self.material = material
+        self.geometry = plane
         
         weak var sSelf: SceneGeometry?
         
@@ -117,7 +119,7 @@ class SceneGeometry {
                 return result
             }
             
-            guard result.ignoring as? P != plane else {
+            guard result.ignoring !== self else {
                 return result
             }
             guard let inter = plane.intersection(with: result.ray) else {
@@ -137,7 +139,6 @@ class SceneGeometry {
             return result.withHit(magnitudeSquared: dSquared,
                                   point: inter,
                                   normal: normal,
-                                  geometry: plane,
                                   sceneGeometry: self)
         }
         
