@@ -25,8 +25,11 @@ class Raytracer {
         }
         
         var color: BLRgba32 = .white
+        var minimumShade: Double = 0.0
         
         if hit.geometry is Plane {
+            minimumShade = 0.6
+            
             let checkerSize = 50.0
             let checkerPhase = abs(hit.point) % checkerSize * 2
             
@@ -47,10 +50,25 @@ class Raytracer {
             }
             
             color = isWhite ? .white : .black
+        } else if let disk = hit.geometry as? Disk3<Vector3D> {
+            // Distance at which the disk color changes from white to red.
+            let stripeFrequency = 5.0
+            let dist = hit.point.distance(to: disk.center)
+            
+            let phase = dist.truncatingRemainder(dividingBy: stripeFrequency)
+            if phase < stripeFrequency / 2 {
+                color = .red
+            } else {
+                color = .white
+            }
+        } else if hit.geometry is Sphere3<Vector3D> {
+            color = .gray
+        } else if hit.geometry is AABB3<Vector3D> {
+            color = .gray
         }
         
         // Shading
-        let shade = max(0.0, min(0.4, hit.normal.dot(-ray.direction)))
+        let shade = max(0.0, min(1 - minimumShade, hit.normal.dot(-ray.direction)))
         color = color.faded(towards: .black, factor: Float(1 - shade))
         
         // Shadow or sunlight
