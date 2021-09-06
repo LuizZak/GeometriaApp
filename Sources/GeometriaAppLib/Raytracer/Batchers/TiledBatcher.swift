@@ -6,9 +6,10 @@ class TiledBatcher: RaytracerBatcher {
     typealias PixelRect = Rectangle2<Pixel>
     
     private var viewportSize: Vector2i = .zero
-    private var tileSize: Int
     private var tiles: [Tile] = []
     private var nextTileIndex: Int = 0
+    private var tileSize: Int
+    private var shuffleOrder: Bool
     
     var displayName: String = "Tiles/patchwork"
     
@@ -18,14 +19,15 @@ class TiledBatcher: RaytracerBatcher {
     
     private(set) var hasBatches: Bool = false
     
-    convenience init(splitting viewportSize: Vector2i, threadCount: Int) {
-        let tileSize = viewportSize / (threadCount * 2)
+    convenience init(splitting viewportSize: Vector2i, estimatedThreadCount: Int, shuffleOrder: Bool = false) {
+        let tileSize = viewportSize / (estimatedThreadCount * 2)
         
-        self.init(tileSize: tileSize.maximalComponent)
+        self.init(tileSize: tileSize.maximalComponent, shuffleOrder: shuffleOrder)
     }
     
-    init(tileSize: Int) {
+    init(tileSize: Int, shuffleOrder: Bool = false) {
         self.tileSize = tileSize
+        self.shuffleOrder = shuffleOrder
     }
     
     func initialize(viewportSize: Vector2i) {
@@ -74,6 +76,10 @@ class TiledBatcher: RaytracerBatcher {
                 
                 tiles.append(tile)
             }
+        }
+        
+        if shuffleOrder {
+            tiles.shuffle()
         }
     }
     
