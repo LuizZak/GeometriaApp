@@ -90,7 +90,7 @@ class Raytracer {
         }
         
         // Shadow or sunlight
-        let shadow = calculateShadow(hit: hit)
+        let shadow = calculateShadow(for: hit)
         if shadow > 0 {
             // Shadow
             color = color.faded(towards: .black, factor: Float(0.5 * shadow))
@@ -128,33 +128,23 @@ class Raytracer {
     }
     
     /// Calculates shadow ratio. 0 = no shadow, 1 = fully shadowed, values in
-    /// between specify the percentage of shadow rays that where obstructed by
-    /// geometry.
-    private func calculateShadow(hit: RayHit, rays: Int = 1) -> Double {
-        if rays == 1 {
-            let ray = Ray(start: hit.point, direction: -scene.sunDirection)
-            if scene.intersect(ray: ray, ignoring: hit.sceneGeometry) != nil {
-                return 1.0
-            }
+    /// between specify the percentage of opaqueness of geometry obstructing the
+    /// ray.
+    ///
+    /// Transparent geometries contributed a weighted value that is relative
+    /// to how opaque they are.
+    private func calculateShadow(for hit: RayHit) -> Double {
+        func opaqueness(ray: Ray, ignoring: SceneGeometry?) -> Double {
+            let transparency =
+                scene.intersectAll(ray: ray, ignoring: ignoring)
+                    .map(\.sceneGeometry.material.transparency)
+                    .reduce(1.0, *)
             
-            return 0.0
+            return max(0.0, min(1.0, 1 - transparency))
         }
         
-        let mag = 150.0
-        var shadowsHit = 0.0
+        let ray = Ray(start: hit.point, direction: -scene.sunDirection)
         
-        for _ in 0..<rays {
-            var shadowLine = Line3(a: hit.point, b: hit.point - scene.sunDirection * mag)
-            shadowLine.b.x += Double.random(in: -1...1)
-            shadowLine.b.y += Double.random(in: -1...1)
-            shadowLine.b.z += Double.random(in: -1...1)
-            
-            let ray = Ray.init(shadowLine)
-            if scene.intersect(ray: ray, ignoring: hit.sceneGeometry) != nil {
-                shadowsHit += 1
-            }
-        }
-        
-        return shadowsHit / Double(rays)
+        return opaqueness(ray: ray, ignoring: hit.sceneGeometry)
     }
 }

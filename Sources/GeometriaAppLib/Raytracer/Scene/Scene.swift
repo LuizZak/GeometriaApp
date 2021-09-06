@@ -17,8 +17,8 @@ class Scene {
     func createScene() {
         
         // AABB
-        let aabb: Geometria.AABB<Vector3D> = .init(minimum: .init(x: -70, y: 90, z: 60),
-                                                   maximum: .init(x: 10, y: 100, z: 95))
+        let aabb: Geometria.AABB<Vector3D> = .init(minimum: .init(x: -70, y: 120, z: 60),
+                                                   maximum: .init(x: 10, y: 140, z: 112))
         
         // Sphere
         let sphere: NSphere<Vector3D> = .init(center: .init(x: 0, y: 150, z: 45), radius: 30)
@@ -90,6 +90,28 @@ class Scene {
         }
         
         return result.lastHit
+    }
+    
+    /// Returns a list of all geometry that intersects a given ray.
+    @inlinable
+    func intersectAll(ray: Ray, ignoring: SceneGeometry? = nil) -> [RayHit] {
+        var hits: [RayHit] = []
+        
+        for geo in geometries where geo !== ignoring {
+            let result =
+            PartialRayResult(
+                ray: ray,
+                rayMagnitudeSquared: .infinity,
+                lastHit: nil,
+                ignoring: ignoring
+            )
+            
+            if let hit = geo.doRayCast(partialResult: result).lastHit {
+                hits.append(hit)
+            }
+        }
+        
+        return hits
     }
     
     struct PartialRayResult {
