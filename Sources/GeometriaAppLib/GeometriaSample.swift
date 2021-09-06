@@ -46,6 +46,7 @@ class GeometriaSample: Blend2DSample {
         time = 0
         _font = Fonts.defaultFont(size: 12)
         ui = ImagineUIWrapper(size: BLSizeI(w: Int32(width), h: Int32(height)))
+        ui.sampleRenderScale = sampleRenderScale
         restartRaytracing()
         createUI()
     }
@@ -249,7 +250,16 @@ class GeometriaSample: Blend2DSample {
     func render(context ctx: BLContext) {
         if let buffer = buffer {
             buffer.usingImage { img in
-                ctx.blitImage(img, at: BLPointI.zero)
+                if sampleRenderScale == .one {
+                    ctx.blitImage(img, at: BLPointI.zero)
+                } else {
+                    let rect = BLRect(x: 0,
+                                      y: 0,
+                                      w: Double(width) * sampleRenderScale.x,
+                                      h: Double(height) * sampleRenderScale.y)
+                    
+                    ctx.blitScaledImage(img, rectangle: rect, imageArea: nil)
+                }
             }
         } else {
             ctx.setFillStyle(BLRgba32.white)

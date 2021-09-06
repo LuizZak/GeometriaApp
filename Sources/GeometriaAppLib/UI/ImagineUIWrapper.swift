@@ -9,11 +9,12 @@ class ImagineUIWrapper {
     private var width: Int
     private var height: Int
     private let rendererContext = Blend2DRendererContext()
-    private var sampleRenderScale = BLPoint(x: 1, y: 1)
     private var controlSystem = DefaultControlSystem()
     private var rootViews: [RootView]
     private var currentRedrawRegion: Rectangle? = nil
     private var debugDrawFlags: Set<DebugDraw.DebugDrawFlags> = []
+    
+    var sampleRenderScale: BLPoint = .one
     
     let rootView = RootView()
     

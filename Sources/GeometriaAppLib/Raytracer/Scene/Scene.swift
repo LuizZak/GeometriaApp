@@ -28,7 +28,7 @@ class Scene {
         
         // Disk
         let disk: Disk3<Vector3D> = Disk3(center: .init(x: -10, y: 110, z: 20),
-                                          normal: .init(x: 0, y: 1, z: 0),
+                                          normal: .unitY,
                                           radius: 12)
         
         addAABB(aabb)
