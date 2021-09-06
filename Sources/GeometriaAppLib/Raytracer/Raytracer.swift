@@ -3,6 +3,7 @@ import Geometria
 
 /// Class that performs raytracing on a scene.
 class Raytracer {
+    var maxBounces: Int = 5
     var scene: Scene
     var camera: Camera
     var viewportSize: Vector2i
@@ -20,11 +21,20 @@ class Raytracer {
         assert(coord >= .zero && coord < viewportSize, "\(coord) is not within \(Vector2i.zero) x \(viewportSize) limits")
         
         let ray = camera.rayFromCamera(at: coord)
-        guard let hit = scene.intersect(ray: ray) else {
+        return raytrace(ray: ray)
+    }
+    
+    private func raytrace(ray: Ray, ignoring: GeometricType? = nil, bounceCount: Int = 0) -> BLRgba32 {
+        if bounceCount >= maxBounces {
             return scene.skyColor
         }
         
-        var color: BLRgba32 = .white
+        guard let hit = scene.intersect(ray: ray, ignoring: ignoring) else {
+            return scene.skyColor
+        }
+        
+        let material = hit.sceneGeometry.material
+        var color = material.color
         var minimumShade: Double = 0.0
         
         if hit.geometry is Plane {
@@ -61,15 +71,19 @@ class Raytracer {
             } else {
                 color = .white
             }
-        } else if hit.geometry is Sphere3<Vector3D> {
-            color = .gray
-        } else if hit.geometry is AABB3<Vector3D> {
-            color = .gray
         }
         
         // Shading
         let shade = max(0.0, min(1 - minimumShade, hit.normal.dot(-ray.direction)))
         color = color.faded(towards: .black, factor: Float(1 - shade))
+        
+        // Reflectivity
+        if material.reflectivity > 0.0 && bounceCount < maxBounces {
+            // Raycast from normal and fade in the reflected color
+            let normRay = Ray(start: hit.point, direction: hit.normal)
+            let secondHit = raytrace(ray: normRay, ignoring: hit.geometry, bounceCount: bounceCount + 1)
+            color = color.faded(towards: secondHit, factor: Float(material.reflectivity))
+        }
         
         // Shadow or sunlight
         let shadow = calculateShadow(hit: hit)
@@ -94,7 +108,7 @@ class Raytracer {
     /// Calculates shadow ratio. 0 = no shadow, 1 = fully shadowed, values in
     /// between specify the percentage of shadow rays that where obstructed by
     /// geometry.
-    func calculateShadow(hit: RayHit, rays: Int = 1) -> Double {
+    private func calculateShadow(hit: RayHit, rays: Int = 1) -> Double {
         if rays == 1 {
             let ray = Ray(start: hit.point, direction: -scene.sunDirection)
             if scene.intersect(ray: ray, ignoring: hit.geometry) != nil {
