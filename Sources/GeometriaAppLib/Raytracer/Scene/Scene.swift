@@ -16,9 +16,15 @@ class Scene {
     
     func createScene() {
         
-        // AABB
-        let aabb: Geometria.AABB<Vector3D> = .init(minimum: .init(x: -70, y: 120, z: 60),
-                                                   maximum: .init(x: 10, y: 140, z: 112))
+        // AABB - top
+        let aabbTop: Geometria.AABB<Vector3D> =
+            .init(minimum: .init(x: -70, y: 120, z: 60),
+                  maximum: .init(x: 10, y: 140, z: 112))
+        
+        // AABB - back
+        let aabbBack: Geometria.AABB<Vector3D> =
+            .init(minimum: .init(x: -50, y: 200, z: 10),
+                  maximum: .init(x: 0, y: 210, z: 50))
         
         // Sphere
         let sphere: NSphere<Vector3D> = .init(center: .init(x: 0, y: 150, z: 45), radius: 30)
@@ -39,8 +45,9 @@ class Scene {
                                                 radius: .init(x: 20, y: 15, z: 10))
         
         addPlane(floorPlane)
-        addAABB(aabb)
-        addShinySphere(sphere, transparency: 0.5)
+        addAABB(aabbTop)
+        addAABB(aabbBack)
+        addShinySphere(sphere, transparency: 0.5, refractiveIndex: 1.03)
         addBumpySphere(sphere2)
         addDisk(disk)
         addShinyEllipse3(ellipse)
@@ -64,8 +71,15 @@ class Scene {
         geometries.append(geom)
     }
     
-    func addShinySphere(_ object: Geometria.NSphere<Vector3D>, transparency: Double = 0.0) {
-        let material = Material(color: .gray, reflectivity: 0.6, transparency: transparency)
+    func addShinySphere(_ object: Geometria.NSphere<Vector3D>,
+                        transparency: Double = 0.0,
+                        refractiveIndex: Double = 1.0) {
+        
+        let material = Material(color: .gray,
+                                reflectivity: 0.6,
+                                transparency: transparency,
+                                refraciveIndex: refractiveIndex)
+        
         let geom = SceneGeometry(convex: object, material: material)
         geometries.append(geom)
     }

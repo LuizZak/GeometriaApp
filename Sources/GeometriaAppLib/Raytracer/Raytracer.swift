@@ -82,6 +82,8 @@ class Raytracer {
         if material.reflectivity > 0.0 && bounceCount < maxBounces {
             // For transparent models, reflectivity of back light bounces must
             // be accounted for before the front ray's contribution.
+            // TODO: Maybe this would be better accounted for on refraction
+            // TODO: step bellow
             if material.transparency > 0.0 && bounceCount < maxBounces,
                 case .enterExit(_, let exit) = hit.intersection {
                 
@@ -119,7 +121,7 @@ class Raytracer {
             color = color.faded(towards: .white, factor: Float(sunDirDot))
         }
         
-        // Transparency
+        // Transparency / refraction
         if material.transparency > 0.0 {
             // Raycast past geometry and add color
             // TODO: Account for refractions on the way out of materials, too:
