@@ -114,7 +114,7 @@ class SceneGeometry {
         sSelf = self
     }
     
-    init<P: LineIntersectivePlaneType & Equatable>(plane: P, material: Material) where P.Vector == Vector3D {
+    init<P: LineIntersectablePlaneType & Equatable>(plane: P, material: Material) where P.Vector == Vector3D {
         self.material = material
         self.geometry = plane
         
