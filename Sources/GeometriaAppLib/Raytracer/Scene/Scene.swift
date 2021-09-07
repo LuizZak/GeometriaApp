@@ -47,7 +47,7 @@ class Scene {
         addPlane(floorPlane)
         addAABB(aabbTop)
         addAABB(aabbBack)
-        addShinySphere(sphere, transparency: 0.5, refractiveIndex: 1.03)
+        addShinySphere(sphere, transparency: 0.5, refractiveIndex: 1.3)
         addBumpySphere(sphere2)
         addDisk(disk)
         addShinyEllipse3(ellipse)
@@ -78,7 +78,7 @@ class Scene {
         let material = Material(color: .gray,
                                 reflectivity: 0.6,
                                 transparency: transparency,
-                                refraciveIndex: refractiveIndex)
+                                refractiveIndex: refractiveIndex)
         
         let geom = SceneGeometry(convex: object, material: material)
         geometries.append(geom)
@@ -142,6 +142,8 @@ class Scene {
     struct PartialRayResult {
         var ray: Ray
         var rayAABB: AABB3D?
+        /// Current magnitude of ray's hit point. Is `.infinity` for newly casted
+        /// rays that did not intersect geometry yet.
         var rayMagnitudeSquared: Double
         var lastHit: RayHit?
         var ignoring: RayIgnore

@@ -11,5 +11,5 @@ struct Material {
     
     /// Refractive index. Value of == 1.0 matches world's refractive index, i.e.
     /// it causes no light refraction.
-    var refraciveIndex: Double = 1.0
+    var refractiveIndex: Double = 1.0
 }

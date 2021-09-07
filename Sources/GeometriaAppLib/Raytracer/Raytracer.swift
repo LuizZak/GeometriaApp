@@ -78,36 +78,18 @@ class Raytracer {
         let shade = max(0.0, min(1 - minimumShade, hit.normal.dot(-ray.direction)))
         color = color.faded(towards: .black, factor: Float(1 - shade))
         
+        // Find rates for reflection and transmission within material
+        let (refl, trans) = fresnel(ray.direction, hit.normal, material.refractiveIndex)
+        
         // Reflectivity
-        if material.reflectivity > 0.0 && bounceCount < maxBounces {
-            // For transparent models, reflectivity of back light bounces must
-            // be accounted for before the front ray's contribution.
-            // TODO: Maybe this would be better accounted for on refraction
-            // TODO: step bellow
-            if material.transparency > 0.0 && bounceCount < maxBounces,
-                case .enterExit(_, let exit) = hit.intersection {
-                
-                let reflectionBack = reflect(direction: ray.direction,
-                                             normal: exit.normal)
-                
-                let normRayBack = Ray(start: exit.point,
-                                      direction: reflectionBack)
-                
-                let backHit = raytrace(ray: normRayBack,
-                                       ignoring: .full(hit.sceneGeometry),
-                                       bounceCount: bounceCount + 1)
-                
-                color = color.faded(towards: backHit,
-                                    factor: Float(material.reflectivity * material.transparency))
-            }
-            
+        if material.reflectivity > 0.0 && refl > 0 && bounceCount < maxBounces {
             // Raycast from normal and fade in the reflected color
             let reflection = reflect(direction: ray.direction, normal: hit.normal)
             let normRay = Ray(start: hit.point, direction: reflection)
             let secondHit = raytrace(ray: normRay,
                                      ignoring: .full(hit.sceneGeometry),
                                      bounceCount: bounceCount + 1)
-            color = color.faded(towards: secondHit, factor: Float(material.reflectivity))
+            color = color.faded(towards: secondHit, factor: Float(refl * material.reflectivity))
         }
         
         // Shadow or sunlight
@@ -123,16 +105,42 @@ class Raytracer {
         
         // Transparency / refraction
         if material.transparency > 0.0 {
-            // Raycast past geometry and add color
-            // TODO: Account for refractions on the way out of materials, too:
-            // https://www.scratchapixel.com/lessons/3d-basic-rendering/introduction-to-shading/reflection-refraction-fresnel
-            let ref = refract(ray.direction, hit.normal, material.refraciveIndex) ?? ray.direction
+            var refractionColor: BLRgba32 = color
             
-            let normRay = Ray(start: hit.point, direction: ref)
-            let backColor = raytrace(ray: normRay,
+            // Raycast past geometry and add color
+            var rayThroughObject: Ray = Ray(start: hit.point, direction: ray.direction)
+            
+            // If refraction is active, create a ray that points to the exit
+            // point of the refracted ray that was generated inside the object's
+            // geometry.
+        refraction:
+            if trans > 0 {
+                guard let refractIn = refract(ray.direction, hit.normal, material.refractiveIndex) else {
+                    break refraction
+                }
+                
+                // Ray that traverses within the geometry
+                let innerRay = Ray(start: hit.point, direction: refractIn)
+                
+                guard let exit = hit.sceneGeometry.doRayCast(ray: innerRay, ignoring: .entrance(hit.sceneGeometry)) else {
+                    break refraction
+                }
+                
+                guard let refractOut = refract(innerRay.direction, exit.normal, material.refractiveIndex) else {
+                    break refraction
+                }
+                
+                rayThroughObject = Ray(start: exit.point, direction: refractOut)
+                
+//                refractionColor = raytrace(ray: rayThroughObject,
+//                                           ignoring: .full(hit.sceneGeometry),
+//                                           bounceCount: bounceCount)
+            }
+            
+            let backColor = raytrace(ray: rayThroughObject,
                                      ignoring: .full(hit.sceneGeometry),
                                      bounceCount: bounceCount)
-            color = color.faded(towards: backColor, factor: Float(material.transparency))
+            color = color.faded(towards: backColor, factor: Float(material.transparency * trans))
         }
         
         // Fade distant pixels to skyColor
@@ -174,20 +182,30 @@ class Raytracer {
     }
 }
 
-//#if false
+// MARK: Following functions for refraction angle and fresnel equations where sourced from:
+// https://www.scratchapixel.com/lessons/3d-basic-rendering/introduction-to-shading/reflection-refraction-fresnel
+
+/// Figure out refraction angle
+///
+/// - Parameters:
+///   - I: Incidence angle (angle of incoming ray)
+///   - N: Normal at surface of object
+///   - ior: Index of refraction of material
+///
+/// - Returns: Angle for ray cast to within the object
 func refract(_ I: Vector3D, _ N: Vector3D, _ ior: Double) -> Vector3D? {
     var cosi: Double = max(-1, min(1, I.dot(N)))
-    var etai: Double = 1.0, etat = ior;
-    var n = N;
+    var etai: Double = 1.0, etat = ior
+    var n = N
     if cosi < 0 {
-        cosi = -cosi;
+        cosi = -cosi
     } else {
-        (etai, etat) = (etat, etai)
-        n = -N;
+        swap(&etai, &etat)
+        n = -N
     }
-    let eta = etai / etat;
-    let denom: Double = eta * eta;
-    let k: Double = 1 - denom * (1 - cosi * cosi);
+    let eta = etai / etat
+    let denom: Double = eta * eta
+    let k: Double = 1 - denom * (1 - cosi * cosi)
     if k < 0 {
         return nil
     }
@@ -196,4 +214,37 @@ func refract(_ I: Vector3D, _ N: Vector3D, _ ior: Double) -> Vector3D? {
     
     return resultHalf + resultLast
 }
-//#endif
+
+/// Uses the [Fresnel equations](https://en.wikipedia.org/wiki/Fresnel_equations)
+/// to compute the rate of reflection / transmittance (refraction) within a material.
+///
+/// - Parameters:
+///   - I: Incidence angle (angle of incoming ray)
+///   - N: Normal at surface of object
+///   - ior: Index of refraction of material
+///
+/// - Returns: A tuple of values, adding up to 1.0, which describe the rate of
+/// the light that should be reflected vs transmitted (refracted) within.
+func fresnel(_ I: Vector3D, _ N: Vector3D, _ ior: Double) -> (reflection: Double, transmittance: Double) {
+    var cosi: Double = max(-1, min(1, I.dot(N)))
+    var etai: Double = 1.0, etat = ior
+    if cosi > 0 {
+        swap(&etai, &etat)
+    }
+    
+    // Compute sini using Snell's law
+    let sint: Double = etai / etat * sqrt(max(0.0, 1 - cosi * cosi))
+    
+    // Total internal reflection
+    if sint >= 1 {
+        return (1, 0)
+    } else {
+        let cost: Double = sqrt(max(0.0, 1 - sint * sint))
+        cosi = abs(cosi)
+        let Rs: Double = ((etat * cosi) - (etai * cost)) / ((etat * cosi) + (etai * cost))
+        let Rp: Double = ((etai * cosi) - (etat * cost)) / ((etai * cosi) + (etat * cost))
+        let refl = (Rs * Rs + Rp * Rp) / 2
+        
+        return (refl, 1 - refl)
+    }
+}

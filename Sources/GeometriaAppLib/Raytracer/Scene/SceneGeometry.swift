@@ -93,6 +93,7 @@ class SceneGeometry {
             let intersection = convex.intersection(with: result.ray)
             switch intersection {
             case .enter(let pt),
+                 .exit(let pt),
                  .enterExit(let pt, _),
                  .singlePoint(let pt):
                 
@@ -147,6 +148,33 @@ class SceneGeometry {
         }
         
         sSelf = self
+    }
+    
+    /// Performs raycasting for a single ray on this SceneGeometry.
+    ///
+    /// Returns `nil` if this geometry was not intersected according to the ray
+    /// and `ignore` rule specified.
+    func doRayCast(ray: Ray, ignoring: RayIgnore) -> RayHit? {
+        guard !ignoring.shouldIgnoreFully(sceneGeometry: self) else {
+            return nil
+        }
+        
+        let partial =
+            Scene.PartialRayResult(
+                ray: ray,
+                rayAABB: nil,
+                rayMagnitudeSquared: .infinity,
+                lastHit: nil,
+                ignoring: ignoring
+            )
+        
+        let result = doRayCast(partialResult: partial)
+        
+        guard let hit = result.lastHit else {
+            return nil
+        }
+        
+        return hit.assignPointOfInterest(from: ignoring)
     }
     
     func doRayCast(partialResult: Scene.PartialRayResult) -> Scene.PartialRayResult {
