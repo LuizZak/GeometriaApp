@@ -65,7 +65,7 @@ class Scene {
     }
     
     func addShinySphere(_ object: Geometria.NSphere<Vector3D>, transparency: Double = 0.0) {
-        let material = Material(color: .gray, reflectivity: 0.4, transparency: transparency)
+        let material = Material(color: .gray, reflectivity: 0.6, transparency: transparency)
         let geom = SceneGeometry(convex: object, material: material)
         geometries.append(geom)
     }
@@ -135,10 +135,12 @@ class Scene {
         func withHit(magnitudeSquared: Double,
                      point: Vector3D,
                      normal: Vector3D,
+                     intersection: ConvexLineIntersection<Vector3D>,
                      sceneGeometry: SceneGeometry) -> PartialRayResult {
             
             let hit = RayHit(point: point,
                              normal: normal,
+                             intersection: intersection,
                              sceneGeometry: sceneGeometry)
             
             let newAABB = AABB3D(minimum: Vector3D.pointwiseMin(ray.start, point),

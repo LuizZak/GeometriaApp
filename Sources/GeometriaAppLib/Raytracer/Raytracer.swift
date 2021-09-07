@@ -80,6 +80,25 @@ class Raytracer {
         
         // Reflectivity
         if material.reflectivity > 0.0 && bounceCount < maxBounces {
+            // For transparent models, reflectivity of back light bounces must
+            // be accounted for before the front ray's contribution.
+            if material.transparency > 0.0 && bounceCount < maxBounces,
+                case .enterExit(_, let exit) = hit.intersection {
+                
+                let reflectionBack = reflect(direction: ray.direction,
+                                             normal: exit.normal)
+                
+                let normRayBack = Ray(start: exit.point,
+                                      direction: reflectionBack)
+                
+                let backHit = raytrace(ray: normRayBack,
+                                       ignoring: hit.sceneGeometry,
+                                       bounceCount: bounceCount + 1)
+                
+                color = color.faded(towards: backHit,
+                                    factor: Float(material.reflectivity * material.transparency))
+            }
+            
             // Raycast from normal and fade in the reflected color
             let reflection = reflect(direction: ray.direction, normal: hit.normal)
             let normRay = Ray(start: hit.point, direction: reflection)
@@ -103,6 +122,8 @@ class Raytracer {
         // Transparency
         if material.transparency > 0.0 {
             // Raycast past geometry and add color
+            // TODO: Account for refractions:
+            // https://www.scratchapixel.com/lessons/3d-basic-rendering/introduction-to-shading/reflection-refraction-fresnel
             let normRay = Ray(start: hit.point, direction: ray.direction)
             let backColor = raytrace(ray: normRay,
                                      ignoring: hit.sceneGeometry,

@@ -19,7 +19,43 @@ class SceneGeometry {
                 return result
             }
             
-            switch bumpySphere.intersection(with: result.ray) {
+            var intersection = bumpySphere.intersection(with: result.ray)
+            intersection = intersection
+                .mappingPointNormals { pt in
+                    let distSq = pt.point.distanceSquared(to: result.ray.start)
+                    if distSq > result.rayMagnitudeSquared {
+                        return pt
+                    }
+                    
+                    let diff = (pt.point - bumpySphere.center)
+                    let elev = diff.elevation
+                    let azim = diff.azimuth
+                    
+                    let perlinRatio = 1.0
+                    let perlinAtten = 40.0
+                    var paz = PerlinGenerator.global.perlinNoise(x: elev / perlinRatio, y: azim / perlinRatio) / perlinAtten
+                    var pel = PerlinGenerator.global.perlinNoise(x: azim / perlinRatio, y: elev / perlinRatio) / perlinAtten
+                    if paz > .pi {
+                        paz -= .pi
+                    } else if paz < -.pi {
+                        paz += .pi
+                    }
+                    if pel > .pi / 2 {
+                        pel = .pi / 2 - pel
+                    } else if pel < -.pi / 2 {
+                        pel = .pi / 2 + pel
+                    }
+                    
+                    let sph = SphereCoordinates<Double>(azimuth: azim + paz, elevation: elev + pel)
+                    let sphereBulge = bumpySphere.expanded(by: 5.0)
+                    let normalEnd = sphereBulge.projectOut(sph)
+                    
+                    let normal = (normalEnd - pt.point).normalized()
+                    
+                    return PointNormal(point: pt.point, normal: normal)
+                }
+            
+            switch intersection {
             case .enter(let pt),
                  .enterExit(let pt, _),
                  .singlePoint(let pt):
@@ -29,34 +65,10 @@ class SceneGeometry {
                     return result
                 }
                 
-                let diff = (pt.point - bumpySphere.center)
-                let elev = diff.elevation
-                let azim = diff.azimuth
-                
-                let perlinRatio = 1.0
-                let perlinAtten = 40.0
-                var paz = PerlinGenerator.global.perlinNoise(x: elev / perlinRatio, y: azim / perlinRatio) / perlinAtten
-                var pel = PerlinGenerator.global.perlinNoise(x: azim / perlinRatio, y: elev / perlinRatio) / perlinAtten
-                if paz > .pi {
-                    paz -= .pi
-                } else if paz < -.pi {
-                    paz += .pi
-                }
-                if pel > .pi / 2 {
-                    pel = .pi / 2 - pel
-                } else if pel < -.pi / 2 {
-                    pel = .pi / 2 + pel
-                }
-                
-                let sph = SphereCoordinates<Double>(azimuth: azim + paz, elevation: elev + pel)
-                let sphereBulge = bumpySphere.expanded(by: 5.0)
-                let normalEnd = sphereBulge.projectOut(sph)
-                
-                let normal = (normalEnd - pt.point).normalized()
-                
                 return result.withHit(magnitudeSquared: distSq,
                                       point: pt.point,
-                                      normal: normal,
+                                      normal: pt.normal,
+                                      intersection: intersection,
                                       sceneGeometry: self)
             default:
                 return result
@@ -78,7 +90,8 @@ class SceneGeometry {
                 return result
             }
             
-            switch convex.intersection(with: result.ray) {
+            let intersection = convex.intersection(with: result.ray)
+            switch intersection {
             case .enter(let pt),
                  .enterExit(let pt, _),
                  .singlePoint(let pt):
@@ -91,6 +104,7 @@ class SceneGeometry {
                 return result.withHit(magnitudeSquared: distSq,
                                       point: pt.point,
                                       normal: pt.normal,
+                                      intersection: intersection,
                                       sceneGeometry: self)
             default:
                 return result
@@ -128,6 +142,7 @@ class SceneGeometry {
             return result.withHit(magnitudeSquared: dSquared,
                                   point: inter,
                                   normal: normal,
+                                  intersection: .singlePoint(PointNormal(point: inter, normal: normal)),
                                   sceneGeometry: self)
         }
         
