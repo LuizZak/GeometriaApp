@@ -103,14 +103,14 @@ class Scene {
     }
     
     @inlinable
-    func intersect(ray: Ray, ignoring: SceneGeometry? = nil) -> RayHit? {
+    func intersect(ray: Ray, ignoring: RayIgnore = .none) -> RayHit? {
         var result =
             PartialRayResult(ray: ray,
                              rayMagnitudeSquared: .infinity,
                              lastHit: nil,
                              ignoring: ignoring)
         
-        for geo in geometries where geo !== ignoring {
+        for geo in geometries where !ignoring.shouldIgnoreFully(sceneGeometry: geo) {
             result = geo.doRayCast(partialResult: result)
         }
         
@@ -119,19 +119,19 @@ class Scene {
     
     /// Returns a list of all geometry that intersects a given ray.
     @inlinable
-    func intersectAll(ray: Ray, ignoring: SceneGeometry? = nil) -> [RayHit] {
+    func intersectAll(ray: Ray, ignoring: RayIgnore = .none) -> [RayHit] {
         var hits: [RayHit] = []
         
-        for geo in geometries where geo !== ignoring {
+        for geo in geometries where !ignoring.shouldIgnoreFully(sceneGeometry: geo) {
             let result =
-            PartialRayResult(
-                ray: ray,
-                rayMagnitudeSquared: .infinity,
-                lastHit: nil,
-                ignoring: ignoring
-            )
+                PartialRayResult(
+                    ray: ray,
+                    rayMagnitudeSquared: .infinity,
+                    lastHit: nil,
+                    ignoring: ignoring
+                )
             
-            if let hit = geo.doRayCast(partialResult: result).lastHit {
+            if let hit = geo.doRayCast(partialResult: result).lastHit?.assignPointOfInterest(from: ignoring) {
                 hits.append(hit)
             }
         }
@@ -144,7 +144,7 @@ class Scene {
         var rayAABB: AABB3D?
         var rayMagnitudeSquared: Double
         var lastHit: RayHit?
-        var ignoring: SceneGeometry?
+        var ignoring: RayIgnore
         
         func withHit(magnitudeSquared: Double,
                      point: Vector3D,
@@ -152,8 +152,7 @@ class Scene {
                      intersection: ConvexLineIntersection<Vector3D>,
                      sceneGeometry: SceneGeometry) -> PartialRayResult {
             
-            let hit = RayHit(point: point,
-                             normal: normal,
+            let hit = RayHit(pointOfInterest: .init(point: point, normal: normal),
                              intersection: intersection,
                              sceneGeometry: sceneGeometry)
             

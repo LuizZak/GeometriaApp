@@ -24,7 +24,7 @@ class Raytracer {
         return raytrace(ray: ray)
     }
     
-    private func raytrace(ray: Ray, ignoring: SceneGeometry? = nil, bounceCount: Int = 0) -> BLRgba32 {
+    private func raytrace(ray: Ray, ignoring: RayIgnore = .none, bounceCount: Int = 0) -> BLRgba32 {
         if bounceCount >= maxBounces {
             return scene.skyColor
         }
@@ -94,7 +94,7 @@ class Raytracer {
                                       direction: reflectionBack)
                 
                 let backHit = raytrace(ray: normRayBack,
-                                       ignoring: hit.sceneGeometry,
+                                       ignoring: .full(hit.sceneGeometry),
                                        bounceCount: bounceCount + 1)
                 
                 color = color.faded(towards: backHit,
@@ -105,7 +105,7 @@ class Raytracer {
             let reflection = reflect(direction: ray.direction, normal: hit.normal)
             let normRay = Ray(start: hit.point, direction: reflection)
             let secondHit = raytrace(ray: normRay,
-                                     ignoring: hit.sceneGeometry,
+                                     ignoring: .full(hit.sceneGeometry),
                                      bounceCount: bounceCount + 1)
             color = color.faded(towards: secondHit, factor: Float(material.reflectivity))
         }
@@ -130,7 +130,7 @@ class Raytracer {
             
             let normRay = Ray(start: hit.point, direction: ref)
             let backColor = raytrace(ray: normRay,
-                                     ignoring: hit.sceneGeometry,
+                                     ignoring: .full(hit.sceneGeometry),
                                      bounceCount: bounceCount)
             color = color.faded(towards: backColor, factor: Float(material.transparency))
         }
@@ -159,7 +159,7 @@ class Raytracer {
     /// Transparent geometries contributed a weighted value that is relative
     /// to how opaque they are.
     private func calculateShadow(for hit: RayHit) -> Double {
-        func opaqueness(ray: Ray, ignoring: SceneGeometry?) -> Double {
+        func opaqueness(ray: Ray, ignoring: RayIgnore) -> Double {
             let transparency =
                 scene.intersectAll(ray: ray, ignoring: ignoring)
                     .map(\.sceneGeometry.material.transparency)
@@ -170,7 +170,7 @@ class Raytracer {
         
         let ray = Ray(start: hit.point, direction: -scene.sunDirection)
         
-        return opaqueness(ray: ray, ignoring: hit.sceneGeometry)
+        return opaqueness(ray: ray, ignoring: .full(hit.sceneGeometry))
     }
 }
 
