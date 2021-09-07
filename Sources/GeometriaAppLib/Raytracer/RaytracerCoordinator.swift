@@ -52,10 +52,13 @@ class RaytracerCoordinator: RaytracerWorkerContext {
         
         _raytracingQueue = .init(label: "com.geometriaapp.raytracing",
                                  qos: .default,
-                                attributes: .concurrent)
+                                 attributes: .concurrent)
         _batchRequestQueue = .init(label: "com.geometriaapp.raytracing.batcher",
-                                  qos: .default)
+                                   qos: .default)
         
+//        batcher = SinglePixelBatcher(pixel: .init(x: 225, y: 150)) // Transparent sphere - top-right corner
+//        batcher = SinglePixelBatcher(pixel: .init(x: 200, y: 173)) // Transparent sphere - center
+//        batcher = SinglePixelBatcher(pixel: .init(x: 189, y: 184)) // Transparent sphere - bottom-left center of refraction 'anomaly'
         batcher = TiledBatcher(splitting: viewportSize,
                                estimatedThreadCount: _threadCount * 2,
                                shuffleOrder: true)

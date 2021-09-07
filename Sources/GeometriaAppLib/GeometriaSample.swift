@@ -27,6 +27,8 @@ class GeometriaSample: Blend2DSample {
     private let bottomLeftLabels: StackView = StackView(orientation: .vertical)
     private let instructionsLabel: LabelControl = LabelControl(text: instructions)
     
+    private let mouseLocationLabel: LabelControl = LabelControl()
+    
     var width: Int
     var height: Int
     var sampleRenderScale: BLPoint = .one
@@ -66,6 +68,7 @@ class GeometriaSample: Blend2DSample {
         topLeftLabels.addArrangedSubview(totalTimeLabel)
         
         bottomLeftLabels.addArrangedSubview(instructionsLabel)
+        bottomLeftLabels.addArrangedSubview(mouseLocationLabel)
         
         bottomLeftLabels.layout.makeConstraints { make in
             make.left == 5
@@ -216,6 +219,8 @@ class GeometriaSample: Blend2DSample {
     
     func mouseMoved(event: MouseEventArgs) {
         ui.mouseMoved(event: event)
+        
+        mouseLocationLabel.text = "Mouse location: (x: \(Int(event.location.x)), y: \(Int(event.location.y)))"
     }
     
     func mouseDown(event: MouseEventArgs) {

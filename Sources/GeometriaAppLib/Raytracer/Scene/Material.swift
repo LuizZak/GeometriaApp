@@ -8,4 +8,7 @@ struct Material {
     
     /// Values > 0 increase the transparency of the geometry.
     var transparency: Double = 0.0
+    
+    /// Refractive index. Value of == 1.0 matches world's refractive index.
+    var refraciveIndex: Double = 1.0
 }

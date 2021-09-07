@@ -38,11 +38,11 @@ class Scene {
         let ellipse: Ellipsoid3<Vector3D> = .init(center: .init(x: -50, y: 90, z: 20),
                                                   radius: .init(x: 20, y: 15, z: 10))
         
+        addPlane(floorPlane)
         addAABB(aabb)
         addShinySphere(sphere, transparency: 0.5)
         addBumpySphere(sphere2)
         addDisk(disk)
-        addPlane(floorPlane)
         addShinyEllipse3(ellipse)
     }
     
@@ -70,8 +70,8 @@ class Scene {
         geometries.append(geom)
     }
     
-    func addShinyEllipse3(_ object: Geometria.Ellipsoid3<Vector3D>) {
-        let material = Material(color: .gray, reflectivity: 0.5)
+    func addShinyEllipse3(_ object: Geometria.Ellipsoid3<Vector3D>, transparency: Double = 0.0) {
+        let material = Material(color: .gray, reflectivity: 0.5, transparency: transparency)
         let geom = SceneGeometry(convex: object, material: material)
         geometries.append(geom)
     }

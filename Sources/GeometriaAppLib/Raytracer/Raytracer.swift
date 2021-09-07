@@ -122,9 +122,11 @@ class Raytracer {
         // Transparency
         if material.transparency > 0.0 {
             // Raycast past geometry and add color
-            // TODO: Account for refractions:
+            // TODO: Account for refractions on the way out of materials, too:
             // https://www.scratchapixel.com/lessons/3d-basic-rendering/introduction-to-shading/reflection-refraction-fresnel
-            let normRay = Ray(start: hit.point, direction: ray.direction)
+            let ref = refract(ray.direction, hit.normal, material.refraciveIndex) ?? ray.direction
+            
+            let normRay = Ray(start: hit.point, direction: ref)
             let backColor = raytrace(ray: normRay,
                                      ignoring: hit.sceneGeometry,
                                      bounceCount: bounceCount)
@@ -169,3 +171,27 @@ class Raytracer {
         return opaqueness(ray: ray, ignoring: hit.sceneGeometry)
     }
 }
+
+//#if false
+func refract(_ I: Vector3D, _ N: Vector3D, _ ior: Double) -> Vector3D? {
+    var cosi: Double = max(-1, min(1, I.dot(N)))
+    var etai: Double = 1.0, etat = ior;
+    var n = N;
+    if cosi < 0 {
+        cosi = -cosi;
+    } else {
+        (etai, etat) = (etat, etai)
+        n = -N;
+    }
+    let eta = etai / etat;
+    let denom: Double = eta * eta;
+    let k: Double = 1 - denom * (1 - cosi * cosi);
+    if k < 0 {
+        return nil
+    }
+    let resultHalf: Vector3D = eta * I
+    let resultLast: Vector3D = (eta * cosi - sqrt(k)) * n
+    
+    return resultHalf + resultLast
+}
+//#endif
