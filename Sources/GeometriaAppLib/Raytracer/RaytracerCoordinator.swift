@@ -47,7 +47,7 @@ class RaytracerCoordinator: RaytracerWorkerContext {
         self.buffer = buffer
         
         self._raytracer = Raytracer(scene: Scene(),
-                                    camera: Camera(cameraSize: .init(viewportSize)),
+                                    camera: Camera(viewportSize: viewportSize),
                                     viewportSize: viewportSize)
         
         _raytracingQueue = .init(label: "com.geometriaapp.raytracing",
@@ -132,7 +132,7 @@ class RaytracerCoordinator: RaytracerWorkerContext {
     }
     
     func recreateCamera() {
-        _raytracer.camera = Camera(cameraSize: .init(viewportSize))
+        _raytracer.camera = Camera(viewportSize: viewportSize)
     }
     
     func resetBatcher() {
