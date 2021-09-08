@@ -1,3 +1,4 @@
+import Geometria
 struct RayHit {
     /// Convenience for `pointOfInterest.point`
     var point: RVector3D {
@@ -14,6 +15,26 @@ struct RayHit {
     var pointOfInterest: PointNormal<RVector3D>
     var intersection: ConvexLineIntersection<RVector3D>
     var sceneGeometry: SceneGeometry
+    
+    init(pointOfInterest: PointNormal<RVector3D>,
+         intersection: ConvexLineIntersection<RVector3D>,
+         sceneGeometry: SceneGeometry) {
+        
+        self.pointOfInterest = pointOfInterest
+        self.intersection = intersection
+        self.sceneGeometry = sceneGeometry
+    }
+    
+    init?(findingPointOfInterestOf rayIgnore: RayIgnore,
+          intersection: ConvexLineIntersection<RVector3D>,
+          sceneGeometry: SceneGeometry) {
+        
+        guard let poi = rayIgnore.computePointNormalOfInterest(sceneGeometry: sceneGeometry, intersection: intersection) else {
+            return nil
+        }
+        
+        self.init(pointOfInterest: poi, intersection: intersection, sceneGeometry: sceneGeometry)
+    }
     
     /// Computes a new ``RayHit`` from the parameters of this instance, while
     /// assigning the point-of-interest of a given ``RayIgnore`` instance.

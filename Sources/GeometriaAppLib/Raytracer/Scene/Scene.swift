@@ -139,6 +139,20 @@ final class Scene {
         var lastHit: RayHit?
         var ignoring: RayIgnore
         
+        func withHit(_ rayHit: RayHit) -> PartialRayResult {
+            let point = rayHit.point
+            let magnitudeSquared = point.distanceSquared(to: ray.start)
+            
+            let newAABB = RAABB3D(minimum: RVector3D.pointwiseMin(ray.start, point),
+                                  maximum: RVector3D.pointwiseMax(ray.start, point))
+            
+            return PartialRayResult(ray: ray,
+                                    rayAABB: newAABB,
+                                    rayMagnitudeSquared: magnitudeSquared,
+                                    lastHit: rayHit,
+                                    ignoring: ignoring)
+        }
+        
         func withHit(magnitudeSquared: Double,
                      point: RVector3D,
                      normal: RVector3D,
@@ -149,14 +163,7 @@ final class Scene {
                              intersection: intersection,
                              sceneGeometry: sceneGeometry)
             
-            let newAABB = RAABB3D(minimum: RVector3D.pointwiseMin(ray.start, point),
-                                 maximum: RVector3D.pointwiseMax(ray.start, point))
-            
-            return PartialRayResult(ray: ray,
-                                    rayAABB: newAABB,
-                                    rayMagnitudeSquared: magnitudeSquared,
-                                    lastHit: hit,
-                                    ignoring: ignoring)
+            return withHit(hit)
         }
     }
 }
