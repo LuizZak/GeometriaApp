@@ -1,6 +1,6 @@
 import SwiftBlend2D
 
-class Scene {
+final class Scene {
     // Sky color for pixels that don't intersect with geometry
     var skyColor: BLRgba32 = .cornflowerBlue
     
@@ -122,15 +122,7 @@ class Scene {
         var hits: [RayHit] = []
         
         for geo in geometries where !ignoring.shouldIgnoreFully(sceneGeometry: geo) {
-            let result =
-                PartialRayResult(
-                    ray: ray,
-                    rayMagnitudeSquared: .infinity,
-                    lastHit: nil,
-                    ignoring: ignoring
-                )
-            
-            if let hit = geo.doRayCast(partialResult: result).lastHit?.assignPointOfInterest(from: ignoring) {
+            if let hit = geo.doRayCast(ray: ray, ignoring: ignoring) {
                 hits.append(hit)
             }
         }

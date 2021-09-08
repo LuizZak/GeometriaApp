@@ -1,6 +1,6 @@
 import blend2d
 
-class SceneGeometry {
+final class SceneGeometry {
     private var _doRayCast: (_ partialResult: Scene.PartialRayResult) -> Scene.PartialRayResult
     var geometry: GeometricType
     var bounds: AABB3<RVector3D>?

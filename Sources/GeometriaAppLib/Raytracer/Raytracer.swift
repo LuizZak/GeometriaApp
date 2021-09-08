@@ -1,7 +1,7 @@
 import SwiftBlend2D
 
 /// Class that performs raytracing on a scene.
-class Raytracer {
+final class Raytracer {
     private var processingPrinter: ProcessingPrinter?
     
     var maxBounces: Int = 5
@@ -193,18 +193,14 @@ class Raytracer {
     /// Transparent geometries contributed a weighted value that is relative
     /// to how opaque they are.
     private func calculateShadow(for hit: RayHit) -> Double {
-        func opaqueness(ray: RRay3D, ignoring: RayIgnore) -> Double {
-            let transparency =
-            scene.intersectAll(ray: ray, ignoring: ignoring)
-                .map(\.sceneGeometry.material.transparency)
-                .reduce(1.0, *)
-            
-            return max(0.0, min(1.0, 1 - transparency))
-        }
-        
         let ray = RRay3D(start: hit.point, direction: -scene.sunDirection)
         
-        return opaqueness(ray: ray, ignoring: .full(hit.sceneGeometry))
+        let transparency =
+        scene.intersectAll(ray: ray, ignoring: .full(hit.sceneGeometry))
+            .map(\.sceneGeometry.material.transparency)
+            .reduce(1.0, *)
+        
+        return max(0.0, min(1.0, 1 - transparency))
     }
 }
 
