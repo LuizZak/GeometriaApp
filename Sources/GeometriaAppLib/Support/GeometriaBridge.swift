@@ -1,15 +1,11 @@
-import Geometria
 import SwiftBlend2D
 import ImagineUI
 
-typealias UIVector = ImagineUI.Vector
-typealias UIRectangle = ImagineUI.Rectangle
-
 /// Vector2 for Raytracing operations
-typealias RVector2D = SIMD2<Double>
+typealias RVector2D = Vector2D
 
 /// Vector3 for Raytracing operations
-typealias RVector3D = SIMD3<Double>
+typealias RVector3D = Vector3D
 
 /// Rectangle for Raytracing operations
 typealias RRectangle = Rectangle2<RVector2D>
@@ -28,6 +24,15 @@ typealias RLineSegment2D = LineSegment2<RVector2D>
 
 /// Circle2 for Raytracing operations
 typealias RCircle2D = Circle2<RVector2D>
+
+/// Sphere3 for Raytracing operations
+typealias RSphere3D = Sphere3<RVector3D>
+
+/// Ellipse3 for Raytracing operations
+typealias REllipse3D = Ellipse3<RVector3D>
+
+/// Disk3 for Raytracing operations
+typealias RDisk3D = Disk3<Vector3D>
 
 /// LinePolygon2 for Raytracing operations
 typealias RPolyLine2D = LinePolygon2<RVector2D>

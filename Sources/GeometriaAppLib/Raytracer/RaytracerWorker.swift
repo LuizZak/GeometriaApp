@@ -1,4 +1,3 @@
-import Geometria
 import SwiftBlend2D
 
 /// Class that manages raytracing of batches of pixels.

@@ -219,7 +219,7 @@ extension ImagineUIWrapper: WindowDelegate {
         window.setWindowState(.minimized)
     }
     
-    func windowSizeForFullscreen(_ window: Window) -> Size {
+    func windowSizeForFullscreen(_ window: Window) -> UISize {
         return bounds.asRectangle.size
     }
 }

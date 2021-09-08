@@ -1,8 +1,6 @@
-import Geometria
-
 struct Camera {
     private var cameraPlane: ProjectivePointNormalPlane3<RVector3D> =
-        .makeCorrectedPlane(point: .unitZ * 5,
+        .makeCorrectedPlane(point: RVector3D.unitZ * 5,
                             normal: .init(x: 0, y: 5, z: -1),
                             upAxis: .unitZ)
     

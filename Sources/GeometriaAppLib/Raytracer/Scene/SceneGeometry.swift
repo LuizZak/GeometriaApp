@@ -1,4 +1,3 @@
-import Geometria
 import blend2d
 
 class SceneGeometry {

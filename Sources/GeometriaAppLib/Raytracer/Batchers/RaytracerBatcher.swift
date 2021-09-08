@@ -1,5 +1,3 @@
-import Geometria
-
 /// Used to produce batching of pixels to raytrace.
 protocol RaytracerBatcher {
     /// Display name of this batcher for UI.

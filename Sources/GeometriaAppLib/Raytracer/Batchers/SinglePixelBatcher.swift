@@ -1,5 +1,3 @@
-import Geometria
-
 /// Batcher that serves a single pixel to render.
 /// Used for debugging.
 class SinglePixelBatcher: RaytracerBatcher {

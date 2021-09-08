@@ -1,5 +1,4 @@
 import SwiftBlend2D
-import Geometria
 import Foundation
 import Dispatch
 import ImagineUI

@@ -1,5 +1,4 @@
 import SwiftBlend2D
-import Geometria
 
 class Scene {
     // Sky color for pixels that don't intersect with geometry
@@ -17,12 +16,12 @@ class Scene {
     func createScene() {
         
         // AABB - top
-        let aabbTop: Geometria.AABB<RVector3D> =
+        let aabbTop: RAABB3D =
             .init(minimum: .init(x: -70, y: 120, z: 60),
                   maximum: .init(x: 10, y: 140, z: 112))
         
         // AABB - back
-        let aabbBack: Geometria.AABB<RVector3D> =
+        let aabbBack: RAABB3D =
             .init(minimum: .init(x: -50, y: 200, z: 10),
                   maximum: .init(x: 0, y: 210, z: 50))
         
@@ -36,13 +35,13 @@ class Scene {
         let floorPlane: RPlane3D = RPlane3D(point: .zero, normal: .unitZ)
         
         // Disk
-        let disk: Disk3<RVector3D> = Disk3(center: .init(x: -10, y: 110, z: 20),
-                                          normal: .unitY,
-                                          radius: 12)
+        let disk: Disk3<RVector3D> = RDisk3D(center: .init(x: -10, y: 110, z: 20),
+                                             normal: .unitY,
+                                             radius: 12)
         
         // Ellipse
         let ellipse: Ellipse3<RVector3D> = .init(center: .init(x: -50, y: 90, z: 20),
-                                                radius: .init(x: 20, y: 15, z: 10))
+                                                 radius: .init(x: 20, y: 15, z: 10))
         
         addPlane(floorPlane)
         addAABB(aabbTop)
@@ -53,25 +52,25 @@ class Scene {
         addShinySphere(sphere, transparency: 0.5, refractiveIndex: 1.3)
     }
     
-    func addAABB(_ object: Geometria.AABB<RVector3D>) {
+    func addAABB(_ object: RAABB3D) {
         let material = Material(color: .gray)
         let geom = SceneGeometry(convex: object, material: material)
         geometries.append(geom)
     }
     
-    func addSphere(_ object: Geometria.NSphere<RVector3D>) {
+    func addSphere(_ object: RSphere3D) {
         let material = Material(color: .gray)
         let geom = SceneGeometry(convex: object, material: material)
         geometries.append(geom)
     }
     
-    func addBumpySphere(_ object: Geometria.NSphere<RVector3D>) {
+    func addBumpySphere(_ object: RSphere3D) {
         let material = Material(color: .gray, reflectivity: 0.4)
         let geom = SceneGeometry(bumpySphere: object, material: material)
         geometries.append(geom)
     }
     
-    func addShinySphere(_ object: Geometria.NSphere<RVector3D>,
+    func addShinySphere(_ object: RSphere3D,
                         transparency: Double = 0.0,
                         refractiveIndex: Double = 1.0) {
         
@@ -84,19 +83,19 @@ class Scene {
         geometries.append(geom)
     }
     
-    func addShinyEllipse3(_ object: Geometria.Ellipse3<RVector3D>, transparency: Double = 0.0) {
+    func addShinyEllipse3(_ object: REllipse3D, transparency: Double = 0.0) {
         let material = Material(color: .gray, reflectivity: 0.5, transparency: transparency)
         let geom = SceneGeometry(convex: object, material: material)
         geometries.append(geom)
     }
     
-    func addDisk(_ object: Geometria.Disk3<RVector3D>) {
+    func addDisk(_ object: RDisk3D) {
         let material = Material(color: .white)
         let geom = SceneGeometry(plane: object, material: material)
         geometries.append(geom)
     }
     
-    func addPlane(_ object: Geometria.PointNormalPlane<RVector3D>) {
+    func addPlane(_ object: RPlane3D) {
         let material = Material(color: .gray)
         let geom = SceneGeometry(plane: object, material: material)
         geometries.append(geom)

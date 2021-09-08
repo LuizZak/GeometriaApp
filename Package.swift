@@ -12,7 +12,9 @@ let package = Package(
             targets: ["GeometriaApp"]),
     ],
     dependencies: [
-        .package(url: "https://github.com/LuizZak/Geometria.git", branch: "main"),
+        // TODO: When Swift properly supports -Xswiftc -cross-module-optimization, re-enable external Geometria import.
+        // TODO: For now, code is embedded directly into this repository.
+        // .package(url: "https://github.com/LuizZak/Geometria.git", branch: "main"),
         .package(url: "https://github.com/LuizZak/ImagineUI.git", branch: "master"),
         .package(url: "https://github.com/LuizZak/swift-blend2d.git", branch: "master")
     ],
@@ -25,7 +27,7 @@ let package = Package(
         .target(
             name: "GeometriaAppLib",
             dependencies: [
-                "Geometria",
+                // "Geometria",
                 "ImagineUI",
                 .product(name: "SwiftBlend2D", package: "swift-blend2d")
             ],

@@ -1,5 +1,4 @@
 import SwiftBlend2D
-import Geometria
 
 /// Class that performs raytracing on a scene.
 class Raytracer {
@@ -99,36 +98,6 @@ class Raytracer {
         // Find rates for reflection and transmission within material
         let (refl, trans) = fresnel(ray.direction, hit.normal, material.refractiveIndex)
         
-        // Reflectivity
-        if material.reflectivity > 0.0 && bounceCount < maxBounces {
-            // Raycast from normal and fade in the reflected color
-            let reflection = reflect(direction: ray.direction, normal: hit.normal)
-            let normRay = RRay3D(start: hit.point, direction: reflection)
-            let secondHit = raytrace(ray: normRay,
-                                     ignoring: .full(hit.sceneGeometry),
-                                     bounceCount: bounceCount + 1)
-            
-            let factor: Double
-            if material.refractiveIndex != 1.0 {
-                factor = refl
-            } else {
-                factor = refl + material.reflectivity
-            }
-            
-            color = color.faded(towards: secondHit, factor: Float(factor))
-        }
-        
-        // Shadow or sunlight
-        let shadow = calculateShadow(for: hit)
-        if shadow > 0 {
-            // Shadow
-            color = color.faded(towards: .black, factor: Float(0.5 * shadow))
-        } else {
-            // Sunlight direction
-            let sunDirDot = max(0.0, min(1, pow(hit.normal.dot(-scene.sunDirection), 5)))
-            color = color.faded(towards: .white, factor: Float(sunDirDot))
-        }
-        
         // Transparency / refraction
         if material.transparency > 0.0 {
             // Raycast past geometry and add color
@@ -168,6 +137,36 @@ class Raytracer {
                                      ignoring: .full(hit.sceneGeometry),
                                      bounceCount: bounceCount)
             color = color.faded(towards: backColor, factor: Float(material.transparency * trans))
+        }
+        
+        // Reflectivity
+        if material.reflectivity > 0.0 && bounceCount < maxBounces {
+            // Raycast from normal and fade in the reflected color
+            let reflection = reflect(direction: ray.direction, normal: hit.normal)
+            let normRay = RRay3D(start: hit.point, direction: reflection)
+            let secondHit = raytrace(ray: normRay,
+                                     ignoring: .full(hit.sceneGeometry),
+                                     bounceCount: bounceCount + 1)
+            
+            let factor: Double
+            if material.refractiveIndex != 1.0 {
+                factor = refl
+            } else {
+                factor = refl + material.reflectivity
+            }
+            
+            color = color.faded(towards: secondHit, factor: Float(factor))
+        }
+        
+        // Shadow or sunlight
+        let shadow = calculateShadow(for: hit)
+        if shadow > 0 {
+            // Shadow
+            color = color.faded(towards: .black, factor: Float(0.5 * shadow))
+        } else {
+            // Sunlight direction
+            let sunDirDot = max(0.0, min(1, pow(hit.normal.dot(-scene.sunDirection), 5)))
+            color = color.faded(towards: .white, factor: Float(sunDirDot))
         }
         
         // Fade distant pixels to skyColor

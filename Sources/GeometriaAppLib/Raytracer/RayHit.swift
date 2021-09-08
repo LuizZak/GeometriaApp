@@ -1,5 +1,3 @@
-import Geometria
-
 struct RayHit {
     /// Convenience for `pointOfInterest.point`
     var point: RVector3D {

@@ -1,6 +1,5 @@
 import Foundation
 import SwiftBlend2D
-import Geometria
 import ImagineUI
 import Text
 import Blend2DRenderer
@@ -368,7 +367,7 @@ class GeometriaSample: Blend2DSample {
 }
 
 class LabelControl: ControlView {
-    private let textInset = EdgeInsets(left: 5, top: 2.5, right: 5, bottom: 2.5)
+    private let textInset = UIEdgeInsets(left: 5, top: 2.5, right: 5, bottom: 2.5)
     private var label: Label
     
     var text: String {
