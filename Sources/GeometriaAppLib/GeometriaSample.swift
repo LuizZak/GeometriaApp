@@ -302,36 +302,36 @@ class GeometriaSample: Blend2DSample {
         renderer.drawTextLayout(layout, at: textPoint)
     }
     
-    func drawPoint(_ ctx: BLContext, _ p: Vector) {
+    func drawPoint(_ ctx: BLContext, _ p: RVector2D) {
         ctx.setFillStyle(BLRgba32.white)
         ctx.fillCircle(x: p.x, y: p.y, radius: 3)
     }
     
-    func strokeRect<R: RectangleType>(_ ctx: BLContext, _ rect: R) where R.Vector == Vector {
+    func strokeRect<R: RectangleType>(_ ctx: BLContext, _ rect: R) where R.Vector == RVector2D {
         ctx.setStrokeWidth(0.5)
         ctx.setStrokeStyle(BLRgba32.white)
         ctx.strokeRect(rect.asBLRect)
     }
     
-    func strokeCircle(_ ctx: BLContext, _ circle: Circle) {
+    func strokeCircle(_ ctx: BLContext, _ circle: RCircle2D) {
         ctx.setStrokeWidth(0.5)
         ctx.setStrokeStyle(BLRgba32.white)
         ctx.strokeCircle(circle.asBLCircle)
     }
     
-    func strokePolyLine(_ ctx: BLContext, _ polyLine: PolyLine) {
+    func strokePolyLine(_ ctx: BLContext, _ polyLine: RPolyLine2D) {
         ctx.setStrokeWidth(0.5)
         ctx.setStrokeStyle(BLRgba32.white)
         ctx.strokePath(polyLine.asBLPath)
     }
     
-    func drawLine(_ ctx: BLContext, _ line: LineSegment, color: BLRgba32 = .lightGray) {
+    func drawLine(_ ctx: BLContext, _ line: RLineSegment2D, color: BLRgba32 = .lightGray) {
         ctx.setStrokeWidth(0.5)
         ctx.setStrokeStyle(color)
         ctx.strokeLine(line.asBLLine)
     }
     
-    func drawPointNormal(_ ctx: BLContext, _ pointNormal: PointNormal<Vector>) {
+    func drawPointNormal(_ ctx: BLContext, _ pointNormal: PointNormal<RVector2D>) {
         let color: BLRgba32
         switch (pointNormal.normal.x, pointNormal.normal.y) {
         case (1, 0), (-1, 0):
@@ -343,14 +343,14 @@ class GeometriaSample: Blend2DSample {
         }
         
         let length: Double = 15
-        let line = LineSegment(start: pointNormal.point,
+        let line = RLineSegment2D(start: pointNormal.point,
                                end: pointNormal.point + pointNormal.normal * length)
         
         drawLine(ctx, line, color: color)
         drawPoint(ctx, pointNormal.point)
     }
     
-    func drawIntersection(_ ctx: BLContext, _ intersect: ConvexLineIntersection<Vector>) {
+    func drawIntersection(_ ctx: BLContext, _ intersect: ConvexLineIntersection<RVector2D>) {
         switch intersect {
         case .singlePoint(let pt), .enter(let pt), .exit(let pt):
             drawPointNormal(ctx, pt)

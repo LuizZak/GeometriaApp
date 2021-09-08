@@ -8,7 +8,7 @@ class Scene {
     var geometries: [SceneGeometry] = []
     
     /// Direction an infinitely far away point light is pointed at the scene
-    @UnitVector var sunDirection: Vector3D = Vector3D(x: -20, y: 40, z: -30)
+    @UnitVector var sunDirection: RVector3D = RVector3D(x: -20, y: 40, z: -30)
     
     init() {
         createScene()
@@ -17,31 +17,31 @@ class Scene {
     func createScene() {
         
         // AABB - top
-        let aabbTop: Geometria.AABB<Vector3D> =
+        let aabbTop: Geometria.AABB<RVector3D> =
             .init(minimum: .init(x: -70, y: 120, z: 60),
                   maximum: .init(x: 10, y: 140, z: 112))
         
         // AABB - back
-        let aabbBack: Geometria.AABB<Vector3D> =
+        let aabbBack: Geometria.AABB<RVector3D> =
             .init(minimum: .init(x: -50, y: 200, z: 10),
                   maximum: .init(x: 0, y: 210, z: 50))
         
         // Sphere
-        let sphere: NSphere<Vector3D> = .init(center: .init(x: 0, y: 150, z: 45), radius: 30)
+        let sphere: NSphere<RVector3D> = .init(center: .init(x: 0, y: 150, z: 45), radius: 30)
         
         // Second sphere
-        let sphere2: NSphere<Vector3D> = .init(center: .init(x: 70, y: 150, z: 45), radius: 30)
+        let sphere2: NSphere<RVector3D> = .init(center: .init(x: 70, y: 150, z: 45), radius: 30)
         
         // Floor plane
-        let floorPlane: Plane = Plane(point: .zero, normal: .unitZ)
+        let floorPlane: RPlane3D = RPlane3D(point: .zero, normal: .unitZ)
         
         // Disk
-        let disk: Disk3<Vector3D> = Disk3(center: .init(x: -10, y: 110, z: 20),
+        let disk: Disk3<RVector3D> = Disk3(center: .init(x: -10, y: 110, z: 20),
                                           normal: .unitY,
                                           radius: 12)
         
         // Ellipse
-        let ellipse: Ellipse3<Vector3D> = .init(center: .init(x: -50, y: 90, z: 20),
+        let ellipse: Ellipse3<RVector3D> = .init(center: .init(x: -50, y: 90, z: 20),
                                                 radius: .init(x: 20, y: 15, z: 10))
         
         addPlane(floorPlane)
@@ -53,25 +53,25 @@ class Scene {
         addShinySphere(sphere, transparency: 0.5, refractiveIndex: 1.3)
     }
     
-    func addAABB(_ object: Geometria.AABB<Vector3D>) {
+    func addAABB(_ object: Geometria.AABB<RVector3D>) {
         let material = Material(color: .gray)
         let geom = SceneGeometry(convex: object, material: material)
         geometries.append(geom)
     }
     
-    func addSphere(_ object: Geometria.NSphere<Vector3D>) {
+    func addSphere(_ object: Geometria.NSphere<RVector3D>) {
         let material = Material(color: .gray)
         let geom = SceneGeometry(convex: object, material: material)
         geometries.append(geom)
     }
     
-    func addBumpySphere(_ object: Geometria.NSphere<Vector3D>) {
+    func addBumpySphere(_ object: Geometria.NSphere<RVector3D>) {
         let material = Material(color: .gray, reflectivity: 0.4)
         let geom = SceneGeometry(bumpySphere: object, material: material)
         geometries.append(geom)
     }
     
-    func addShinySphere(_ object: Geometria.NSphere<Vector3D>,
+    func addShinySphere(_ object: Geometria.NSphere<RVector3D>,
                         transparency: Double = 0.0,
                         refractiveIndex: Double = 1.0) {
         
@@ -84,26 +84,26 @@ class Scene {
         geometries.append(geom)
     }
     
-    func addShinyEllipse3(_ object: Geometria.Ellipse3<Vector3D>, transparency: Double = 0.0) {
+    func addShinyEllipse3(_ object: Geometria.Ellipse3<RVector3D>, transparency: Double = 0.0) {
         let material = Material(color: .gray, reflectivity: 0.5, transparency: transparency)
         let geom = SceneGeometry(convex: object, material: material)
         geometries.append(geom)
     }
     
-    func addDisk(_ object: Geometria.Disk3<Vector3D>) {
+    func addDisk(_ object: Geometria.Disk3<RVector3D>) {
         let material = Material(color: .white)
         let geom = SceneGeometry(plane: object, material: material)
         geometries.append(geom)
     }
     
-    func addPlane(_ object: Geometria.PointNormalPlane<Vector3D>) {
+    func addPlane(_ object: Geometria.PointNormalPlane<RVector3D>) {
         let material = Material(color: .gray)
         let geom = SceneGeometry(plane: object, material: material)
         geometries.append(geom)
     }
     
     @inlinable
-    func intersect(ray: Ray, ignoring: RayIgnore = .none) -> RayHit? {
+    func intersect(ray: RRay3D, ignoring: RayIgnore = .none) -> RayHit? {
         var result =
             PartialRayResult(ray: ray,
                              rayMagnitudeSquared: .infinity,
@@ -119,7 +119,7 @@ class Scene {
     
     /// Returns a list of all geometry that intersects a given ray.
     @inlinable
-    func intersectAll(ray: Ray, ignoring: RayIgnore = .none) -> [RayHit] {
+    func intersectAll(ray: RRay3D, ignoring: RayIgnore = .none) -> [RayHit] {
         var hits: [RayHit] = []
         
         for geo in geometries where !ignoring.shouldIgnoreFully(sceneGeometry: geo) {
@@ -140,8 +140,8 @@ class Scene {
     }
     
     struct PartialRayResult {
-        var ray: Ray
-        var rayAABB: AABB3D?
+        var ray: RRay3D
+        var rayAABB: RAABB3D?
         /// Current magnitude of ray's hit point. Is `.infinity` for newly casted
         /// rays that did not intersect geometry yet.
         var rayMagnitudeSquared: Double
@@ -149,17 +149,17 @@ class Scene {
         var ignoring: RayIgnore
         
         func withHit(magnitudeSquared: Double,
-                     point: Vector3D,
-                     normal: Vector3D,
-                     intersection: ConvexLineIntersection<Vector3D>,
+                     point: RVector3D,
+                     normal: RVector3D,
+                     intersection: ConvexLineIntersection<RVector3D>,
                      sceneGeometry: SceneGeometry) -> PartialRayResult {
             
             let hit = RayHit(pointOfInterest: .init(point: point, normal: normal),
                              intersection: intersection,
                              sceneGeometry: sceneGeometry)
             
-            let newAABB = AABB3D(minimum: Vector3D.pointwiseMin(ray.start, point),
-                                 maximum: Vector3D.pointwiseMax(ray.start, point))
+            let newAABB = RAABB3D(minimum: RVector3D.pointwiseMin(ray.start, point),
+                                 maximum: RVector3D.pointwiseMax(ray.start, point))
             
             return PartialRayResult(ray: ray,
                                     rayAABB: newAABB,

@@ -5,20 +5,40 @@ import ImagineUI
 typealias UIVector = ImagineUI.Vector
 typealias UIRectangle = ImagineUI.Rectangle
 
-typealias _Vector = Vector
-typealias Vector = SIMD2<Double>
-typealias Vector3D = SIMD3<Double>
-typealias Rectangle = Rectangle2<Vector>
-typealias AABB = AABB2<Vector>
-typealias Line = Line2<Vector>
-typealias LineSegment = LineSegment2<Vector>
-typealias Circle = Circle2<Vector>
-typealias PolyLine = LinePolygon2<Vector>
-typealias Plane = PointNormalPlane3<Vector3D>
-typealias Ray = DirectionalRay3<Vector3D>
-typealias AABB3D = AABB3<Vector3D>
+/// Vector2 for Raytracing operations
+typealias RVector2D = SIMD2<Double>
 
-extension Vector {
+/// Vector3 for Raytracing operations
+typealias RVector3D = SIMD3<Double>
+
+/// Rectangle for Raytracing operations
+typealias RRectangle = Rectangle2<RVector2D>
+
+/// AABB2 for Raytracing operations
+typealias RAABB2D = AABB2<RVector2D>
+
+/// AABB3 for Raytracing operations
+typealias RAABB3D = AABB3<RVector3D>
+
+/// Line2 for Raytracing operations
+typealias RLine2D = Line2<RVector2D>
+
+/// LineSegment2 for Raytracing operations
+typealias RLineSegment2D = LineSegment2<RVector2D>
+
+/// Circle2 for Raytracing operations
+typealias RCircle2D = Circle2<RVector2D>
+
+/// LinePolygon2 for Raytracing operations
+typealias RPolyLine2D = LinePolygon2<RVector2D>
+
+/// PointNormalPlane3 for Raytracing operations
+typealias RPlane3D = PointNormalPlane3<RVector3D>
+
+/// DirectionalRay3 for Raytracing operations
+typealias RRay3D = DirectionalRay3<RVector3D>
+
+extension RVector2D {
     var asBLPoint: BLPoint {
         return BLPoint(x: x, y: y)
     }
@@ -34,7 +54,7 @@ extension Vector2i {
     }
 }
 
-extension RectangleType where Vector == _Vector {
+extension RectangleType where Vector == RVector2D {
     var asBLRect: BLRect {
         BLRect(location: location.asBLPoint, size: size.asBLSize)
     }
@@ -44,19 +64,19 @@ extension RectangleType where Vector == _Vector {
     }
 }
 
-extension LineType where Vector == _Vector {
+extension LineType where Vector == RVector2D {
     var asBLLine: BLLine {
         BLLine(start: a.asBLPoint, end: b.asBLPoint)
     }
 }
 
-extension Circle {
+extension RCircle2D {
     var asBLCircle: BLCircle {
         return BLCircle(center: center.asBLPoint, radius: radius)
     }
 }
 
-extension PolyLine {
+extension RPolyLine2D {
     var asBLPath: BLPath {
         let path = BLPath()
         
@@ -112,8 +132,8 @@ extension BLPointI: Vector2Type {
 extension BLPoint: Vector2Type {
     public typealias Scalar = Double
     
-    var asVector: Vector {
-        return Vector(x: x, y: y)
+    var asVector: RVector2D {
+        return RVector2D(x: x, y: y)
     }
     
     var asUIVector: UIVector {
@@ -128,8 +148,8 @@ extension BLPoint: Vector2Type {
 extension BLSize: Vector2Type {
     public typealias Scalar = Double
     
-    var asVector: Vector {
-        return Vector(x: w, y: h)
+    var asVector: RVector2D {
+        return RVector2D(x: w, y: h)
     }
     
     var asUIVector: UIVector {

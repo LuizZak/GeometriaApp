@@ -79,10 +79,10 @@ class ProcessingPrinter {
         addDrawLine("")
     }
     
-    func add(hit: RayHit, ray: DirectionalRay3<Vector3D>) {
+    func add(hit: RayHit, ray: DirectionalRay3<RVector3D>) {
         is3D = true
         
-        let line = LineSegment3<Vector3D>(start: ray.start, end: hit.point)
+        let line = LineSegment3<RVector3D>(start: ray.start, end: hit.point)
         
         add(line: line, color: "255, 0, 0")
         add(hit: hit)
@@ -276,11 +276,11 @@ class ProcessingPrinter {
     private func prepareAddedGeometry() {
         for geo in addedGeometry {
             switch geo.geometry {
-            case let obj as Sphere3<Vector3D>:
+            case let obj as Sphere3<RVector3D>:
                 add(sphere: obj)
-            case let ell as Ellipse3<Vector3D>:
+            case let ell as Ellipse3<RVector3D>:
                 add(ellipse3: ell)
-            case let aabb as AABB3<Vector3D>:
+            case let aabb as AABB3<RVector3D>:
                 add(aabb: aabb)
             default:
                 addDrawLine("// Unhandled geometric type: \(type(of: geo.geometry))")
@@ -358,9 +358,9 @@ class ProcessingPrinter {
         indentedBlock("void drawOrigin() {") {
             let length: Double = 100.0
             
-            let vx = Vector3D.unitX * length
-            let vy = Vector3D.unitY * length
-            let vz = Vector3D.unitZ * length
+            let vx = RVector3D.unitX * length
+            let vy = RVector3D.unitY * length
+            let vz = RVector3D.unitZ * length
             
             printLine("// X axis")
             printLine("stroke(255, 0, 0, 50);")

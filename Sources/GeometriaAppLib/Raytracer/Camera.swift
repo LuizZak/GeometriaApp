@@ -1,7 +1,7 @@
 import Geometria
 
 struct Camera {
-    private var cameraPlane: ProjectivePointNormalPlane3<Vector3D> =
+    private var cameraPlane: ProjectivePointNormalPlane3<RVector3D> =
         .makeCorrectedPlane(point: .unitZ * 5,
                             normal: .init(x: 0, y: 5, z: -1),
                             upAxis: .unitZ)
@@ -18,8 +18,8 @@ struct Camera {
         }
     }
     
-    private var cameraCenterPoint: Vector3D = .zero
-    private var cameraSizeInWorld: Vector = Vector(x: 400, y: 300)
+    private var cameraCenterPoint: RVector3D = .zero
+    private var cameraSizeInWorld: RVector2D = RVector2D(x: 400, y: 300)
     private var cameraDownsize: Double = 0.3
     private var cameraSizeScale: Double = 0.1
     
@@ -36,18 +36,18 @@ struct Camera {
     }
     
     mutating func recomputeCamera() {
-        cameraSizeScale = (cameraSizeInWorld / Vector(viewportSize)).maximalComponent * cameraDownsize
+        cameraSizeScale = (cameraSizeInWorld / RVector2D(viewportSize)).maximalComponent * cameraDownsize
         cameraPlane.point.z = Double(viewportSize.y) * cameraSizeScale + cameraZOffset
         cameraCenterPoint = cameraPlane.point + cameraPlane.normal * cameraCenterOffset
     }
     
-    func rayFromCamera(at point: Vector2i) -> Ray {
+    func rayFromCamera(at point: Vector2i) -> RRay3D {
         let centeredPoint = (point - viewportSize / 2) * Vector2i(x: 1, y: -1)
-        let projectedPoint = Vector(centeredPoint) * cameraSizeScale
+        let projectedPoint = RVector2D(centeredPoint) * cameraSizeScale
         
         let inWorld = cameraPlane.projectOut(projectedPoint)
         let dir = inWorld - cameraCenterPoint
         
-        return Ray(start: inWorld, direction: dir)
+        return RRay3D(start: inWorld, direction: dir)
     }
 }

@@ -2,19 +2,19 @@ import Geometria
 
 struct RayHit {
     /// Convenience for `pointOfInterest.point`
-    var point: Vector3D {
+    var point: RVector3D {
         return pointOfInterest.point
     }
     /// Convenience for `pointOfInterest.normal`
-    var normal: Vector3D {
+    var normal: RVector3D {
         return pointOfInterest.normal
     }
     
     /// The point-of-interest for the intersection, which is one of the point
     /// normals in ``intersection``, according to the ``RayIgnore`` that was used
     /// during the raycasting invocation where this ray hit was created.
-    var pointOfInterest: PointNormal<Vector3D>
-    var intersection: ConvexLineIntersection<Vector3D>
+    var pointOfInterest: PointNormal<RVector3D>
+    var intersection: ConvexLineIntersection<RVector3D>
     var sceneGeometry: SceneGeometry
     
     /// Computes a new ``RayHit`` from the parameters of this instance, while

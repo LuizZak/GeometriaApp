@@ -4,10 +4,10 @@ import blend2d
 class SceneGeometry {
     private var _doRayCast: (_ partialResult: Scene.PartialRayResult) -> Scene.PartialRayResult
     var geometry: GeometricType
-    var bounds: AABB3<Vector3D>?
+    var bounds: AABB3<RVector3D>?
     var material: Material
     
-    init(bumpySphere: Sphere3<Vector3D>, material: Material) {
+    init(bumpySphere: Sphere3<RVector3D>, material: Material) {
         self.bounds = bumpySphere.bounds
         self.material = material
         self.geometry = bumpySphere
@@ -78,7 +78,7 @@ class SceneGeometry {
         sSelf = self
     }
     
-    init<C: ConvexType & BoundableType & Equatable>(convex: C, material: Material) where C.Vector == Vector3D {
+    init<C: ConvexType & BoundableType & Equatable>(convex: C, material: Material) where C.Vector == RVector3D {
         self.bounds = convex.bounds
         self.material = material
         self.geometry = convex
@@ -115,7 +115,7 @@ class SceneGeometry {
         sSelf = self
     }
     
-    init<P: LineIntersectablePlaneType & Equatable>(plane: P, material: Material) where P.Vector == Vector3D {
+    init<P: LineIntersectablePlaneType & Equatable>(plane: P, material: Material) where P.Vector == RVector3D {
         self.material = material
         self.geometry = plane
         
@@ -135,7 +135,7 @@ class SceneGeometry {
                 return result
             }
             
-            var normal: Vector3D = plane.normal
+            var normal: RVector3D = plane.normal
             if normal.dot(result.ray.direction) > 0 {
                 normal = -normal
             }
@@ -154,7 +154,7 @@ class SceneGeometry {
     ///
     /// Returns `nil` if this geometry was not intersected according to the ray
     /// and `ignore` rule specified.
-    func doRayCast(ray: Ray, ignoring: RayIgnore) -> RayHit? {
+    func doRayCast(ray: RRay3D, ignoring: RayIgnore) -> RayHit? {
         guard !ignoring.shouldIgnoreFully(sceneGeometry: self) else {
             return nil
         }

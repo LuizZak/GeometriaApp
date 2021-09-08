@@ -37,7 +37,7 @@ class Raytracer {
         return raytrace(ray: ray)
     }
     
-    private func raytrace(ray: Ray, ignoring: RayIgnore = .none, bounceCount: Int = 0) -> BLRgba32 {
+    private func raytrace(ray: RRay3D, ignoring: RayIgnore = .none, bounceCount: Int = 0) -> BLRgba32 {
         if bounceCount >= maxBounces {
             return scene.skyColor
         }
@@ -56,7 +56,7 @@ class Raytracer {
         var color = material.color
         var minimumShade: Double = 0.0
         
-        if geometry is Plane {
+        if geometry is RPlane3D {
             minimumShade = 0.6
             
             let checkerSize = 50.0
@@ -79,7 +79,7 @@ class Raytracer {
             }
             
             color = isWhite ? .white : .black
-        } else if let disk = geometry as? Disk3<Vector3D> {
+        } else if let disk = geometry as? Disk3<RVector3D> {
             // Distance at which the disk color changes from white to red.
             let stripeFrequency = 5.0
             let dist = hit.point.distance(to: disk.center)
@@ -103,7 +103,7 @@ class Raytracer {
         if material.reflectivity > 0.0 && bounceCount < maxBounces {
             // Raycast from normal and fade in the reflected color
             let reflection = reflect(direction: ray.direction, normal: hit.normal)
-            let normRay = Ray(start: hit.point, direction: reflection)
+            let normRay = RRay3D(start: hit.point, direction: reflection)
             let secondHit = raytrace(ray: normRay,
                                      ignoring: .full(hit.sceneGeometry),
                                      bounceCount: bounceCount + 1)
@@ -132,7 +132,7 @@ class Raytracer {
         // Transparency / refraction
         if material.transparency > 0.0 {
             // Raycast past geometry and add color
-            var rayThroughObject: Ray = Ray(start: hit.point, direction: ray.direction)
+            var rayThroughObject: RRay3D = RRay3D(start: hit.point, direction: ray.direction)
             
             // If refraction is active, create a ray that points to the exit
             // point of the refracted ray that was generated inside the object's
@@ -144,7 +144,7 @@ class Raytracer {
                 }
                 
                 // Ray that traverses within the geometry
-                let innerRay = Ray(start: hit.point, direction: refractIn)
+                let innerRay = RRay3D(start: hit.point, direction: refractIn)
                 
                 guard let exit = hit.sceneGeometry.doRayCast(ray: innerRay, ignoring: .entrance(hit.sceneGeometry)) else {
                     processingPrinter?.add(ray: innerRay)
@@ -161,7 +161,7 @@ class Raytracer {
                     break refraction
                 }
                 
-                rayThroughObject = Ray(start: exit.point, direction: refractOut)
+                rayThroughObject = RRay3D(start: exit.point, direction: refractOut)
             }
             
             let backColor = raytrace(ray: rayThroughObject,
@@ -182,7 +182,7 @@ class Raytracer {
     /// Reflects an incoming direction across a normal, returning a new direction
     /// such that the angle between `direction <- normal` is the same as
     /// `normal -> result`.
-    private func reflect(direction: Vector3D, normal: Vector3D) -> Vector3D {
+    private func reflect(direction: RVector3D, normal: RVector3D) -> RVector3D {
         // R = D - 2(D • N)N
         return direction - 2 * direction.dot(normal) * normal
     }
@@ -194,7 +194,7 @@ class Raytracer {
     /// Transparent geometries contributed a weighted value that is relative
     /// to how opaque they are.
     private func calculateShadow(for hit: RayHit) -> Double {
-        func opaqueness(ray: Ray, ignoring: RayIgnore) -> Double {
+        func opaqueness(ray: RRay3D, ignoring: RayIgnore) -> Double {
             let transparency =
             scene.intersectAll(ray: ray, ignoring: ignoring)
                 .map(\.sceneGeometry.material.transparency)
@@ -203,7 +203,7 @@ class Raytracer {
             return max(0.0, min(1.0, 1 - transparency))
         }
         
-        let ray = Ray(start: hit.point, direction: -scene.sunDirection)
+        let ray = RRay3D(start: hit.point, direction: -scene.sunDirection)
         
         return opaqueness(ray: ray, ignoring: .full(hit.sceneGeometry))
     }
@@ -220,7 +220,7 @@ class Raytracer {
 ///   - ior: Index of refraction of material
 ///
 /// - Returns: Angle for ray cast to within the object
-func refract(_ I: Vector3D, _ N: Vector3D, _ ior: Double) -> Vector3D? {
+func refract(_ I: RVector3D, _ N: RVector3D, _ ior: Double) -> RVector3D? {
     var cosi: Double = max(-1, min(1, I.dot(N)))
     var etai: Double = 1.0, etat = ior
     var n = N
@@ -236,8 +236,8 @@ func refract(_ I: Vector3D, _ N: Vector3D, _ ior: Double) -> Vector3D? {
     if k < 0 {
         return nil
     }
-    let resultHalf: Vector3D = eta * I
-    let resultLast: Vector3D = (eta * cosi - sqrt(k)) * n
+    let resultHalf: RVector3D = eta * I
+    let resultLast: RVector3D = (eta * cosi - sqrt(k)) * n
     
     return resultHalf + resultLast
 }
@@ -252,7 +252,7 @@ func refract(_ I: Vector3D, _ N: Vector3D, _ ior: Double) -> Vector3D? {
 ///
 /// - Returns: A tuple of values, adding up to 1.0, which describe the rate of
 /// the light that should be reflected vs transmitted (refracted) within.
-func fresnel(_ I: Vector3D, _ N: Vector3D, _ ior: Double) -> (reflection: Double, transmittance: Double) {
+func fresnel(_ I: RVector3D, _ N: RVector3D, _ ior: Double) -> (reflection: Double, transmittance: Double) {
     var cosi: Double = max(-1, min(1, I.dot(N)))
     var etai: Double = 1.0, etat = ior
     if cosi > 0 {
