@@ -1,5 +1,9 @@
 import Geometria
 import SwiftBlend2D
+import ImagineUI
+
+typealias UIVector = ImagineUI.Vector
+typealias UIRectangle = ImagineUI.Rectangle
 
 typealias _Vector = Vector
 typealias Vector = SIMD2<Double>
@@ -112,6 +116,10 @@ extension BLPoint: Vector2Type {
         return Vector(x: x, y: y)
     }
     
+    var asUIVector: UIVector {
+        return .init(x: x, y: y)
+    }
+    
     public init(repeating scalar: Scalar) {
         self.init(x: scalar, y: scalar)
     }
@@ -122,6 +130,10 @@ extension BLSize: Vector2Type {
     
     var asVector: Vector {
         return Vector(x: w, y: h)
+    }
+    
+    var asUIVector: UIVector {
+        return .init(x: w, y: h)
     }
     
     public var x: Scalar {

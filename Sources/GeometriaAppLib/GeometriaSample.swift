@@ -275,26 +275,26 @@ class GeometriaSample: Blend2DSample {
     }
     
     func drawLabel(_ ctx: BLContext, text: String, topLeft: BLPoint) {
-        let textInset = Vector(x: 10, y: 5)
+        let textInset = UIVector(x: 10, y: 5)
         let renderer = Blend2DRenderer(context: ctx)
         let layout = TextLayout(font: Blend2DFont(font: _font), text: text)
-        let textBox = Rectangle(location: topLeft.asVector, size: layout.size + textInset)
+        let textBox = UIRectangle(location: topLeft.asUIVector, size: layout.size + textInset)
         
         renderer.setFill(.black.withTransparency(60))
         renderer.fill(textBox)
         renderer.setFill(.white)
-        renderer.drawTextLayout(layout, at: topLeft.asVector + textInset / 2)
+        renderer.drawTextLayout(layout, at: topLeft.asUIVector + textInset / 2)
     }
     
     func drawLabel(_ ctx: BLContext, text: String, bottomLeft: BLPoint) {
-        let textInset = Vector(x: 10, y: 5)
+        let textInset = UIVector(x: 10, y: 5)
         let renderer = Blend2DRenderer(context: ctx)
         let layout = TextLayout(font: Blend2DFont(font: _font), text: text)
         
-        let textPoint = bottomLeft.asVector - Vector(x: -textInset.x / 2, y: layout.size.y + textInset.y / 2)
-        let boxPoint = bottomLeft.asVector - Vector(x: 0, y: layout.size.y + textInset.y)
+        let textPoint = bottomLeft.asUIVector - UIVector(x: -textInset.x / 2, y: layout.size.y + textInset.y / 2)
+        let boxPoint = bottomLeft.asUIVector - UIVector(x: 0, y: layout.size.y + textInset.y)
         
-        let textBox = Rectangle(location: boxPoint, size: layout.size + textInset)
+        let textBox = UIRectangle(location: boxPoint, size: layout.size + textInset)
         
         renderer.setFill(.black.withTransparency(60))
         renderer.fill(textBox)

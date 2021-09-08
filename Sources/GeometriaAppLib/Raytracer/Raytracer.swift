@@ -196,9 +196,9 @@ class Raytracer {
     private func calculateShadow(for hit: RayHit) -> Double {
         func opaqueness(ray: Ray, ignoring: RayIgnore) -> Double {
             let transparency =
-                scene.intersectAll(ray: ray, ignoring: ignoring)
-                    .map(\.sceneGeometry.material.transparency)
-                    .reduce(1.0, *)
+            scene.intersectAll(ray: ray, ignoring: ignoring)
+                .map(\.sceneGeometry.material.transparency)
+                .reduce(1.0, *)
             
             return max(0.0, min(1.0, 1 - transparency))
         }

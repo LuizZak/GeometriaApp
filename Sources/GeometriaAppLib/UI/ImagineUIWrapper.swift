@@ -11,7 +11,7 @@ class ImagineUIWrapper {
     private let rendererContext = Blend2DRendererContext()
     private var controlSystem = DefaultControlSystem()
     private var rootViews: [RootView]
-    private var currentRedrawRegion: Rectangle? = nil
+    private var currentRedrawRegion: UIRectangle? = nil
     private var debugDrawFlags: Set<DebugDraw.DebugDrawFlags> = []
     
     var sampleRenderScale: BLPoint = .one
@@ -147,7 +147,7 @@ extension ImagineUIWrapper: DefaultControlSystemDelegate {
         rootView.invalidate()
     }
     
-    func controlViewUnder(point: Vector, enabledOnly: Bool) -> ControlView? {
+    func controlViewUnder(point: UIVector, enabledOnly: Bool) -> ControlView? {
         for window in rootViews.reversed() {
             let converted = window.convertFromScreen(point)
             if let view = window.hitTestControl(converted, enabledOnly: enabledOnly) {
@@ -182,7 +182,7 @@ extension ImagineUIWrapper: DefaultControlSystemDelegate {
 }
 
 extension ImagineUIWrapper: RootViewRedrawInvalidationDelegate {
-    func rootView(_ rootView: RootView, invalidateRect rect: Rectangle) {
+    func rootView(_ rootView: RootView, invalidateRect rect: UIRectangle) {
         guard let intersectedRect = rect.intersection(bounds.asRectangle) else {
             return
         }

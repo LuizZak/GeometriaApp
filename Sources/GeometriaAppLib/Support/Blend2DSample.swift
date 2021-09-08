@@ -3,7 +3,7 @@ import SwiftBlend2D
 import ImagineUI
 
 protocol Blend2DSampleDelegate: AnyObject {
-    func invalidate(bounds: Rectangle)
+    func invalidate(bounds: UIRectangle)
 }
 
 protocol Blend2DSample: AnyObject {

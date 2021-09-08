@@ -245,9 +245,9 @@ class CanvasView: NSView {
             clickCount = 0
         }
         
-        return MouseEventArgs(location: Vector(x: Double(point.x), y: Double(bounds.height - point.y)),
+        return MouseEventArgs(location: UIVector(x: Double(point.x), y: Double(bounds.height - point.y)),
                               buttons: mouseButton,
-                              delta: Vector(x: scrollingDeltaX, y: scrollingDeltaY),
+                              delta: UIVector(x: scrollingDeltaX, y: scrollingDeltaY),
                               clicks: clickCount)
     }
     
@@ -304,7 +304,7 @@ class CanvasView: NSView {
 }
 
 extension CanvasView: Blend2DSampleDelegate {
-    func invalidate(bounds: Rectangle) {
+    func invalidate(bounds: UIRectangle) {
         let rectBounds = NSRect(x: bounds.x,
                                 y: Double(self.bounds.height) - bounds.y - bounds.height,
                                 width: bounds.width,
