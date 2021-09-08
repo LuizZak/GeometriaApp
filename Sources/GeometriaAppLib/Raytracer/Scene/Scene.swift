@@ -47,10 +47,10 @@ class Scene {
         addPlane(floorPlane)
         addAABB(aabbTop)
         addAABB(aabbBack)
-        addShinySphere(sphere, transparency: 0.5, refractiveIndex: 1.3)
         addBumpySphere(sphere2)
         addDisk(disk)
         addShinyEllipse3(ellipse)
+        addShinySphere(sphere, transparency: 0.5, refractiveIndex: 1.3)
     }
     
     func addAABB(_ object: Geometria.AABB<Vector3D>) {

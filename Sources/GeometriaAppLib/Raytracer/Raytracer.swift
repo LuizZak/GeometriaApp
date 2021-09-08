@@ -3,6 +3,8 @@ import Geometria
 
 /// Class that performs raytracing on a scene.
 class Raytracer {
+    private var processingPrinter: ProcessingPrinter?
+    
     var maxBounces: Int = 5
     var scene: Scene
     var camera: Camera
@@ -12,6 +14,17 @@ class Raytracer {
         self.scene = scene
         self.camera = camera
         self.viewportSize = viewportSize
+    }
+    
+    // MARK: - Debugging
+    
+    func beginDebug() {
+        processingPrinter = ProcessingPrinter()
+    }
+    
+    func endDebug() {
+        processingPrinter?.printAll()
+        processingPrinter = nil
     }
     
     // MARK: - Ray Casting
@@ -30,8 +43,13 @@ class Raytracer {
         }
         
         guard let hit = scene.intersect(ray: ray, ignoring: ignoring) else {
+            processingPrinter?.add(ray: ray)
             return scene.skyColor
         }
+        
+        processingPrinter?.add(hit: hit, ray: ray)
+        processingPrinter?.add(geometry: hit.sceneGeometry)
+        processingPrinter?.add(intersection: hit.intersection)
         
         let geometry = hit.sceneGeometry.geometry
         let material = hit.sceneGeometry.material
@@ -82,14 +100,22 @@ class Raytracer {
         let (refl, trans) = fresnel(ray.direction, hit.normal, material.refractiveIndex)
         
         // Reflectivity
-        if material.reflectivity > 0.0 && refl > 0 && bounceCount < maxBounces {
+        if material.reflectivity > 0.0 && bounceCount < maxBounces {
             // Raycast from normal and fade in the reflected color
             let reflection = reflect(direction: ray.direction, normal: hit.normal)
             let normRay = Ray(start: hit.point, direction: reflection)
             let secondHit = raytrace(ray: normRay,
                                      ignoring: .full(hit.sceneGeometry),
                                      bounceCount: bounceCount + 1)
-            color = color.faded(towards: secondHit, factor: Float(refl * material.reflectivity))
+            
+            let factor: Double
+            if material.refractiveIndex != 1.0 {
+                factor = refl
+            } else {
+                factor = refl + material.reflectivity
+            }
+            
+            color = color.faded(towards: secondHit, factor: Float(factor))
         }
         
         // Shadow or sunlight
@@ -105,8 +131,6 @@ class Raytracer {
         
         // Transparency / refraction
         if material.transparency > 0.0 {
-            var refractionColor: BLRgba32 = color
-            
             // Raycast past geometry and add color
             var rayThroughObject: Ray = Ray(start: hit.point, direction: ray.direction)
             
@@ -123,18 +147,21 @@ class Raytracer {
                 let innerRay = Ray(start: hit.point, direction: refractIn)
                 
                 guard let exit = hit.sceneGeometry.doRayCast(ray: innerRay, ignoring: .entrance(hit.sceneGeometry)) else {
+                    processingPrinter?.add(ray: innerRay)
                     break refraction
                 }
                 
-                guard let refractOut = refract(innerRay.direction, exit.normal, material.refractiveIndex) else {
+                processingPrinter?.add(hit: exit, ray: innerRay)
+                
+                // Note that we must negate exit normal since exit normals
+                // normally point to the inside of the shape.
+                guard let refractOut = refract(innerRay.direction,
+                                               -exit.normal,
+                                               material.refractiveIndex) else {
                     break refraction
                 }
                 
                 rayThroughObject = Ray(start: exit.point, direction: refractOut)
-                
-//                refractionColor = raytrace(ray: rayThroughObject,
-//                                           ignoring: .full(hit.sceneGeometry),
-//                                           bounceCount: bounceCount)
             }
             
             let backColor = raytrace(ray: rayThroughObject,
