@@ -57,6 +57,7 @@ class RaytracerCoordinator: RaytracerWorkerContext {
         
 //        batcher = SinglePixelBatcher(pixel: .init(x: 172, y: 192)) // Transparent sphere - bottom-left center of refraction 'anomaly'
 //        batcher = SinglePixelBatcher(pixel: .init(x: 261, y: 173)) // Reflection of transparent sphere on right sphere
+//        batcher = SinglePixelBatcher(pixel: .init(x: 273, y: 150)) // Refractive cylinder
         batcher = TiledBatcher(splitting: viewportSize,
                                estimatedThreadCount: _threadCount * 2,
                                shuffleOrder: true)

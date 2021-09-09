@@ -1,6 +1,6 @@
 import SwiftBlend2D
 
-struct Material {
+struct Material: CustomStringConvertible {
     var color: BLRgba32
     
     /// Values > 0 increase the reflectivity of the geometry.
@@ -12,4 +12,8 @@ struct Material {
     /// Refractive index. Value of == 1.0 matches world's refractive index, i.e.
     /// it causes no light refraction.
     var refractiveIndex: Double = 1.0
+    
+    var description: String {
+        "\(type(of: self))(color: \(color), reflectivity: \(reflectivity), transparency: \(transparency), refractiveIndex: \(refractiveIndex))"
+    }
 }

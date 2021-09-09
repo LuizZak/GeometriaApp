@@ -36,8 +36,8 @@ final class Scene {
                                                  radius: .init(x: 20, y: 15, z: 10))
         
         // Cylinder
-        let cylinder: RCylinder3D = .init(start: .init(x: 60, y: 180, z: 0),
-                                          end: .init(x: 60, y: 180, z: 100),
+        let cylinder: RCylinder3D = .init(start: .init(x: 60, y: 150, z: 0),
+                                          end: .init(x: 60, y: 150, z: 100),
                                           radius: 20)
         
         // Disk
@@ -48,14 +48,14 @@ final class Scene {
         // Floor plane
         let floorPlane: RPlane3D = RPlane3D(point: .zero, normal: .unitZ)
         
-        addDisk(disk)
         addPlane(floorPlane)
+        addDisk(disk)
         addAABB(aabbTop)
         addAABB(aabbBack)
+        addCylinder(cylinder, transparency: 1.0, refractivity: 1.3)
         addBumpySphere(sphere2)
         addShinyEllipse3(ellipse)
         addShinySphere(sphere, transparency: 0.5, refractiveIndex: 1.3)
-        addCylinder(cylinder, reflectivity: 0.8)
     }
     
     func addAABB(_ object: RAABB3D) {
@@ -95,8 +95,16 @@ final class Scene {
         geometries.append(geom)
     }
     
-    func addCylinder(_ object: RCylinder3D, reflectivity: Double = 0.0) {
-        let material = Material(color: .gray, reflectivity: reflectivity)
+    func addCylinder(_ object: RCylinder3D,
+                     reflectivity: Double = 0.0,
+                     transparency: Double = 0.0,
+                     refractivity: Double = 1.0) {
+        
+        let material = Material(color: .gray,
+                                reflectivity: reflectivity,
+                                transparency: transparency,
+                                refractiveIndex: refractivity)
+        
         let geom = SceneGeometry(convex3: object, material: material)
         geometries.append(geom)
     }

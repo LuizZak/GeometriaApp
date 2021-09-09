@@ -54,7 +54,11 @@ class RaytracingWorker: CustomStringConvertible {
                         break
                     }
                     
+//                    raytracer.beginDebug()
+                    
                     let color = raytracer.raytrace(pixelAt: pixel)
+                    
+//                    raytracer.endDebug()
                     
                     if let context = _context {
                         context.setBufferPixel(at: pixel, color: color)

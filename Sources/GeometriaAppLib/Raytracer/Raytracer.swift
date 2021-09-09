@@ -2,7 +2,7 @@ import SwiftBlend2D
 
 /// Class that performs raytracing on a scene.
 final class Raytracer {
-    private var processingPrinter: ProcessingPrinter?
+    private var processingPrinter: RaytracerProcessingPrinter?
     
     var maxBounces: Int = 5
     var scene: Scene
@@ -18,7 +18,11 @@ final class Raytracer {
     // MARK: - Debugging
     
     func beginDebug() {
-        processingPrinter = ProcessingPrinter()
+        processingPrinter =
+        RaytracerProcessingPrinter(
+            viewportSize: viewportSize,
+            sceneCamera: camera
+        )
     }
     
     func endDebug() {
@@ -115,22 +119,7 @@ final class Raytracer {
                 // Ray that traverses within the geometry
                 let innerRay = RRay3D(start: hit.point, direction: refractIn)
                 
-                guard let exit = hit.sceneGeometry.doRayCast(ray: innerRay, ignoring: .entrance(hit.sceneGeometry)) else {
-                    processingPrinter?.add(ray: innerRay)
-                    break refraction
-                }
-                
-                processingPrinter?.add(hit: exit, ray: innerRay)
-                
-                // Note that we must negate exit normal since exit normals
-                // normally point to the inside of the shape.
-                guard let refractOut = refract(innerRay.direction,
-                                               -exit.normal,
-                                               material.refractiveIndex) else {
-                    break refraction
-                }
-                
-                rayThroughObject = RRay3D(start: exit.point, direction: refractOut)
+                rayThroughObject = innerRay
             }
             
             let backColor = raytrace(ray: rayThroughObject,
@@ -148,12 +137,14 @@ final class Raytracer {
                                      ignoring: .full(hit.sceneGeometry),
                                      bounceCount: bounceCount + 1)
             
-            let factor: Double
+            var factor: Double
             if material.refractiveIndex != 1.0 {
-                factor = refl
+                factor = refl + (1 - material.transparency)
             } else {
                 factor = refl + material.reflectivity
             }
+            
+            factor = max(0, min(1, factor))
             
             color = color.faded(towards: secondHit, factor: Float(factor))
         }

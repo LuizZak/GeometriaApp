@@ -1,3 +1,5 @@
+import Geometria
+
 class ProcessingPrinter {
     private var _lastStrokeColorCall: String? = ""
     private var _lastStrokeWeightCall: String? = ""
@@ -6,12 +8,13 @@ class ProcessingPrinter {
     private let identDepth: Int = 2
     private var currentIndent: Int = 0
     private var draws: [String] = []
-    private var shouldPrintDrawNormal: Bool = false
-    private var shouldPrintDrawTangent: Bool = false
-    private var is3D: Bool = false
-    private var addedGeometry: [SceneGeometry] = []
+    var cylinders: [Cylinder3<Vector3D>] = []
+    var shouldPrintDrawNormal: Bool = false
+    var shouldPrintDrawTangent: Bool = false
+    var is3D: Bool = false
+    var hasCylinders: Bool { !cylinders.isEmpty }
     
-    private var buffer: String = ""
+    var buffer: String = ""
     
     var size: Vector2i
     var scale: Double
@@ -19,17 +22,9 @@ class ProcessingPrinter {
     var drawOrigin: Bool = true
     var drawGrid: Bool = false
     
-    init(size: Vector2i = .init(x: 800, y: 600), scale: Double = 1.0) {
+    init(size: Vector2i = .init(x: 800, y: 600), scale: Double = 25.0) {
         self.size = size
         self.scale = scale
-    }
-    
-    func add(geometry: SceneGeometry) {
-        guard !addedGeometry.contains(where: { $0 === geometry }) else {
-            return
-        }
-        
-        addedGeometry.append(geometry)
     }
     
     func add<V: Vector2Type>(ellipse: Ellipsoid<V>) where V.Scalar: CustomStringConvertible {
@@ -77,25 +72,6 @@ class ProcessingPrinter {
         addDrawLine("")
     }
     
-    func add(hit: RayHit, ray: DirectionalRay3<RVector3D>) {
-        is3D = true
-        
-        let line = LineSegment3<RVector3D>(start: ray.start, end: hit.point)
-        
-        add(line: line, color: "255, 0, 0")
-        add(hit: hit)
-    }
-    
-    func add(hit: RayHit) {
-        is3D = true
-        
-        addStrokeColorSet("255, 0, 0")
-        addStrokeWeightSet("2 / scale")
-        add(geometry: hit.sceneGeometry)
-        add(intersection: hit.intersection)
-        addDrawLine("")
-    }
-    
     func add<V: Vector2Type>(intersection result: ConvexLineIntersection<V>) where V.Scalar: CustomStringConvertible {
         switch result {
         case .contained, .noIntersection:
@@ -108,7 +84,7 @@ class ProcessingPrinter {
         }
     }
     
-    func add<V: Vector3Type>(intersection result: ConvexLineIntersection<V>) where V.Scalar: SignedNumeric & CustomStringConvertible {
+    func add<V: Vector3Type>(intersection result: ConvexLineIntersection<V>) where V.Scalar == Double {
         switch result {
         case .contained, .noIntersection:
             break
@@ -132,8 +108,10 @@ class ProcessingPrinter {
         addDrawLine("")
     }
     
-    func add<V: Vector3Type>(pointNormal: PointNormal<V>) where V.Scalar: SignedNumeric & CustomStringConvertible {
+    func add<V: Vector3Type>(pointNormal: PointNormal<V>) where V.Scalar == Double {
         shouldPrintDrawNormal = true
+        
+        add(sphere: Sphere3<V>(center: pointNormal.point, radius: 0.5))
         
         addStrokeWeightSet("1 / scale")
         addStrokeColorSet("255, 0, 0, 100")
@@ -146,14 +124,17 @@ class ProcessingPrinter {
         addDrawLine("circle(\(vec2String(circle.center)), \(circle.radius));")
     }
     
+    func add<V: Vector2Additive & VectorDivisible>(aabb: AABB2<V>) where V.Scalar: SignedNumeric & CustomStringConvertible {
+        addStrokeWeightSet("1 / scale")
+        addStrokeColorSet("255, 0, 0, 100")
+        addNoFill()
+        addDrawLine("rect(\(vec2String(aabb.minimum)), \(vec2String(aabb.maximum)));")
+    }
+    
     func add<V: Vector3Type>(sphere: Sphere3<V>) where V.Scalar: SignedNumeric & CustomStringConvertible {
         is3D = true
         
-        add3DSpaceBarBoilerplate(lineWeight: 1.0)
-        addDrawLine("pushMatrix();")
-        addDrawLine("translate(\(vec3String(sphere.center)));")
-        addDrawLine("sphere(\(sphere.radius));")
-        addDrawLine("popMatrix();")
+        addDrawLine("drawSphere(\(vec3String(sphere.center)), \(sphere.radius));")
     }
     
     func add<V: Vector3Additive & VectorDivisible>(aabb: AABB3<V>) where V.Scalar: SignedNumeric & CustomStringConvertible {
@@ -166,11 +147,30 @@ class ProcessingPrinter {
         addDrawLine("popMatrix();")
     }
     
+    func add(cylinder: Cylinder3<Vector3D>) {
+        is3D = true
+        
+        cylinders.append(cylinder)
+    }
+    
     func printAll() {
         defer { printBuffer() }
         
+        prepareCustomPreFile()
+        
         if is3D {
+            printLine("// 3rd party libraries:")
+            printLine("// PeasyCam by Jonathan Feinberg")
             printLine("import peasy.*;")
+            printLine("")
+            printLine("// Shapes 3D by Peter Lager")
+            printLine("import shapes3d.*;")
+            printLine("import shapes3d.contour.*;")
+            printLine("import shapes3d.org.apache.commons.math.*;")
+            printLine("import shapes3d.org.apache.commons.math.geometry.*;")
+            printLine("import shapes3d.path.*;")
+            printLine("import shapes3d.utils.*;")
+            printLine("")
         }
         
         printLine("float scale = \(scale);")
@@ -178,6 +178,11 @@ class ProcessingPrinter {
             printLine("boolean isSpaceBarPressed = false;")
             printLine("PeasyCam cam;")
         }
+        if hasCylinders {
+            printLine("ArrayList<Tube> cylinders = new ArrayList<Tube>();")
+        }
+        
+        printCustomHeader()
         
         printLine("")
         printSetup()
@@ -192,6 +197,13 @@ class ProcessingPrinter {
         if drawGrid {
             printLine("")
             printDrawGrid2D()
+        }
+        
+        if hasCylinders {
+            printLine("")
+            printAddCylinder()
+            printLine("")
+            printDrawCylinders()
         }
         
         if drawOrigin && is3D {
@@ -213,105 +225,141 @@ class ProcessingPrinter {
             printLine("")
             printDrawTangent2D()
         }
+        
+        if is3D {
+            printLine("")
+            printDrawSphere()
+        }
     }
     
     // MARK: - Expression Printing
     
-    private func addDrawLine(_ line: String) {
+    func boilerplate3DSpaceBar<T: FloatingPoint>(lineWeight: T) -> [String] {
+        return [
+            "if (isSpaceBarPressed) {",
+            indentString(depth: 1) + "noFill();",
+            indentString(depth: 1) + "noLights();",
+            indentString(depth: 1) + "stroke(0, 0, 0, 20);",
+            indentString(depth: 1) + "strokeWeight(\(1 / lineWeight) / scale);",
+            "} else {",
+            indentString(depth: 1) + "noStroke();",
+            indentString(depth: 1) + "fill(255, 255, 255, 255);",
+            indentString(depth: 1) + "lights();",
+            "}"
+        ]
+    }
+    
+    func addDrawLine(_ line: String) {
         draws.append(line)
     }
     
-    private func addNoStroke() {
+    func addNoStroke() {
         if _lastStrokeColorCall == nil { return }
         _lastStrokeColorCall = nil
         addDrawLine("noStroke();")
     }
     
-    private func addNoFill() {
+    func addNoFill() {
         if _lastFillColorCall == nil { return }
         _lastFillColorCall = nil
         addDrawLine("noFill();")
     }
     
-    private func add3DSpaceBarBoilerplate<T: FloatingPoint>(lineWeight: T) {
-        addDrawLine("if (isSpaceBarPressed) {");
-        addDrawLine(indentString(depth: 1) + "noFill();");
-        addDrawLine(indentString(depth: 1) + "noLights();");
-        addDrawLine(indentString(depth: 1) + "stroke(0, 0, 0, 20);");
-        addDrawLine(indentString(depth: 1) + "strokeWeight(\(1 / lineWeight) / scale);");
-        addDrawLine("} else {");
-        addDrawLine(indentString(depth: 1) + "noStroke();");
-        addDrawLine(indentString(depth: 1) + "fill(255, 255, 255, 255);");
-        addDrawLine(indentString(depth: 1) + "lights();");
-        addDrawLine("}");
+    func add3DSpaceBarBoilerplate<T: FloatingPoint>(lineWeight: T) {
+        boilerplate3DSpaceBar(lineWeight: lineWeight).forEach(addDrawLine(_:))
     }
     
-    private func addStrokeColorSet(_ value: String) {
+    func addStrokeColorSet(_ value: String) {
         if _lastStrokeColorCall == value { return }
         
         _lastStrokeColorCall = value
         addDrawLine("stroke(\(value));")
     }
     
-    private func addStrokeWeightSet(_ value: String) {
+    func addStrokeWeightSet(_ value: String) {
         if _lastStrokeWeightCall == value { return }
         
         _lastStrokeWeightCall = value
         addDrawLine("strokeWeight(\(value));")
     }
     
-    private func addFillColorSet(_ value: String) {
+    func addFillColorSet(_ value: String) {
         if _lastFillColorCall == value { return }
         
         _lastFillColorCall = value
         addDrawLine("fill(\(value));")
     }
     
-    // MARK: - Function Printing
+    // MARK: - Methods for subclasses
     
-    /// Prepares geometry added to `addedGeometry` before it's print out by
-    /// `printDraw`.
-    private func prepareAddedGeometry() {
-        for geo in addedGeometry {
-            switch geo.geometry {
-            case let obj as Sphere3<RVector3D>:
-                add(sphere: obj)
-            case let ell as Ellipse3<RVector3D>:
-                add(ellipse3: ell)
-            case let aabb as AABB3<RVector3D>:
-                add(aabb: aabb)
-            default:
-                addDrawLine("// Unhandled geometric type: \(type(of: geo.geometry))")
-            }
-        }
+    func prepareCustomPreFile() {
+        
     }
     
-    private func printSetup() {
+    func printCustomHeader() {
+        
+    }
+    
+    func printCustomPostSetup() {
+        
+    }
+    
+    func printCustomPreDraw() {
+        
+    }
+    
+    func printCustomPostDraw() {
+        
+    }
+    
+    // MARK: - Function Printing
+    
+    func printSetup() {
+        func printCylinder(_ cylinder: Cylinder3<Vector3D>) {
+            let start = vec3PVectorString(cylinder.start)
+            let end = vec3PVectorString(cylinder.end)
+            
+            printLine("addCylinder(\(start), \(end), \(cylinder.radius));")
+        }
+        
         indentedBlock("void setup() {") {
             if is3D {
                 printLine("size(\(vec2String(size)), P3D);")
-                printLine("cam = new PeasyCam(this, 0, 0, 0, 250);")
+                printLine("perspective(PI / 3, 1, 0.3, 8000); // Corrects default zNear plane being too far for unit measurements")
+                printLine("cam = new PeasyCam(this, 250);")
                 printLine("cam.setWheelScale(0.3);")
             } else {
                 printLine("size(\(vec2String(size)));")
             }
             
+            if hasCylinders {
+                for cylinder in cylinders {
+                    printCylinder(cylinder)
+                }
+            }
+            
             printLine("ellipseMode(RADIUS);")
+            
+            printCustomPostSetup()
         }
     }
     
-    private func printDraw() {
-        prepareAddedGeometry()
-        
+    func printDraw() {
         indentedBlock("void draw() {") {
+            printCustomPreDraw()
+            
             printLine("background(255);")
             printLine("")
             if !is3D {
                 printLine("translate(width / 2, height / 2);")
                 printLine("scale(scale);")
+            } else {
+                printLine("// Correct Y to grow away from the origin, and Z to grow up")
+                printLine("rotateX(PI / 2);")
+                printLine("scale(1, -1, 1);")
             }
             printLine("")
-            printLine("strokeWeight(1 / scale);")
+            printLine("strokeWeight(3 / scale);")
             
             if drawGrid {
                 printLine("drawGrid();")
@@ -325,18 +373,60 @@ class ProcessingPrinter {
             for draw in draws {
                 printLine(draw)
             }
+            
+            if hasCylinders {
+                printLine("drawCylinders();")
+            }
+            
+            printCustomPostDraw()
         }
     }
     
-    private func printKeyPressed() {
+    func printKeyPressed() {
         indentedBlock("void keyPressed() {") {
             indentedBlock("if (key == ' ') {") {
                 printLine("isSpaceBarPressed = !isSpaceBarPressed;")
             }
+            
+            if hasCylinders {
+                indentedBlock("for (Tube t: cylinders) {") {
+                    indentedBlock("if (isSpaceBarPressed) {") {
+                        printLine("t.drawMode(S3D.WIRE);")
+                    }
+                    printLine("else")
+                    indentedBlock("{") {
+                        printLine("t.drawMode(S3D.SOLID);")
+                    }
+                }
+            }
         }
     }
     
-    private func printDrawGrid2D() {
+    func printAddCylinder() {
+        indentedBlock("void addCylinder(PVector start, PVector end, float radius) {") {
+            printLine("Oval base = new Oval(radius, 20);")
+            printLine("Path line = new Linear(start, end, 1);")
+            printLine("")
+            printLine("Tube tube = new Tube(line, base);")
+            printLine("")
+            printLine("tube.drawMode(S3D.SOLID);")
+            printLine("tube.stroke(color(50, 50, 50, 50));")
+            printLine("tube.strokeWeight(1);")
+            printLine("tube.fill(color(200, 200, 200, 50));")
+            printLine("")
+            printLine("cylinders.add(tube);")
+        }
+    }
+    
+    func printDrawCylinders() {
+        indentedBlock("void drawCylinders() {") {
+            indentedBlock("for (Tube t: cylinders) {") {
+                printLine("t.draw(getGraphics());")
+            }
+        }
+    }
+    
+    func printDrawGrid2D() {
         indentedBlock("void drawGrid() {") {
             printLine("stroke(0, 0, 0, 30);")
             printLine("line(0, -20, 0, 20);")
@@ -352,27 +442,27 @@ class ProcessingPrinter {
         }
     }
     
-    private func printDrawOrigin3D() {
+    func printDrawOrigin3D() {
         indentedBlock("void drawOrigin() {") {
             let length: Double = 100.0
             
-            let vx = RVector3D.unitX * length
-            let vy = RVector3D.unitY * length
-            let vz = RVector3D.unitZ * length
+            let vx = Vector3D.unitX * length
+            let vy = Vector3D.unitY * length
+            let vz = Vector3D.unitZ * length
             
             printLine("// X axis")
             printLine("stroke(255, 0, 0, 50);")
-            printLine("line(\(vec3String(-vx)), \(vec3String(vx)));")
+            printLine("line(\(vec3String(Vector3D.zero)), \(vec3String(vx)));")
             printLine("// Y axis")
             printLine("stroke(0, 255, 0, 50);")
-            printLine("line(\(vec3String(-vy)), \(vec3String(vy)));")
+            printLine("line(\(vec3String(Vector3D.zero)), \(vec3String(vy)));")
             printLine("// Z axis")
             printLine("stroke(0, 0, 255, 50);")
-            printLine("line(\(vec3String(-vz)), \(vec3String(vz)));")
+            printLine("line(\(vec3String(Vector3D.zero)), \(vec3String(vz)));")
         }
     }
     
-    private func printDrawNormal2D() {
+    func printDrawNormal2D() {
         indentedBlock("void drawNormal(float x, float y, float nx, float ny) {") {
             printLine("float x2 = x + nx;")
             printLine("float y2 = y + ny;")
@@ -381,19 +471,21 @@ class ProcessingPrinter {
         }
     }
     
-    private func printDrawNormal3D() {
+    func printDrawNormal3D() {
         indentedBlock("void drawNormal(float x, float y, float z, float nx, float ny, float nz) {") {
-            printLine("float s = 5.0;")
+            printLine("float s = 10.0;")
             printLine("")
             printLine("float x2 = x + nx * s;")
             printLine("float y2 = y + ny * s;")
             printLine("float z2 = z + nz * s;")
             printLine("")
+            printLine("strokeWeight(5 / scale);")
+            printLine("stroke(255, 0, 0, 200);")
             printLine("line(x, y, z, x2, y2, z2);")
         }
     }
     
-    private func printDrawTangent2D() {
+    func printDrawTangent2D() {
         indentedBlock("void drawTangent(float x, float y, float nx, float ny) {") {
             printLine("float s = 5.0;")
             printLine("")
@@ -407,9 +499,37 @@ class ProcessingPrinter {
         }
     }
     
+    func printDrawSphere() {
+        indentedBlock("void drawSphere(float x, float y, float z, float radius) {") {
+            boilerplate3DSpaceBar(lineWeight: 1.0).forEach(printLine)
+            
+            printLine("pushMatrix();")
+            printLine("translate(x, y, z);")
+            printLine("sphere(radius);")
+            printLine("popMatrix();")
+        }
+    }
+    
     // MARK: - String printing
     
-    private func printLine(_ line: String) {
+    func vec3PVectorString<V: Vector3Type>(_ vec: V) -> String where V.Scalar: SignedNumeric & CustomStringConvertible {
+        return "new PVector(\(vec3String(vec)))"
+    }
+    
+    func vec3String<V: Vector3Type>(_ vec: V) -> String where V.Scalar: SignedNumeric & CustomStringConvertible {
+        return "\(vec.x), \(vec.y), \(vec.z)"
+    }
+    
+    func vec3String_pCoordinates<V: Vector3Type>(_ vec: V) -> String where V.Scalar: SignedNumeric & CustomStringConvertible {
+        // Flip Y-Z axis (in Processing positive Y axis is down and positive Z axis is towards the screen)
+        return "\(vec.x), \(-vec.z), \(-vec.y)"
+    }
+    
+    func vec2String<V: Vector2Type>(_ vec: V) -> String where V.Scalar: CustomStringConvertible {
+        "\(vec.x), \(vec.y)"
+    }
+    
+    func printLine(_ line: String) {
         print("\(indentString())\(line)", to: &buffer)
     }
     
@@ -418,24 +538,15 @@ class ProcessingPrinter {
         buffer = ""
     }
     
-    private func vec3String<V: Vector3Type>(_ vec: V) -> String where V.Scalar: SignedNumeric & CustomStringConvertible {
-        // Flip Y-Z axis (in Processing positive Y axis is down)
-        return "\(vec.x), \(-vec.z), \(vec.y)"
+    func indentString() -> String {
+        indentString(depth: identDepth * currentIndent)
     }
     
-    private func vec2String<V: Vector2Type>(_ vec: V) -> String where V.Scalar: CustomStringConvertible {
-        return "\(vec.x), \(vec.y)"
-    }
-    
-    private func indentString() -> String {
-        return indentString(depth: identDepth * currentIndent)
-    }
-    
-    private func indentString(depth: Int) -> String {
+    func indentString(depth: Int) -> String {
         String(repeating: " ", count: depth)
     }
     
-    private func indentedBlock(_ start: String, _ block: () -> Void) {
+    func indentedBlock(_ start: String, _ block: () -> Void) {
         printLine(start)
         indented {
             block()
@@ -443,17 +554,17 @@ class ProcessingPrinter {
         printLine("}")
     }
     
-    private func indented(_ block: () -> Void) {
+    func indented(_ block: () -> Void) {
         indent()
         block()
         deindent()
     }
     
-    private func indent() {
+    func indent() {
         currentIndent += 1
     }
     
-    private func deindent() {
+    func deindent() {
         currentIndent -= 1
     }
 }

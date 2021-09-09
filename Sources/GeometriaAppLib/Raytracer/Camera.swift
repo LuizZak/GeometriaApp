@@ -1,25 +1,25 @@
 struct Camera {
-    private var cameraPlane: ProjectivePointNormalPlane3<RVector3D> =
+    var cameraPlane: ProjectivePointNormalPlane3<RVector3D> =
         .makeCorrectedPlane(point: RVector3D.unitZ * 5,
                             normal: .init(x: 0, y: 5, z: -1),
                             upAxis: .unitZ)
     
-    private var cameraCenterOffset: Double = -90.0 {
+    var cameraCenterOffset: Double = -90.0 {
         didSet {
             recomputeCamera()
         }
     }
     
-    private var cameraZOffset: Double = 0.0 {
+    var cameraZOffset: Double = 0.0 {
         didSet {
             recomputeCamera()
         }
     }
     
-    private var cameraCenterPoint: RVector3D = .zero
-    private var cameraSizeInWorld: RVector2D = RVector2D(x: 400, y: 300)
-    private var cameraDownsize: Double = 0.3
-    private var cameraSizeScale: Double = 0.1
+    var cameraCenterPoint: RVector3D = .zero
+    var cameraSizeInWorld: RVector2D = RVector2D(x: 400, y: 300)
+    var cameraDownsize: Double = 0.3
+    var cameraSizeScale: Double = 0.1
     
     var viewportSize: Vector2i {
         didSet {
