@@ -26,30 +26,36 @@ final class Scene {
                   maximum: .init(x: 0, y: 210, z: 50))
         
         // Sphere
-        let sphere: NSphere<RVector3D> = .init(center: .init(x: 0, y: 150, z: 45), radius: 30)
+        let sphere: RSphere3D = .init(center: .init(x: 0, y: 150, z: 45), radius: 30)
         
         // Second sphere
-        let sphere2: NSphere<RVector3D> = .init(center: .init(x: 70, y: 150, z: 45), radius: 30)
+        let sphere2: RSphere3D = .init(center: .init(x: 70, y: 150, z: 45), radius: 30)
+        
+        // Ellipse
+        let ellipse: REllipse3D = .init(center: .init(x: -50, y: 90, z: 20),
+                                                 radius: .init(x: 20, y: 15, z: 10))
+        
+        // Cylinder
+        let cylinder: RCylinder3D = .init(start: .init(x: 60, y: 180, z: 0),
+                                          end: .init(x: 60, y: 180, z: 100),
+                                          radius: 20)
+        
+        // Disk
+        let disk: RDisk3D = RDisk3D(center: .init(x: -10, y: 110, z: 20),
+                                             normal: .unitY,
+                                             radius: 12)
         
         // Floor plane
         let floorPlane: RPlane3D = RPlane3D(point: .zero, normal: .unitZ)
         
-        // Disk
-        let disk: Disk3<RVector3D> = RDisk3D(center: .init(x: -10, y: 110, z: 20),
-                                             normal: .unitY,
-                                             radius: 12)
-        
-        // Ellipse
-        let ellipse: Ellipse3<RVector3D> = .init(center: .init(x: -50, y: 90, z: 20),
-                                                 radius: .init(x: 20, y: 15, z: 10))
-        
-        addPlane(floorPlane)
-        addAABB(aabbTop)
-        addAABB(aabbBack)
-        addBumpySphere(sphere2)
-        addDisk(disk)
-        addShinyEllipse3(ellipse)
-        addShinySphere(sphere, transparency: 0.5, refractiveIndex: 1.3)
+//        addDisk(disk)
+//        addPlane(floorPlane)
+//        addAABB(aabbTop)
+//        addAABB(aabbBack)
+//        addBumpySphere(sphere2)
+//        addShinyEllipse3(ellipse)
+//        addShinySphere(sphere, transparency: 0.5, refractiveIndex: 1.3)
+        addCylinder(cylinder, reflectivity: 0.8)
     }
     
     func addAABB(_ object: RAABB3D) {
@@ -85,6 +91,12 @@ final class Scene {
     
     func addShinyEllipse3(_ object: REllipse3D, transparency: Double = 0.0) {
         let material = Material(color: .gray, reflectivity: 0.5, transparency: transparency)
+        let geom = SceneGeometry(convex: object, material: material)
+        geometries.append(geom)
+    }
+    
+    func addCylinder(_ object: RCylinder3D, reflectivity: Double = 0.0) {
+        let material = Material(color: .gray, reflectivity: reflectivity)
         let geom = SceneGeometry(convex: object, material: material)
         geometries.append(geom)
     }

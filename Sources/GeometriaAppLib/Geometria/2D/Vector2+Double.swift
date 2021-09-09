@@ -1,4 +1,4 @@
-#if canImport(simd)
+#if false // canImport(simd)
 
 import simd
 
@@ -27,10 +27,10 @@ public extension Vector2D {
         //
         
         let cScale =
-        double3x3(columns: (
+        double3x3(
             .init(scale.x, 0, 0),
             .init(0, scale.y, 0),
-            .init(0, 0, 1))
+            .init(0, 0, 1)
         )
         
         matrix *= cScale
@@ -46,16 +46,16 @@ public extension Vector2D {
             let s = sin(-angle)
             
             let cRotation =
-            double3x3(columns: (
+            double3x3(
                 .init(c, s, 0),
                 .init(-s, c, 0),
-                .init(0, 0, 1))
+                .init(0, 0, 1)
             )
             
             matrix *= cRotation
         }
         
-        // Translation:
+        // Translation:w
         //
         // | 0  0  dx |
         // | 0  0  dy |
@@ -63,10 +63,10 @@ public extension Vector2D {
         //
         
         let cTranslation =
-        double3x3(columns: (
+        double3x3(
             .init(1, 0, translate.x),
             .init(0, 1, translate.y),
-            .init(0, 0, 1))
+            .init(0, 0, 1)
         )
         
         matrix *= cTranslation
