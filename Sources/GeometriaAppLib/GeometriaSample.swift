@@ -14,6 +14,7 @@ class GeometriaSample: Blend2DSample {
     private var _isResizing: Bool = false
     private var _timeStarted: TimeInterval = 0.0
     private var _timeEnded: TimeInterval = 0.0
+    private var _mouseLocation: BLPointI = .zero
     
     private var ui: ImagineUIWrapper
     
@@ -219,7 +220,9 @@ class GeometriaSample: Blend2DSample {
     func mouseMoved(event: MouseEventArgs) {
         ui.mouseMoved(event: event)
         
-        mouseLocationLabel.text = "Mouse location: (x: \(Int(event.location.x)), y: \(Int(event.location.y)))"
+        _mouseLocation = BLPointI(x: Int32(event.location.x), y: Int32(event.location.y))
+        mouseLocationLabel.text = "Mouse location: (x: \(_mouseLocation.x), y: \(_mouseLocation.y))"
+        invalidateAll()
     }
     
     func mouseDown(event: MouseEventArgs) {
@@ -271,6 +274,16 @@ class GeometriaSample: Blend2DSample {
         }
         
         ui.render(context: ctx)
+        
+//        ctx.setFillStyle(BLRgba32.red)
+//        ctx.setStrokeStyle(BLRgba32.red)
+//
+//        let px = BLRectI(location: _mouseLocation, size: .init(x: 1, y: 1))
+//        ctx.fillRect(px)
+//        ctx.setStrokeWidth(1)
+//        let crosshairLength: Int32 = 10
+//        ctx.strokeLine(p0: _mouseLocation - .init(x: crosshairLength, y: 0), p1: _mouseLocation + .init(x: crosshairLength, y: 0))
+//        ctx.strokeLine(p0: _mouseLocation - .init(x: 0, y: crosshairLength), p1: _mouseLocation + .init(x: 0, y: crosshairLength))
     }
     
     func drawLabel(_ ctx: BLContext, text: String, topLeft: BLPoint) {

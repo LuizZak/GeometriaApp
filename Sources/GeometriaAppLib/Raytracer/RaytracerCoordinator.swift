@@ -55,9 +55,11 @@ class RaytracerCoordinator: RaytracerWorkerContext {
         _batchRequestQueue = .init(label: "com.geometriaapp.raytracing.batcher",
                                    qos: .default)
         
-//        batcher = SinglePixelBatcher(pixel: .init(x: 172, y: 192)) // Transparent sphere - bottom-left center of refraction 'anomaly'
+//        batcher = SinglePixelBatcher(pixel: .init(x: 173, y: 171)) // Transparent sphere - bottom-left center of refraction 'anomaly'
 //        batcher = SinglePixelBatcher(pixel: .init(x: 261, y: 173)) // Reflection of transparent sphere on right sphere
 //        batcher = SinglePixelBatcher(pixel: .init(x: 273, y: 150)) // Refractive cylinder
+//        batcher = SinglePixelBatcher(pixel: .init(x: 172, y: 156)) // Bug in refractive bouncing in left sphere
+//        batcher = SinglePixelBatcher(pixel: .init(x: 255, y: 224)) // Bug in refractive bouncing in cylinder's base
         batcher = TiledBatcher(splitting: viewportSize,
                                estimatedThreadCount: _threadCount * 2,
                                shuffleOrder: true)
@@ -81,6 +83,8 @@ class RaytracerCoordinator: RaytracerWorkerContext {
         
         recreateCamera()
         resetBatcher()
+        
+        _raytracer.isMultiThreaded = !(batcher is SinglePixelBatcher)
     }
     
     func start() {

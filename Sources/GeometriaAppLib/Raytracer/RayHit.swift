@@ -1,4 +1,5 @@
 import Geometria
+
 struct RayHit {
     /// Convenience for `pointOfInterest.point`
     var point: RVector3D {
@@ -7,6 +8,21 @@ struct RayHit {
     /// Convenience for `pointOfInterest.normal`
     var normal: RVector3D {
         return pointOfInterest.normal
+    }
+    
+    var hitDirection: HitDirection {
+        switch intersection {
+        case .exit:
+            return .inside
+        case .enter, .singlePoint(_):
+            return .outside
+        case .enterExit(let po, _) where po == pointOfInterest:
+            return .outside
+        case .enterExit(_, let pi) where pi == pointOfInterest:
+            return .inside
+        default:
+            return .outside
+        }
     }
     
     /// The point-of-interest for the intersection, which is one of the point
@@ -49,5 +65,13 @@ struct RayHit {
         }
         
         return RayHit(pointOfInterest: poi, intersection: intersection, sceneGeometry: sceneGeometry)
+    }
+    
+    /// Specifies where the ray hit the geometry.
+    enum HitDirection {
+        /// Ray hit the geometry from the inside
+        case inside
+        /// Ray hit the geometry from the outside
+        case outside
     }
 }

@@ -2,9 +2,16 @@ import SwiftBlend2D
 
 /// Class that performs raytracing on a scene.
 final class Raytracer {
+    private static var _attemptedDebugInMultithreadedYet = false
     private var processingPrinter: RaytracerProcessingPrinter?
     
-    var maxBounces: Int = 5
+    private let minimumRayToleranceSq: Double = 0.001
+    
+    /// Bias used when creating rays for refraction and reflection.
+    private let bias: Double = 0.01
+    
+    var isMultiThreaded: Bool = false
+    var maxBounces: Int = 15
     var scene: Scene
     var camera: Camera
     var viewportSize: Vector2i
@@ -18,6 +25,15 @@ final class Raytracer {
     // MARK: - Debugging
     
     func beginDebug() {
+        if isMultiThreaded {
+            if !Raytracer._attemptedDebugInMultithreadedYet {
+                Raytracer._attemptedDebugInMultithreadedYet = true
+                print("Attempted to invoke Raytracer.beginDebug() with a multi-pixel, multi-threaded render, which is potentially not intended. Ignoring...")
+            }
+            
+            return
+        }
+        
         processingPrinter =
         RaytracerProcessingPrinter(
             viewportSize: viewportSize,
@@ -40,14 +56,46 @@ final class Raytracer {
         return raytrace(ray: ray)
     }
     
+    private func mergeColors(_ color1: BLRgba32, _ color2: BLRgba32, factor: Double) -> BLRgba32 {
+        return mergeColors(color1, color2, factor: Float(factor))
+    }
+    
+    private func mergeColors(_ color1: BLRgba32, _ color2: BLRgba32, factor: Float) -> BLRgba32 {
+        if factor <= 0 {
+            return color1
+        }
+        if factor >= 1 {
+            return color2
+        }
+        if color2 == BLRgba.transparentBlack {
+            return color1
+        }
+        
+        return color1.faded(towards: color2, factor: factor)
+    }
+    
     private func raytrace(ray: RRay3D, ignoring: RayIgnore = .none, bounceCount: Int = 0) -> BLRgba32 {
         if bounceCount >= maxBounces {
-            return scene.skyColor
+            return BLRgba32.transparentBlack
         }
         
         guard let hit = scene.intersect(ray: ray, ignoring: ignoring) else {
             processingPrinter?.add(ray: ray)
             return scene.skyColor
+        }
+        
+        // Detect short distances that should avoid re-bounces
+        var canRebounce = true
+        switch ignoring {
+        case .entrance(_, let minimumRayLengthSquared), .exit(_, let minimumRayLengthSquared):
+            let dist = hit.pointOfInterest.point.distanceSquared(to: ray.start)
+            if dist < minimumRayLengthSquared {
+                processingPrinter?.add(ray: ray)
+                canRebounce = false
+            }
+            
+        default:
+            break
         }
         
         processingPrinter?.add(hit: hit, ray: ray)
@@ -56,7 +104,8 @@ final class Raytracer {
         
         let geometry = hit.sceneGeometry.geometry
         let material = hit.sceneGeometry.material
-        var color = material.color
+        let invTransparency = 1 - material.transparency
+        var color = mergeColors(scene.skyColor, material.color, factor: invTransparency)
         var minimumShade: Double = 0.0
         
         if geometry is RPlane3D {
@@ -97,7 +146,7 @@ final class Raytracer {
         
         // Shading
         let shade = max(0.0, min(1 - minimumShade, hit.normal.dot(-ray.direction)))
-        color = color.faded(towards: .black, factor: Float(1 - shade))
+        color = mergeColors(color, .black, factor: (1 - shade) * invTransparency)
         
         // Find rates for reflection and transmission within material
         let (refl, trans) = fresnel(ray.direction, hit.normal, material.refractiveIndex)
@@ -106,35 +155,56 @@ final class Raytracer {
         if material.transparency > 0.0 {
             // Raycast past geometry and add color
             var rayThroughObject: RRay3D = RRay3D(start: hit.point, direction: ray.direction)
+            var rayIgnore: RayIgnore = .full(hit.sceneGeometry)
             
             // If refraction is active, create a ray that points to the exit
             // point of the refracted ray that was generated inside the object's
             // geometry.
         refraction:
-            if trans > 0 {
+            if trans > 0 && canRebounce {
                 guard let refractIn = refract(ray.direction, hit.normal, material.refractiveIndex) else {
                     break refraction
                 }
                 
+                // TODO: Fix odd behavior of refraction where small internal
+                // TODO: bounces of rays lead to incorrect pixels.
+                
                 // Ray that traverses within the geometry
-                let innerRay = RRay3D(start: hit.point, direction: refractIn)
+                let innerRay = RRay3D(start: hit.point + hit.normal * bias, direction: refractIn)
+                // Allow bouncing out of the geometry, but not in
+                let minDist = 0.01
+                let minDistSq = minDist * minDist
+                rayIgnore = .entrance(hit.sceneGeometry, minimumRayLengthSquared: minDist * minDist)
+                // Do a sanitity check that the ray isn't going to collide
+                // immediately with the same geometry - if it does, skip the
+                // geometry fully in the subsequent raycast
+                let innerHit = hit.sceneGeometry.doRayCast(ray: innerRay, ignoring: rayIgnore)
+                if let innerHit = innerHit, innerHit.point.distanceSquared(to: hit.point) <= minDistSq {
+                    rayIgnore = .full(hit.sceneGeometry)
+                }
                 
                 rayThroughObject = innerRay
             }
             
             let backColor = raytrace(ray: rayThroughObject,
-                                     ignoring: .full(hit.sceneGeometry),
-                                     bounceCount: bounceCount)
-            color = color.faded(towards: backColor, factor: Float(material.transparency * trans))
+                                     ignoring: rayIgnore,
+                                     bounceCount: bounceCount + 1)
+            color = mergeColors(color, backColor, factor: material.transparency * trans)
         }
         
         // Reflectivity
-        if material.reflectivity > 0.0 && bounceCount < maxBounces {
+        if material.reflectivity > 0.0 && bounceCount < maxBounces && canRebounce {
             // Raycast from normal and fade in the reflected color
+            let ignoring: RayIgnore
+            if hit.hitDirection == .inside {
+                ignoring = .entrance(hit.sceneGeometry, minimumRayLengthSquared: minimumRayToleranceSq)
+            } else {
+                ignoring = .exit(hit.sceneGeometry, minimumRayLengthSquared: minimumRayToleranceSq)
+            }
             let reflection = reflect(direction: ray.direction, normal: hit.normal)
             let normRay = RRay3D(start: hit.point, direction: reflection)
             let secondHit = raytrace(ray: normRay,
-                                     ignoring: .full(hit.sceneGeometry),
+                                     ignoring: ignoring,
                                      bounceCount: bounceCount + 1)
             
             var factor: Double
@@ -146,25 +216,25 @@ final class Raytracer {
             
             factor = max(0, min(1, factor))
             
-            color = color.faded(towards: secondHit, factor: Float(factor))
+            color = mergeColors(color, secondHit, factor: factor)
         }
         
         // Shadow or sunlight
         let shadow = calculateShadow(for: hit)
         if shadow > 0 {
             // Shadow
-            color = color.faded(towards: .black, factor: Float(0.5 * shadow))
+            color = mergeColors(color, .black, factor: 0.5 * shadow)
         } else {
             // Sunlight direction
             let sunDirDot = max(0.0, min(1, pow(hit.normal.dot(-scene.sunDirection), 5)))
-            color = color.faded(towards: .white, factor: Float(sunDirDot))
+            color = mergeColors(color, .white, factor: sunDirDot)
         }
         
         // Fade distant pixels to skyColor
         let far = 1000.0
         let dist = ray.a.distanceSquared(to: hit.point)
-        let distFactor = max(0, min(1, Float(dist / (far * far))))
-        color = color.faded(towards: scene.skyColor, factor: distFactor)
+        let distFactor = max(0, min(1, dist / (far * far)))
+        color = mergeColors(color, scene.skyColor, factor: distFactor)
         
         return color
     }
@@ -186,8 +256,10 @@ final class Raytracer {
     private func calculateShadow(for hit: RayHit) -> Double {
         let ray = RRay3D(start: hit.point, direction: -scene.sunDirection)
         
+        let intersections = scene.intersectAll(ray: ray, ignoring: .full(hit.sceneGeometry))
+        
         let transparency =
-        scene.intersectAll(ray: ray, ignoring: .full(hit.sceneGeometry))
+        intersections
             .map(\.sceneGeometry.material.transparency)
             .reduce(1.0, *)
         

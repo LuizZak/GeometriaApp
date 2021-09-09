@@ -7,10 +7,10 @@ enum RayIgnore {
     case full(SceneGeometry)
     
     /// Ignores entrance rays for a given geometry object.
-    case entrance(SceneGeometry)
+    case entrance(SceneGeometry, minimumRayLengthSquared: Double = 0.0)
     
     /// Ignores exit rays for a given geometry object.
-    case exit(SceneGeometry)
+    case exit(SceneGeometry, minimumRayLengthSquared: Double = 0.0)
     
     /// Returns `true` iff this ``RayIgnore`` instance is `.full` case, with the
     /// given geometry assigned.
@@ -46,7 +46,7 @@ enum RayIgnore {
                 return nil
             }
             
-        case .entrance(let geometry):
+        case .entrance(let geometry, _):
             if geometry !== sceneGeometry {
                 break
             }
@@ -57,7 +57,7 @@ enum RayIgnore {
                 return nil
             }
             
-        case .exit(let geometry):
+        case .exit(let geometry, _):
             if geometry !== sceneGeometry {
                 break
             }

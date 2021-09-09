@@ -55,7 +55,7 @@ final class Scene {
         addCylinder(cylinder, transparency: 1.0, refractivity: 1.3)
         addBumpySphere(sphere2)
         addShinyEllipse3(ellipse)
-        addShinySphere(sphere, transparency: 0.5, refractiveIndex: 1.3)
+        addShinySphere(sphere, transparency: 1.0, refractiveIndex: 1.3)
     }
     
     func addAABB(_ object: RAABB3D) {
