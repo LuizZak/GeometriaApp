@@ -13,6 +13,12 @@ struct Material: CustomStringConvertible {
     /// it causes no light refraction.
     var refractiveIndex: Double = 1.0
     
+    /// Returns `true` if this material has a refractive index different from
+    /// the world's, i.e. `refractiveIndex != 1.0`.
+    var hasRefraction: Bool {
+        return refractiveIndex != 1.0
+    }
+    
     var description: String {
         "\(type(of: self))(color: \(color), reflectivity: \(reflectivity), transparency: \(transparency), refractiveIndex: \(refractiveIndex))"
     }

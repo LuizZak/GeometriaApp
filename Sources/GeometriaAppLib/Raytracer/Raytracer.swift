@@ -219,6 +219,8 @@ final class Raytracer {
             color = mergeColors(color, secondHit, factor: factor)
         }
         
+        // TODO: Improve handling of shadow and direct light in refractive materials
+        
         // Shadow or sunlight
         let shadow = calculateShadow(for: hit)
         if shadow > 0 {
@@ -227,7 +229,12 @@ final class Raytracer {
         } else {
             // Sunlight direction
             let sunDirDot = max(0.0, min(1, pow(hit.normal.dot(-scene.sunDirection), 5)))
-            color = mergeColors(color, .white, factor: sunDirDot)
+            
+            if material.hasRefraction {
+                color = mergeColors(color, .white, factor: sunDirDot * refl)
+            } else {
+                color = mergeColors(color, .white, factor: sunDirDot)
+            }
         }
         
         // Fade distant pixels to skyColor
