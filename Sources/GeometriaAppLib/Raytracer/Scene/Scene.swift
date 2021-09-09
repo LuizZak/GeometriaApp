@@ -51,15 +51,15 @@ final class Scene {
         addPlane(floorPlane)
         addDisk(disk)
         addAABB(aabbTop)
-        addAABB(aabbBack)
+        addAABB(aabbBack, color: .indianRed)
         addCylinder(cylinder, transparency: 1.0, refractivity: 1.3)
         addBumpySphere(sphere2)
         addShinyEllipse3(ellipse)
         addShinySphere(sphere, transparency: 1.0, refractiveIndex: 1.3)
     }
     
-    func addAABB(_ object: RAABB3D) {
-        let material = Material(color: .gray)
+    func addAABB(_ object: RAABB3D, color: BLRgba32 = .gray) {
+        let material = Material(color: color)
         let geom = SceneGeometry(convex: object, material: material)
         geometries.append(geom)
     }

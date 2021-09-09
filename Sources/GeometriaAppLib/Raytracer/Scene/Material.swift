@@ -1,6 +1,8 @@
 import SwiftBlend2D
 
 struct Material: CustomStringConvertible {
+    // TODO: Attempt using different type for defining color in raytracer to
+    // TODO: see if it improves performance over BLRgba32.
     var color: BLRgba32
     
     /// Values > 0 increase the reflectivity of the geometry.
