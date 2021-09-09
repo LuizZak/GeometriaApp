@@ -92,6 +92,31 @@ final class SceneGeometry {
         }
     }
     
+    init<C: Convex3Type & BoundableType & Equatable>(convex3 convex: C, material: Material) where C.Vector == RVector3D {
+        self.bounds = convex.bounds
+        self.material = material
+        self.geometry = convex
+        
+        _doRayCast = { rayInfo in
+            let intersection = convex.intersection(with: rayInfo.ray)
+            switch intersection {
+            case .enter(let pt),
+                 .exit(let pt),
+                 .enterExit(let pt, _),
+                 .singlePoint(let pt):
+                
+                let distSq = pt.point.distanceSquared(to: rayInfo.ray.start)
+                if distSq > rayInfo.rayMagnitudeSquared {
+                    return .noIntersection
+                }
+                
+                return intersection
+            default:
+                return intersection
+            }
+        }
+    }
+    
     init<P: LineIntersectablePlaneType & Equatable>(plane: P, material: Material) where P.Vector == RVector3D {
         self.material = material
         self.geometry = plane

@@ -48,13 +48,13 @@ final class Scene {
         // Floor plane
         let floorPlane: RPlane3D = RPlane3D(point: .zero, normal: .unitZ)
         
-//        addDisk(disk)
-//        addPlane(floorPlane)
-//        addAABB(aabbTop)
-//        addAABB(aabbBack)
-//        addBumpySphere(sphere2)
-//        addShinyEllipse3(ellipse)
-//        addShinySphere(sphere, transparency: 0.5, refractiveIndex: 1.3)
+        addDisk(disk)
+        addPlane(floorPlane)
+        addAABB(aabbTop)
+        addAABB(aabbBack)
+        addBumpySphere(sphere2)
+        addShinyEllipse3(ellipse)
+        addShinySphere(sphere, transparency: 0.5, refractiveIndex: 1.3)
         addCylinder(cylinder, reflectivity: 0.8)
     }
     
@@ -97,7 +97,7 @@ final class Scene {
     
     func addCylinder(_ object: RCylinder3D, reflectivity: Double = 0.0) {
         let material = Material(color: .gray, reflectivity: reflectivity)
-        let geom = SceneGeometry(convex: object, material: material)
+        let geom = SceneGeometry(convex3: object, material: material)
         geometries.append(geom)
     }
     
