@@ -45,7 +45,9 @@ class RaytracerCoordinator: RaytracerWorkerContext {
         self.viewportSize = viewportSize
         self.buffer = buffer
         
-        self._raytracer = Raytracer(scene: Scene(),
+        let scene = DemoScene.makeScene()
+        
+        self._raytracer = Raytracer(scene: scene,
                                     camera: Camera(viewportSize: viewportSize),
                                     viewportSize: viewportSize)
         

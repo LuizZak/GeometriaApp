@@ -67,7 +67,7 @@ final class SceneGeometry {
         }
     }
     
-    init<C: ConvexType & BoundableType & Equatable>(convex: C, material: Material) where C.Vector == RVector3D {
+    init<C: ConvexType & BoundableType>(convex: C, material: Material) where C.Vector == RVector3D {
         self.bounds = convex.bounds
         self.material = material
         self.geometry = convex
@@ -92,7 +92,7 @@ final class SceneGeometry {
         }
     }
     
-    init<C: Convex3Type & BoundableType & Equatable>(convex3 convex: C, material: Material) where C.Vector == RVector3D {
+    init<C: Convex3Type & BoundableType>(convex3 convex: C, material: Material) where C.Vector == RVector3D {
         self.bounds = convex.bounds
         self.material = material
         self.geometry = convex
@@ -117,7 +117,7 @@ final class SceneGeometry {
         }
     }
     
-    init<P: LineIntersectablePlaneType & Equatable>(plane: P, material: Material) where P.Vector == RVector3D {
+    init<P: LineIntersectablePlaneType>(plane: P, material: Material) where P.Vector == RVector3D {
         self.material = material
         self.geometry = plane
         

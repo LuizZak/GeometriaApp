@@ -1,9 +1,17 @@
 import SwiftBlend2D
 
 struct Material: CustomStringConvertible {
+    static let `default`: Material = .init()
+    
     // TODO: Attempt using different type for defining color in raytracer to
     // TODO: see if it improves performance over BLRgba32.
-    var color: BLRgba32
+    var color: BLRgba32 = .gray
+    
+    /// Frequency of Perlin noise used in surface bumps.
+    var bumpNoiseFrequency: Double = 1.0
+    
+    /// Magnitude of bump for offsetting normals.
+    var bumpMagnitude: Double = 0.0
     
     /// Values > 0 increase the reflectivity of the geometry.
     var reflectivity: Double = 0.0
@@ -22,6 +30,10 @@ struct Material: CustomStringConvertible {
     }
     
     var description: String {
-        "\(type(of: self))(color: \(color), reflectivity: \(reflectivity), transparency: \(transparency), refractiveIndex: \(refractiveIndex))"
+        """
+        \(type(of: self))(color: \(color), bumpNoiseFrequency: \(bumpNoiseFrequency), \
+        bumpMagnitude: \(bumpMagnitude), reflectivity: \(reflectivity), \
+        transparency: \(transparency), refractiveIndex: \(refractiveIndex))
+        """
     }
 }
