@@ -1,6 +1,6 @@
 import RealModule
 
-/// Represents a geometric line as a pair of start and end N-dimensional vectors
+/// Represents a [geometric line] as a pair of start and end N-dimensional vectors
 /// which describe the two points an infinite line crosses.
 ///
 /// [geometric line]: https://en.wikipedia.org/wiki/Line_(geometry)
@@ -39,6 +39,10 @@ extension Line: LineMultiplicative where Vector: VectorMultiplicative {
     public func withPointsScaledBy(_ factor: Vector) -> Self {
         Self(a: a * factor, b: b * factor)
     }
+}
+
+extension Line: LineDivisible where Vector: VectorDivisible {
+    
 }
 
 extension Line: LineFloatingPoint & PointProjectableType where Vector: VectorFloatingPoint {

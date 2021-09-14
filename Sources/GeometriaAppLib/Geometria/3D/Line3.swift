@@ -10,7 +10,7 @@ public typealias Line3F = Line3<Vector3F>
 /// crosses.
 public typealias Line3i = Line3<Vector3i>
 
-/// Typealias for `Line<V>`, where `V` is constrained to `Vector3Type`.
+/// Typealias for `Line<V>`, where `V` is constrained to ``Vector3Type``.
 public typealias Line3<V: Vector3Type> = Line<V>
 
 extension Line3: Line3Type {
@@ -24,7 +24,7 @@ extension Line3: Line3Type {
     
     /// Creates a 2D line of the same underlying type as this line.
     @_transparent
-    public func make2DLine(_ a: Vector.SubVector2, _ b: Vector.SubVector2) -> SubLine2 {
+    public static func make2DLine(_ a: Vector.SubVector2, _ b: Vector.SubVector2) -> SubLine2 {
         SubLine2(a: a, b: b)
     }
 }

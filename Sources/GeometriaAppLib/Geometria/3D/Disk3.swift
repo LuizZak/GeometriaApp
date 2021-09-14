@@ -48,19 +48,12 @@ extension Disk3: BoundableType {
         let normCross = cross.normalized() * radius
         let otherAxis = normCross.cross(normal).normalized() * radius
         
-        var minimum = center
-        minimum = Vector.pointwiseMin(minimum, center - normCross)
-        minimum = Vector.pointwiseMin(minimum, center + normCross)
-        minimum = Vector.pointwiseMin(minimum, center - otherAxis)
-        minimum = Vector.pointwiseMin(minimum, center + otherAxis)
+        let a = center - normCross
+        let b = center + normCross
+        let c = center - otherAxis
+        let d = center + otherAxis
         
-        var maximum = center
-        maximum = Vector.pointwiseMax(maximum, center - normCross)
-        maximum = Vector.pointwiseMax(maximum, center + normCross)
-        maximum = Vector.pointwiseMax(maximum, center - otherAxis)
-        maximum = Vector.pointwiseMax(maximum, center + otherAxis)
-        
-        return .init(minimum: minimum, maximum: maximum)
+        return .init(of: a, b, c, d)
     }
 }
 
@@ -110,7 +103,7 @@ extension Disk3: LineIntersectablePlaneType {
         }
         
         let point = line.projectedNormalizedMagnitude(magnitude)
-        if point.distanceSquared(to: center) > radius * radius {
+        guard point.distanceSquared(to: center) <= radius * radius else {
             return nil
         }
         

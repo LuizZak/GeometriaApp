@@ -1,7 +1,9 @@
 import RealModule
 
-/// Represents a line segment as a pair of start and end N-dimensional vectors
+/// Represents a [line segment] as a pair of start and end N-dimensional vectors
 /// which describe a closed interval.
+///
+/// [line segment]: https://en.wikipedia.org/wiki/Line_segment
 public struct LineSegment<Vector: VectorType>: LineType {
     public typealias Scalar = Vector.Scalar
     
@@ -81,6 +83,10 @@ extension LineSegment: LineMultiplicative where Vector: VectorMultiplicative {
     public func withPointsScaledBy(_ factor: Vector) -> Self {
         Self(start: start * factor, end: end * factor)
     }
+}
+
+extension LineSegment: LineDivisible where Vector: VectorDivisible {
+    
 }
 
 extension LineSegment: LineFloatingPoint & PointProjectableType where Vector: VectorFloatingPoint {

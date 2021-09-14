@@ -1,5 +1,7 @@
-/// Represents an N-dimensional ray line which has a starting point and crosses
-/// a secondary point before being projecting to infinity.
+/// Represents an N-dimensional [geometric ray] line which has a starting point
+/// and crosses a secondary point before projecting to infinity.
+///
+/// [geometric ray]: https://en.wikipedia.org/wiki/Line_(geometry)#Ray
 public struct Ray<Vector: VectorType>: GeometricType {
     /// Convenience for `Vector.Scalar`
     public typealias Scalar = Vector.Scalar
@@ -51,6 +53,10 @@ extension Ray: LineMultiplicative where Vector: VectorMultiplicative {
     public func withPointsScaledBy(_ factor: Vector) -> Self {
         Self(start: start * factor, b: b * factor)
     }
+}
+
+extension Ray: LineDivisible where Vector: VectorDivisible {
+    
 }
 
 extension Ray: LineFloatingPoint & PointProjectableType where Vector: VectorFloatingPoint {

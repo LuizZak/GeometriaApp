@@ -1,13 +1,30 @@
+// TODO: Consider relaxing validity checks to allow definition of cylinders where
+// TODO: start == end (and project as a disk, like a 2-Stadium can be a sphere.)
+
+/// Represents a regular 3-dimensional [Cylinder](https://en.wikipedia.org/wiki/Cylinder)
+/// as a pair of end points and a radius with double-precision floating-point
+/// numbers.
+public typealias Cylinder3D = Cylinder3<Vector3D>
+
+/// Represents a regular 3-dimensional [Cylinder](https://en.wikipedia.org/wiki/Cylinder)
+/// as a pair of end points and a radius with double-precision floating-point
+/// numbers.
+public typealias Cylinder3F = Cylinder3<Vector3F>
+
+/// Represents a regular 3-dimensional [Cylinder](https://en.wikipedia.org/wiki/Cylinder)
+/// as a pair of end points and a radius with integers.
+public typealias Cylinder3i = Cylinder3<Vector3i>
+
 /// Represents a regular 3-dimensional [Cylinder](https://en.wikipedia.org/wiki/Cylinder)
 /// as a pair of end points and a radius.
 public struct Cylinder3<Vector: Vector3Type>: GeometricType {
-    /// Convenience for `Vector.Scalar`
+    /// Convenience for `Vector.Scalar`.
     public typealias Scalar = Vector.Scalar
     
     /// The starting point of this cylinder.
     public var start: Vector
     
-    /// The end point of this cylinder.
+    /// The end point of this cylinder
     public var end: Vector
     
     /// The radius of this cylinder.
@@ -47,7 +64,7 @@ public extension Cylinder3 where Vector: Equatable, Scalar: Comparable & Additiv
 extension Cylinder3: BoundableType where Vector: Vector3FloatingPoint {
     @inlinable
     public var bounds: AABB<Vector> {
-        /// Degenerate cylinder
+        // Degenerate cylinder
         if start == end {
             return .zero
         }
@@ -136,8 +153,8 @@ extension Cylinder3: Convex3Type where Vector: Vector3Real {
         }
         
         // Create a 2D version of the problem by cross-sectioning the cylinder
-        // with a plane containing the line and parallel to the cylinder's axis
-        // and solve a bounding-box/line intersection
+        // with a plane which is parallel to both the line and the cylinder's
+        // axis and solve a bounding-box/line intersection
         
         let pl: ProjectivePointNormalPlane3<Vector>
         pl = .makeCorrectedPlane(point: line.a,
@@ -148,7 +165,7 @@ extension Cylinder3: Convex3Type where Vector: Vector3Real {
         // the plane
         
         // Rectangle's height: cylinder's height
-        // Rectangle's width: 2 * √(r ^ 2 − distance-to-center ^ 2)
+        // Rectangle's width: 2 * √(r² − distance-to-center²)
         let rectHeight = cylinderLine.length
         let rectHalfWidth: Scalar
         
@@ -172,7 +189,7 @@ extension Cylinder3: Convex3Type where Vector: Vector3Real {
         let lineAProj = pl.project2D(line.a)
         let lineBProj = pl.project2D(line.b)
         
-        let line2d = line.make2DLine(lineAProj, lineBProj)
+        let line2d = Line.make2DLine(lineAProj, lineBProj)
         
         let intersection = aabb.intersection(with: line2d)
         

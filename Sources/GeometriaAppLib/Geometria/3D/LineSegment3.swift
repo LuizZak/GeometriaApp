@@ -9,7 +9,7 @@ public typealias LineSegment3F = LineSegment3<Vector3F>
 /// Represents a 3D line as a pair of integer start and end vectors.
 public typealias LineSegment3i = LineSegment3<Vector3i>
 
-/// Typealias for `LineSegment<V>`, where `V` is constrained to `Vector3Type`.
+/// Typealias for `LineSegment<V>`, where `V` is constrained to ``Vector3Type``.
 public typealias LineSegment3<V: Vector3Type> = LineSegment<V>
 
 extension LineSegment3: Line3Type {
@@ -23,7 +23,7 @@ extension LineSegment3: Line3Type {
     
     /// Creates a 2D line of the same underlying type as this line.
     @_transparent
-    public func make2DLine(_ a: Vector.SubVector2, _ b: Vector.SubVector2) -> SubLine2 {
+    public static func make2DLine(_ a: Vector.SubVector2, _ b: Vector.SubVector2) -> SubLine2 {
         SubLine2(start: a, end: b)
     }
 }
