@@ -15,7 +15,7 @@ final class SceneGeometry {
         _doRayCast = { rayInfo in
             var intersection = bumpySphere.intersection(with: rayInfo.ray)
             intersection = intersection
-                .mappingPointNormals { pt in
+                .mappingPointNormals { (pt, _) in
                     let distSq = pt.point.distanceSquared(to: rayInfo.ray.start)
                     if distSq > rayInfo.rayMagnitudeSquared {
                         return pt
