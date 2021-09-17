@@ -29,7 +29,7 @@ class RaytracerCoordinator: RaytracerWorkerContext {
     
     @Event var stateDidChange: EventSource<State>
     
-    var viewportSize: Vector2i
+    var viewportSize: PixelCoord
     var buffer: RaytracerBufferWriter
     var hasWork: Bool = true
     
@@ -41,7 +41,7 @@ class RaytracerCoordinator: RaytracerWorkerContext {
     
     var batcher: RaytracerBatcher
     
-    init(viewportSize: Vector2i, buffer: RaytracerBufferWriter) {
+    init(viewportSize: PixelCoord, buffer: RaytracerBufferWriter) {
         self.viewportSize = viewportSize
         self.buffer = buffer
         
@@ -196,9 +196,9 @@ class RaytracerCoordinator: RaytracerWorkerContext {
         return _raytracer
     }
     
-    func setBufferPixel(at coord: Vector2i, color: BLRgba32) {
+    func setBufferPixel(at coord: PixelCoord, color: BLRgba32) {
         assert(coord >= .zero && coord < viewportSize,
-               "\(coord) is not within \(Vector2i.zero) x \(viewportSize) limits")
+               "\(coord) is not within \(PixelCoord.zero) x \(viewportSize) limits")
         
         buffer.setPixel(at: coord, color: color)
     }

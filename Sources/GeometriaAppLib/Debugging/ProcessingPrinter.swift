@@ -16,13 +16,13 @@ class ProcessingPrinter {
     
     var buffer: String = ""
     
-    var size: Vector2i
+    var size: PixelCoord
     var scale: Double
     
     var drawOrigin: Bool = true
     var drawGrid: Bool = false
     
-    init(size: Vector2i = .init(x: 800, y: 600), scale: Double = 25.0) {
+    init(size: PixelCoord = .init(x: 800, y: 600), scale: Double = 25.0) {
         self.size = size
         self.scale = scale
     }

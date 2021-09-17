@@ -14,9 +14,9 @@ final class Raytracer {
     var maxBounces: Int = 15
     var scene: Scene
     var camera: Camera
-    var viewportSize: Vector2i
+    var viewportSize: PixelCoord
     
-    init(scene: Scene, camera: Camera, viewportSize: Vector2i) {
+    init(scene: Scene, camera: Camera, viewportSize: PixelCoord) {
         self.scene = scene
         self.camera = camera
         self.viewportSize = viewportSize
@@ -49,8 +49,8 @@ final class Raytracer {
     // MARK: - Ray Casting
     
     /// Does raycasting for a single pixel, returning the resulting color.
-    func raytrace(pixelAt coord: Vector2i) -> BLRgba32 {
-        assert(coord >= .zero && coord < viewportSize, "\(coord) is not within \(Vector2i.zero) x \(viewportSize) limits")
+    func raytrace(pixelAt coord: PixelCoord) -> BLRgba32 {
+        assert(coord >= .zero && coord < viewportSize, "\(coord) is not within \(PixelCoord.zero) x \(viewportSize) limits")
         
         let ray = camera.rayFromCamera(at: coord)
         return raytrace(ray: ray)
