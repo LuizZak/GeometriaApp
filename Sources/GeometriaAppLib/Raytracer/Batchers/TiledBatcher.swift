@@ -1,3 +1,5 @@
+import Geometria
+
 /// Splits the viewport into squares to raytrace.
 class TiledBatcher: RaytracerBatcher {
     typealias Pixel = Vector2i

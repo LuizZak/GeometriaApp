@@ -1,4 +1,5 @@
 import SwiftBlend2D
+import Geometria
 
 /// Class that performs raytracing on a scene.
 final class Raytracer {

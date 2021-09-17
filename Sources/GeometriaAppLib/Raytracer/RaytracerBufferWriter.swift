@@ -1,4 +1,5 @@
 import blend2d
+import Geometria
 
 protocol RaytracerBufferWriter {
     var size: BLSizeI { get }

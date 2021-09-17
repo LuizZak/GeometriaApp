@@ -4,6 +4,7 @@ import ImagineUI
 import Text
 import Blend2DRenderer
 import QuartzCore
+import Geometria
 
 private let instructions: String = """
 R = Reset  |   Space = Pause

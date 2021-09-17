@@ -1,4 +1,5 @@
 import SwiftBlend2D
+import Geometria
 
 final class Scene {
     // Sky color for pixels that don't intersect with geometry

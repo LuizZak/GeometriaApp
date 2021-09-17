@@ -2,6 +2,7 @@ import SwiftBlend2D
 import Foundation
 import Dispatch
 import ImagineUI
+import Geometria
 
 /// Class that coordinates raytracing dispatching across multi-threaded contexts.
 class RaytracerCoordinator: RaytracerWorkerContext {

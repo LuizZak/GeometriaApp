@@ -1,3 +1,5 @@
+import Geometria
+
 struct Camera {
     var cameraPlane: ProjectivePointNormalPlane3<RVector3D> =
         .makeCorrectedPlane(point: RVector3D.unitZ * 5,

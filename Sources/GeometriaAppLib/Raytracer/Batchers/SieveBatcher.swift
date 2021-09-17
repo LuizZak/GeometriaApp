@@ -1,4 +1,5 @@
 import Foundation
+import Geometria
 
 /// Batcher that feeds pixel coordinates based on multiples of prime numbers,
 /// then later a sweep through the remaining pixels linearly.

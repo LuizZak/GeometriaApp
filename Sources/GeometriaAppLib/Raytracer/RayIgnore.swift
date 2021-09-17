@@ -1,3 +1,5 @@
+import Geometria
+
 /// Specifies ignore patterns for geometries during raytracing.
 enum RayIgnore {
     /// Include all geometries in ray intersection, i.e. ignore none.

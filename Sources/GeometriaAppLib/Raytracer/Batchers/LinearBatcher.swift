@@ -1,3 +1,5 @@
+import Geometria
+
 /// A batcher that serves pixels to render in straight lines, weaving around
 /// the screen space.
 class LinearBatcher: RaytracerBatcher {

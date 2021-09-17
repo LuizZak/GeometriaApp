@@ -1,4 +1,5 @@
 import SwiftBlend2D
+import Geometria
 
 /// Class that manages raytracing of batches of pixels.
 class RaytracingWorker: CustomStringConvertible {

@@ -1,4 +1,5 @@
 import SwiftBlend2D
+import Geometria
 
 @resultBuilder
 struct SceneBuilder {

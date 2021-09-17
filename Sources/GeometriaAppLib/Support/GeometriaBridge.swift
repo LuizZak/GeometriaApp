@@ -1,5 +1,6 @@
 import SwiftBlend2D
 import ImagineUI
+import Geometria
 
 /// Vector2 for Raytracing operations
 typealias RVector2D = Vector2D
