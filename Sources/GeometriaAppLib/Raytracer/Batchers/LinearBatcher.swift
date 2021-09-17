@@ -5,14 +5,14 @@ import Geometria
 class LinearBatcher: RaytracerBatcher {
     private var initialized: Bool = false
     private let direction: Direction
-    private var viewportSize: Vector2i = .zero
+    private var viewportSize: PixelCoord = .zero
     
     /// List of starts of lines to feed threads
-    private var lines: [Vector2i] = []
+    private var lines: [PixelCoord] = []
     private var nextLineIndex: Int = 0
     
     /// The next coordinate the raytracer will fill.
-    private var coord: Vector2i = .zero
+    private var coord: PixelCoord = .zero
     
     let displayName: String = "Scanline"
     
@@ -26,7 +26,7 @@ class LinearBatcher: RaytracerBatcher {
         self.direction = direction
     }
     
-    func initialize(viewportSize: Vector2i) {
+    func initialize(viewportSize: PixelCoord) {
         self.viewportSize = viewportSize
         initialized = true
         hasBatches = true
@@ -89,17 +89,17 @@ class LinearBatcher: RaytracerBatcher {
     
     private class LineBatch: RaytracingBatch {
         var isFinished: Bool = false
-        var coord: Vector2i
+        var coord: PixelCoord
         var direction: Direction
         var maxLength: Int
         
-        init(coord: Vector2i, direction: Direction, maxLength: Int) {
+        init(coord: PixelCoord, direction: Direction, maxLength: Int) {
             self.coord = coord
             self.direction = direction
             self.maxLength = maxLength
         }
         
-        func nextPixel() -> Vector2i? {
+        func nextPixel() -> PixelCoord? {
             guard !isFinished else { return nil }
             
             let next = coord

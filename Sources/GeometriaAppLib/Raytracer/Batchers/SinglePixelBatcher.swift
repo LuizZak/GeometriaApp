@@ -4,16 +4,16 @@ import Geometria
 /// Used for debugging.
 class SinglePixelBatcher: RaytracerBatcher {
     let displayName: String = "Single pixel"
-    var viewportSize: Vector2i = .zero
+    var viewportSize: PixelCoord = .zero
     var batchesServedProgress: Double = 0
     var hasBatches: Bool = true
-    var pixel: Vector2i
+    var pixel: PixelCoord
     
-    init(pixel: Vector2i) {
+    init(pixel: PixelCoord) {
         self.pixel = pixel
     }
     
-    func initialize(viewportSize: Vector2i) {
+    func initialize(viewportSize: PixelCoord) {
         self.hasBatches = true
         self.viewportSize = viewportSize
     }
@@ -29,13 +29,13 @@ class SinglePixelBatcher: RaytracerBatcher {
     }
     
     private class SinglePixelBatch: RaytracingBatch {
-        var pixel: Vector2i?
+        var pixel: PixelCoord?
         
-        init(pixel: Vector2i?) {
+        init(pixel: PixelCoord?) {
             self.pixel = pixel
         }
         
-        func nextPixel() -> Vector2i? {
+        func nextPixel() -> PixelCoord? {
             defer { pixel = nil }
             return pixel
         }

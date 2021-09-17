@@ -87,7 +87,7 @@ protocol RaytracerWorkerContext: AnyObject {
     func raytracer() -> Raytracer?
     
     /// Reports a pixel color for the buffer.
-    func setBufferPixel(at coord: Vector2i, color: BLRgba32)
+    func setBufferPixel(at coord: PixelCoord, color: BLRgba32)
     
     /// Requests a new batch of pixels to raytrace.
     func requestBatchSync() -> RaytracingBatch?

@@ -23,13 +23,13 @@ struct Camera {
     var cameraDownsize: Double = 0.3
     var cameraSizeScale: Double = 0.1
     
-    var viewportSize: Vector2i {
+    var viewportSize: PixelCoord {
         didSet {
             recomputeCamera()
         }
     }
     
-    init(viewportSize: Vector2i) {
+    init(viewportSize: PixelCoord) {
         self.viewportSize = viewportSize
         
         recomputeCamera()
@@ -41,8 +41,8 @@ struct Camera {
         cameraCenterPoint = cameraPlane.point + cameraPlane.normal * cameraCenterOffset
     }
     
-    func rayFromCamera(at point: Vector2i) -> RRay3D {
-        let centeredPoint = (point - viewportSize / 2) * Vector2i(x: 1, y: -1)
+    func rayFromCamera(at point: PixelCoord) -> RRay3D {
+        let centeredPoint = (point - viewportSize / 2) * PixelCoord(x: 1, y: -1)
         let projectedPoint = RVector2D(centeredPoint) * cameraSizeScale
         
         let inWorld = cameraPlane.projectOut(projectedPoint)

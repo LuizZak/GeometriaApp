@@ -2,10 +2,10 @@ import Geometria
 
 /// Splits the viewport into squares to raytrace.
 class TiledBatcher: RaytracerBatcher {
-    typealias Pixel = Vector2i
+    typealias Pixel = PixelCoord
     typealias PixelRect = Rectangle2<Pixel>
     
-    private var viewportSize: Vector2i = .zero
+    private var viewportSize: PixelCoord = .zero
     private var tiles: [Tile] = []
     private var nextTileIndex: Int = 0
     private var tileSize: Int
@@ -19,7 +19,7 @@ class TiledBatcher: RaytracerBatcher {
     
     private(set) var hasBatches: Bool = false
     
-    convenience init(splitting viewportSize: Vector2i, estimatedThreadCount: Int, shuffleOrder: Bool = false) {
+    convenience init(splitting viewportSize: PixelCoord, estimatedThreadCount: Int, shuffleOrder: Bool = false) {
         let tileSize = viewportSize / (estimatedThreadCount * 2)
         
         self.init(tileSize: tileSize.maximalComponent, shuffleOrder: shuffleOrder)
@@ -30,7 +30,7 @@ class TiledBatcher: RaytracerBatcher {
         self.shuffleOrder = shuffleOrder
     }
     
-    func initialize(viewportSize: Vector2i) {
+    func initialize(viewportSize: PixelCoord) {
         self.viewportSize = viewportSize
         nextTileIndex = 0
         

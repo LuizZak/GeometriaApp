@@ -17,7 +17,7 @@ protocol RaytracerBatcher {
     
     /// Initializes this batcher to its initial state with a given viewport size.
     /// Must be invoked before ``nextBatch(maxSize:)``.
-    mutating func initialize(viewportSize: Vector2i)
+    mutating func initialize(viewportSize: PixelCoord)
     
     /// Returns a new batch of screen-space pixels to render.
     /// 
@@ -29,5 +29,5 @@ protocol RaytracerBatcher {
 protocol RaytracingBatch {
     /// Returns the next pixel to render from this batch.
     /// Returns `nil` in case no more pixels are available.
-    mutating func nextPixel() -> Vector2i?
+    mutating func nextPixel() -> PixelCoord?
 }

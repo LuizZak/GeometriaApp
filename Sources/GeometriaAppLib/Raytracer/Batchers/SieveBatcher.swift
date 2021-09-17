@@ -4,7 +4,7 @@ import Geometria
 /// Batcher that feeds pixel coordinates based on multiples of prime numbers,
 /// then later a sweep through the remaining pixels linearly.
 class SieveBatcher: RaytracerBatcher {
-    typealias PixelCoordinates = Vector2i
+    typealias PixelCoordinates = PixelCoord
     
     /// Pre-computed list of prime numbers which will be incremented later while
     /// computing prime counters
@@ -156,7 +156,7 @@ class SieveBatcher: RaytracerBatcher {
             fatalError("Must be overriden by subclasses")
         }
         
-        internal func nextPixel() -> Vector2i? {
+        internal func nextPixel() -> PixelCoord? {
             guard !isAtEnd else { return nil }
             guard let context = context else { return nil }
             

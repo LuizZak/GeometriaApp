@@ -47,6 +47,9 @@ typealias RPlane3D = PointNormalPlane3<RVector3D>
 /// DirectionalRay3 for Raytracing operations
 typealias RRay3D = DirectionalRay3<RVector3D>
 
+/// Screen-space pixel coordinates
+typealias PixelCoord = Vector2i
+
 extension RVector2D {
     var asBLPoint: BLPoint {
         return BLPoint(x: x, y: y)
