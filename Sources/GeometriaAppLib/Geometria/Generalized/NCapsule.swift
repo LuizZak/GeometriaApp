@@ -34,8 +34,45 @@ extension NCapsule: Hashable where Vector: Hashable, Scalar: Hashable { }
 public extension NCapsule {
     /// Returns a line segment with the same ``LineSegment/start`` and
     /// ``LineSegment/end`` points of this N-capsule.
+    @_transparent
     var asLineSegment: LineSegment<Vector> {
         LineSegment(start: start, end: end)
+    }
+    
+    /// Returns the ``NSphere`` that represents the top- or start, section of
+    /// this N-capsule, centered around ``start`` with a radius of ``radius``.
+    @_transparent
+    var startAsSphere: NSphere<Vector> {
+        .init(center: start, radius: radius)
+    }
+    
+    /// Returns the ``NSphere`` that represents the bottom- or end, section of
+    /// this N-capsule, centered around ``start`` with a radius of ``radius``.
+    @_transparent
+    var endAsSphere: NSphere<Vector> {
+        .init(center: end, radius: radius)
+    }
+}
+
+public extension NCapsule where Scalar: Comparable & AdditiveArithmetic {
+    /// Returns whether this N-capsule's parameters produce a valid, non-empty
+    /// stadium.
+    ///
+    /// An N-capsule is valid when ``radius`` is greater than zero.
+    @_transparent
+    var isValid: Bool {
+        radius > .zero
+    }
+}
+
+extension NCapsule: BoundableType where Vector: VectorAdditive & VectorComparable {
+    /// Returns the minimal bounds capable of fully containing this N-capsule's
+    /// area.
+    ///
+    /// Is equivalent to a union of the start and end N-spheres of this N-capsule.
+    @_transparent
+    public var bounds: AABB<Vector> {
+        startAsSphere.bounds.union(endAsSphere.bounds)
     }
 }
 
@@ -47,6 +84,9 @@ extension NCapsule: VolumetricType where Vector: VectorFloatingPoint {
     /// are considered as contained within the N-capsule.
     @inlinable
     public func contains(_ vector: Vector) -> Bool {
-        return asLineSegment.distanceSquared(to: vector) <= radius * radius
+        // TODO: Doing this in separate statements to ease long compilation times in Xcode 12
+        let radSquare: Scalar = radius * radius
+        
+        return asLineSegment.distanceSquared(to: vector) <= radSquare
     }
 }

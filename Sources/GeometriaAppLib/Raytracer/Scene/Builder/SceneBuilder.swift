@@ -16,14 +16,6 @@ struct SceneBuilder {
         return scene
     }
     
-    static func buildExpression<C: ConvexType & BoundableType>(_ expression: C) -> PartialScene where C.Vector == RVector3D {
-        SceneGeometry(convex: expression, material: .default).toPartialScene()
-    }
-    
-    static func buildExpression<C: ConvexType & BoundableType>(_ expression: (C, Material)) -> PartialScene where C.Vector == RVector3D {
-        SceneGeometry(convex: expression.0, material: expression.1).toPartialScene()
-    }
-    
     static func buildExpression<C: Convex3Type & BoundableType>(_ expression: C) -> PartialScene where C.Vector == RVector3D {
         SceneGeometry(convex3: expression, material: .default).toPartialScene()
     }
