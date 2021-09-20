@@ -41,37 +41,43 @@ class RendererWorker: CustomStringConvertible {
             if _isPaused { sleep(100); continue; }
             if _isCancelled { return }
             
-            if let renderer = _context?.renderer(), var batch = _context?.requestBatchSync() {
-                while true {
-                    if _isPaused {
-                        usleep(16_000) // 16 milliseconds
-                        continue
-                    }
-                    if _isCancelled { return }
-                    
-                    guard let pixel = batch.nextPixel() else {
-                        _print("Worker ran out of pixels")
-                        break
-                    }
-                    
-//                    renderer.beginDebug()
-                    
-                    let color = renderer.render(pixelAt: pixel)
-                    
-//                    renderer.endDebug()
-                    
-                    if let context = _context {
-                        context.setBufferPixel(at: pixel, color: color)
-                    } else {
-                        _print("Worker has nil context")
-                        _isCancelled = true
-                        return
-                    }
-                }
-            } else {
+            guard let context = _context else {
+                _print("Worker has nil context")
+                _isCancelled = true
+                return
+            }
+            
+            guard let renderer = context.renderer() else {
+                _print("Context returned nil renderer")
+                _isCancelled = true
+                return
+            }
+            
+            guard var batch = context.requestBatchSync() else {
                 _print("Worker ran out of batches")
                 _isCancelled = true
                 return
+            }
+            
+            while true {
+                if _isPaused {
+                    usleep(16_000) // 16 milliseconds
+                    continue
+                }
+                if _isCancelled { return }
+                
+                guard let pixel = batch.nextPixel() else {
+                    _print("Worker ran out of pixels")
+                    break
+                }
+                
+//                renderer.beginDebug()
+                
+                let color = renderer.render(pixelAt: pixel)
+                
+//                renderer.endDebug()
+                
+                context.setBufferPixel(at: pixel, color: color)
             }
         }
     }

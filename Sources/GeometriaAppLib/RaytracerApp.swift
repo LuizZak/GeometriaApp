@@ -33,7 +33,7 @@ class RaytracerApp: Blend2DApp {
     var height: Int
     var appRenderScale: BLPoint = .one
     var time: TimeInterval = 0
-    var renderer: RendererCoordinator?
+    var rendererCoordinator: RendererCoordinator?
     var buffer: Blend2DBufferWriter?
     
     weak var delegate: Blend2DAppDelegate? {
@@ -79,10 +79,10 @@ class RaytracerApp: Blend2DApp {
     }
     
     func updateLabels() {
-        if let renderer = renderer {
-            stateLabel.text = "State: \(renderer.state.description)"
-            batcherLabel.text = "Pixel order mode: \(renderer.batcher.displayName)"
-            progressLabel.text = "Progress of pixel batches served: \(String(format: "%.2lf", renderer.progress * 100))%"
+        if let coordinator = rendererCoordinator {
+            stateLabel.text = "State: \(coordinator.state.description)"
+            batcherLabel.text = "Pixel order mode: \(coordinator.batcher.displayName)"
+            progressLabel.text = "Progress of pixel batches served: \(String(format: "%.2lf", coordinator.progress * 100))%"
         }
         
         if _timeStarted != 0.0 {
@@ -120,11 +120,11 @@ class RaytracerApp: Blend2DApp {
     }
     
     func restartRendering() {
-        renderer?.cancel()
+        rendererCoordinator?.cancel()
         
         guard !_isResizing && width > 0 && height > 0 else {
             buffer = nil
-            renderer = nil
+            rendererCoordinator = nil
             return
         }
         
@@ -157,19 +157,29 @@ class RaytracerApp: Blend2DApp {
         
         let scene = DemoScene.makeScene()
         
-        let raytracer = Raytracer(scene: scene,
+        #if true
+        
+        let renderer = Raytracer(scene: scene,
+                                 camera: Camera(viewportSize: viewportSize),
+                                 viewportSize: viewportSize)
+        
+        #else
+        
+        let renderer = Raymarcher(scene: scene,
                                   camera: Camera(viewportSize: viewportSize),
                                   viewportSize: viewportSize)
         
-        renderer = RendererCoordinator(
-            renderer: raytracer,
+        #endif
+        
+        rendererCoordinator = RendererCoordinator(
+            renderer: renderer,
             viewportSize: viewportSize,
             buffer: buffer,
             threadCount: threadCount,
             batcher: batcher
         )
         
-        renderer?.stateDidChange.addListener(owner: self) { [weak self] state in
+        rendererCoordinator?.stateDidChange.addListener(owner: self) { [weak self] state in
             DispatchQueue.main.async {
                 guard let self = self else { return }
                 
@@ -180,27 +190,27 @@ class RaytracerApp: Blend2DApp {
                 self.updateLabels()
             }
         }
-        renderer?.initialize()
-        renderer?.start()
+        rendererCoordinator?.initialize()
+        rendererCoordinator?.start()
         
         _timeStarted = CACurrentMediaTime()
         _timeEnded = 0.0
     }
     
     func pause() {
-        renderer?.pause()
+        rendererCoordinator?.pause()
         
         invalidateAll()
     }
     
     func resume() {
-        renderer?.resume()
+        rendererCoordinator?.resume()
         
         invalidateAll()
     }
     
     func togglePause() {
-        guard let renderer = renderer else {
+        guard let renderer = rendererCoordinator else {
             return
         }
         
@@ -264,14 +274,14 @@ class RaytracerApp: Blend2DApp {
     func update(_ time: TimeInterval) {
         self.time = time
         
-        if let renderer = renderer, renderer.state == .running {
+        if let renderer = rendererCoordinator, renderer.state == .running {
             updateLabels()
             invalidateAll()
         }
         
-        stateLabel.isVisible = renderer != nil
-        batcherLabel.isVisible = renderer != nil
-        progressLabel.isVisible = renderer != nil
+        stateLabel.isVisible = rendererCoordinator != nil
+        batcherLabel.isVisible = rendererCoordinator != nil
+        progressLabel.isVisible = rendererCoordinator != nil
         
         ui.update(time)
     }

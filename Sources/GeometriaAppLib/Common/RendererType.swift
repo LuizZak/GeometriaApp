@@ -1,6 +1,6 @@
 import SwiftBlend2D
 
-protocol RendererType {
+protocol RendererType: AnyObject {
     /// Gets or sets the camera for this renderer.
     ///
     /// Should not be set on multi-threaded contexts with potential for data

@@ -1,7 +1,7 @@
 import SwiftBlend2D
 
 /// Class that performs raymarching on a scene.
-class Raymarcher {
+final class Raymarcher: RendererType {
     private static var _attemptedDebugInMultithreadedYet = false
     private var processingPrinter: RaytracerProcessingPrinter?
     
@@ -23,8 +23,8 @@ class Raymarcher {
     
     func beginDebug() {
         if isMultiThreaded {
-            if !Raymarcher._attemptedDebugInMultithreadedYet {
-                Raymarcher._attemptedDebugInMultithreadedYet = true
+            if !Self._attemptedDebugInMultithreadedYet {
+                Self._attemptedDebugInMultithreadedYet = true
                 print("Attempted to invoke Raymarcher.beginDebug() with a multi-pixel, multi-threaded render, which is potentially not intended. Ignoring...")
             }
             
@@ -46,14 +46,14 @@ class Raymarcher {
     // MARK: - Ray Marching
     
     /// Does raymarching for a single pixel, returning the resulting color.
-    func raymarch(pixelAt coord: PixelCoord) -> BLRgba32 {
+    func render(pixelAt coord: PixelCoord) -> BLRgba32 {
         assert(coord >= .zero && coord < viewportSize, "\(coord) is not within \(PixelCoord.zero) x \(viewportSize) limits")
         
         let ray = camera.rayFromCamera(at: coord)
-        return raytrace(ray: ray)
+        return raymarch(ray: ray)
     }
     
-    private func raytrace(ray: RRay3D, ignoring: RayIgnore = .none, bounceCount: Int = 0) -> BLRgba32 {
+    private func raymarch(ray: RRay3D, ignoring: RayIgnore = .none, bounceCount: Int = 0) -> BLRgba32 {
         return scene.skyColor
     }
 }
