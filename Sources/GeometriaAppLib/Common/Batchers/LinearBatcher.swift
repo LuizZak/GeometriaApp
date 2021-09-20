@@ -1,6 +1,6 @@
 /// A batcher that serves pixels to render in straight lines, weaving around
 /// the screen space.
-class LinearBatcher: RaytracerBatcher {
+class LinearBatcher: RenderingBatcher {
     private var initialized: Bool = false
     private let direction: Direction
     private var viewportSize: PixelCoord = .zero
@@ -9,7 +9,7 @@ class LinearBatcher: RaytracerBatcher {
     private var lines: [PixelCoord] = []
     private var nextLineIndex: Int = 0
     
-    /// The next coordinate the raytracer will fill.
+    /// The next coordinate the renderer will fill.
     private var coord: PixelCoord = .zero
     
     let displayName: String = "Scanline"
@@ -34,7 +34,7 @@ class LinearBatcher: RaytracerBatcher {
         initializeLineList()
     }
     
-    func nextBatch() -> RaytracingBatch? {
+    func nextBatch() -> RenderingBatch? {
         guard hasBatches else { return nil }
         
         guard nextLineIndex < lines.count else {
@@ -85,7 +85,7 @@ class LinearBatcher: RaytracerBatcher {
         }
     }
     
-    private class LineBatch: RaytracingBatch {
+    private class LineBatch: RenderingBatch {
         var isFinished: Bool = false
         var coord: PixelCoord
         var direction: Direction

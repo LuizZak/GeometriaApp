@@ -18,7 +18,7 @@ class ImagineUIWrapper {
     
     let rootView = RootView()
     
-    weak var delegate: Blend2DSampleDelegate?
+    weak var delegate: Blend2DAppDelegate?
     
     init(size: BLSizeI) {
         width = Int(size.w)

@@ -1,5 +1,5 @@
-/// Used to produce batching of pixels to raytrace.
-protocol RaytracerBatcher {
+/// Used to produce batching of pixels to render.
+protocol RenderingBatcher {
     /// Display name of this batcher for UI.
     var displayName: String { get }
     
@@ -20,11 +20,11 @@ protocol RaytracerBatcher {
     /// Returns a new batch of screen-space pixels to render.
     /// 
     /// Returns `nil`, if all batches have been served.
-    mutating func nextBatch() -> RaytracingBatch?
+    mutating func nextBatch() -> RenderingBatch?
 }
 
-/// A batch for a raytracing thread.
-protocol RaytracingBatch {
+/// A batch for a rendering thread.
+protocol RenderingBatch {
     /// Returns the next pixel to render from this batch.
     /// Returns `nil` in case no more pixels are available.
     mutating func nextPixel() -> PixelCoord?

@@ -1,6 +1,6 @@
 /// Batcher that serves a single pixel to render.
 /// Used for debugging.
-class SinglePixelBatcher: RaytracerBatcher {
+class SinglePixelBatcher: RenderingBatcher {
     let displayName: String = "Single pixel"
     var viewportSize: PixelCoord = .zero
     var batchesServedProgress: Double = 0
@@ -16,7 +16,7 @@ class SinglePixelBatcher: RaytracerBatcher {
         self.viewportSize = viewportSize
     }
     
-    func nextBatch() -> RaytracingBatch? {
+    func nextBatch() -> RenderingBatch? {
         guard hasBatches else {
             return nil
         }
@@ -26,7 +26,7 @@ class SinglePixelBatcher: RaytracerBatcher {
         return SinglePixelBatch(pixel: pixel)
     }
     
-    private class SinglePixelBatch: RaytracingBatch {
+    private class SinglePixelBatch: RenderingBatch {
         var pixel: PixelCoord?
         
         init(pixel: PixelCoord?) {

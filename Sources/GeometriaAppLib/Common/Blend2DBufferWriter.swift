@@ -1,8 +1,8 @@
 import Dispatch
 import SwiftBlend2D
 
-class Blend2DBufferWriter: RaytracerBufferWriter {
-    private let imageQueue = DispatchQueue(label: "com.geometriaapp.raytracing.buffer",
+class Blend2DBufferWriter: RendererBufferWriter {
+    private let imageQueue = DispatchQueue(label: "com.geometriaapp.rendering.buffer",
                                            qos: .userInteractive,
                                            attributes: [.concurrent])
     private let image: BLImage

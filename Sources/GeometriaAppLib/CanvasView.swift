@@ -13,7 +13,7 @@ class CanvasView: NSView {
     
     var usingCGImage = false
     
-    var sample: Blend2DSample!
+    var app: Blend2DApp!
     var blImage: BLImage!
     var redrawBounds: [NSRect] = []
     
@@ -33,13 +33,13 @@ class CanvasView: NSView {
     override init(frame frameRect: NSRect) {
         super.init(frame: frameRect)
         initializeDisplayLink()
-        initializeSample()
+        initializeApp()
     }
     
     required init?(coder: NSCoder) {
         super.init(coder: coder)
         initializeDisplayLink()
-        initializeSample()
+        initializeApp()
     }
     
     private func initializeDisplayLink() {
@@ -56,17 +56,17 @@ class CanvasView: NSView {
         CVDisplayLinkStart(link)
     }
     
-    private func initializeSample() {
+    private func initializeApp() {
         let url = Bundle.module.path(forResource: "NotoSans-Regular", ofType: "ttf")!
         Fonts.fontFilePath = url
         Fonts.defaultFontFace = try! BLFontFace(fromFile: url)
         
-        let sample = GeometriaSample(width: Int(bounds.width), height: Int(bounds.height))
-        sample.delegate = self
-        self.sample = sample
+        let app = RaytracerApp(width: Int(bounds.width), height: Int(bounds.height))
+        app.delegate = self
+        self.app = app
         
-        blImage = BLImage(width: sample.width * Int(sample.sampleRenderScale.x),
-                          height: sample.height * Int(sample.sampleRenderScale.y),
+        blImage = BLImage(width: app.width * Int(app.appRenderScale.x),
+                          height: app.height * Int(app.appRenderScale.y),
                           format: .xrgb32)
         
         recreateCgImageContext()
@@ -75,26 +75,26 @@ class CanvasView: NSView {
     override func layout() {
         super.layout()
         
-        resizeSample()
+        resizeApp()
     }
     
     override func viewWillStartLiveResize() {
         super.viewWillStartLiveResize()
         
-        sample.willStartLiveResize()
+        app.willStartLiveResize()
     }
     
     override func viewDidEndLiveResize() {
         super.viewDidEndLiveResize()
         
-        sample.didEndLiveResize()
+        app.didEndLiveResize()
     }
     
-    private func resizeSample() {
-        sample.resize(width: Int(bounds.width), height: Int(bounds.height))
+    private func resizeApp() {
+        app.resize(width: Int(bounds.width), height: Int(bounds.height))
         
-        blImage = BLImage(width: sample.width * Int(sample.sampleRenderScale.x),
-                          height: sample.height * Int(sample.sampleRenderScale.y),
+        blImage = BLImage(width: app.width * Int(app.appRenderScale.x),
+                          height: app.height * Int(app.appRenderScale.y),
                           format: .xrgb32)
         
         recreateCgImageContext()
@@ -154,7 +154,7 @@ class CanvasView: NSView {
         
         let mouseEvent = makeMouseEventArgs(event)
         
-        sample.mouseDown(event: mouseEvent)
+        app.mouseDown(event: mouseEvent)
         
         becomeFirstResponder()
     }
@@ -164,7 +164,7 @@ class CanvasView: NSView {
         
         let mouseEvent = makeMouseEventArgs(event)
         
-        sample.mouseMoved(event: mouseEvent)
+        app.mouseMoved(event: mouseEvent)
     }
     
     override func mouseMoved(with event: NSEvent) {
@@ -172,7 +172,7 @@ class CanvasView: NSView {
         
         let mouseEvent = makeMouseEventArgs(event)
         
-        sample.mouseMoved(event: mouseEvent)
+        app.mouseMoved(event: mouseEvent)
     }
     
     override func mouseUp(with event: NSEvent) {
@@ -180,7 +180,7 @@ class CanvasView: NSView {
         
         let mouseEvent = makeMouseEventArgs(event)
         
-        sample.mouseUp(event: mouseEvent)
+        app.mouseUp(event: mouseEvent)
     }
     
     override func scrollWheel(with event: NSEvent) {
@@ -188,19 +188,19 @@ class CanvasView: NSView {
         
         let mouseEvent = makeMouseEventArgs(event)
         
-        sample.mouseScroll(event: mouseEvent)
+        app.mouseScroll(event: mouseEvent)
     }
     
     override func keyDown(with event: NSEvent) {
         let keyboardEvent = makeKeyboardEventArgs(event)
         
-        sample.keyDown(event: keyboardEvent)
+        app.keyDown(event: keyboardEvent)
     }
     
     override func keyUp(with event: NSEvent) {
         let keyboardEvent = makeKeyboardEventArgs(event)
         
-        sample.keyUp(event: keyboardEvent)
+        app.keyUp(event: keyboardEvent)
     }
     
     override func updateTrackingAreas() {
@@ -256,14 +256,14 @@ class CanvasView: NSView {
     }
     
     func update() {
-        sample.update(CACurrentMediaTime())
+        app.update(CACurrentMediaTime())
         
         if let first = redrawBounds.first {
             let options = BLContext.CreateOptions(threadCount: 4)
             
             let ctx = BLContext(image: blImage, options: options)!
             
-            sample.render(context: ctx)
+            app.render(context: ctx)
             
             ctx.flush(flags: .sync)
             ctx.end()
@@ -303,7 +303,7 @@ class CanvasView: NSView {
     }
 }
 
-extension CanvasView: Blend2DSampleDelegate {
+extension CanvasView: Blend2DAppDelegate {
     func invalidate(bounds: UIRectangle) {
         let rectBounds = NSRect(x: bounds.x,
                                 y: Double(self.bounds.height) - bounds.y - bounds.height,

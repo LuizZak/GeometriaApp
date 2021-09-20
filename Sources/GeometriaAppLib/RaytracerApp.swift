@@ -9,7 +9,7 @@ private let instructions: String = """
 R = Reset  |   Space = Pause
 """
 
-class GeometriaSample: Blend2DSample {
+class RaytracerApp: Blend2DApp {
     private let _font: BLFont
     private var _isResizing: Bool = false
     private var _timeStarted: TimeInterval = 0.0
@@ -31,12 +31,12 @@ class GeometriaSample: Blend2DSample {
     
     var width: Int
     var height: Int
-    var sampleRenderScale: BLPoint = .one
+    var appRenderScale: BLPoint = .one
     var time: TimeInterval = 0
-    var raytracer: RaytracerCoordinator?
+    var renderer: RendererCoordinator?
     var buffer: Blend2DBufferWriter?
     
-    weak var delegate: Blend2DSampleDelegate? {
+    weak var delegate: Blend2DAppDelegate? {
         didSet {
             ui.delegate = delegate
         }
@@ -48,8 +48,8 @@ class GeometriaSample: Blend2DSample {
         time = 0
         _font = Fonts.defaultFont(size: 12)
         ui = ImagineUIWrapper(size: BLSizeI(w: Int32(width), h: Int32(height)))
-        ui.sampleRenderScale = sampleRenderScale
-        restartRaytracing()
+        ui.sampleRenderScale = appRenderScale
+        restartRendering()
         createUI()
     }
     
@@ -79,10 +79,10 @@ class GeometriaSample: Blend2DSample {
     }
     
     func updateLabels() {
-        if let raytracer = raytracer {
-            stateLabel.text = "State: \(raytracer.state.description)"
-            batcherLabel.text = "Pixel order mode: \(raytracer.batcher.displayName)"
-            progressLabel.text = "Progress of pixel batches served: \(String(format: "%.2lf", raytracer.progress * 100))%"
+        if let renderer = renderer {
+            stateLabel.text = "State: \(renderer.state.description)"
+            batcherLabel.text = "Pixel order mode: \(renderer.batcher.displayName)"
+            progressLabel.text = "Progress of pixel batches served: \(String(format: "%.2lf", renderer.progress * 100))%"
         }
         
         if _timeStarted != 0.0 {
@@ -109,29 +109,29 @@ class GeometriaSample: Blend2DSample {
         
         _isResizing = false
         
-        recreateRaytracer()
+        recreateRenderer()
     }
     
     func resize(width: Int, height: Int) {
         self.width = width
         self.height = height
-        restartRaytracing()
+        restartRendering()
         ui.resize(width: width, height: height)
     }
     
-    func restartRaytracing() {
-        raytracer?.cancel()
+    func restartRendering() {
+        renderer?.cancel()
         
         guard !_isResizing && width > 0 && height > 0 else {
             buffer = nil
-            raytracer = nil
+            renderer = nil
             return
         }
         
-        recreateRaytracer()
+        recreateRenderer()
     }
     
-    func recreateRaytracer() {
+    func recreateRenderer() {
         guard width > 0 && height > 0 else {
             return
         }
@@ -142,8 +142,34 @@ class GeometriaSample: Blend2DSample {
         let buffer = Blend2DBufferWriter(image: image)
         self.buffer = buffer
         
-        raytracer = RaytracerCoordinator(viewportSize: viewportSize, buffer: buffer)
-        raytracer?.stateDidChange.addListener(owner: self) { [weak self] state in
+        let threadCount = 8
+        
+//        let batcher = SinglePixelBatcher(pixel: .init(x: 173, y: 171)) // Transparent sphere - bottom-left center of refraction 'anomaly'
+//        let batcher = SinglePixelBatcher(pixel: .init(x: 261, y: 173)) // Reflection of transparent sphere on right sphere
+//        let batcher = SinglePixelBatcher(pixel: .init(x: 273, y: 150)) // Refractive cylinder
+//        let batcher = SinglePixelBatcher(pixel: .init(x: 172, y: 156)) // Bug in refractive bouncing in left sphere
+//        let batcher = SinglePixelBatcher(pixel: .init(x: 255, y: 224)) // Bug in refractive bouncing in cylinder's base
+        let batcher = TiledBatcher(splitting: viewportSize,
+                                   estimatedThreadCount: threadCount * 2,
+                                   shuffleOrder: true)
+//        let batcher = SieveBatcher()
+//        let batcher = LinearBatcher()
+        
+        let scene = DemoScene.makeScene()
+        
+        let raytracer = Raytracer(scene: scene,
+                                  camera: Camera(viewportSize: viewportSize),
+                                  viewportSize: viewportSize)
+        
+        renderer = RendererCoordinator(
+            renderer: raytracer,
+            viewportSize: viewportSize,
+            buffer: buffer,
+            threadCount: threadCount,
+            batcher: batcher
+        )
+        
+        renderer?.stateDidChange.addListener(owner: self) { [weak self] state in
             DispatchQueue.main.async {
                 guard let self = self else { return }
                 
@@ -154,33 +180,33 @@ class GeometriaSample: Blend2DSample {
                 self.updateLabels()
             }
         }
-        raytracer?.initialize()
-        raytracer?.start()
+        renderer?.initialize()
+        renderer?.start()
         
         _timeStarted = CACurrentMediaTime()
         _timeEnded = 0.0
     }
     
     func pause() {
-        raytracer?.pause()
+        renderer?.pause()
         
         invalidateAll()
     }
     
     func resume() {
-        raytracer?.resume()
+        renderer?.resume()
         
         invalidateAll()
     }
     
     func togglePause() {
-        guard let raytracer = raytracer else {
+        guard let renderer = renderer else {
             return
         }
         
-        switch raytracer.state {
+        switch renderer.state {
         case .unstarted, .finished, .cancelled:
-            restartRaytracing()
+            restartRendering()
         case .running:
             pause()
         case .paused:
@@ -200,7 +226,7 @@ class GeometriaSample: Blend2DSample {
             event.handled = true
         }
         if event.keyCode == .r {
-            restartRaytracing()
+            restartRendering()
             event.handled = true
         }
         
@@ -238,14 +264,14 @@ class GeometriaSample: Blend2DSample {
     func update(_ time: TimeInterval) {
         self.time = time
         
-        if let raytracer = raytracer, raytracer.state == .running {
+        if let renderer = renderer, renderer.state == .running {
             updateLabels()
             invalidateAll()
         }
         
-        stateLabel.isVisible = raytracer != nil
-        batcherLabel.isVisible = raytracer != nil
-        progressLabel.isVisible = raytracer != nil
+        stateLabel.isVisible = renderer != nil
+        batcherLabel.isVisible = renderer != nil
+        progressLabel.isVisible = renderer != nil
         
         ui.update(time)
     }
@@ -257,13 +283,13 @@ class GeometriaSample: Blend2DSample {
     func render(context ctx: BLContext) {
         if let buffer = buffer {
             buffer.usingImage { img in
-                if sampleRenderScale == .one {
+                if appRenderScale == .one {
                     ctx.blitImage(img, at: BLPointI.zero)
                 } else {
                     let rect = BLRect(x: 0,
                                       y: 0,
-                                      w: Double(width) * sampleRenderScale.x,
-                                      h: Double(height) * sampleRenderScale.y)
+                                      w: Double(width) * appRenderScale.x,
+                                      h: Double(height) * appRenderScale.y)
                     
                     ctx.blitScaledImage(img, rectangle: rect, imageArea: nil)
                 }
@@ -356,7 +382,7 @@ class GeometriaSample: Blend2DSample {
         
         let length: Double = 15
         let line = RLineSegment2D(start: pointNormal.point,
-                               end: pointNormal.point + pointNormal.normal * length)
+                                  end: pointNormal.point + pointNormal.normal * length)
         
         drawLine(ctx, line, color: color)
         drawPoint(ctx, pointNormal.point)

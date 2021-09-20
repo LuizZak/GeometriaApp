@@ -3,16 +3,16 @@ import Foundation
 import Dispatch
 import ImagineUI
 
-/// Class that coordinates raytracing dispatching across multi-threaded contexts.
-class RaytracerCoordinator: RaytracerWorkerContext {
-    private var _raytracer: Raytracer
-    private let _threadCount = 8
+/// Class that coordinates rendering dispatching across multi-threaded contexts.
+class RendererCoordinator: RendererWorkerContext {
+    private var _renderer: RendererType
+    private var _threadCount: Int
     private var _totalPixels: Int64 = 0
     
-    private var _workers: [RaytracingWorker] = []
+    private var _workers: [RendererWorker] = []
     
-    /// Queue of raytracer workers.
-    private var _raytracingQueue: DispatchQueue
+    /// Queue of rendering workers.
+    private var _renderingWorkerQueue: DispatchQueue
     
     /// Queue for workers to request batches.
     private var _batchRequestQueue: DispatchQueue
@@ -30,7 +30,7 @@ class RaytracerCoordinator: RaytracerWorkerContext {
     @Event var stateDidChange: EventSource<State>
     
     var viewportSize: PixelCoord
-    var buffer: RaytracerBufferWriter
+    var buffer: RendererBufferWriter
     var hasWork: Bool = true
     
     /// Progress of rendering, from 0.0 to 1.0, inclusive.
@@ -39,36 +39,27 @@ class RaytracerCoordinator: RaytracerWorkerContext {
         batcher.batchesServedProgress
     }
     
-    var batcher: RaytracerBatcher
+    var batcher: RenderingBatcher
     
-    init(viewportSize: PixelCoord, buffer: RaytracerBufferWriter) {
+    init(renderer: RendererType,
+         viewportSize: PixelCoord,
+         buffer: RendererBufferWriter,
+         threadCount: Int,
+         batcher: RenderingBatcher) {
+        
+        self._threadCount = threadCount
         self.viewportSize = viewportSize
         self.buffer = buffer
         
-        let scene = DemoScene.makeScene()
+        self._renderer = renderer
         
-        self._raytracer = Raytracer(scene: scene,
-                                    camera: Camera(viewportSize: viewportSize),
-                                    viewportSize: viewportSize)
-        
-        _raytracingQueue = .init(label: "com.geometriaapp.raytracing",
-                                 qos: .default,
-                                 attributes: .concurrent)
-        _batchRequestQueue = .init(label: "com.geometriaapp.raytracing.batcher",
+        _renderingWorkerQueue = .init(label: "com.geometriaapp.rendering",
+                                qos: .default,
+                                attributes: .concurrent)
+        _batchRequestQueue = .init(label: "com.geometriaapp.rendering.batcher",
                                    qos: .default)
         
-//        batcher = SinglePixelBatcher(pixel: .init(x: 173, y: 171)) // Transparent sphere - bottom-left center of refraction 'anomaly'
-//        batcher = SinglePixelBatcher(pixel: .init(x: 261, y: 173)) // Reflection of transparent sphere on right sphere
-//        batcher = SinglePixelBatcher(pixel: .init(x: 273, y: 150)) // Refractive cylinder
-//        batcher = SinglePixelBatcher(pixel: .init(x: 172, y: 156)) // Bug in refractive bouncing in left sphere
-//        batcher = SinglePixelBatcher(pixel: .init(x: 255, y: 224)) // Bug in refractive bouncing in cylinder's base
-        batcher = TiledBatcher(splitting: viewportSize,
-                               estimatedThreadCount: _threadCount * 2,
-                               shuffleOrder: true)
-//        batcher = SieveBatcher()
-//        batcher = LinearBatcher()
-        
-        recreateCamera()
+        self.batcher = batcher
     }
     
     deinit {
@@ -83,10 +74,9 @@ class RaytracerCoordinator: RaytracerWorkerContext {
         
         state = .unstarted
         
-        recreateCamera()
         resetBatcher()
         
-        _raytracer.isMultiThreaded = !(batcher is SinglePixelBatcher)
+        _renderer.isMultiThreaded = !(batcher is SinglePixelBatcher)
     }
     
     func start() {
@@ -136,10 +126,6 @@ class RaytracerCoordinator: RaytracerWorkerContext {
         state = .cancelled
     }
     
-    func recreateCamera() {
-        _raytracer.camera = Camera(viewportSize: viewportSize)
-    }
-    
     func resetBatcher() {
         batcher.initialize(viewportSize: viewportSize)
     }
@@ -155,19 +141,19 @@ class RaytracerCoordinator: RaytracerWorkerContext {
         _workers.removeAll()
         
         for _ in 0..<_threadCount {
-            let worker = RaytracingWorker(context: self)
+            let worker = RendererWorker(context: self)
             _workers.append(worker)
         }
     }
     
     func startWorkQueue() {
         for worker in _workers {
-            _raytracingQueue.async {
+            _renderingWorkerQueue.async {
                 worker.doWork()
             }
         }
         
-        _raytracingQueue.async(flags: .barrier) {
+        _renderingWorkerQueue.async(flags: .barrier) {
             if self.state == .running {
                 self.state = .finished
             }
@@ -182,18 +168,17 @@ class RaytracerCoordinator: RaytracerWorkerContext {
         _workers.removeAll()
     }
     
-    /// Signals all raytracing workers using a block that is invoked for each
-    /// active worker.
-    func signalWorkers(_ block: @escaping (RaytracingWorker) -> Void) {
+    /// Signals all workers using a block that is invoked for each active worker.
+    func signalWorkers(_ block: @escaping (RendererWorker) -> Void) {
         for worker in _workers {
             block(worker)
         }
     }
     
-    // MARK: RaytracerWorkerContext
+    // MARK: RendererWorkerContext
     
-    func raytracer() -> Raytracer? {
-        return _raytracer
+    func renderer() -> RendererType? {
+        return _renderer
     }
     
     func setBufferPixel(at coord: PixelCoord, color: BLRgba32) {
@@ -203,7 +188,7 @@ class RaytracerCoordinator: RaytracerWorkerContext {
         buffer.setPixel(at: coord, color: color)
     }
     
-    func requestBatchSync() -> RaytracingBatch? {
+    func requestBatchSync() -> RenderingBatch? {
         _batchRequestQueue.sync(flags: .barrier) {
             batcher.nextBatch()
         }

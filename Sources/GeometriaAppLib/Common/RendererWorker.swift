@@ -1,19 +1,19 @@
 import SwiftBlend2D
 
-/// Class that manages raytracing of batches of pixels.
-class RaytracingWorker: CustomStringConvertible {
+/// Class that manages rendering of batches of pixels.
+class RendererWorker: CustomStringConvertible {
     @ConcurrentValue private static var nextId: Int = 0
     
     private let _id: Int
     @ConcurrentValue private var _isPaused: Bool = false
     @ConcurrentValue private var _isCancelled: Bool = false
-    private weak var _context: RaytracerWorkerContext?
+    private weak var _context: RendererWorkerContext?
     
     var description: String {
         "Worker #\(_id) _isPaused: \(_isPaused) _isCancelled: \(_isCancelled)"
     }
     
-    init(context: RaytracerWorkerContext) {
+    init(context: RendererWorkerContext) {
         _id = Self._nextId.modifyingValue({ i in defer { i += 1 }; return i })
         _context = context
     }
@@ -41,7 +41,7 @@ class RaytracingWorker: CustomStringConvertible {
             if _isPaused { sleep(100); continue; }
             if _isCancelled { return }
             
-            if let raytracer = _context?.raytracer(), var batch = _context?.requestBatchSync() {
+            if let renderer = _context?.renderer(), var batch = _context?.requestBatchSync() {
                 while true {
                     if _isPaused {
                         usleep(16_000) // 16 milliseconds
@@ -54,11 +54,11 @@ class RaytracingWorker: CustomStringConvertible {
                         break
                     }
                     
-//                    raytracer.beginDebug()
+//                    renderer.beginDebug()
                     
-                    let color = raytracer.raytrace(pixelAt: pixel)
+                    let color = renderer.render(pixelAt: pixel)
                     
-//                    raytracer.endDebug()
+//                    renderer.endDebug()
                     
                     if let context = _context {
                         context.setBufferPixel(at: pixel, color: color)
@@ -81,13 +81,13 @@ class RaytracingWorker: CustomStringConvertible {
     }
 }
 
-protocol RaytracerWorkerContext: AnyObject {
-    /// Gets the raytracer object.
-    func raytracer() -> Raytracer?
+protocol RendererWorkerContext: AnyObject {
+    /// Gets the renderer object.
+    func renderer() -> RendererType?
     
     /// Reports a pixel color for the buffer.
     func setBufferPixel(at coord: PixelCoord, color: BLRgba32)
     
-    /// Requests a new batch of pixels to raytrace.
-    func requestBatchSync() -> RaytracingBatch?
+    /// Requests a new batch of pixels to render.
+    func requestBatchSync() -> RenderingBatch?
 }

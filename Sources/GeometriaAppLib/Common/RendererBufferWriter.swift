@@ -1,6 +1,6 @@
 import blend2d
 
-protocol RaytracerBufferWriter {
+protocol RendererBufferWriter {
     var size: BLSizeI { get }
     
     func clearAll(color: BLRgba32)
@@ -9,7 +9,7 @@ protocol RaytracerBufferWriter {
     func setPixel(at coord: PixelCoord, color: BLRgba32)
 }
 
-extension RaytracerBufferWriter {
+extension RendererBufferWriter {
     func setPixel(at coord: PixelCoord, color: BLRgba32) {
         setPixel(x: coord.x, y: coord.y, color: color)
     }

@@ -2,14 +2,14 @@ import Foundation
 import SwiftBlend2D
 import ImagineUI
 
-protocol Blend2DSampleDelegate: AnyObject {
+protocol Blend2DAppDelegate: AnyObject {
     func invalidate(bounds: UIRectangle)
 }
 
-protocol Blend2DSample: AnyObject {
+protocol Blend2DApp: AnyObject {
     var width: Int { get }
     var height: Int { get }
-    var sampleRenderScale: BLPoint { get }
+    var appRenderScale: BLPoint { get }
     
     func willStartLiveResize()
     func didEndLiveResize()
@@ -28,7 +28,7 @@ protocol Blend2DSample: AnyObject {
     func keyUp(event: KeyEventArgs)
 }
 
-extension Blend2DSample {
+extension Blend2DApp {
     func willStartLiveResize() { }
     func didEndLiveResize() { }
     

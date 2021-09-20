@@ -2,7 +2,7 @@ import Foundation
 
 /// Batcher that feeds pixel coordinates based on multiples of prime numbers,
 /// then later a sweep through the remaining pixels linearly.
-class SieveBatcher: RaytracerBatcher {
+class SieveBatcher: RenderingBatcher {
     typealias PixelCoordinates = PixelCoord
     
     /// Pre-computed list of prime numbers which will be incremented later while
@@ -57,7 +57,7 @@ class SieveBatcher: RaytracerBatcher {
         hasBatches = true
     }
     
-    func nextBatch() -> RaytracingBatch? {
+    func nextBatch() -> RenderingBatch? {
         while nextCounterIndex < indexCounters.count {
             defer { nextCounterIndex += 1 }
             
@@ -248,7 +248,7 @@ private protocol IndexCounterContext: AnyObject {
     var isRunning: Bool { get }
 }
 
-private protocol IndexCounter: AnyObject, RaytracingBatch {
+private protocol IndexCounter: AnyObject, RenderingBatch {
     var isAtEnd: Bool { get }
     
     func nextPixelIndex(upTo maxIndex: Int) -> Int?

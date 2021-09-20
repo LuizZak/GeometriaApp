@@ -1,5 +1,5 @@
-/// Splits the viewport into squares to raytrace.
-class TiledBatcher: RaytracerBatcher {
+/// Splits the viewport into squares to render.
+class TiledBatcher: RenderingBatcher {
     typealias Pixel = PixelCoord
     typealias PixelRect = Rectangle2<Pixel>
     
@@ -36,7 +36,7 @@ class TiledBatcher: RaytracerBatcher {
         hasBatches = tiles.count > 0
     }
     
-    func nextBatch() -> RaytracingBatch? {
+    func nextBatch() -> RenderingBatch? {
         guard nextTileIndex < tiles.count else {
             hasBatches = false
             return nil
@@ -85,7 +85,7 @@ class TiledBatcher: RaytracerBatcher {
         return Tile(bounds: bounds)
     }
     
-    class Tile: RaytracingBatch {
+    class Tile: RenderingBatch {
         var bounds: PixelRect
         var index: Int = 0
         var pixelCount: Int { bounds.width * bounds.height }
