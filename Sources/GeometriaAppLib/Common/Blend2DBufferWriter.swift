@@ -3,14 +3,16 @@ import SwiftBlend2D
 
 class Blend2DBufferWriter: RendererBufferWriter {
     private let imageQueue = DispatchQueue(label: "com.geometriaapp.rendering.buffer",
-                                           qos: .userInteractive,
+                                           qos: .default,
                                            attributes: [.concurrent])
     private let image: BLImage
+    private let imageData: BLImageData
     
     var size: BLSizeI { image.size }
     
     init(image: BLImage) {
         self.image = image
+        self.imageData = image.getImageData()
     }
     
     func clearAll(color: BLRgba32) {
@@ -26,11 +28,9 @@ class Blend2DBufferWriter: RendererBufferWriter {
         
         // TODO: Not enabled for now because it causes some performance hitches,
         // TODO: but doesn't seem to affect the memory integrity anyway.
-        // TODO: If this changes later, the qos for imageQueue has to be downgraded
-        // TODO: from .userInteractive to .default
         
 //        imageQueue.async {
-        let data = self.image.getImageData()
+        let data = imageData
         
         data[x: x, y: y] = color
 //        }

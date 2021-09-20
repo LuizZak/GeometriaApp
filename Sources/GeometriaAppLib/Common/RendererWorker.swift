@@ -2,11 +2,17 @@ import SwiftBlend2D
 
 /// Class that manages rendering of batches of pixels.
 class RendererWorker: CustomStringConvertible {
-    @ConcurrentValue private static var nextId: Int = 0
+    @ConcurrentValue
+    private static var nextId: Int = 0
     
     private let _id: Int
-    @ConcurrentValue private var _isPaused: Bool = false
-    @ConcurrentValue private var _isCancelled: Bool = false
+    
+    //@ConcurrentValue
+    private var _isPaused: Bool = false
+    
+    //@ConcurrentValue
+    private var _isCancelled: Bool = false
+    
     private weak var _context: RendererWorkerContext?
     
     var description: String {
