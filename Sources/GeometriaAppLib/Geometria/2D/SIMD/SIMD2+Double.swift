@@ -215,6 +215,13 @@ extension SIMD2: VectorFloatingPoint where Scalar == Double {
     }
 }
 
+extension SIMD2: SignedDistanceMeasurableType where Scalar == Double {
+    @_transparent
+    public func signedDistance(to other: Self) -> Scalar {
+        (self - other).length
+    }
+}
+
 extension SIMD2: Vector2FloatingPoint where Scalar == Double {
     @_transparent
     public init<V>(_ other: V) where V: Vector2Type, V.Scalar: BinaryInteger {
@@ -282,9 +289,9 @@ extension SIMD2: Vector2Real where Scalar == Double {
     @inlinable
     public static func matrix(scale: Self = .one,
                               rotate angle: Scalar = 0,
-                              translate: Self = Self(x: 0, y: 0)) -> Matrix2<Scalar> {
+                              translate: Self = Self(x: 0, y: 0)) -> Matrix3x2<Scalar> {
         
-        Matrix2<Scalar>.transformation(xScale: scale.x,
+        Matrix3x2<Scalar>.transformation(xScale: scale.x,
                                        yScale: scale.y,
                                        angle: angle,
                                        xOffset: translate.x,
@@ -292,13 +299,13 @@ extension SIMD2: Vector2Real where Scalar == Double {
     }
     
     @inlinable
-    public static func * (lhs: Self, rhs: Matrix2<Scalar>) -> Self {
-        Matrix2<Scalar>.transformPoint(matrix: rhs, point: lhs)
+    public static func * (lhs: Self, rhs: Matrix3x2<Scalar>) -> Self {
+        Matrix3x2<Scalar>.transformPoint(matrix: rhs, point: lhs)
     }
     
     @inlinable
-    public static func *= (lhs: inout Self, rhs: Matrix2<Scalar>) {
-        lhs = Matrix2<Scalar>.transformPoint(matrix: rhs, point: lhs)
+    public static func *= (lhs: inout Self, rhs: Matrix3x2<Scalar>) {
+        lhs = Matrix3x2<Scalar>.transformPoint(matrix: rhs, point: lhs)
     }
 }
 

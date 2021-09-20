@@ -9,7 +9,7 @@ public protocol VectorMultiplicative: VectorAdditive where Scalar: Numeric {
     /// Performs the computation `x0 * x0 + x1 * x1 + ... + xN * xN` for any
     /// N-dimensional vector type, and is equivalent to the squared distance to
     /// the origin of the vector space, or the ``dot(_:)`` product of the vector
-    /// by itself.
+    /// with itself.
     var lengthSquared: Scalar { get }
     
     /// Returns the squared distance between this `VectorType` and another
@@ -54,6 +54,15 @@ public protocol VectorMultiplicative: VectorAdditive where Scalar: Numeric {
 }
 
 public extension VectorMultiplicative {
+    // No default implementation for Self.one as it leads to ambiguity when
+    // conforming SIMD types.
+//    /// A unit-value `VectorMultiplicative` value where each component
+//    /// corresponds to its representation of `1`.
+//    @_transparent
+//    static var one: Self {
+//        Self(repeating: 1)
+//    }
+    
     /// Returns the length squared of this `VectorType`
     @_transparent
     var lengthSquared: Scalar {

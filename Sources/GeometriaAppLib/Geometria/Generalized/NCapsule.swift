@@ -11,13 +11,13 @@ public struct NCapsule<Vector: VectorType>: GeometricType {
     /// Convenience for `Vector.Scalar`.
     public typealias Scalar = Vector.Scalar
     
-    /// Gets the starting point of this stadium's geometry.
+    /// Gets the starting point of this capsule's geometry.
     public var start: Vector
     
-    /// Gets the end point of this stadium's geometry.
+    /// Gets the end point of this capsule's geometry.
     public var end: Vector
     
-    /// The radius of this stadium.
+    /// The radius of this capsule.
     public var radius: Scalar
     
     @_transparent
@@ -56,7 +56,7 @@ public extension NCapsule {
 
 public extension NCapsule where Scalar: Comparable & AdditiveArithmetic {
     /// Returns whether this N-capsule's parameters produce a valid, non-empty
-    /// stadium.
+    /// capsule.
     ///
     /// An N-capsule is valid when ``radius`` is greater than zero.
     @_transparent
@@ -88,5 +88,28 @@ extension NCapsule: VolumetricType where Vector: VectorFloatingPoint {
         let radSquare: Scalar = radius * radius
         
         return asLineSegment.distanceSquared(to: vector) <= radSquare
+    }
+}
+
+extension NCapsule: PointProjectableType where Vector: VectorFloatingPoint {
+    /// Returns the closest point on this N-capsule's surface to `vector`.
+    ///
+    /// If the distance between `vector` and its point on the projected line
+    /// ``asLineSegment`` is `== .zero`, an arbitrary closest point along the
+    /// outer surface of the capsule is returned, instead.
+    public func project(_ vector: Vector) -> Vector {
+        let line = asLineSegment
+        
+        var projected = line.project(vector)
+        
+        // If the vector is along the line exactly, pick a different point to
+        // create the projective line with.
+        if projected == vector {
+            projected += .one
+        }
+        
+        let projectedLine = LineSegment(start: projected, end: vector)
+        
+        return projectedLine.projectedMagnitude(radius)
     }
 }

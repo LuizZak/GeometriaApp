@@ -29,6 +29,7 @@ extension NSquare: Hashable where Vector: Hashable, Scalar: Hashable { }
 
 extension NSquare: RectangleType & BoundableType where Vector: VectorAdditive {
     /// Returns the span of this ``NSquare``.
+    @_transparent
     public var size: Vector {
         Vector(repeating: sideLength)
     }
@@ -45,9 +46,22 @@ extension NSquare: VolumetricType where Vector: VectorAdditive & VectorComparabl
     /// square.
     @inlinable
     public func contains(_ vector: Vector) -> Bool {
-        let max = location + Vector(repeating: sideLength)
-        
-        return vector >= location && vector <= max
+        return vector >= location && vector <= location + sideLength
+    }
+}
+
+public extension NSquare where Vector: VectorMultiplicative {
+    /// Returns an ``NSquare`` with position `.zero` and side length `1`.
+    @_transparent
+    static var unit: Self {
+        Self(location: .zero, sideLength: 1)
+    }
+}
+
+public extension NSquare where Vector: VectorDivisible {
+    @_transparent
+    var center: Vector {
+        location + sideLength / 2
     }
 }
 
@@ -59,5 +73,11 @@ extension NSquare: ConvexType where Vector: VectorFloatingPoint {
     
     public func intersection<Line>(with line: Line) -> ConvexLineIntersection<Vector> where Line : LineFloatingPoint, Vector == Line.Vector {
         bounds.intersection(with: line)
+    }
+}
+
+extension NSquare: SignedDistanceMeasurableType where Vector: VectorFloatingPoint {
+    public func signedDistance(to point: Vector) -> Vector.Scalar {
+        bounds.signedDistance(to: point)
     }
 }

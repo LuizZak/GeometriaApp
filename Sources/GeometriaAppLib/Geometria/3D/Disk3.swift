@@ -67,9 +67,16 @@ extension Disk3: PointProjectableType {
             return pointOnPlane
         }
         
-        let direction = (center - pointOnPlane).normalized()
+        let direction = (pointOnPlane - center).normalized()
         
         return center + direction * radius
+    }
+}
+
+extension Disk3: SignedDistanceMeasurableType {
+    @inlinable
+    public func signedDistance(to point: Vector) -> Vector.Scalar {
+        project(point).distance(to: point)
     }
 }
 

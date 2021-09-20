@@ -27,6 +27,14 @@ extension NSphere: Hashable where Vector: Hashable, Scalar: Hashable { }
 extension NSphere: Encodable where Vector: Encodable, Scalar: Encodable { }
 extension NSphere: Decodable where Vector: Decodable, Scalar: Decodable { }
 
+public extension NSphere {
+    /// Returns an ellipsoid with the same center point and radius parameters as
+    /// this N-sphere.
+    var asEllipsoid: Ellipsoid<Vector> {
+        Ellipsoid(center: center, radius: .init(repeating: radius))
+    }
+}
+
 extension NSphere: BoundableType where Vector: VectorAdditive {
     public var bounds: AABB<Vector> {
         AABB(minimum: center - radius, maximum: center + radius)
@@ -48,6 +56,14 @@ public extension NSphere where Scalar: AdditiveArithmetic {
     }
 }
 
+public extension NSphere where Vector: VectorMultiplicative {
+    /// Retunrs an ``NSphere`` with center `.zero` and radius `1`.
+    @_transparent
+    static var unit: Self {
+        Self(center: .zero, radius: 1)
+    }
+}
+
 public extension NSphere where Vector: VectorMultiplicative, Scalar: Comparable {
     /// Returns `true` if this N-sphere's area contains a given point by checking
     /// if the distance from the center of this N-sphere to the point is less than
@@ -60,6 +76,12 @@ public extension NSphere where Vector: VectorMultiplicative, Scalar: Comparable 
         let d = point - center
         
         return d.lengthSquared <= radius * radius
+    }
+}
+
+extension NSphere: SignedDistanceMeasurableType where Vector: VectorFloatingPoint {
+    public func signedDistance(to point: Vector) -> Vector.Scalar {
+        (center - point).length - radius
     }
 }
 
