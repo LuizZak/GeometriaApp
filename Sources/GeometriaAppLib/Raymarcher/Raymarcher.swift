@@ -5,8 +5,6 @@ final class Raymarcher: RendererType {
     private static var _attemptedDebugInMultithreadedYet = false
     private var processingPrinter: RaytracerProcessingPrinter?
     
-    private let minimumMarchToleranceSq: Double = 0.001
-    
     var isMultiThreaded: Bool = false
     var maxBounces: Int = 5
     var scene: Scene
@@ -53,7 +51,55 @@ final class Raymarcher: RendererType {
         return raymarch(ray: ray)
     }
     
-    private func raymarch(ray: RRay3D, ignoring: RayIgnore = .none, bounceCount: Int = 0) -> BLRgba32 {
-        return scene.skyColor
+    private func raymarch(ray: RRay3D, bounceCount: Int = 0) -> BLRgba32 {
+        // Max ray march iteration count
+        var ray = ray
+        
+        let maxMarchIterationCount = 50
+        let minimumMarchTolerance: Double = 0.001
+        var iteration = 0
+        
+        while iteration < maxMarchIterationCount {
+            defer { iteration += 1 }
+            
+            let next = distanceFunction(ray.start)
+            
+            let signedDistance = next.signedDistance
+            
+            // Scene is empty?
+            if signedDistance.isInfinite {
+                break
+            }
+            // Something broke in the algorithms?
+            if signedDistance.isNaN {
+                break
+            }
+            
+            if signedDistance < minimumMarchTolerance {
+                break
+            }
+            
+            ray.start = ray.projectedMagnitude(signedDistance)
+        }
+        
+        // Sketch a dummy pixel color value for now
+        let factor: Double = Double(iteration) / Double(maxMarchIterationCount)
+        
+        return mergeColors(scene.skyColor, .black, factor: factor)
+    }
+    
+    private func distanceFunction(_ vector: RVector3D) -> MarchResult {
+        var dist: Double = .infinity
+        
+        for geo in scene.geometries {
+            dist = min(dist, geo.signedDistanceFunction(vector, minDistance: dist))
+        }
+        
+        return MarchResult(signedDistance: dist)
+    }
+    
+    private struct MarchResult {
+        /// Distance to nearest geometry
+        var signedDistance: Double
     }
 }

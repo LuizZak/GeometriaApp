@@ -16,6 +16,8 @@ class RaytracerApp: Blend2DApp {
     private var _timeEnded: TimeInterval = 0.0
     private var _mouseLocation: BLPointI = .zero
     
+    private var threadCount: Int = 8
+    
     private var ui: ImagineUIWrapper
     
     private let topLeftLabels: StackView = StackView(orientation: .vertical)
@@ -141,8 +143,6 @@ class RaytracerApp: Blend2DApp {
         
         let buffer = Blend2DBufferWriter(image: image)
         self.buffer = buffer
-        
-        let threadCount = 8
         
 //        let batcher = SinglePixelBatcher(pixel: .init(x: 173, y: 171)) // Transparent sphere - bottom-left center of refraction 'anomaly'
 //        let batcher = SinglePixelBatcher(pixel: .init(x: 261, y: 173)) // Reflection of transparent sphere on right sphere

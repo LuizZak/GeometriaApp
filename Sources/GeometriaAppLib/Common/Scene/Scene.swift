@@ -13,69 +13,6 @@ final class Scene {
         geometries.append(geometry)
     }
     
-    func addAABB(_ object: RAABB3D, color: BLRgba32 = .gray) {
-        let material = Material(color: color)
-        let geom = SceneGeometry(convex: object, material: material)
-        geometries.append(geom)
-    }
-    
-    func addSphere(_ object: RSphere3D) {
-        let material = Material(color: .gray)
-        let geom = SceneGeometry(convex: object, material: material)
-        geometries.append(geom)
-    }
-    
-    func addBumpySphere(_ object: RSphere3D) {
-        let material = Material(color: .gray, reflectivity: 0.4)
-        let geom = SceneGeometry(bumpySphere: object, material: material)
-        geometries.append(geom)
-    }
-    
-    func addShinySphere(_ object: RSphere3D,
-                        transparency: Double = 0.0,
-                        refractiveIndex: Double = 1.0) {
-        
-        let material = Material(color: .gray,
-                                reflectivity: 0.6,
-                                transparency: transparency,
-                                refractiveIndex: refractiveIndex)
-        
-        let geom = SceneGeometry(convex: object, material: material)
-        geometries.append(geom)
-    }
-    
-    func addShinyEllipse3(_ object: REllipse3D, transparency: Double = 0.0) {
-        let material = Material(color: .gray, reflectivity: 0.5, transparency: transparency)
-        let geom = SceneGeometry(convex: object, material: material)
-        geometries.append(geom)
-    }
-    
-    func addCylinder(_ object: RCylinder3D,
-                     reflectivity: Double = 0.0,
-                     transparency: Double = 0.0,
-                     refractivity: Double = 1.0) {
-        
-        let material = Material(color: .gray,
-                                reflectivity: reflectivity,
-                                transparency: transparency,
-                                refractiveIndex: refractivity)
-        
-        let geom = SceneGeometry(convex3: object, material: material)
-        geometries.append(geom)
-    }
-    
-    func addDisk(_ object: RDisk3D) {
-        let material = Material(color: .white)
-        let geom = SceneGeometry(plane: object, material: material)
-        geometries.append(geom)
-    }
-    
-    func addPlane(_ object: RPlane3D) {
-        let material = Material(color: .gray)
-        let geom = SceneGeometry(plane: object, material: material)
-        geometries.append(geom)
-    }
-    
     @inlinable
     func intersect(ray: RRay3D, ignoring: RayIgnore = .none) -> RayHit? {
         var result =

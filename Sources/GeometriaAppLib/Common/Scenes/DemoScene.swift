@@ -46,6 +46,9 @@ enum DemoScene {
                                 reflectivity: 0.4)
             )
             
+            // TODO: Implement ellipse distance function and re-add this
+            
+            /*
             // Ellipse
             (
                 REllipse3D(center: .init(x: -50, y: 90, z: 20),
@@ -53,6 +56,7 @@ enum DemoScene {
                 
                 Material(reflectivity: 0.5)
             )
+            */
             
             // Disk
             RDisk3D(center: .init(x: -10, y: 110, z: 20),
