@@ -3,7 +3,6 @@ import SwiftBlend2D
 import ImagineUI
 import Text
 import Blend2DRenderer
-import QuartzCore
 
 private let instructions: String = """
 R = Reset  |   Space = Pause
@@ -184,7 +183,7 @@ class RaytracerApp: Blend2DApp {
                 guard let self = self else { return }
                 
                 if state == .finished {
-                    self._timeEnded = CACurrentMediaTime()
+                    self._timeEnded = UISettings.timeInSeconds()
                     self.invalidateAll()
                 }
                 self.updateLabels()
@@ -193,7 +192,7 @@ class RaytracerApp: Blend2DApp {
         rendererCoordinator?.initialize()
         rendererCoordinator?.start()
         
-        _timeStarted = CACurrentMediaTime()
+        _timeStarted = UISettings.timeInSeconds()
         _timeEnded = 0.0
     }
     
