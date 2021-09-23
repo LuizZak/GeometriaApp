@@ -2,7 +2,7 @@
 
 import GeometriaWindows
 
-GeometriaAppDelegate.main()
+_=winMain()
 
 #elseif os(macOS)
 

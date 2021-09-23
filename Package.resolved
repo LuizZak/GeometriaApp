@@ -38,11 +38,11 @@
         }
       },
       {
-        "package": "LibPNG",
-        "repositoryURL": "https://github.com/LuizZak/swift-libpng.git",
+        "package": "SwiftCOM",
+        "repositoryURL": "https://github.com/compnerd/swift-com.git",
         "state": {
-          "branch": "master",
-          "revision": "1d5b94c822dde80c4c2d7d742cd50d1d83c5abb1",
+          "branch": null,
+          "revision": "ebbc617d3b7ba3a2023988a74bebd118deea4cc5",
           "version": null
         }
       },

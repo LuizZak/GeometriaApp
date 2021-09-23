@@ -23,3 +23,5 @@ You should see something along the lines of:
 ![Sample screenshot](screenshot.png)
 
 [Geometria]: https://github.com/LuizZak/Geometria
+
+Windows portion of this project where derived in part from https://github.com/compnerd/swift-win32

@@ -18,7 +18,7 @@ name: "GeometriaAppLib",
 dependencies: [
     // "Geometria",
     "ImagineUI",
-    "SwiftBlend2D", //.product(name: "SwiftBlend2D", package: "swift-blend2d")
+    "SwiftBlend2D",
 ],
 resources: [
     .copy("Resources/NotoSans-Regular.ttf")
@@ -28,9 +28,9 @@ var osTargets: [Target] = []
 
 #if os(Windows)
 
-packageDependencies.append(
-    .package(name: "SwiftWin32", url: "https://github.com/compnerd/swift-win32", .branch("main"))
-)
+packageDependencies.append(contentsOf: [
+    .package(name: "SwiftCOM", url: "https://github.com/compnerd/swift-com.git", .revision("ebbc617d3b7ba3a2023988a74bebd118deea4cc5"))
+])
 
 geometriaAppTarget.dependencies.append(
     "GeometriaWindows"
@@ -43,11 +43,10 @@ osTargets.append(
             "ImagineUI",
             "SwiftBlend2D",
             "GeometriaAppLib",
-            "SwiftWin32"
+            "SwiftCOM"
         ],
         exclude: [
-            "GeometriaApp.exe.manifest",
-            "Info.plist"
+            "GeometriaApp.exe.manifest"
         ])
 )
 

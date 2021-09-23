@@ -1,0 +1,35 @@
+{
+    "commentAnchors.workspace.excludeFiles": "**/{node_modules,.git,.idea,target,out,build,vendor,.build,.swiftpm}/**/*",
+    "commentAnchors.tags.list": [
+        {
+            "tag": "MARK",
+            "iconColor": "default",
+            "highlightColor": "#A8C023",
+            "scope": "file"
+        },
+        {
+            "tag": "TODO",
+            "iconColor": "blue",
+            "highlightColor": "#3ea8ff",
+            "scope": "workspace"
+        },
+        {
+            "tag": "FIXME",
+            "iconColor": "red",
+            "highlightColor": "#F44336",
+            "scope": "workspace"
+        },
+        {
+            "tag": "NOTE",
+            "iconColor": "orange",
+            "highlightColor": "#FFB300",
+            "scope": "file"
+        },
+    ],
+    "files.exclude": {
+        ".git": true,
+        ".build": true,
+        ".*.sw?": true,
+        "**/.DS_Store": true
+    }
+}
