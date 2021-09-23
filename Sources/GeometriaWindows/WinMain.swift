@@ -3,8 +3,6 @@ import Foundation
 import WinSDK
 import SwiftCOM
 
-let startSize = Size(width: 400, height: 300)
-
 public func winMain() -> Int32 {
     // Initialize COM
     do {
@@ -41,44 +39,55 @@ public func winMain() -> Int32 {
         //log.error("RegisterAppStateChangeNotification: \(Error(win32: GetLastError()))")
     }
 
-    showMainWindow(size: startSize)
-    
-    var msg: MSG = MSG()
-    var nExitCode: Int32 = EXIT_SUCCESS
+    let window = showMainWindow()
 
-    mainLoop: while true {
-        // Process all messages in thread's message queue; for GUI applications UI
-        // events must have high priority.
-        while PeekMessageW(&msg, nil, 0, 0, UINT(PM_REMOVE)) {
-            if msg.message == UINT(WM_QUIT) {
-                nExitCode = Int32(msg.wParam)
-                break mainLoop
+    return withExtendedLifetime(window) {
+        var msg: MSG = MSG()
+        var nExitCode: Int32 = EXIT_SUCCESS
+
+        mainLoop: while true {
+            // Process all messages in thread's message queue; for GUI applications UI
+            // events must have high priority.
+            while PeekMessageW(&msg, nil, 0, 0, UINT(PM_REMOVE)) {
+                if msg.message == UINT(WM_QUIT) {
+                    nExitCode = Int32(msg.wParam)
+                    break mainLoop
+                }
+
+                TranslateMessage(&msg)
+                DispatchMessageW(&msg)
             }
 
-            TranslateMessage(&msg)
-            DispatchMessageW(&msg)
+            var limitDate: Date? = nil
+            repeat {
+                // Execute Foundation.RunLoop once and determine the next time the timer
+                // fires. At this point handle all Foundation.RunLoop timers, sources and
+                // Dispatch.DispatchQueue.main tasks
+                limitDate = RunLoop.main.limitDate(forMode: .default)
+
+                // If Foundation.RunLoop doesn't contain any timers or the timers should
+                // not be running right now, we interrupt the current loop or otherwise
+                // continue to the next iteration.
+            } while (limitDate?.timeIntervalSinceNow ?? -1) <= 0
+
+            // Yield control to other threads.  If Foundation.RunLoop contains a timer
+            // to execute, we wait until a new message is placed in the thread's message
+            // queue or the timer must fire, otherwise we proceed to the next iteration
+            // of mainLoop, using 0 as the wait timeout.
+            _ = WaitMessage(DWORD(exactly: limitDate?.timeIntervalSinceNow ?? 0 * 1000) ?? DWORD.max)
         }
 
-        var limitDate: Date? = nil
-        repeat {
-            // Execute Foundation.RunLoop once and determine the next time the timer
-            // fires. At this point handle all Foundation.RunLoop timers, sources and
-            // Dispatch.DispatchQueue.main tasks
-            limitDate = RunLoop.main.limitDate(forMode: .default)
-
-            // If Foundation.RunLoop doesn't contain any timers or the timers should
-            // not be running right now, we interrupt the current loop or otherwise
-            // continue to the next iteration.
-        } while (limitDate?.timeIntervalSinceNow ?? -1) <= 0
-
-        // Yield control to other threads.  If Foundation.RunLoop contains a timer
-        // to execute, we wait until a new message is placed in the thread's message
-        // queue or the timer must fire, otherwise we proceed to the next iteration
-        // of mainLoop, using 0 as the wait timeout.
-        _ = WaitMessage(DWORD(exactly: limitDate?.timeIntervalSinceNow ?? 0 * 1000) ?? DWORD.max)
+        return nExitCode
     }
+}
 
-    return nExitCode
+private func showMainWindow() -> Window {
+    let startSize = Size(width: 400, height: 300)
+
+    let window = MainWindow(size: startSize)
+    window.show()
+
+    return window
 }
 
 // Waits for a message on the message queue, returning when either a message has

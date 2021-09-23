@@ -47,6 +47,15 @@
         }
       },
       {
+        "package": "swift-log",
+        "repositoryURL": "https://github.com/apple/swift-log.git",
+        "state": {
+          "branch": "main",
+          "revision": "a7e6d7fef58b8909ec9463a492e257ab00d89a4b",
+          "version": null
+        }
+      },
+      {
         "package": "swift-numerics",
         "repositoryURL": "https://github.com/apple/swift-numerics",
         "state": {

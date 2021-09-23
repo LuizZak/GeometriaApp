@@ -3,17 +3,33 @@ import WinSDK
 /// A Win32 window.
 class Window {
     private let minSize: Size = Size(width: 200, height: 150)
+    private var className: [WCHAR]
     private var hwnd: HWND?
     private var size: Size
 
     init(size: Size) {
         self.size = size
 
+        className = "Sample Window Class".wide
+        
         initialize()
     }
 
     deinit {
         // TODO: Free handle?
+    }
+
+    func show() {
+        ShowWindow(hwnd, SW_RESTORE)
+    }
+
+    func onPaint() {
+        var ps = PAINTSTRUCT()
+        let hdc: HDC = BeginPaint(hwnd, &ps)
+        defer { EndPaint(hwnd, &ps) }
+        
+        // All painting occurs here, between BeginPaint and EndPaint.
+        FillRect(hdc, &ps.rcPaint, GetSysColorBrush(COLOR_WINDOW))
     }
 
     private func initialize() {
@@ -23,20 +39,15 @@ class Window {
             UnsafePointer<WCHAR>(bitPattern: 32512)!
 
         // Register the window class.
-        let CLASS_NAME = "Sample Window Class"
-        
-        let wc: WNDCLASSW = CLASS_NAME.withUnsafeWideBuffer { p in
-            var wc = WNDCLASSW()
-
+        var wc = WNDCLASSW()
+        className.withUnsafeBufferPointer { p in
             wc.style         = UINT(CS_HREDRAW | CS_VREDRAW)
             wc.hCursor       = LoadCursorW(nil, IDC_ARROW)
-            wc.lpfnWndProc   = windowProc
+            wc.lpfnWndProc   = DefWindowProcW
             wc.hInstance     = handle
             wc.lpszClassName = p.baseAddress!
 
             RegisterClassW(&wc)
-            
-            return wc
         }
         
         // Create the window.
@@ -56,58 +67,65 @@ class Window {
         )
 
         if (hwnd == nil) {
-            fatalError("Failed to create window.")
+            log.error("Failed to create window: \(Win32Error(win32: GetLastError()))")
+            fatalError()
         }
+
+        _ = SetWindowSubclass(hwnd, 
+                              windowProc, 
+                              UINT_PTR.max,
+                              unsafeBitCast(self as AnyObject, to: DWORD_PTR.self))
     }
 
-    func show() {
-        ShowWindow(hwnd, SW_RESTORE)
+    fileprivate func handleMessage(_ uMsg: UINT, _ wParam: WPARAM, _ lParam: LPARAM) -> LRESULT? {
+        switch (uMsg) {
+        case UINT(WM_DESTROY):
+            PostQuitMessage(0)
+            return 0
+
+        case UINT(WM_PAINT):
+            onPaint()
+
+            return 0
+
+        case UINT(WM_GETMINMAXINFO):
+            func ClientSizeToWindowSize(_ size: Size) -> Size {
+                var rc: RECT = RECT(from: Rect(origin: .zero, size: size))
+
+                let gwlStyle: LONG = WS_MINIMIZEBOX | WS_MAXIMIZEBOX | WS_SIZEBOX
+                let gwlExStyle: LONG = WS_EX_CLIENTEDGE
+
+                if !AdjustWindowRectExForDpi(&rc,
+                                             DWORD(gwlStyle),
+                                             false,
+                                             DWORD(gwlExStyle),
+                                             GetDpiForWindow(hwnd)) {
+                    log.warning("AdjustWindowRetExForDpi: \(Win32Error(win32: GetLastError()))")
+                }
+
+                return Rect(from: rc).size
+            }
+            
+            let lpInfo: UnsafeMutablePointer<MINMAXINFO> = .init(bitPattern: UInt(lParam))!
+            
+            // Adjust the minimum and maximum tracking size for the window.
+            lpInfo.pointee.ptMinTrackSize =
+                POINT(from: ClientSizeToWindowSize(minSize))
+
+            return LRESULT(0)
+
+        default:
+            return DefWindowProcW(hwnd, uMsg, wParam, lParam)
+        }
     }
 }
 
-func windowProc(_ hwnd: HWND?, _ uMsg: UINT, _ wParam: WPARAM, _ lParam: LPARAM) -> LRESULT {
-    switch (uMsg) {
-    case UINT(WM_DESTROY):
-        PostQuitMessage(0)
-        return 0
-
-    case UINT(WM_PAINT):
-        var ps = PAINTSTRUCT()
-        let hdc: HDC = BeginPaint(hwnd, &ps)
-        defer { EndPaint(hwnd, &ps) }
-        
-        // All painting occurs here, between BeginPaint and EndPaint.
-        FillRect(hdc, &ps.rcPaint, GetSysColorBrush(COLOR_WINDOW))
-        
-        return 0
-
-    case UINT(WM_GETMINMAXINFO):
-        func ClientSizeToWindowSize(_ size: Size) -> Size {
-            var rc: RECT = RECT(from: Rect(origin: .zero, size: size))
-
-            let gwlStyle: LONG = WS_MINIMIZEBOX | WS_MAXIMIZEBOX | WS_SIZEBOX
-            let gwlExStyle: LONG = WS_EX_CLIENTEDGE
-
-            if !AdjustWindowRectExForDpi(&rc,
-                                        DWORD(gwlStyle),
-                                        false,
-                                        DWORD(gwlExStyle),
-                                        GetDpiForWindow(hwnd)) {
-                // log.warning("AdjustWindowRetExForDpi: \(Error(win32: GetLastError()))")
-            }
-
-            return Rect(from: rc).size
+private let windowProc: SUBCLASSPROC = { (hWnd, uMsg, wParam, lParam, uIdSubclass, dwRefData) in
+    if let window = unsafeBitCast(dwRefData, to: AnyObject.self) as? Window {
+        if let result = window.handleMessage(uMsg, wParam, lParam) {
+            return result
         }
-        
-        let lpInfo: UnsafeMutablePointer<MINMAXINFO> = .init(bitPattern: UInt(lParam))!
-        
-        // Adjust the minimum and maximum tracking size for the window.
-        lpInfo.pointee.ptMinTrackSize =
-            POINT(from: ClientSizeToWindowSize(minSize))
-
-        return LRESULT(0)
-
-    default:
-        return DefWindowProcW(hwnd, uMsg, wParam, lParam)
     }
+
+    return DefSubclassProc(hWnd, uMsg, wParam, lParam)
 }

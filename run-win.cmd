@@ -4,4 +4,6 @@ CALL build-win.cmd
 
 @echo Executing...
 
+chcp 65001
+
 %BIN_PATH%

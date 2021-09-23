@@ -7,6 +7,7 @@ var packageDependencies: [Package.Dependency] =  [
     // .package(url: "https://github.com/LuizZak/Geometria.git", branch: "main"),
     .package(url: "https://github.com/LuizZak/ImagineUI.git", .branch("master")),    //.package(url: "https://github.com/LuizZak/ImagineUI.git", branch: "master"),
     .package(name: "SwiftBlend2D", url: "https://github.com/LuizZak/swift-blend2d.git", .branch("master")), //.package(url: "https://github.com/LuizZak/swift-blend2d.git", branch: "master")
+    .package(url: "https://github.com/apple/swift-log.git", .branch("main")),
 ]
 
 var geometriaAppTarget: Target = .executableTarget(
@@ -43,7 +44,8 @@ osTargets.append(
             "ImagineUI",
             "SwiftBlend2D",
             "GeometriaAppLib",
-            "SwiftCOM"
+            "SwiftCOM",
+            .product(name: "Logging", package: "swift-log"),
         ],
         exclude: [
             "GeometriaApp.exe.manifest"
