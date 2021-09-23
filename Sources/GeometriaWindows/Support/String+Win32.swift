@@ -6,6 +6,10 @@ extension String {
             String(decodingCString: $0.baseAddress!, as: UTF16.self)
         }
     }
+
+    internal init(from utf16: UnsafePointer<WCHAR>) {
+        self = String(decodingCString: utf16, as: UTF16.self)
+    }
 }
 
 extension String {

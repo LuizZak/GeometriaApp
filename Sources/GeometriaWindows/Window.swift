@@ -4,8 +4,9 @@ import WinSDK
 class Window {
     private let minSize: Size = Size(width: 200, height: 150)
     private var className: [WCHAR]
-    private var hwnd: HWND?
-    private var size: Size
+    var size: Size
+
+    internal var hwnd: HWND?
 
     init(size: Size) {
         self.size = size
@@ -32,7 +33,7 @@ class Window {
         FillRect(hdc, &ps.rcPaint, GetSysColorBrush(COLOR_WINDOW))
     }
 
-    private func initialize() {
+    internal func initialize() {
         let handle = GetModuleHandleW(nil)
         
         let IDC_ARROW: UnsafePointer<WCHAR> =
@@ -78,17 +79,17 @@ class Window {
     }
 
     fileprivate func handleMessage(_ uMsg: UINT, _ wParam: WPARAM, _ lParam: LPARAM) -> LRESULT? {
-        switch (uMsg) {
-        case UINT(WM_DESTROY):
+        switch (Int32(uMsg)) {
+        case WM_DESTROY:
             PostQuitMessage(0)
             return 0
 
-        case UINT(WM_PAINT):
+        case WM_PAINT:
             onPaint()
 
             return 0
 
-        case UINT(WM_GETMINMAXINFO):
+        case WM_GETMINMAXINFO:
             func ClientSizeToWindowSize(_ size: Size) -> Size {
                 var rc: RECT = RECT(from: Rect(origin: .zero, size: size))
 
