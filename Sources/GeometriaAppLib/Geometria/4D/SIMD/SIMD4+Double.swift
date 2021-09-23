@@ -1,4 +1,4 @@
-#if canImport(simd)
+#if false // canImport(simd)
 
 import simd
 

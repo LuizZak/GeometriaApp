@@ -2,54 +2,54 @@ import SwiftBlend2D
 import ImagineUI
 
 /// Vector2 for Raytracing operations
-typealias RVector2D = Vector2D
+public typealias RVector2D = Vector2D
 
 /// Vector3 for Raytracing operations
-typealias RVector3D = Vector3D
+public typealias RVector3D = Vector3D
 
 /// Rectangle for Raytracing operations
-typealias RRectangle = Rectangle2<RVector2D>
+public typealias RRectangle = Rectangle2<RVector2D>
 
 /// AABB2 for Raytracing operations
-typealias RAABB2D = AABB2<RVector2D>
+public typealias RAABB2D = AABB2<RVector2D>
 
 /// AABB3 for Raytracing operations
-typealias RAABB3D = AABB3<RVector3D>
+public typealias RAABB3D = AABB3<RVector3D>
 
 /// Line2 for Raytracing operations
-typealias RLine2D = Line2<RVector2D>
+public typealias RLine2D = Line2<RVector2D>
 
 /// LineSegment2 for Raytracing operations
-typealias RLineSegment2D = LineSegment2<RVector2D>
+public typealias RLineSegment2D = LineSegment2<RVector2D>
 
 /// Circle2 for Raytracing operations
-typealias RCircle2D = Circle2<RVector2D>
+public typealias RCircle2D = Circle2<RVector2D>
 
 /// Sphere3 for Raytracing operations
-typealias RSphere3D = Sphere3<RVector3D>
+public typealias RSphere3D = Sphere3<RVector3D>
 
 /// Ellipse3 for Raytracing operations
-typealias REllipse3D = Ellipse3<RVector3D>
+public typealias REllipse3D = Ellipse3<RVector3D>
 
 /// Cylinder3 for Raytracing operatons
-typealias RCylinder3D = Cylinder3<RVector3D>
+public typealias RCylinder3D = Cylinder3<RVector3D>
 
 /// Disk3 for Raytracing operations
-typealias RDisk3D = Disk3<Vector3D>
+public typealias RDisk3D = Disk3<Vector3D>
 
 /// LinePolygon2 for Raytracing operations
-typealias RPolyLine2D = LinePolygon2<RVector2D>
+public typealias RPolyLine2D = LinePolygon2<RVector2D>
 
 /// PointNormalPlane3 for Raytracing operations
-typealias RPlane3D = PointNormalPlane3<RVector3D>
+public typealias RPlane3D = PointNormalPlane3<RVector3D>
 
 /// DirectionalRay3 for Raytracing operations
-typealias RRay3D = DirectionalRay3<RVector3D>
+public typealias RRay3D = DirectionalRay3<RVector3D>
 
 /// Screen-space pixel coordinates
-typealias PixelCoord = Vector2i
+public typealias PixelCoord = Vector2i
 
-extension RVector2D {
+public extension RVector2D {
     var asBLPoint: BLPoint {
         return BLPoint(x: x, y: y)
     }
@@ -59,13 +59,13 @@ extension RVector2D {
     }
 }
 
-extension Vector2i {
+public extension Vector2i {
     var asBLPointI: BLPointI {
         BLPointI(x: Int32(x), y: Int32(y))
     }
 }
 
-extension RectangleType where Vector == RVector2D {
+public extension RectangleType where Vector == RVector2D {
     var asBLRect: BLRect {
         BLRect(location: location.asBLPoint, size: size.asBLSize)
     }
@@ -75,19 +75,19 @@ extension RectangleType where Vector == RVector2D {
     }
 }
 
-extension LineType where Vector == RVector2D {
+public extension LineType where Vector == RVector2D {
     var asBLLine: BLLine {
         BLLine(start: a.asBLPoint, end: b.asBLPoint)
     }
 }
 
-extension RCircle2D {
+public extension RCircle2D {
     var asBLCircle: BLCircle {
         return BLCircle(center: center.asBLPoint, radius: radius)
     }
 }
 
-extension RPolyLine2D {
+public extension RPolyLine2D {
     var asBLPath: BLPath {
         let path = BLPath()
         
@@ -122,7 +122,7 @@ extension BLBoxI: ConstructableRectangleType {
         self.init(x: Int(location.x), y: Int(location.y), w: Int(size.x), h: Int(size.y))
     }
     
-    func union(_ other: Self) -> Self {
+    public func union(_ other: Self) -> Self {
         return Self(x0: min(x0, other.x0), y0: min(y0, other.y0),
                     x1: max(x1, other.x1), y1: max(y1, other.y1))
     }
@@ -131,7 +131,7 @@ extension BLBoxI: ConstructableRectangleType {
 extension BLPointI: Vector2Type {
     public typealias Scalar = Int32
     
-    var asVector: Vector2i {
+    public var asVector: Vector2i {
         Vector2i(x: .init(x), y: .init(y))
     }
     
@@ -143,11 +143,11 @@ extension BLPointI: Vector2Type {
 extension BLPoint: Vector2Type {
     public typealias Scalar = Double
     
-    var asVector: RVector2D {
+    public var asVector: RVector2D {
         return RVector2D(x: x, y: y)
     }
     
-    var asUIVector: UIVector {
+    public var asUIVector: UIVector {
         return .init(x: x, y: y)
     }
     
@@ -159,11 +159,11 @@ extension BLPoint: Vector2Type {
 extension BLSize: Vector2Type {
     public typealias Scalar = Double
     
-    var asVector: RVector2D {
+    public var asVector: RVector2D {
         return RVector2D(x: w, y: h)
     }
     
-    var asUIVector: UIVector {
+    public var asUIVector: UIVector {
         return .init(x: w, y: h)
     }
     
@@ -185,11 +185,10 @@ extension BLSize: Vector2Type {
     }
 }
 
-
 extension BLSizeI: Vector2Type {
     public typealias Scalar = Int32
     
-    var asVector2i: Vector2i {
+    public var asVector2i: Vector2i {
         return Vector2i(x: Int(w), y: Int(h))
     }
     

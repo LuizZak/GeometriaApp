@@ -2,7 +2,8 @@ import AppKit
 import SwiftUI
 import SwiftBlend2D
 import ImagineUI
-import GeometriaApp
+import GeometriaAppLib
+import QuartzCore
 
 class CanvasView: NSView {
     var link: CVDisplayLink?
@@ -59,14 +60,14 @@ class CanvasView: NSView {
     
     private func initializeApp() {
         globalTextClipboard = MacOSTextClipboard()
-
-        try! UISettings.initialize(.init(fontManager: Blend2DFontManager(),
-                                         defaultFontPath: Fonts.fontFilePath,
-                                         timeInSecondsFunction: { CATimeInterval() }))
         
-        let url = Bundle.module.path(forResource: "NotoSans-Regular", ofType: "ttf")!
-        Fonts.fontFilePath = url
-        Fonts.defaultFontFace = try! BLFontFace(fromFile: url)
+        let fontUrl = Resources.bundle.path(forResource: "NotoSans-Regular", ofType: "ttf")!
+        
+        try! UISettings.initialize(
+            .init(fontManager: Blend2DFontManager(),
+                  defaultFontPath: fontUrl,
+                  timeInSecondsFunction: { CACurrentMediaTime() })
+        )
         
         let app = RaytracerApp(width: Int(bounds.width), height: Int(bounds.height))
         app.delegate = self

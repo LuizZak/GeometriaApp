@@ -18,7 +18,7 @@ import Glibc
 
 extension System {
     static func sleep(milliseconds: Int64) {
-        usleep(milliseconds * 1000)
+        usleep(UInt32(milliseconds) * 1000)
     }
 }
 

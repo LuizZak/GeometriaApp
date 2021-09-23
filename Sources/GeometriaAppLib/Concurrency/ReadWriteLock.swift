@@ -64,10 +64,10 @@ public class ReadWriteLock {
 
 #else
 
-class ReadWriteLock {
+public class ReadWriteLock {
     var lock: pthread_rwlock_t
 
-    init() {
+    public init() {
         lock = pthread_rwlock_t()
         pthread_rwlock_init(&lock, nil)
     }
@@ -76,37 +76,37 @@ class ReadWriteLock {
         pthread_rwlock_destroy(&lock)
     }
 
-    func lockingForRead<T>(_ block: () throws -> T) rethrows -> T {
-        lockForRead()
-        defer { unlock() }
+    public func lockingForRead<T>(_ block: () throws -> T) rethrows -> T {
+        var l = lockForRead()
+        defer { l.unlock() }
 
         return try block()
     }
 
-    func lockingForWrite<T>(_ block: () throws -> T) rethrows -> T {
-        lockForWrite()
-        defer { unlock() }
+    public func lockingForWrite<T>(_ block: () throws -> T) rethrows -> T {
+        var l = lockForWrite()
+        defer { l.unlock() }
 
         return try block()
     }
 
-    func lockForRead() -> Lock {
+    public func lockForRead() -> Lock {
         pthread_rwlock_rdlock(&lock)
 
         return Lock(lock: self)
     }
 
-    func lockForWrite() -> Lock {
+    public func lockForWrite() -> Lock {
         pthread_rwlock_wrlock(&lock)
 
         return Lock(lock: self)
     }
 
-    mutating struct Lock {
+    public struct Lock {
         var lock: ReadWriteLock
         var hasUnlocked: Bool = false
 
-        func unlock() {
+        public mutating func unlock() {
             guard !hasUnlocked else { return }
             hasUnlocked = true
 

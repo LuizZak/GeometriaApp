@@ -2,13 +2,13 @@ import Foundation
 import SwiftBlend2D
 import ImagineUI
 
-protocol Blend2DAppDelegate: AnyObject {
+public protocol Blend2DAppDelegate: AnyObject {
     func invalidate(bounds: UIRectangle)
     func setMouseCursor(_ cursor: MouseCursorKind)
     func setMouseHiddenUntilMouseMoves()
 }
 
-protocol Blend2DApp: AnyObject {
+public protocol Blend2DApp: AnyObject {
     var width: Int { get }
     var height: Int { get }
     var appRenderScale: BLPoint { get }
@@ -30,7 +30,7 @@ protocol Blend2DApp: AnyObject {
     func keyUp(event: KeyEventArgs)
 }
 
-extension Blend2DApp {
+public extension Blend2DApp {
     func willStartLiveResize() { }
     func didEndLiveResize() { }
     

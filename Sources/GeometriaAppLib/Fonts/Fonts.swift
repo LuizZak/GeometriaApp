@@ -1,3 +1,5 @@
+#if false
+
 import SwiftBlend2D
 
 public enum Fonts {
@@ -22,3 +24,5 @@ public enum Fonts {
         return font
     }
 }
+
+#endif

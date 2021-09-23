@@ -2,15 +2,6 @@
   "object": {
     "pins": [
       {
-        "package": "cassowary",
-        "repositoryURL": "https://github.com/compnerd/cassowary.git",
-        "state": {
-          "branch": "main",
-          "revision": "8837596825508bd28dfacc86e73c8a7a98972c97",
-          "version": null
-        }
-      },
-      {
         "package": "CassowarySwift",
         "repositoryURL": "https://github.com/LuizZak/CassowarySwift.git",
         "state": {
@@ -33,7 +24,7 @@
         "repositoryURL": "https://github.com/LuizZak/ImagineUI.git",
         "state": {
           "branch": "master",
-          "revision": "89d4d583869ddb0d2ef99253c190692ced55f0f3",
+          "revision": "cf924d399dc11dd2f7f22bbb6e40e9337a0d8fdb",
           "version": null
         }
       },
@@ -42,34 +33,16 @@
         "repositoryURL": "https://github.com/LuizZak/swift-blend2d.git",
         "state": {
           "branch": "master",
-          "revision": "47059e419a178903fe7e86d7a81e1303cebde3ef",
+          "revision": "b5fe4ddffa1fe9328a282c44ab0780baf23f8ce3",
           "version": null
         }
       },
       {
-        "package": "swift-collections",
-        "repositoryURL": "https://github.com/apple/swift-collections.git",
+        "package": "LibPNG",
+        "repositoryURL": "https://github.com/LuizZak/swift-libpng.git",
         "state": {
-          "branch": "main",
-          "revision": "52d426a116a4d60fc09f06170a21339c6a281692",
-          "version": null
-        }
-      },
-      {
-        "package": "SwiftCOM",
-        "repositoryURL": "https://github.com/compnerd/swift-com.git",
-        "state": {
-          "branch": null,
-          "revision": "ebbc617d3b7ba3a2023988a74bebd118deea4cc5",
-          "version": null
-        }
-      },
-      {
-        "package": "swift-log",
-        "repositoryURL": "https://github.com/apple/swift-log.git",
-        "state": {
-          "branch": "main",
-          "revision": "a7e6d7fef58b8909ec9463a492e257ab00d89a4b",
+          "branch": "master",
+          "revision": "1d5b94c822dde80c4c2d7d742cd50d1d83c5abb1",
           "version": null
         }
       },
@@ -80,15 +53,6 @@
           "branch": null,
           "revision": "0a23770641f65a4de61daf5425a37ae32a3fd00d",
           "version": "1.0.1"
-        }
-      },
-      {
-        "package": "SwiftWin32",
-        "repositoryURL": "https://github.com/compnerd/swift-win32",
-        "state": {
-          "branch": "main",
-          "revision": "75f424c3de51b3551f016b6a28a561701f6e0e5f",
-          "version": null
         }
       }
     ]

@@ -1,4 +1,5 @@
 import AppKit
+import ImagineUI
 
 class MacOSTextClipboard: TextClipboard {
     func getText() -> String? {

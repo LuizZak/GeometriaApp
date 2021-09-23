@@ -8,8 +8,8 @@ private let instructions: String = """
 R = Reset  |   Space = Pause
 """
 
-class RaytracerApp: Blend2DApp {
-    private let _font: BLFont
+public class RaytracerApp: Blend2DApp {
+    private let _font: Font
     private var _isResizing: Bool = false
     private var _timeStarted: TimeInterval = 0.0
     private var _timeEnded: TimeInterval = 0.0
@@ -30,20 +30,21 @@ class RaytracerApp: Blend2DApp {
     
     private let mouseLocationLabel: LabelControl = LabelControl()
     
-    var width: Int
-    var height: Int
-    var appRenderScale: BLPoint = .one
-    var time: TimeInterval = 0
     var rendererCoordinator: RendererCoordinator?
     var buffer: Blend2DBufferWriter?
     
-    weak var delegate: Blend2DAppDelegate? {
+    public var width: Int
+    public var height: Int
+    public var appRenderScale: BLPoint = .one
+    public var time: TimeInterval = 0
+    
+    public weak var delegate: Blend2DAppDelegate? {
         didSet {
             ui.delegate = delegate
         }
     }
     
-    init(width: Int, height: Int) {
+    public init(width: Int, height: Int) {
         self.width = width
         self.height = height
         time = 0
@@ -99,13 +100,13 @@ class RaytracerApp: Blend2DApp {
         }
     }
     
-    func willStartLiveResize() {
+    public func willStartLiveResize() {
         ui.willStartLiveResize()
         
         _isResizing = true
     }
     
-    func didEndLiveResize() {
+    public func didEndLiveResize() {
         ui.didEndLiveResize()
         
         _isResizing = false
@@ -113,7 +114,7 @@ class RaytracerApp: Blend2DApp {
         recreateRenderer()
     }
     
-    func resize(width: Int, height: Int) {
+    public func resize(width: Int, height: Int) {
         self.width = width
         self.height = height
         restartRendering()
@@ -225,11 +226,11 @@ class RaytracerApp: Blend2DApp {
     
     // MARK: - UI
     
-    func performLayout() {
+    public func performLayout() {
         
     }
     
-    func keyDown(event: KeyEventArgs) {
+    public func keyDown(event: KeyEventArgs) {
         if event.keyCode == .space {
             togglePause()
             event.handled = true
@@ -244,15 +245,15 @@ class RaytracerApp: Blend2DApp {
         }
     }
     
-    func keyUp(event: KeyEventArgs) {
+    public func keyUp(event: KeyEventArgs) {
         ui.keyUp(event: event)
     }
     
-    func mouseScroll(event: MouseEventArgs) {
+    public func mouseScroll(event: MouseEventArgs) {
         ui.mouseScroll(event: event)
     }
     
-    func mouseMoved(event: MouseEventArgs) {
+    public func mouseMoved(event: MouseEventArgs) {
         ui.mouseMoved(event: event)
         
         _mouseLocation = BLPointI(x: Int32(event.location.x), y: Int32(event.location.y))
@@ -260,17 +261,17 @@ class RaytracerApp: Blend2DApp {
         invalidateAll()
     }
     
-    func mouseDown(event: MouseEventArgs) {
+    public func mouseDown(event: MouseEventArgs) {
         ui.mouseDown(event: event)
     }
     
-    func mouseUp(event: MouseEventArgs) {
+    public func mouseUp(event: MouseEventArgs) {
         ui.mouseUp(event: event)
     }
     
     // MARK: -
     
-    func update(_ time: TimeInterval) {
+    public func update(_ time: TimeInterval) {
         self.time = time
         
         if let renderer = rendererCoordinator, renderer.state == .running {
@@ -289,7 +290,7 @@ class RaytracerApp: Blend2DApp {
         delegate?.invalidate(bounds: .init(x: 0, y: 0, width: width, height: height))
     }
     
-    func render(context ctx: BLContext) {
+    public func render(context ctx: BLContext) {
         if let buffer = buffer {
             buffer.usingImage { img in
                 if appRenderScale == .one {
@@ -324,7 +325,7 @@ class RaytracerApp: Blend2DApp {
     func drawLabel(_ ctx: BLContext, text: String, topLeft: BLPoint) {
         let textInset = UIVector(x: 10, y: 5)
         let renderer = Blend2DRenderer(context: ctx)
-        let layout = TextLayout(font: Blend2DFont(font: _font), text: text)
+        let layout = TextLayout(font: _font, text: text)
         let textBox = UIRectangle(location: topLeft.asUIVector, size: layout.size + textInset)
         
         renderer.setFill(.black.withTransparency(60))
@@ -336,7 +337,7 @@ class RaytracerApp: Blend2DApp {
     func drawLabel(_ ctx: BLContext, text: String, bottomLeft: BLPoint) {
         let textInset = UIVector(x: 10, y: 5)
         let renderer = Blend2DRenderer(context: ctx)
-        let layout = TextLayout(font: Blend2DFont(font: _font), text: text)
+        let layout = TextLayout(font: _font, text: text)
         
         let textPoint = bottomLeft.asUIVector - UIVector(x: -textInset.x / 2, y: layout.size.y + textInset.y / 2)
         let boxPoint = bottomLeft.asUIVector - UIVector(x: 0, y: layout.size.y + textInset.y)
@@ -436,13 +437,13 @@ class LabelControl: ControlView {
     convenience override init() {
         let font = Fonts.defaultFont(size: 12)
         
-        self.init(font: Blend2DFont(font: font))
+        self.init(font: font)
     }
     
     convenience init(text: String) {
         let font = Fonts.defaultFont(size: 12)
         
-        self.init(font: Blend2DFont(font: font))
+        self.init(font: font)
         
         self.text = text
     }
