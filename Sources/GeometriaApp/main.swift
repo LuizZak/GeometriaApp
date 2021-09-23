@@ -1,7 +1,16 @@
-import AppKit
-import GeometriaAppLib
+#if os(Windows)
 
-let app = NSApplication.shared
-let delegate = AppDelegate()
-app.delegate = delegate
-app.run()
+import GeometriaWindows
+
+GeometriaAppDelegate.main()
+
+#elseif os(macOS)
+
+import GeometriaMacOS
+startApp()
+
+#else
+
+#error("Unsupported target platform. Supported platforms: macOS, Windows")
+
+#endif

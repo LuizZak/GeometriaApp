@@ -2,11 +2,20 @@
   "object": {
     "pins": [
       {
-        "package": "Cassowary",
+        "package": "cassowary",
+        "repositoryURL": "https://github.com/compnerd/cassowary.git",
+        "state": {
+          "branch": "main",
+          "revision": "8837596825508bd28dfacc86e73c8a7a98972c97",
+          "version": null
+        }
+      },
+      {
+        "package": "CassowarySwift",
         "repositoryURL": "https://github.com/LuizZak/CassowarySwift.git",
         "state": {
-          "branch": "master",
-          "revision": "0da17955a8e284340b1e0baeb1a41c9587a06171",
+          "branch": "cassowary-swift",
+          "revision": "8cd38ef939d15b1bde1a31105142eb8cfb290c3b",
           "version": null
         }
       },
@@ -24,7 +33,7 @@
         "repositoryURL": "https://github.com/LuizZak/ImagineUI.git",
         "state": {
           "branch": "master",
-          "revision": "164757f8ddf96b8304de5c3f2666df3367dafc4f",
+          "revision": "89d4d583869ddb0d2ef99253c190692ced55f0f3",
           "version": null
         }
       },
@@ -38,12 +47,48 @@
         }
       },
       {
+        "package": "swift-collections",
+        "repositoryURL": "https://github.com/apple/swift-collections.git",
+        "state": {
+          "branch": "main",
+          "revision": "52d426a116a4d60fc09f06170a21339c6a281692",
+          "version": null
+        }
+      },
+      {
+        "package": "SwiftCOM",
+        "repositoryURL": "https://github.com/compnerd/swift-com.git",
+        "state": {
+          "branch": null,
+          "revision": "ebbc617d3b7ba3a2023988a74bebd118deea4cc5",
+          "version": null
+        }
+      },
+      {
+        "package": "swift-log",
+        "repositoryURL": "https://github.com/apple/swift-log.git",
+        "state": {
+          "branch": "main",
+          "revision": "a7e6d7fef58b8909ec9463a492e257ab00d89a4b",
+          "version": null
+        }
+      },
+      {
         "package": "swift-numerics",
         "repositoryURL": "https://github.com/apple/swift-numerics",
         "state": {
           "branch": null,
           "revision": "0a23770641f65a4de61daf5425a37ae32a3fd00d",
           "version": "1.0.1"
+        }
+      },
+      {
+        "package": "SwiftWin32",
+        "repositoryURL": "https://github.com/compnerd/swift-win32",
+        "state": {
+          "branch": "main",
+          "revision": "75f424c3de51b3551f016b6a28a561701f6e0e5f",
+          "version": null
         }
       }
     ]

@@ -2,6 +2,7 @@ import AppKit
 import SwiftUI
 import SwiftBlend2D
 import ImagineUI
+import GeometriaApp
 
 class CanvasView: NSView {
     var link: CVDisplayLink?
@@ -57,6 +58,12 @@ class CanvasView: NSView {
     }
     
     private func initializeApp() {
+        globalTextClipboard = MacOSTextClipboard()
+
+        try! UISettings.initialize(.init(fontManager: Blend2DFontManager(),
+                                         defaultFontPath: Fonts.fontFilePath,
+                                         timeInSecondsFunction: { CATimeInterval() }))
+        
         let url = Bundle.module.path(forResource: "NotoSans-Regular", ofType: "ttf")!
         Fonts.fontFilePath = url
         Fonts.defaultFontFace = try! BLFontFace(fromFile: url)
@@ -313,6 +320,28 @@ extension CanvasView: Blend2DAppDelegate {
         let intersectedBounds = rectBounds.intersection(self.bounds)
         
         redrawBounds.append(intersectedBounds)
+    }
+
+    func setMouseCursor(_ cursor: MouseCursorKind) {
+        switch cursor {
+        case .iBeam:
+            NSCursor.iBeam.set()
+        case .arrow:
+            NSCursor.arrow.set()
+        case .resizeLeftRight:
+            NSCursor.resizeLeftRight.set()
+        case .resizeUpDown:
+            NSCursor.resizeUpDown.set()
+        case let .custom(imagePath, hotspot):
+            let cursor = NSCursor(image: NSImage(byReferencingFile: imagePath)!,
+                                  hotSpot: NSPoint(x: hotspot.x, y: hotspot.y))
+            
+            cursor.set()
+        }
+    }
+
+    func setMouseHiddenUntilMouseMoves() {
+        NSCursor.setHiddenUntilMouseMoves(true)
     }
 }
 

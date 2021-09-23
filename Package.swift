@@ -1,9 +1,19 @@
 // swift-tools-version:5.4
 import PackageDescription
 
-var osTargets: [Target] = []
+var packageDependencies: [Package.Dependency] =  [
+    // TODO: When Swift properly supports -Xswiftc -cross-module-optimization, re-enable external Geometria import.
+    // TODO: For now, code is embedded directly into this repository.
+    // .package(url: "https://github.com/LuizZak/Geometria.git", branch: "main"),
+    .package(url: "https://github.com/LuizZak/ImagineUI.git", .branch("master")),    //.package(url: "https://github.com/LuizZak/ImagineUI.git", branch: "master"),
+    .package(name: "SwiftBlend2D", url: "https://github.com/LuizZak/swift-blend2d.git", .branch("master")), //.package(url: "https://github.com/LuizZak/swift-blend2d.git", branch: "master")
+]
 
-var geometriaAppTarget: Target = .target(
+var geometriaAppTarget: Target = .executableTarget(
+    name: "GeometriaApp"
+)
+
+var geometriaAppLibTarget: Target = .target(
 name: "GeometriaAppLib",
 dependencies: [
     // "Geometria",
@@ -14,10 +24,16 @@ resources: [
     .copy("Resources/NotoSans-Regular.ttf")
 ])
 
+var osTargets: [Target] = []
+
 #if os(Windows)
 
+packageDependencies.append(
+    .package(name: "SwiftWin32", url: "https://github.com/compnerd/swift-win32", .branch("main"))
+)
+
 geometriaAppTarget.dependencies.append(
-    .target(name: "GeometriaWindows", condition: .when(platforms: [.windows]))
+    "GeometriaWindows"
 )
 
 osTargets.append(
@@ -25,22 +41,28 @@ osTargets.append(
         name: "GeometriaWindows",
         dependencies: [
             "ImagineUI",
-            "SwiftBlend2D"
+            "SwiftBlend2D",
+            "GeometriaAppLib",
+            "SwiftWin32"
+        ],
+        exclude: [
+            "GeometriaApp.exe.manifest",
+            "Info.plist"
         ])
 )
 
 #elseif os(macOS)
 
 geometriaAppTarget.dependencies.append(
-    .target(name: "GeometriaMacOS", condition: .when(platforms: [.macOS]))
+    "GeometriaMacOS"
 )
-
 osTargets.append(
     .target(
         name: "GeometriaMacOS",
         dependencies: [
             "ImagineUI",
-            "SwiftBlend2D"
+            "SwiftBlend2D",
+            "GeometriaAppLib"
         ])
 )
 
@@ -56,20 +78,10 @@ let package = Package(
             name: "GeometriaApp",
             targets: ["GeometriaApp"]),
     ],
-    dependencies: [
-        // TODO: When Swift properly supports -Xswiftc -cross-module-optimization, re-enable external Geometria import.
-        // TODO: For now, code is embedded directly into this repository.
-        // .package(url: "https://github.com/LuizZak/Geometria.git", branch: "main"),
-        .package(url: "https://github.com/LuizZak/ImagineUI.git", .branch("master")),    //.package(url: "https://github.com/LuizZak/ImagineUI.git", branch: "master"),
-        .package(name: "SwiftBlend2D", url: "https://github.com/LuizZak/swift-blend2d.git", .branch("master")) //.package(url: "https://github.com/LuizZak/swift-blend2d.git", branch: "master")
-    ],
+    dependencies: packageDependencies,
     targets: [
-        .executableTarget(
-            name: "GeometriaApp",
-            dependencies: [
-                "GeometriaAppLib"
-            ]),
         geometriaAppTarget,
+        geometriaAppLibTarget,
         .testTarget(
             name: "GeometriaAppTests",
             dependencies: ["GeometriaApp"]),

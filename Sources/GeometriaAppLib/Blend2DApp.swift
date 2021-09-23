@@ -4,6 +4,8 @@ import ImagineUI
 
 protocol Blend2DAppDelegate: AnyObject {
     func invalidate(bounds: UIRectangle)
+    func setMouseCursor(_ cursor: MouseCursorKind)
+    func setMouseHiddenUntilMouseMoves()
 }
 
 protocol Blend2DApp: AnyObject {

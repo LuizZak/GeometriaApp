@@ -44,7 +44,7 @@ class RendererWorker: CustomStringConvertible {
         defer { _print("Worker finished") }
         
         while !_isCancelled {
-            if _isPaused { sleep(100); continue; }
+            if _isPaused { Thread.sleep(milliseconds: 1); continue; }
             if _isCancelled { return }
             
             guard let context = _context else {
@@ -67,7 +67,7 @@ class RendererWorker: CustomStringConvertible {
             
             while true {
                 if _isPaused {
-                    usleep(16_000) // 16 milliseconds
+                    Thread.sleep(milliseconds: 16)
                     continue
                 }
                 if _isCancelled { return }

@@ -1,5 +1,4 @@
 import Foundation
-import AppKit
 import ImagineUI
 import SwiftBlend2D
 
@@ -27,10 +26,6 @@ class ImagineUIWrapper {
         rootViews = []
         controlSystem.delegate = self
         UISettings.scale = sampleRenderScale.asVector2
-        globalTextClipboard = MacOSTextClipboard()
-        
-        try! UISettings.initialize(.init(fontManager: Blend2DFontManager(),
-                                         defaultFontPath: Fonts.fontFilePath))
         
         addRootView(rootView)
     }
@@ -58,7 +53,7 @@ class ImagineUIWrapper {
         self.height = height
         
         rootView.location = .zero
-        rootView.size = .init(.init(x: width, y: height))
+        rootView.size = .init(x: Double(width), y: Double(height))
         
         bounds = BLRect(location: .zero, size: BLSize(w: Double(width), h: Double(height)))
         currentRedrawRegion = bounds.asRectangle
@@ -159,25 +154,11 @@ extension ImagineUIWrapper: DefaultControlSystemDelegate {
     }
     
     func setMouseCursor(_ cursor: MouseCursorKind) {
-        switch cursor {
-        case .iBeam:
-            NSCursor.iBeam.set()
-        case .arrow:
-            NSCursor.arrow.set()
-        case .resizeLeftRight:
-            NSCursor.resizeLeftRight.set()
-        case .resizeUpDown:
-            NSCursor.resizeUpDown.set()
-        case let .custom(imagePath, hotspot):
-            let cursor = NSCursor(image: NSImage(byReferencingFile: imagePath)!,
-                                  hotSpot: NSPoint(x: hotspot.x, y: hotspot.y))
-            
-            cursor.set()
-        }
+        delegate?.setMouseCursor(cursor)
     }
     
     func setMouseHiddenUntilMouseMoves() {
-        NSCursor.setHiddenUntilMouseMoves(true)
+        delegate?.setMouseHiddenUntilMouseMoves()
     }
 }
 
@@ -221,20 +202,5 @@ extension ImagineUIWrapper: WindowDelegate {
     
     func windowSizeForFullscreen(_ window: Window) -> UISize {
         return bounds.asRectangle.size
-    }
-}
-
-class MacOSTextClipboard: TextClipboard {
-    func getText() -> String? {
-        NSPasteboard.general.string(forType: .string)
-    }
-    
-    func setText(_ text: String) {
-        NSPasteboard.general.declareTypes([.string], owner: nil)
-        NSPasteboard.general.setString(text, forType: .string)
-    }
-    
-    func containsText() -> Bool {
-        return getText() != nil
     }
 }
