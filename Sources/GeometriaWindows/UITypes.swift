@@ -1,4 +1,7 @@
 import WinSDK
+import ImagineUI
+
+// MARK: Type defs
 
 public struct Point {
     public static let zero: Self = .init(x: 0, y: 0)
@@ -23,6 +26,8 @@ public struct Rect {
     public var origin: Point
     public var size: Size
 }
+
+// MARK: App <-> Win32 Conversions
 
 extension Rect {
     internal init(from: RECT) {
@@ -68,5 +73,42 @@ extension POINT {
 extension Point {
     internal init<Integer: FixedWidthInteger>(x: Integer, y: Integer) {
         self.init(x: Int(x), y: Int(y))
+    }
+}
+
+// MARK: ImagineUI <-> App Conversions
+
+extension Rect {
+    init(from: UIRectangle) {
+        self.origin = Point(x: Int(from.x), y: Int(from.y))
+        self.size = Size(width: Int(from.width),
+                         height: Int(from.height))
+    }
+}
+
+extension UIIntSize {
+    init(from: Size) {
+        self.init(width: Int(from.width), height: Int(from.height))
+    }
+}
+
+extension Size {
+    var asUIIntSize: UIIntSize {
+        .init(width: width, height: height)
+    }
+
+    var asUISize: UISize {
+        .init(width: Double(width), height: Double(height))
+    }
+}
+
+// MARK: ImagineUI <-> Win32 Conversions
+
+extension RECT {
+    init(from: UIRectangle) {
+        self.init(left: LONG(from.location.x),
+                  top: LONG(from.location.y),
+                  right: LONG(from.location.x + from.size.width),
+                  bottom: LONG(from.location.y + from.size.height))
     }
 }

@@ -5,6 +5,7 @@ class Window {
     private let minSize: Size = Size(width: 200, height: 150)
     private var className: [WCHAR]
     var size: Size
+    var needsDisplay: Bool = false
 
     internal var hwnd: HWND?
 
@@ -24,13 +25,33 @@ class Window {
         ShowWindow(hwnd, SW_RESTORE)
     }
 
+    func updateAndPaint() {
+        onPaint()
+    }
+
+    func setNeedsDisplay(_ rect: Rect) {
+        var r = RECT(from: rect)
+        InvalidateRect(hwnd, &r, false)
+
+        needsDisplay = true
+    }
+
+    // MARK: Messaging
+
     func onPaint() {
         var ps = PAINTSTRUCT()
         let hdc: HDC = BeginPaint(hwnd, &ps)
-        defer { EndPaint(hwnd, &ps) }
+        defer { 
+            EndPaint(hwnd, &ps) 
+            needsDisplay = false
+        }
         
         // All painting occurs here, between BeginPaint and EndPaint.
         FillRect(hdc, &ps.rcPaint, GetSysColorBrush(COLOR_WINDOW))
+    }
+
+    func onResize() {
+
     }
 
     internal func initialize() {
@@ -85,8 +106,18 @@ class Window {
             return 0
 
         case WM_PAINT:
-            onPaint()
+            updateAndPaint()
 
+            return 0
+
+        case WM_SIZE:
+            let width = LOWORD(lParam);
+            let height = HIWORD(lParam);
+
+            size = Size(width: Int(width), height: Int(height))
+
+            onResize()
+            
             return 0
 
         case WM_GETMINMAXINFO:
