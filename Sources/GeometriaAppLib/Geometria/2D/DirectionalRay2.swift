@@ -3,11 +3,6 @@
 /// infinity.
 public typealias DirectionalRay2D = DirectionalRay2<Vector2D>
 
-/// Represents a 2D line as a pair of single-precision floating-point vectors
-/// describing where the ray starts and crosses before being projected to
-/// infinity.
-public typealias DirectionalRay2F = DirectionalRay2<Vector2F>
-
 /// Typealias for `DirectionalRay<V>`, where `V` is constrained to
 /// ``Vector2FloatingPoint``.
 public typealias DirectionalRay2<V: Vector2FloatingPoint> = DirectionalRay<V>

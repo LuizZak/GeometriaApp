@@ -54,10 +54,10 @@ class RendererCoordinator: RendererWorkerContext {
         self._renderer = renderer
         
         _renderingWorkerQueue = .init(label: "com.geometriaapp.rendering",
-                                qos: .default,
-                                attributes: .concurrent)
+                                      qos: .background,
+                                      attributes: .concurrent)
         _batchRequestQueue = .init(label: "com.geometriaapp.rendering.batcher",
-                                   qos: .default)
+                                   qos: .background)
         
         self.batcher = batcher
     }

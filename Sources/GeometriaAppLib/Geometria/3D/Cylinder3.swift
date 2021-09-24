@@ -7,15 +7,6 @@
 public typealias Cylinder3D = Cylinder3<Vector3D>
 
 /// Represents a regular 3-dimensional [Cylinder](https://en.wikipedia.org/wiki/Cylinder)
-/// as a pair of end points and a radius with double-precision floating-point
-/// numbers.
-public typealias Cylinder3F = Cylinder3<Vector3F>
-
-/// Represents a regular 3-dimensional [Cylinder](https://en.wikipedia.org/wiki/Cylinder)
-/// as a pair of end points and a radius with integers.
-public typealias Cylinder3i = Cylinder3<Vector3i>
-
-/// Represents a regular 3-dimensional [Cylinder](https://en.wikipedia.org/wiki/Cylinder)
 /// as a pair of end points and a radius.
 public struct Cylinder3<Vector: Vector3Type>: GeometricType {
     /// Convenience for `Vector.Scalar`.
@@ -37,8 +28,8 @@ public struct Cylinder3<Vector: Vector3Type>: GeometricType {
     }
 }
 
-extension Cylinder3: Equatable where Vector: Equatable, Scalar: Equatable { }
-extension Cylinder3: Hashable where Vector: Hashable, Scalar: Hashable { }
+extension Cylinder3: Equatable where Vector: Equatable { }
+extension Cylinder3: Hashable where Vector: Hashable { }
 
 public extension Cylinder3 {
     /// Returns a line segment with the same ``LineSegment/start`` and
@@ -56,7 +47,7 @@ public extension Cylinder3 {
     }
 }
 
-public extension Cylinder3 where Vector: Equatable, Scalar: Comparable & AdditiveArithmetic {
+public extension Cylinder3 where Vector: Equatable {
     /// Returns whether this cylinder's parameters produce a valid, non-empty
     /// cylinder.
     ///

@@ -4,13 +4,6 @@ import RealModule
 /// and Y radii.
 public typealias Ellipse2D = Ellipse2<Vector2D>
 
-/// Represents a 2D ellipse as a single-precision floating-point center with X
-/// and Y radii.
-public typealias Ellipse2F = Ellipse2<Vector2F>
-
-/// Represents a 2D ellipse as a integer center with X and Y radii.
-public typealias Ellipse2i = Ellipse2<Vector2i>
-
 /// Typealias for `Ellipsoid<V>`, where `V` is constrained to ``Vector2Type``.
 public typealias Ellipse2<V: Vector2Type> = Ellipsoid<V>
 

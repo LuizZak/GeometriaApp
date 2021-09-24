@@ -2,14 +2,6 @@
 /// which the infinite line crosses.
 public typealias Line2D = Line2<Vector2D>
 
-/// Represents a 2D line as a pair of single-precision floating-point vectors
-/// which the infinite line crosses.
-public typealias Line2F = Line2<Vector2F>
-
-/// Represents a 2D line as a pair of integer vectors which the infinite line
-/// crosses.
-public typealias Line2i = Line2<Vector2i>
-
 /// Typealias for `Line<V>`, where `V` is constrained to ``Vector2Type``.
 public typealias Line2<V: Vector2Type> = Line<V>
 

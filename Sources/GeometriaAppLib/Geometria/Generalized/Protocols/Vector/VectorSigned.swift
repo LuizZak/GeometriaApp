@@ -1,5 +1,5 @@
 /// Vector type where the components are signed numbers.
-public protocol VectorSigned: VectorMultiplicative where Scalar: SignedNumeric & Comparable {
+public protocol VectorSigned: VectorMultiplicative {
     /// Returns a ``VectorSigned`` where each component is the absolute magnitude
     /// of the components of this ``VectorSigned``.
     ///

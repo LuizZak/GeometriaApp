@@ -1,5 +1,5 @@
 /// Represents a `VectorType` with support for division.
-public protocol VectorDivisible: VectorMultiplicative where Scalar: DivisibleArithmetic {
+public protocol VectorDivisible: VectorMultiplicative {
     static func / (lhs: Self, rhs: Self) -> Self
     
     static func / (lhs: Self, rhs: Scalar) -> Self
@@ -27,7 +27,7 @@ public extension Collection {
     /// print(vectors.averageVector()) // Prints "(x: 1.0, y: 4.5)"
     /// ```
     @inlinable
-    func averageVector<V: VectorDivisible>() -> V where Element == V, V.Scalar: FloatingPoint {
+    func averageVector<V: VectorDivisible>() -> V where Element == V {
         if isEmpty {
             return .zero
         }

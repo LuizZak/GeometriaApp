@@ -2,14 +2,6 @@
 /// double-precision floating-point components.
 public typealias Triangle2D = Triangle2<Vector2D>
 
-/// Represents a 2D triangle as a trio of N-dimensional vectors with
-/// single-precision floating-point components.
-public typealias Triangle2F = Triangle2<Vector2F>
-
-/// Represents a 2D triangle as a trio of N-dimensional vectors with integer
-/// components.
-public typealias Triangle2i = Triangle2<Vector2i>
-
 /// Typealias for `Triangle<V>`, where `V` is constrained to ``Vector2Type``.
 public typealias Triangle2<V: Vector2Type> = Triangle<V>
 

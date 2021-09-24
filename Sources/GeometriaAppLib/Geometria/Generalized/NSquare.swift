@@ -24,8 +24,8 @@ public struct NSquare<Vector: VectorType>: GeometricType {
     }
 }
 
-extension NSquare: Equatable where Vector: Equatable, Scalar: Equatable { }
-extension NSquare: Hashable where Vector: Hashable, Scalar: Hashable { }
+extension NSquare: Equatable where Vector: Equatable { }
+extension NSquare: Hashable where Vector: Hashable { }
 
 extension NSquare: RectangleType & BoundableType where Vector: VectorAdditive {
     /// Returns the span of this ``NSquare``.

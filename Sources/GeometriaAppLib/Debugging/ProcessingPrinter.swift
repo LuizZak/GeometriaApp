@@ -29,7 +29,7 @@ class ProcessingPrinter {
         self.scale = scale
     }
     
-    func add<V: Vector2Type>(ellipse: Ellipsoid<V>) where V.Scalar: CustomStringConvertible {
+    func add<V: Vector2Type>(ellipse: Ellipsoid<V>) {
         addStrokeColorSet("0")
         addStrokeWeightSet("1 / scale")
         addNoFill()
@@ -37,7 +37,7 @@ class ProcessingPrinter {
         addDrawLine("")
     }
     
-    func add<V: Vector3FloatingPoint>(ellipse3: Ellipsoid<V>) where V.Scalar: CustomStringConvertible {
+    func add<V: Vector3FloatingPoint>(ellipse3: Ellipsoid<V>) {
         is3D = true
         addNoStroke()
         add3DSpaceBarBoilerplate(lineWeight: ellipse3.radius.maximalComponent)
@@ -49,14 +49,14 @@ class ProcessingPrinter {
         addDrawLine("")
     }
     
-    func add<Line: Line2Type>(line: Line) where Line.Vector.Scalar: CustomStringConvertible {
+    func add<Line: Line2Type>(line: Line) {
         addStrokeColorSet("0")
         addStrokeWeightSet("1 / scale")
         addDrawLine("line(\(vec2String(line.a)), \(vec2String(line.b)));")
         addDrawLine("")
     }
     
-    func add<Vector: Vector3Type>(ray: DirectionalRay3<Vector>) where Vector.Scalar: FloatingPoint & CustomStringConvertible {
+    func add<Vector: Vector3Type>(ray: DirectionalRay3<Vector>) {
         is3D = true
         
         addStrokeColorSet("255, 0, 0")
@@ -65,7 +65,7 @@ class ProcessingPrinter {
         addDrawLine("")
     }
     
-    func add<Line: Line3Type>(line: Line, color: String = "0") where Line.Vector.Scalar: SignedNumeric & CustomStringConvertible {
+    func add<Line: Line3Type>(line: Line, color: String = "0") {
         is3D = true
         
         addStrokeColorSet(color)
@@ -74,7 +74,7 @@ class ProcessingPrinter {
         addDrawLine("")
     }
     
-    func add<V: Vector2Type>(intersection result: ConvexLineIntersection<V>) where V.Scalar: CustomStringConvertible {
+    func add<V: Vector2Type>(intersection result: ConvexLineIntersection<V>) {
         switch result {
         case .contained, .noIntersection:
             break
@@ -86,7 +86,7 @@ class ProcessingPrinter {
         }
     }
     
-    func add<V: Vector3Type>(intersection result: ConvexLineIntersection<V>) where V.Scalar == Double {
+    func add<V: Vector3Type>(intersection result: ConvexLineIntersection<V>) {
         switch result {
         case .contained, .noIntersection:
             break
@@ -98,7 +98,7 @@ class ProcessingPrinter {
         }
     }
     
-    func add<V: Vector2Type>(pointNormal: PointNormal<V>) where V.Scalar: CustomStringConvertible {
+    func add<V: Vector2Type>(pointNormal: PointNormal<V>) {
         shouldPrintDrawNormal = true
         shouldPrintDrawTangent = true
         
@@ -110,7 +110,7 @@ class ProcessingPrinter {
         addDrawLine("")
     }
     
-    func add<V: Vector3Type>(pointNormal: PointNormal<V>) where V.Scalar == Double {
+    func add<V: Vector3Type>(pointNormal: PointNormal<V>) {
         shouldPrintDrawNormal = true
         
         add(sphere: Sphere3<V>(center: pointNormal.point, radius: 0.5))
@@ -120,26 +120,26 @@ class ProcessingPrinter {
         addDrawLine("drawNormal(\(vec3String(pointNormal.point)), \(vec3String(pointNormal.normal)));")
     }
     
-    func add<V: Vector2Type>(circle: Circle2<V>) where V.Scalar: SignedNumeric & CustomStringConvertible {
+    func add<V: Vector2Type>(circle: Circle2<V>) {
         addStrokeWeightSet("1 / scale")
         addStrokeColorSet("255, 0, 0, 100")
         addDrawLine("circle(\(vec2String(circle.center)), \(circle.radius));")
     }
     
-    func add<V: Vector2Additive & VectorDivisible>(aabb: AABB2<V>) where V.Scalar: SignedNumeric & CustomStringConvertible {
+    func add<V: Vector2Additive & VectorDivisible>(aabb: AABB2<V>) {
         addStrokeWeightSet("1 / scale")
         addStrokeColorSet("255, 0, 0, 100")
         addNoFill()
         addDrawLine("rect(\(vec2String(aabb.minimum)), \(vec2String(aabb.maximum)));")
     }
     
-    func add<V: Vector3Type>(sphere: Sphere3<V>) where V.Scalar: SignedNumeric & CustomStringConvertible {
+    func add<V: Vector3Type>(sphere: Sphere3<V>) {
         is3D = true
         
         addDrawLine("drawSphere(\(vec3String(sphere.center)), \(sphere.radius));")
     }
     
-    func add<V: Vector3Additive & VectorDivisible>(aabb: AABB3<V>) where V.Scalar: SignedNumeric & CustomStringConvertible {
+    func add<V: Vector3Additive & VectorDivisible>(aabb: AABB3<V>) {
         is3D = true
         
         add3DSpaceBarBoilerplate(lineWeight: 1.0)
@@ -514,20 +514,20 @@ class ProcessingPrinter {
     
     // MARK: - String printing
     
-    func vec3PVectorString<V: Vector3Type>(_ vec: V) -> String where V.Scalar: SignedNumeric & CustomStringConvertible {
+    func vec3PVectorString<V: Vector3Type>(_ vec: V) -> String {
         return "new PVector(\(vec3String(vec)))"
     }
     
-    func vec3String<V: Vector3Type>(_ vec: V) -> String where V.Scalar: SignedNumeric & CustomStringConvertible {
+    func vec3String<V: Vector3Type>(_ vec: V) -> String {
         return "\(vec.x), \(vec.y), \(vec.z)"
     }
     
-    func vec3String_pCoordinates<V: Vector3Type>(_ vec: V) -> String where V.Scalar: SignedNumeric & CustomStringConvertible {
+    func vec3String_pCoordinates<V: Vector3Type>(_ vec: V) -> String {
         // Flip Y-Z axis (in Processing positive Y axis is down and positive Z axis is towards the screen)
         return "\(vec.x), \(-vec.z), \(-vec.y)"
     }
     
-    func vec2String<V: Vector2Type>(_ vec: V) -> String where V.Scalar: CustomStringConvertible {
+    func vec2String<V: Vector2Type>(_ vec: V) -> String {
         "\(vec.x), \(vec.y)"
     }
     

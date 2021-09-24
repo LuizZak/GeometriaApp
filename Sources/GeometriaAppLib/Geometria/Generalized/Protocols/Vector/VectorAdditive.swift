@@ -1,6 +1,6 @@
 /// Represents a `VectorType` with addition and subtraction arithmetic
 /// operators available.
-public protocol VectorAdditive: VectorType, AdditiveArithmetic where Scalar: AdditiveArithmetic {
+public protocol VectorAdditive: VectorType, AdditiveArithmetic {
     /// Initializes a zero-valued `VectorType`
     ///
     /// ```swift

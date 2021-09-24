@@ -1,17 +1,12 @@
 import RealModule
 
 /// Represents a 3D point with three double-precision floating-point components
-public typealias Vector3D = Vector3<Double>
-
-/// Represents a 3D point with three single-precision floating-point components
-public typealias Vector3F = Vector3<Float>
-
-/// Represents a 3D point with three `Int` components
-public typealias Vector3i = Vector3<Int>
+public typealias Vector3D = Vector3//<Double>
 
 /// A three-component vector type
-public struct Vector3<Scalar>: Vector3Type {
-    public typealias SubVector2 = Vector2<Scalar>
+public struct Vector3: Hashable, Codable, Vector3Type {
+    public typealias Scalar = Double
+    public typealias SubVector2 = Vector2D
     
     /// X coordinate of this vector
     public var x: Scalar
@@ -46,13 +41,8 @@ public struct Vector3<Scalar>: Vector3Type {
     }
 }
 
-extension Vector3: Equatable where Scalar: Equatable { }
-extension Vector3: Hashable where Scalar: Hashable { }
-extension Vector3: Encodable where Scalar: Encodable { }
-extension Vector3: Decodable where Scalar: Decodable { }
-
 // swiftlint:disable shorthand_operator
-extension Vector3: VectorComparable where Scalar: Comparable {
+extension Vector3: VectorComparable {
     /// Returns the pointwise minimal Vector where each component is the minimal
     /// scalar value at each index for both vectors.
     @_transparent
@@ -104,7 +94,7 @@ extension Vector3: VectorComparable where Scalar: Comparable {
     }
 }
 
-extension Vector3: AdditiveArithmetic where Scalar: AdditiveArithmetic {
+extension Vector3: AdditiveArithmetic {
     /// A zero-value `Vector3` value where each component corresponds to its
     /// representation of `0`.
     @_transparent
@@ -113,7 +103,7 @@ extension Vector3: AdditiveArithmetic where Scalar: AdditiveArithmetic {
     }
 }
 
-extension Vector3: VectorAdditive where Scalar: AdditiveArithmetic {
+extension Vector3: VectorAdditive {
     @_transparent
     public static func + (lhs: Self, rhs: Self) -> Self {
         Self(x: lhs.x + rhs.x, y: lhs.y + rhs.y, z: lhs.z + rhs.z)
@@ -155,7 +145,7 @@ extension Vector3: VectorAdditive where Scalar: AdditiveArithmetic {
     }
 }
 
-extension Vector3: VectorMultiplicative where Scalar: Numeric {
+extension Vector3: VectorMultiplicative {
     /// A unit-value `Vector3Type` value where each component corresponds to its
     /// representation of `1`.
     @_transparent
@@ -201,15 +191,15 @@ extension Vector3: VectorMultiplicative where Scalar: Numeric {
     }
 }
 
-extension Vector3: Vector3Additive where Scalar: AdditiveArithmetic {
+extension Vector3: Vector3Additive {
     
 }
 
-extension Vector3: Vector3Multiplicative where Scalar: Numeric {
+extension Vector3: Vector3Multiplicative {
     
 }
 
-extension Vector3: VectorSigned where Scalar: SignedNumeric & Comparable {
+extension Vector3: VectorSigned {
     /// Returns a `Vector3` where each component is the absolute value of the
     /// components of this `Vector3`.
     @_transparent
@@ -231,7 +221,7 @@ extension Vector3: VectorSigned where Scalar: SignedNumeric & Comparable {
     }
 }
 
-extension Vector3: VectorDivisible where Scalar: DivisibleArithmetic {
+extension Vector3: VectorDivisible {
     @_transparent
     public static func / (lhs: Self, rhs: Self) -> Self {
         Self(x: lhs.x / rhs.x, y: lhs.y / rhs.y, z: lhs.z / rhs.z)
@@ -259,7 +249,7 @@ extension Vector3: VectorDivisible where Scalar: DivisibleArithmetic {
 }
 // swiftlint:enable shorthand_operator
 
-extension Vector3: VectorFloatingPoint where Scalar: DivisibleArithmetic & FloatingPoint {
+extension Vector3: VectorFloatingPoint {
     /// Returns the result of adding the product of the two given vectors to this
     /// vector, computed without intermediate rounding.
     ///
@@ -351,21 +341,18 @@ extension Vector3: VectorFloatingPoint where Scalar: DivisibleArithmetic & Float
     }
 }
 
-extension Vector3: SignedDistanceMeasurableType where Scalar: DivisibleArithmetic & FloatingPoint {
+extension Vector3: SignedDistanceMeasurableType {
     @_transparent
     public func signedDistance(to other: Self) -> Scalar {
         (self - other).length
     }
 }
 
-extension Vector3: Vector3FloatingPoint where Scalar: DivisibleArithmetic & FloatingPoint {
-    @_transparent
-    public init<V: Vector3Type>(_ vec: V) where V.Scalar: BinaryInteger {
-        self.init(x: Scalar(vec.x), y: Scalar(vec.y), z: Scalar(vec.z))
-    }
+extension Vector3: Vector3FloatingPoint {
+    
 }
 
-extension Vector3: VectorReal where Scalar: DivisibleArithmetic & Real {
+extension Vector3: VectorReal {
     @_transparent
     public static func pow(_ vec: Self, _ exponent: Int) -> Self {
         Self(x: Scalar.pow(vec.x, exponent),
@@ -381,7 +368,7 @@ extension Vector3: VectorReal where Scalar: DivisibleArithmetic & Real {
     }
 }
 
-extension Vector3: Vector3Real where Scalar: DivisibleArithmetic & Real {
+extension Vector3: Vector3Real {
     /// The XY-plane angle of this vector
     @_transparent
     public var azimuth: Scalar {

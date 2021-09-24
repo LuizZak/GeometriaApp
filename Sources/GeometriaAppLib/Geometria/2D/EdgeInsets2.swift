@@ -1,12 +1,6 @@
 /// Represents a 2D edge inset with double-precision floating-point parameters.
 public typealias EdgeInsets2D = EdgeInsets2<Vector2D>
 
-/// Represents a 2D edge inset with single-precision floating-point parameters.
-public typealias EdgeInsets2F = EdgeInsets2<Vector2F>
-
-/// Represents a 2D edge inset with integer parameters.
-public typealias EdgeInsets2i = EdgeInsets2<Vector2i>
-
 /// Represents a 2D edge inset as relative inset values for each of the four
 /// edges of a rectangular 2D perimeter.
 public struct EdgeInsets2<Vector: Vector2Type> {
@@ -39,10 +33,10 @@ public struct EdgeInsets2<Vector: Vector2Type> {
     }
 }
 
-extension EdgeInsets2: Equatable where Vector: Equatable, Scalar: Equatable { }
-extension EdgeInsets2: Hashable where Vector: Hashable, Scalar: Hashable { }
-extension EdgeInsets2: Encodable where Vector: Encodable, Scalar: Encodable { }
-extension EdgeInsets2: Decodable where Vector: Decodable, Scalar: Decodable { }
+extension EdgeInsets2: Equatable where Vector: Equatable { }
+extension EdgeInsets2: Hashable where Vector: Hashable { }
+extension EdgeInsets2: Encodable where Vector: Encodable { }
+extension EdgeInsets2: Decodable where Vector: Decodable { }
 
 public extension EdgeInsets2 where Vector: VectorAdditive {
     @_transparent

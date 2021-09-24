@@ -74,12 +74,6 @@ public extension RVector2D {
     }
 }
 
-public extension Vector2i {
-    var asBLPointI: BLPointI {
-        BLPointI(x: Int32(x), y: Int32(y))
-    }
-}
-
 public extension RectangleType where Vector == RVector2D {
     var asBLRect: BLRect {
         BLRect(location: location.asBLPoint, size: size.asBLSize)
@@ -122,7 +116,7 @@ public extension RPolyLine2D {
     }
 }
 
-extension BLBoxI: ConstructableRectangleType {
+extension BLBoxI {
     public var location: BLPointI {
         BLPointI(x: x0, y: y0)
     }
@@ -143,12 +137,8 @@ extension BLBoxI: ConstructableRectangleType {
     }
 }
 
-extension BLPointI: Vector2Type {
+extension BLPointI {
     public typealias Scalar = Int32
-    
-    public var asVector: Vector2i {
-        Vector2i(x: .init(x), y: .init(y))
-    }
     
     public init(repeating scalar: Scalar) {
         self.init(x: scalar, y: scalar)
@@ -200,12 +190,8 @@ extension BLSize: Vector2Type {
     }
 }
 
-extension BLSizeI: Vector2Type {
+extension BLSizeI {
     public typealias Scalar = Int32
-    
-    public var asVector2i: Vector2i {
-        return Vector2i(x: Int(w), y: Int(h))
-    }
 
     public var asViewportSize: ViewportSize {
         return ViewportSize(width: Int(w), height: Int(h))

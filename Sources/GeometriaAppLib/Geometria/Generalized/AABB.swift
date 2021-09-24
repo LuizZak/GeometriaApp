@@ -26,10 +26,10 @@ public struct AABB<Vector: VectorType>: GeometricType {
     }
 }
 
-extension AABB: Equatable where Vector: Equatable, Scalar: Equatable { }
-extension AABB: Hashable where Vector: Hashable, Scalar: Hashable { }
-extension AABB: Encodable where Vector: Encodable, Scalar: Encodable { }
-extension AABB: Decodable where Vector: Decodable, Scalar: Decodable { }
+extension AABB: Equatable where Vector: Equatable { }
+extension AABB: Hashable where Vector: Hashable { }
+extension AABB: Encodable where Vector: Encodable { }
+extension AABB: Decodable where Vector: Decodable { }
 
 extension AABB: BoundableType {
     /// Returns `self`.

@@ -1,4 +1,4 @@
-public extension Triangle where Scalar: Equatable {
+public extension Triangle {
     /// Defines the normalized [barycentric coordinates] for a ``Triangle``.
     ///
     /// [barycentric coordinates]: https://en.wikipedia.org/wiki/Barycentric_coordinate_system#Barycentric_coordinates_on_triangles
@@ -21,7 +21,7 @@ public extension Triangle where Scalar: Equatable {
     }
 }
 
-public extension Triangle.Coordinates where Vector.Scalar: AdditiveArithmetic {
+public extension Triangle.Coordinates {
     /// Returns zerod-out barycentric coordinates.
     @_transparent
     static var zero: Self { Self(wa: .zero, wb: .zero, wc: .zero) }

@@ -1,16 +1,20 @@
 import RealModule
 
 /// Represents a 2D point with two double-precision floating-point components
-public typealias Vector2D = Vector2<Double>
+public typealias Vector2D = Vector2//<Double>
 
+/*
 /// Represents a 2D point with two single-precision floating-point components
 public typealias Vector2F = Vector2<Float>
 
 /// Represents a 2D point with two `Int` components
 public typealias Vector2i = Vector2<Int>
+*/
 
 /// A two-component vector type
-public struct Vector2<Scalar>: Vector2Type {
+public struct Vector2: Hashable, Codable, Vector2Type {
+    public typealias Scalar = Double
+
     /// X coordinate of this vector
     public var x: Scalar
     
@@ -41,13 +45,8 @@ public struct Vector2<Scalar>: Vector2Type {
     }
 }
 
-extension Vector2: Equatable where Scalar: Equatable { }
-extension Vector2: Hashable where Scalar: Hashable { }
-extension Vector2: Encodable where Scalar: Encodable { }
-extension Vector2: Decodable where Scalar: Decodable { }
-
 // swiftlint:disable shorthand_operator
-extension Vector2: VectorComparable where Scalar: Comparable {
+extension Vector2: VectorComparable {
     /// Returns the pointwise minimal Vector where each component is the minimal
     /// scalar value at each index for both vectors.
     @_transparent
@@ -99,7 +98,7 @@ extension Vector2: VectorComparable where Scalar: Comparable {
     }
 }
 
-extension Vector2: AdditiveArithmetic where Scalar: AdditiveArithmetic {
+extension Vector2: AdditiveArithmetic {
     /// A zero-value `Vector2` value where each component corresponds to its
     /// representation of `0`.
     @_transparent
@@ -108,11 +107,11 @@ extension Vector2: AdditiveArithmetic where Scalar: AdditiveArithmetic {
     }
 }
 
-extension Vector2: VectorAdditive where Scalar: AdditiveArithmetic {
+extension Vector2: VectorAdditive {
     
 }
 
-extension Vector2: Vector2Additive where Scalar: AdditiveArithmetic {
+extension Vector2: Vector2Additive {
     @_transparent
     public static func + (lhs: Self, rhs: Self) -> Self {
         Self(x: lhs.x + rhs.x, y: lhs.y + rhs.y)
@@ -154,7 +153,7 @@ extension Vector2: Vector2Additive where Scalar: AdditiveArithmetic {
     }
 }
 
-extension Vector2: VectorMultiplicative where Scalar: Numeric {
+extension Vector2: VectorMultiplicative {
     /// A unit-value `Vector2Type` value where each component corresponds to its
     /// representation of `1`.
     @_transparent
@@ -199,11 +198,11 @@ extension Vector2: VectorMultiplicative where Scalar: Numeric {
     }
 }
 
-extension Vector2: Vector2Multiplicative where Scalar: Numeric {
+extension Vector2: Vector2Multiplicative {
     
 }
 
-extension Vector2: VectorSigned where Scalar: SignedNumeric & Comparable {
+extension Vector2: VectorSigned {
     /// Returns a `Vector2` where each component is the absolute value of the
     /// components of this `Vector2`.
     @_transparent
@@ -224,7 +223,7 @@ extension Vector2: VectorSigned where Scalar: SignedNumeric & Comparable {
     }
 }
 
-extension Vector2: Vector2Signed where Scalar: SignedNumeric & Comparable {
+extension Vector2: Vector2Signed {
     /// Makes this Vector perpendicular to its current position relative to the
     /// origin.
     /// This alters the vector instance.
@@ -268,7 +267,7 @@ extension Vector2: Vector2Signed where Scalar: SignedNumeric & Comparable {
     }
 }
 
-extension Vector2: VectorDivisible where Scalar: DivisibleArithmetic {
+extension Vector2: VectorDivisible {
     @_transparent
     public static func / (lhs: Self, rhs: Self) -> Self {
         Self(x: lhs.x / rhs.x, y: lhs.y / rhs.y)
@@ -296,7 +295,7 @@ extension Vector2: VectorDivisible where Scalar: DivisibleArithmetic {
 }
 // swiftlint:enable shorthand_operator
 
-extension Vector2: VectorFloatingPoint where Scalar: DivisibleArithmetic & FloatingPoint {
+extension Vector2: VectorFloatingPoint {
     /// Returns the result of adding the product of the two given vectors to this
     /// vector, computed without intermediate rounding.
     ///
@@ -383,21 +382,18 @@ extension Vector2: VectorFloatingPoint where Scalar: DivisibleArithmetic & Float
     }
 }
 
-extension Vector2: SignedDistanceMeasurableType where Scalar: DivisibleArithmetic & FloatingPoint {
+extension Vector2: SignedDistanceMeasurableType {
     @_transparent
     public func signedDistance(to other: Self) -> Scalar {
         (self - other).length
     }
 }
 
-extension Vector2: Vector2FloatingPoint where Scalar: DivisibleArithmetic & FloatingPoint {
-    @_transparent
-    public init<V: Vector2Type>(_ vec: V) where V.Scalar: BinaryInteger {
-        self.init(x: Scalar(vec.x), y: Scalar(vec.y))
-    }
+extension Vector2: Vector2FloatingPoint {
+    
 }
 
-extension Vector2: VectorReal where Scalar: DivisibleArithmetic & Real {
+extension Vector2: VectorReal {
     @_transparent
     public static func pow(_ vec: Self, _ exponent: Int) -> Self {
         Self(x: Scalar.pow(vec.x, exponent),
@@ -411,7 +407,7 @@ extension Vector2: VectorReal where Scalar: DivisibleArithmetic & Real {
     }
 }
 
-extension Vector2: Vector2Real where Scalar: DivisibleArithmetic & Real {
+extension Vector2: Vector2Real {
     /// Returns the angle in radians of the line formed by tracing from the
     /// origin (0, 0) to this `Vector2`.
     @_transparent
@@ -460,9 +456,9 @@ extension Vector2: Vector2Real where Scalar: DivisibleArithmetic & Real {
     @_transparent
     public static func matrix(scale: Self = .one,
                               rotate angle: Scalar = 0,
-                              translate: Self = Self(x: 0, y: 0)) -> Matrix3x2<Scalar> {
+                              translate: Self = Self(x: 0, y: 0)) -> Matrix3x2 {
         
-        Matrix3x2<Scalar>.transformation(xScale: scale.x,
+        Matrix3x2.transformation(xScale: scale.x,
                                        yScale: scale.y,
                                        angle: angle,
                                        xOffset: translate.x,
@@ -470,12 +466,12 @@ extension Vector2: Vector2Real where Scalar: DivisibleArithmetic & Real {
     }
     
     @_transparent
-    public static func * (lhs: Self, rhs: Matrix3x2<Scalar>) -> Self {
-        Matrix3x2<Scalar>.transformPoint(matrix: rhs, point: lhs)
+    public static func * (lhs: Self, rhs: Matrix3x2) -> Self {
+        Matrix3x2.transformPoint(matrix: rhs, point: lhs)
     }
     
     @_transparent
-    public static func *= (lhs: inout Self, rhs: Matrix3x2<Scalar>) {
-        lhs = Matrix3x2<Scalar>.transformPoint(matrix: rhs, point: lhs)
+    public static func *= (lhs: inout Self, rhs: Matrix3x2) {
+        lhs = Matrix3x2.transformPoint(matrix: rhs, point: lhs)
     }
 }

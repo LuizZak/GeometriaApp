@@ -3,15 +3,6 @@
 /// of the box's opposite corners.
 public typealias AABB2D = AABB2<Vector2D>
 
-/// Represents a 2D axis-aligned bounding box with two single-precision
-/// floating-point vectors that describe the minimal and maximal coordinates
-/// of the box's opposite corners.
-public typealias AABB2F = AABB2<Vector2F>
-
-/// Represents a 2D axis-aligned bounding box with two integer vectors that
-/// describe the minimal and maximal coordinates of the box's opposite corners.
-public typealias AABB2i = AABB2<Vector2i>
-
 /// Typealias for `AABB<V>`, where `V` is constrained to ``Vector2Type``.
 public typealias AABB2<V: Vector2Type> = AABB<V>
 

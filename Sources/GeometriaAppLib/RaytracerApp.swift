@@ -157,7 +157,7 @@ public class RaytracerApp: Blend2DApp {
         
         let scene = DemoScene.makeScene()
         
-        #if false
+        #if true
         
         let renderer = Raytracer(scene: scene,
                                  camera: Camera(viewportSize: viewportSize),

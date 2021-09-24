@@ -3,15 +3,6 @@
 /// infinity.
 public typealias Ray3D = Ray3<Vector3D>
 
-/// Represents a 3D line as a pair of single-precision floating-point vectors
-/// describing where the ray starts and crosses before being projected to
-/// infinity.
-public typealias Ray3F = Ray3<Vector3F>
-
-/// Represents a 3D line as a pair of integer vectors describing where the ray
-/// starts and crosses before being projected to infinity.
-public typealias Ray3i = Ray3<Vector3i>
-
 /// Typealias for `Ray<V>`, where `V` is constrained to ``Vector3Type``.
 public typealias Ray3<V: Vector3Type> = Ray<V>
 

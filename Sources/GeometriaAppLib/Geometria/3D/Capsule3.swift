@@ -4,18 +4,6 @@
 /// [Capsule]: https://en.wikipedia.org/wiki/Capsule_(geometry)
 public typealias Capsule3D = Capsule3<Vector3D>
 
-/// Represents a regular 3-dimensional [Capsule] as a pair of end points and a
-/// radius with single-precision floating-point numbers.
-///
-/// [Capsule]: https://en.wikipedia.org/wiki/Capsule_(geometry)
-public typealias Capsule3F = Capsule3<Vector3F>
-
-/// Represents a regular 3-dimensional [Capsule] as a pair of end points and a
-/// radius with integers.
-///
-/// [Capsule]: https://en.wikipedia.org/wiki/Capsule_(geometry)
-public typealias Capsule3i = Capsule3<Vector3i>
-
 /// Typealias for `NCapsule<V>`, where `V` is constrained to ``Vector3Type``.
 public typealias Capsule3<V: Vector3Type> = NCapsule<V>
 

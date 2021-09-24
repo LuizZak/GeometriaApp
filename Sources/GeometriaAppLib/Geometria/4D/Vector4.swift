@@ -1,17 +1,12 @@
 import RealModule
 
 /// Represents a 4D point with three double-precision floating-point components
-public typealias Vector4D = Vector4<Double>
-
-/// Represents a 4D point with three single-precision floating-point components
-public typealias Vector4F = Vector4<Float>
-
-/// Represents a 4D point with three `Int` components
-public typealias Vector4i = Vector4<Int>
+public typealias Vector4D = Vector4//<Double>
 
 /// A four-component vector type
-public struct Vector4<Scalar>: Vector4Type {
-    public typealias SubVector3 = Vector3<Scalar>
+public struct Vector4: Hashable, Codable, Vector4Type {
+    public typealias Scalar = Double
+    public typealias SubVector3 = Vector3D
     
     /// X coordinate of this vector
     public var x: Scalar
@@ -50,13 +45,8 @@ public struct Vector4<Scalar>: Vector4Type {
     }
 }
 
-extension Vector4: Equatable where Scalar: Equatable { }
-extension Vector4: Hashable where Scalar: Hashable { }
-extension Vector4: Encodable where Scalar: Encodable { }
-extension Vector4: Decodable where Scalar: Decodable { }
-
 // swiftlint:disable shorthand_operator
-extension Vector4: VectorComparable where Scalar: Comparable {
+extension Vector4: VectorComparable {
     /// Returns the pointwise minimal Vector where each component is the minimal
     /// scalar value at each index for both vectors.
     @_transparent
@@ -108,7 +98,7 @@ extension Vector4: VectorComparable where Scalar: Comparable {
     }
 }
 
-extension Vector4: AdditiveArithmetic where Scalar: AdditiveArithmetic {
+extension Vector4: AdditiveArithmetic {
     /// A zero-value `Vector4` value where each component corresponds to its
     /// representation of `0`.
     @_transparent
@@ -117,7 +107,7 @@ extension Vector4: AdditiveArithmetic where Scalar: AdditiveArithmetic {
     }
 }
 
-extension Vector4: VectorAdditive where Scalar: AdditiveArithmetic {
+extension Vector4: VectorAdditive {
     @_transparent
     public static func + (lhs: Self, rhs: Self) -> Self {
         Self(x: lhs.x + rhs.x, y: lhs.y + rhs.y, z: lhs.z + rhs.z, w: lhs.w + rhs.w)
@@ -159,7 +149,7 @@ extension Vector4: VectorAdditive where Scalar: AdditiveArithmetic {
     }
 }
 
-extension Vector4: VectorMultiplicative where Scalar: Numeric {
+extension Vector4: VectorMultiplicative {
     /// A unit-value `Vector4Type` value where each component corresponds to its
     /// representation of `4`.
     @_transparent
@@ -206,11 +196,11 @@ extension Vector4: VectorMultiplicative where Scalar: Numeric {
     }
 }
 
-extension Vector4: Vector4Additive where Scalar: AdditiveArithmetic {
+extension Vector4: Vector4Additive {
     
 }
 
-extension Vector4: VectorSigned where Scalar: SignedNumeric & Comparable {
+extension Vector4: VectorSigned {
     /// Returns a `Vector4` where each component is the absolute value of the
     /// components of this `Vector4`.
     @_transparent
@@ -233,7 +223,7 @@ extension Vector4: VectorSigned where Scalar: SignedNumeric & Comparable {
     }
 }
 
-extension Vector4: VectorDivisible where Scalar: DivisibleArithmetic {
+extension Vector4: VectorDivisible {
     @_transparent
     public static func / (lhs: Self, rhs: Self) -> Self {
         Self(x: lhs.x / rhs.x, y: lhs.y / rhs.y, z: lhs.z / rhs.z, w: lhs.w / rhs.w)
@@ -261,7 +251,7 @@ extension Vector4: VectorDivisible where Scalar: DivisibleArithmetic {
 }
 // swiftlint:enable shorthand_operator
 
-extension Vector4: VectorFloatingPoint where Scalar: DivisibleArithmetic & FloatingPoint {
+extension Vector4: VectorFloatingPoint {
     /// Returns the result of adding the product of the two given vectors to this
     /// vector, computed without intermediate rounding.
     ///
@@ -367,24 +357,18 @@ extension Vector4: VectorFloatingPoint where Scalar: DivisibleArithmetic & Float
     }
 }
 
-extension Vector4: SignedDistanceMeasurableType where Scalar: DivisibleArithmetic & FloatingPoint {
+extension Vector4: SignedDistanceMeasurableType {
     @_transparent
     public func signedDistance(to other: Self) -> Scalar {
         (self - other).length
     }
 }
 
-extension Vector4: Vector4FloatingPoint where Scalar: DivisibleArithmetic & FloatingPoint {
-    @_transparent
-    public init<V: Vector4Type>(_ vec: V) where V.Scalar: BinaryInteger {
-        self.init(x: Scalar(vec.x),
-                  y: Scalar(vec.y),
-                  z: Scalar(vec.z),
-                  w: Scalar(vec.w))
-    }
+extension Vector4: Vector4FloatingPoint {
+    
 }
 
-extension Vector4: VectorReal where Scalar: DivisibleArithmetic & Real {
+extension Vector4: VectorReal {
     @_transparent
     public static func pow(_ vec: Self, _ exponent: Int) -> Self {
         Self(x: Scalar.pow(vec.x, exponent),

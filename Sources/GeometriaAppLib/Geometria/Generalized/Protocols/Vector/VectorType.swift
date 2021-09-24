@@ -1,7 +1,7 @@
 /// Protocol for N-dimensional vector types.
 public protocol VectorType: GeometricType {
     /// The scalar type associated with this `VectorType`.
-    associatedtype Scalar
+    typealias Scalar = Double
     
     /// The number of scalars in the vector.
     var scalarCount: Int { get }

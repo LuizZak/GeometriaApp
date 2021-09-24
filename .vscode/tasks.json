@@ -2,21 +2,9 @@
     // See https://go.microsoft.com/fwlink/?LinkId=733558
     // for the documentation about the tasks.json format
     "version": "2.0.0",
-    "problemMatcher": {
-        "owner": "swift",
-        "fileLocation": "autoDetect",
-        "pattern": {
-            "regexp": "^(.*):(\\d+):(\\d+):\\s+(warning|error):\\s+(.*)$",
-            "file": 1,
-            "line": 2,
-            "column": 3,
-            "severity": 4,
-            "message": 5
-        }
-    },
     "tasks": [
         {
-            "label": "Build (debug)",
+            "label": "WinDbg ",
             "type": "shell",
             "command": "swift",
             "args": [
@@ -31,28 +19,6 @@
                 "kind": "build",
                 "isDefault": true
             },
-            "windows": {
-                "options": {
-                    "shell": {
-                        "executable": "C:\\WINDOWS\\System32\\cmd.exe",
-                        "args": [
-                            "/d",
-                            "/c",
-                        ]
-                    }
-                }
-            }
-        },
-        {
-            "label": "Build (Release)",
-            "type": "shell",
-            "command": "swift",
-            "args": [
-                "build",
-                "-c",
-                "release",
-            ],
-            "group": "build",
             "windows": {
                 "options": {
                     "shell": {

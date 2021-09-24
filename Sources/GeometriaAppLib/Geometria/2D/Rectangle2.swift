@@ -3,12 +3,6 @@ import RealModule
 /// Represents a double-precision floating-point 2D rectangle.
 public typealias Rectangle2D = Rectangle2<Vector2D>
 
-/// Represents a single-precision floating-point 2D rectangle.
-public typealias Rectangle2F = Rectangle2<Vector2F>
-
-/// Represents an integer 2D rectangle.
-public typealias Rectangle2i = Rectangle2<Vector2i>
-
 /// Typealias for `NRectangle<V>`, where `V` is constrained to ``Vector2Type``.
 public typealias Rectangle2<V: Vector2Type> = NRectangle<V>
 
@@ -120,7 +114,7 @@ public extension Rectangle2 where Vector: VectorReal {
     /// Applies the given Matrix on all corners of this Rectangle, returning a new
     /// minimal Rectangle capable of containing the transformed points.
     @_transparent
-    func transformedBounds(_ matrix: Matrix3x2<Scalar>) -> Self {
+    func transformedBounds(_ matrix: Matrix3x2) -> Self {
         matrix.transform(self)
     }
 }
@@ -145,7 +139,7 @@ public extension Rectangle2 where Vector: VectorMultiplicative {
     }
 }
 
-public extension Rectangle2 where Scalar: FloatingPoint {
+public extension Rectangle2 {
     /// Initializes a Rectangle with the coordinates of a rectangle.
     @_transparent
     init<B: BinaryInteger>(x: B, y: B, width: B, height: B) {
@@ -153,7 +147,7 @@ public extension Rectangle2 where Scalar: FloatingPoint {
     }
 }
 
-public extension Rectangle2 where Vector: VectorMultiplicative, Scalar: Comparable {
+public extension Rectangle2 where Vector: VectorMultiplicative {
     /// Returns an `Rectangle2` that is the intersection between this and another
     /// `Rectangle` instance.
     ///

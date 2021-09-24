@@ -27,7 +27,9 @@
 import RealModule
 
 /// Plain 4-row 4-column Matrix with real components.
-public struct Matrix4x4<Scalar: Real & DivisibleArithmetic>: MatrixType, CustomStringConvertible {
+public struct Matrix4x4: MatrixType, CustomStringConvertible {
+    public typealias Scalar = Double
+
     /// Returns a 4x4 [identity matrix].
     ///
     /// [identity matrix]: https://en.wikipedia.org/wiki/Identity_matrix
@@ -134,49 +136,49 @@ public struct Matrix4x4<Scalar: Real & DivisibleArithmetic>: MatrixType, CustomS
     }
     
     /// Gets the first row of this matrix in a Vector4.
-    public var r0Vec: Vector4<Scalar> {
+    public var r0Vec: Vector4D {
         @_transparent
         get { Vector4(r0) }
     }
     
     /// Gets the second row of this matrix in a Vector4.
-    public var r1Vec: Vector4<Scalar> {
+    public var r1Vec: Vector4D {
         @_transparent
         get { Vector4(r1) }
     }
     
     /// Gets the third row of this matrix in a Vector4.
-    public var r2Vec: Vector4<Scalar> {
+    public var r2Vec: Vector4D {
         @_transparent
         get { Vector4(r2) }
     }
     
     /// Gets the fourth row of this matrix in a Vector4.
-    public var r3Vec: Vector4<Scalar> {
+    public var r3Vec: Vector4D {
         @_transparent
         get { Vector4(r3) }
     }
     
     /// Gets the first column of this matrix in a Vector4.
-    public var c0Vec: Vector4<Scalar> {
+    public var c0Vec: Vector4D {
         @_transparent
         get { Vector4(c0) }
     }
     
     /// Gets the second column of this matrix in a Vector4.
-    public var c1Vec: Vector4<Scalar> {
+    public var c1Vec: Vector4D {
         @_transparent
         get { Vector4(c1) }
     }
     
     /// Gets the third column of this matrix in a Vector4.
-    public var c2Vec: Vector4<Scalar> {
+    public var c2Vec: Vector4D {
         @_transparent
         get { Vector4(c2) }
     }
     
     /// Gets the fourth column of this matrix in a Vector4.
-    public var c3Vec: Vector4<Scalar> {
+    public var c3Vec: Vector4D {
         @_transparent
         get { Vector4(c3) }
     }
@@ -285,7 +287,7 @@ public struct Matrix4x4<Scalar: Real & DivisibleArithmetic>: MatrixType, CustomS
     /// Initializes a new matrix with the given ``Vector4`` values as the values
     /// for each row.
     @_transparent
-    public init<Vector: Vector4Type>(rows: (Vector, Vector, Vector, Vector)) where Vector.Scalar == Scalar {
+    public init<Vector: Vector4Type>(rows: (Vector, Vector, Vector, Vector)) {
         self.init(rows: (
             (rows.0.x, rows.0.y, rows.0.z, rows.0.w),
             (rows.1.x, rows.1.y, rows.1.z, rows.1.w),
@@ -356,28 +358,28 @@ public struct Matrix4x4<Scalar: Real & DivisibleArithmetic>: MatrixType, CustomS
         let (m, n, o, p) = r3
         
         let aMatrix =
-        Matrix3x3<Scalar>(rows: (
+        Matrix3x3(rows: (
             (f, g, h),
             (j, k, l),
             (n, o, p)
         ))
         
         let bMatrix =
-        Matrix3x3<Scalar>(rows: (
+        Matrix3x3(rows: (
             (e, g, h),
             (i, k, l),
             (m, o, p)
         ))
         
         let cMatrix =
-        Matrix3x3<Scalar>(rows: (
+        Matrix3x3(rows: (
             (e, f, h),
             (i, j, l),
             (m, n, p)
         ))
         
         let dMatrix =
-        Matrix3x3<Scalar>(rows: (
+        Matrix3x3(rows: (
             (e, f, g),
             (i, j, k),
             (m, n, o)
@@ -397,7 +399,7 @@ public struct Matrix4x4<Scalar: Real & DivisibleArithmetic>: MatrixType, CustomS
     /// Transforms a given vector as a point, applying scaling, rotation and
     /// translation to the vector.
     @_transparent
-    public func transformPoint<Vector: Vector4FloatingPoint>(_ vec: Vector) -> Vector where Vector.Scalar == Scalar {
+    public func transformPoint<Vector: Vector4FloatingPoint>(_ vec: Vector) -> Vector {
         let px = vec.dot(.init(r0Vec))
         let py = vec.dot(.init(r1Vec))
         let pz = vec.dot(.init(r2Vec))
@@ -409,7 +411,7 @@ public struct Matrix4x4<Scalar: Real & DivisibleArithmetic>: MatrixType, CustomS
     /// Transforms a given vector as a point, applying scaling, rotation and
     /// translation to the vector.
     @_transparent
-    public func transformPoint<Vector: Vector3FloatingPoint>(_ vec: Vector) -> Vector where Vector.Scalar == Scalar {
+    public func transformPoint<Vector: Vector3FloatingPoint>(_ vec: Vector) -> Vector {
         let vec4 = Vector4(vec, w: 1)
         
         let result = transformPoint(vec4)
@@ -508,7 +510,7 @@ public struct Matrix4x4<Scalar: Real & DivisibleArithmetic>: MatrixType, CustomS
     /// Creates a matrix that when applied to a vector, scales each coordinate
     /// by the corresponding coordinate on a supplied vector.
     @_transparent
-    public static func makeScale<Vector: Vector3Type>(_ vec: Vector) -> Self where Vector.Scalar == Scalar {
+    public static func makeScale<Vector: Vector3Type>(_ vec: Vector) -> Self {
         makeScale(x: vec.x, y: vec.y, z: vec.z)
     }
     
@@ -572,7 +574,7 @@ public struct Matrix4x4<Scalar: Real & DivisibleArithmetic>: MatrixType, CustomS
     /// Creates a translation matrix that when applied to a vector, moves it
     /// according to the specified amounts.
     @_transparent
-    public static func makeTranslation<Vector: Vector3Type>(_ vec: Vector) -> Self where Vector.Scalar == Scalar {
+    public static func makeTranslation<Vector: Vector3Type>(_ vec: Vector) -> Self {
         makeTranslation(x: vec.x, y: vec.y, z: vec.z)
     }
     
@@ -685,6 +687,6 @@ public struct Matrix4x4<Scalar: Real & DivisibleArithmetic>: MatrixType, CustomS
 
 /// Performs an equality check over a tuple of ``Matrix4x4`` values.
 @_transparent
-public func == <T>(_ lhs: Matrix4x4<T>.M, _ rhs: Matrix4x4<T>.M) -> Bool {
+public func == (_ lhs: Matrix4x4.M, _ rhs: Matrix4x4.M) -> Bool {
     lhs.0 == rhs.0 && lhs.1 == rhs.1 && lhs.2 == rhs.2 && lhs.3 == rhs.3
 }

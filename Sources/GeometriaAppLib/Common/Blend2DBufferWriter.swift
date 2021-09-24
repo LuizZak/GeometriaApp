@@ -3,7 +3,7 @@ import SwiftBlend2D
 
 class Blend2DBufferWriter: RendererBufferWriter {
     private let imageQueue = DispatchQueue(label: "com.geometriaapp.rendering.buffer",
-                                           qos: .default,
+                                           qos: .background,
                                            attributes: [.concurrent])
     private let image: BLImage
     private let imageData: BLImageData

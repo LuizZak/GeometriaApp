@@ -28,8 +28,8 @@ public struct NCapsule<Vector: VectorType>: GeometricType {
     }
 }
 
-extension NCapsule: Equatable where Vector: Equatable, Scalar: Equatable { }
-extension NCapsule: Hashable where Vector: Hashable, Scalar: Hashable { }
+extension NCapsule: Equatable where Vector: Equatable { }
+extension NCapsule: Hashable where Vector: Hashable { }
 
 public extension NCapsule {
     /// Returns a line segment with the same ``LineSegment/start`` and
@@ -54,7 +54,7 @@ public extension NCapsule {
     }
 }
 
-public extension NCapsule where Scalar: Comparable & AdditiveArithmetic {
+public extension NCapsule {
     /// Returns whether this N-capsule's parameters produce a valid, non-empty
     /// capsule.
     ///

@@ -1,5 +1,5 @@
 /// Protocol for Vectors that support multiplication
-public protocol VectorMultiplicative: VectorAdditive where Scalar: Numeric {
+public protocol VectorMultiplicative: VectorAdditive {
     /// A unit-value `VectorType` value where each component corresponds to its
     /// representation of `1`.
     static var one: Self { get }

@@ -3,11 +3,6 @@
 /// infinity.
 public typealias DirectionalRay3D = DirectionalRay3<Vector3D>
 
-/// Represents a 3D line as a pair of single-precision floating-point vectors
-/// describing where the ray starts and crosses before being projected to
-/// infinity.
-public typealias DirectionalRay3F = DirectionalRay3<Vector3F>
-
 /// Typealias for `DirectionalRay3<V>`, where `V` is constrained to
 /// ``Vector3FloatingPoint``.
 public typealias DirectionalRay3<V: Vector3FloatingPoint> = DirectionalRay<V>

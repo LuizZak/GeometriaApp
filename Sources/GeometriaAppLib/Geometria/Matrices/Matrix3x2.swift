@@ -53,14 +53,15 @@ import Foundation
 /// double-precision floating-point components.
 ///
 /// [affine transformations]: http://en.wikipedia.org/wiki/Affine_transformation
-public typealias Matrix3x2D = Matrix3x2<Double>
+public typealias Matrix3x2D = Matrix3x2
 
 /// Plain 3-row 2-column Matrix for 2D [affine transformations] with floating-point
 /// components.
 ///
 /// [affine transformations]: http://en.wikipedia.org/wiki/Affine_transformation
-public struct Matrix3x2<Scalar: FloatingPoint & ElementaryFunctions>: Hashable, CustomStringConvertible {
-    public typealias Vector = Vector2<Scalar>
+public struct Matrix3x2: Hashable, CustomStringConvertible {
+    public typealias Scalar = Double
+    public typealias Vector = Vector2D
     
     /// Gets the identity matrix.
     public static var identity: Self { Self(m11: 1, m12: 0,
@@ -610,11 +611,6 @@ public struct Matrix3x2<Scalar: FloatingPoint & ElementaryFunctions>: Hashable, 
     }
 }
 
-// MARK: Conformances
-
-extension Matrix3x2: Encodable where Scalar: Encodable { }
-extension Matrix3x2: Decodable where Scalar: Decodable { }
-
 // MARK: Geometry transformation
 
 public extension Matrix3x2 {
@@ -624,7 +620,7 @@ public extension Matrix3x2 {
     /// of the transformation, so scaling and rotating do not happen around the
     /// origin or center of the rectangle itself.
     @inlinable
-    func transform<V: Vector2Type & VectorAdditive & VectorComparable>(_ rect: NRectangle<V>) -> NRectangle<V> where V.Scalar == Scalar {
+    func transform<V: Vector2Type & VectorAdditive & VectorComparable>(_ rect: NRectangle<V>) -> NRectangle<V> {
         let topLeft = transform(rect.topLeft)
         let topRight = transform(rect.topRight)
         let bottomLeft = transform(rect.bottomLeft)
@@ -642,12 +638,12 @@ public extension Matrix3x2 {
     }
     
     @inlinable
-    func transform<V: Vector2Type>(_ point: V) -> V where V.Scalar == Scalar {
+    func transform<V: Vector2Type>(_ point: V) -> V {
         Self.transformPoint(matrix: self, point: point)
     }
     
     @inlinable
-    func transform<V: Vector2Type>(points: [V]) -> [V] where V.Scalar == Scalar {
+    func transform<V: Vector2Type>(points: [V]) -> [V] {
         points.map(transform(_:))
     }
 }

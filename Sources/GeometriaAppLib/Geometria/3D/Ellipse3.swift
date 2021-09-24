@@ -4,13 +4,6 @@ import RealModule
 /// Y, and Z radii.
 public typealias Ellipse3D = Ellipse3<Vector3D>
 
-/// Represents a 3D ellipse as a single-precision floating-point center with X,
-/// Y, and Z radii.
-public typealias Ellipse3F = Ellipse3<Vector3F>
-
-/// Represents a 3D ellipse as a integer center with X, Y, and Z radii.
-public typealias Ellipse3i = Ellipse3<Vector3i>
-
 /// Typealias for `Ellipsoid<V>`, where `V` is constrained to ``Vector3Type``.
 public typealias Ellipse3<V: Vector3Type> = Ellipsoid<V>
 

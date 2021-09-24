@@ -1,7 +1,9 @@
 import RealModule
 
 /// Plain 2-row 2-column Matrix with real components.
-public struct Matrix2x2<Scalar: Real & DivisibleArithmetic>: MatrixType, CustomStringConvertible {
+public struct Matrix2x2: MatrixType, CustomStringConvertible {
+    public typealias Scalar = Double
+
     /// Returns a 2x2 [identity matrix].
     ///
     /// [identity matrix]: https://en.wikipedia.org/wiki/Identity_matrix
@@ -66,25 +68,25 @@ public struct Matrix2x2<Scalar: Real & DivisibleArithmetic>: MatrixType, CustomS
     }
     
     /// Gets the first row of this matrix in a Vector2.
-    public var r0Vec: Vector2<Scalar> {
+    public var r0Vec: Vector2D {
         @_transparent
-        get { Vector2(r0) }
+        get { Vector2D(r0) }
     }
     
     /// Gets the second row of this matrix in a Vector2.
-    public var r1Vec: Vector2<Scalar> {
+    public var r1Vec: Vector2D {
         @_transparent
         get { Vector2(r1) }
     }
     
     /// Gets the first column of this matrix in a Vector2.
-    public var c0Vec: Vector2<Scalar> {
+    public var c0Vec: Vector2D {
         @_transparent
         get { Vector2(c0) }
     }
     
     /// Gets the second column of this matrix in a Vector2.
-    public var c1Vec: Vector2<Scalar> {
+    public var c1Vec: Vector2D {
         @_transparent
         get { Vector2(c1) }
     }
@@ -350,6 +352,6 @@ public struct Matrix2x2<Scalar: Real & DivisibleArithmetic>: MatrixType, CustomS
 
 /// Performs an equality check over a tuple of ``Matrix2x2`` values.
 @_transparent
-public func == <T>(_ lhs: Matrix2x2<T>.M, _ rhs: Matrix2x2<T>.M) -> Bool {
+public func == (_ lhs: Matrix2x2.M, _ rhs: Matrix2x2.M) -> Bool {
     lhs.0 == rhs.0 && lhs.1 == rhs.1
 }

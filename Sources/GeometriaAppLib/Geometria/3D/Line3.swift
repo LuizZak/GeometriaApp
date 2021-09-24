@@ -2,14 +2,6 @@
 /// which the infinite line crosses.
 public typealias Line3D = Line3<Vector3D>
 
-/// Represents a 3D line as a pair of single-precision floating-point vectors
-/// which the infinite line crosses.
-public typealias Line3F = Line3<Vector3F>
-
-/// Represents a 3D line as a pair of integer vectors which the infinite line
-/// crosses.
-public typealias Line3i = Line3<Vector3i>
-
 /// Typealias for `Line<V>`, where `V` is constrained to ``Vector3Type``.
 public typealias Line3<V: Vector3Type> = Line<V>
 

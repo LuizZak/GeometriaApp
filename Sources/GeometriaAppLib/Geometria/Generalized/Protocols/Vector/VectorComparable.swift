@@ -1,5 +1,5 @@
 /// Represents a `VectorType` with comparison operators available.
-public protocol VectorComparable: VectorType & Equatable where Scalar: Comparable {
+public protocol VectorComparable: VectorType & Equatable {
     /// Returns the index of the component of this vector that has the greatest
     /// value.
     ///

@@ -1,7 +1,9 @@
 import RealModule
 
 /// Plain 3-row 3-column Matrix with real components.
-public struct Matrix3x3<Scalar: Real & DivisibleArithmetic>: MatrixType, CustomStringConvertible {
+public struct Matrix3x3: MatrixType, CustomStringConvertible {
+    public typealias Scalar = Double
+
     /// Returns a 3x3 [identity matrix].
     ///
     /// [identity matrix]: https://en.wikipedia.org/wiki/Identity_matrix
@@ -87,37 +89,37 @@ public struct Matrix3x3<Scalar: Real & DivisibleArithmetic>: MatrixType, CustomS
     }
     
     /// Gets the first row of this matrix in a Vector3.
-    public var r0Vec: Vector3<Scalar> {
+    public var r0Vec: Vector3D {
         @_transparent
         get { Vector3(r0) }
     }
     
     /// Gets the second row of this matrix in a Vector3.
-    public var r1Vec: Vector3<Scalar> {
+    public var r1Vec: Vector3D {
         @_transparent
         get { Vector3(r1) }
     }
     
     /// Gets the third row of this matrix in a Vector3.
-    public var r2Vec: Vector3<Scalar> {
+    public var r2Vec: Vector3D {
         @_transparent
         get { Vector3(r2) }
     }
     
     /// Gets the first column of this matrix in a Vector3.
-    public var c0Vec: Vector3<Scalar> {
+    public var c0Vec: Vector3D {
         @_transparent
         get { Vector3(c0) }
     }
     
     /// Gets the second column of this matrix in a Vector3.
-    public var c1Vec: Vector3<Scalar> {
+    public var c1Vec: Vector3D {
         @_transparent
         get { Vector3(c1) }
     }
     
     /// Gets the third column of this matrix in a Vector3.
-    public var c2Vec: Vector3<Scalar> {
+    public var c2Vec: Vector3D {
         @_transparent
         get { Vector3(c2) }
     }
@@ -496,6 +498,6 @@ public struct Matrix3x3<Scalar: Real & DivisibleArithmetic>: MatrixType, CustomS
 
 /// Performs an equality check over a tuple of ``Matrix3x3`` values.
 @_transparent
-public func == <T>(_ lhs: Matrix3x3<T>.M, _ rhs: Matrix3x3<T>.M) -> Bool {
+public func == (_ lhs: Matrix3x3.M, _ rhs: Matrix3x3.M) -> Bool {
     lhs.0 == rhs.0 && lhs.1 == rhs.1 && lhs.2 == rhs.2
 }

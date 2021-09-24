@@ -22,10 +22,10 @@ public struct NSphere<Vector: VectorType>: GeometricType, CustomStringConvertibl
     }
 }
 
-extension NSphere: Equatable where Vector: Equatable, Scalar: Equatable { }
-extension NSphere: Hashable where Vector: Hashable, Scalar: Hashable { }
-extension NSphere: Encodable where Vector: Encodable, Scalar: Encodable { }
-extension NSphere: Decodable where Vector: Decodable, Scalar: Decodable { }
+extension NSphere: Equatable where Vector: Equatable { }
+extension NSphere: Hashable where Vector: Hashable { }
+extension NSphere: Encodable where Vector: Encodable { }
+extension NSphere: Decodable where Vector: Decodable { }
 
 public extension NSphere {
     /// Returns an ellipsoid with the same center point and radius parameters as
@@ -41,7 +41,7 @@ extension NSphere: BoundableType where Vector: VectorAdditive {
     }
 }
 
-public extension NSphere where Scalar: AdditiveArithmetic {
+public extension NSphere {
     /// Returns a new N-Sphere with the same center point as `self`, but with
     /// ``radius`` inflated by `value`.
     ///
@@ -64,7 +64,7 @@ public extension NSphere where Vector: VectorMultiplicative {
     }
 }
 
-public extension NSphere where Vector: VectorMultiplicative, Scalar: Comparable {
+public extension NSphere where Vector: VectorMultiplicative {
     /// Returns `true` if this N-sphere's area contains a given point by checking
     /// if the distance from the center of this N-sphere to the point is less than
     /// or equal to the radius of this N-sphere.

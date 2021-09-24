@@ -2,13 +2,6 @@
 /// floating-point 2D vertices.
 public typealias LinePolygon2D = LinePolygon2<Vector2D>
 
-/// Represents a 2D polygon as a series of connected single-precision
-/// floating-point 2D vertices.
-public typealias LinePolygon2F = LinePolygon2<Vector2F>
-
-/// Represents a 2D polygon as a series of connected integer 2D vertices.
-public typealias LinePolygon2i = LinePolygon2<Vector2i>
-
 /// Typealias for `LinePolygon<V>`, where `V` is constrained to ``Vector2Type``.
 public typealias LinePolygon2<V: Vector2Type> = LinePolygon<V>
 
