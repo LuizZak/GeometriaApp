@@ -51,7 +51,7 @@ class Window {
     }
 
     func onResize() {
-
+        
     }
 
     internal func initialize() {

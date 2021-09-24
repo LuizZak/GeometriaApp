@@ -2,7 +2,7 @@ import Foundation
 import WinSDK
 
 class Stopwatch {
-    static let frequency: LARGE_INTEGER = { 
+    private static let frequency: LARGE_INTEGER = { 
         var ret: LARGE_INTEGER
         ret = LARGE_INTEGER()
 
@@ -22,9 +22,13 @@ class Stopwatch {
         var end: LARGE_INTEGER = LARGE_INTEGER()
         QueryPerformanceCounter(&end)
 
-        let delta_us = (end.QuadPart - start.QuadPart) / Self.frequency.QuadPart
+        let delta_us = Double(end.QuadPart - start.QuadPart) / Double(Self.frequency.QuadPart)
         
-        return TimeInterval(delta_us) / 1_000_000
+        return delta_us
+    }
+
+    func restart() {
+        QueryPerformanceCounter(&start)
     }
     
     static func start() -> Stopwatch {

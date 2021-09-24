@@ -4,10 +4,13 @@ import SwiftBlend2D
 import WinSDK
 
 class MainWindow: Window {
+    private let refreshRate: Double = 60
+
     var app: Blend2DApp!
     var blImage: BLImage?
     var redrawBounds: [UIRectangle] = []
-    let stopwatch = Stopwatch.start()
+    let globalStopwatch = Stopwatch.start()
+    var updateStopwatch = Stopwatch.start()
 
     override func initialize() {
         super.initialize()
@@ -20,7 +23,7 @@ class MainWindow: Window {
             try UISettings.initialize(
                 .init(fontManager: Blend2DFontManager(),
                       defaultFontPath: fontUrl,
-                      timeInSecondsFunction: { [stopwatch] in stopwatch.timeIntervalSinceStart() })
+                      timeInSecondsFunction: { [globalStopwatch] in globalStopwatch.timeIntervalSinceStart() })
             )
             
             let app = RaytracerApp(width: size.width, height: size.height)
@@ -37,12 +40,17 @@ class MainWindow: Window {
 
     override func updateAndPaint() {
         update()
-
+        
         super.updateAndPaint()
     }
 
-    private func update() {
-        app.update(stopwatch.timeIntervalSinceStart())
+    func update() {
+        guard updateStopwatch.timeIntervalSinceStart() > (1 / refreshRate) else {
+            return
+        }
+        updateStopwatch.restart()
+
+        app.update(globalStopwatch.timeIntervalSinceStart())
         
         guard let first = redrawBounds.first else {
             return
@@ -50,7 +58,7 @@ class MainWindow: Window {
         guard let blImage = blImage else {
             return
         }
-        
+
         let options = BLContext.CreateOptions(threadCount: 4)
         
         let ctx = BLContext(image: blImage, options: options)!
@@ -59,11 +67,11 @@ class MainWindow: Window {
         
         ctx.flush(flags: .sync)
         ctx.end()
-        
+
         let reduced = redrawBounds.reduce(first, { $0.union($1) })
-        setNeedsDisplay(.init(from: reduced))
-        
         redrawBounds.removeAll()
+
+        setNeedsDisplay(.init(from: reduced))
     }
 
     private func resizeApp() {
@@ -74,8 +82,6 @@ class MainWindow: Window {
                           format: .xrgb32)
         
         redrawBounds.append(.init(location: .zero, size: size.asUISize))
-        
-        update()
     }
 
     override func onResize() {
@@ -91,40 +97,28 @@ class MainWindow: Window {
         guard let hdc = GetDC(hwnd) else {
             return
         }
-
         guard let blImage = blImage else {
             return
         }
-
+        
         let imageData = blImage.getImageData()
-        let length = imageData.stride * Int(imageData.size.h)
         
-        // Creating temp bitmap
-        let map = CreateBitmap(Int32(blImage.width), // width. 512 in my case
-                               Int32(blImage.height), // height
-                               1, // Color Planes, unfortanutelly don't know what is it actually. Let it be 1
-                               8*4, // Size of memory for one pixel in bits (in win32 4 bytes = 4*8 bits)
-                               imageData.pixelData) // pointer to array
+        let bitDepth: UINT = 32
+        let map = 
+        CreateBitmap(
+            Int32(blImage.width),
+            Int32(blImage.height),
+            1, 
+            bitDepth, 
+            imageData.pixelData
+        )
+        defer { DeleteObject(map) }
 
-        // Temp HDC to copy picture
-        let src = CreateCompatibleDC(hdc) // hdc - Device context for window, I've got earlier with GetDC(hWnd) or GetDC(NULL);
-        // print(imageData[x: 50, y: 50])
-        SelectObject(src, map) // Inserting picture into our temp HDC
+        let src = CreateCompatibleDC(hdc)
+        defer { DeleteDC(src) }
 
-        // Copy image from temp HDC to window
-        BitBlt(hdc, // Destination
-               0,  // x and
-               0,  // y - upper-left corner of place, where we'd like to copy
-               Int32(blImage.width), // width of the region
-               Int32(blImage.height), // height
-               src, // source
-               0,   // x and
-               0,   // y of upper left corner  of part of the source, from where we'd like to copy
-               SRCCOPY) // Defined DWORD to juct copy pixels. Watch more on msdn;
-        
-        DeleteObject(map)
-
-        DeleteDC(src) // Deleting temp HDC
+        SelectObject(src, map)
+        BitBlt(hdc, 0, 0, Int32(blImage.width), Int32(blImage.height), src, 0, 0, SRCCOPY)
     }
 }
 
