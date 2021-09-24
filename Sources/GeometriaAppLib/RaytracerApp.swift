@@ -287,7 +287,7 @@ public class RaytracerApp: Blend2DApp {
     }
     
     func invalidateAll() {
-        delegate?.invalidate(bounds: .init(x: 0, y: 0, width: width, height: height))
+        delegate?.invalidate(bounds: .init(x: 0, y: 0, width: Double(width), height: Double(height)))
     }
     
     public func render(context ctx: BLContext) {
@@ -339,8 +339,8 @@ public class RaytracerApp: Blend2DApp {
         let renderer = Blend2DRenderer(context: ctx)
         let layout = TextLayout(font: _font, text: text)
         
-        let textPoint = bottomLeft.asUIVector - UIVector(x: -textInset.x / 2, y: layout.size.y + textInset.y / 2)
-        let boxPoint = bottomLeft.asUIVector - UIVector(x: 0, y: layout.size.y + textInset.y)
+        let textPoint = bottomLeft.asUIVector - UIVector(x: -textInset.x / 2, y: layout.size.width + textInset.y / 2)
+        let boxPoint = bottomLeft.asUIVector - UIVector(x: 0, y: layout.size.height + textInset.y)
         
         let textBox = UIRectangle(location: boxPoint, size: layout.size + textInset)
         

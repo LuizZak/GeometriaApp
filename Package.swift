@@ -5,6 +5,7 @@ var packageDependencies: [Package.Dependency] =  [
     // TODO: When Swift properly supports -Xswiftc -cross-module-optimization, re-enable external Geometria import.
     // TODO: For now, code is embedded directly into this repository.
     // .package(url: "https://github.com/LuizZak/Geometria.git", branch: "main"),
+    .package(url: "https://github.com/apple/swift-numerics.git", from: "1.0.0"),
     .package(url: "https://github.com/LuizZak/ImagineUI.git", .branch("master")),    //.package(url: "https://github.com/LuizZak/ImagineUI.git", branch: "master"),
     .package(name: "SwiftBlend2D", url: "https://github.com/LuizZak/swift-blend2d.git", .branch("master")), //.package(url: "https://github.com/LuizZak/swift-blend2d.git", branch: "master")
     .package(url: "https://github.com/apple/swift-log.git", .branch("main")),
@@ -18,6 +19,7 @@ var geometriaAppLibTarget: Target = .target(
 name: "GeometriaAppLib",
 dependencies: [
     // "Geometria",
+    .product(name: "Numerics", package: "swift-numerics"),
     "ImagineUI",
     "SwiftBlend2D",
 ],

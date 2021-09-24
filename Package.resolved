@@ -11,20 +11,11 @@
         }
       },
       {
-        "package": "Geometria",
-        "repositoryURL": "https://github.com/LuizZak/Geometria.git",
-        "state": {
-          "branch": "main",
-          "revision": "8a63ecd25c7bbb00ea9493e796730a9565f90cd7",
-          "version": null
-        }
-      },
-      {
         "package": "ImagineUI",
         "repositoryURL": "https://github.com/LuizZak/ImagineUI.git",
         "state": {
           "branch": "master",
-          "revision": "cf924d399dc11dd2f7f22bbb6e40e9337a0d8fdb",
+          "revision": "c87a6f95e217b9c0776594513cde5b2deea42ad5",
           "version": null
         }
       },
@@ -57,7 +48,7 @@
       },
       {
         "package": "swift-numerics",
-        "repositoryURL": "https://github.com/apple/swift-numerics",
+        "repositoryURL": "https://github.com/apple/swift-numerics.git",
         "state": {
           "branch": null,
           "revision": "0a23770641f65a4de61daf5425a37ae32a3fd00d",

@@ -1,5 +1,3 @@
-import Geometria
-
 class ProcessingPrinter {
     private var _lastStrokeColorCall: String? = ""
     private var _lastStrokeWeightCall: String? = ""

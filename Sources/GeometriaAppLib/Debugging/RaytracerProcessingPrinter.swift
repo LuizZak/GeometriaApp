@@ -1,5 +1,3 @@
-import Geometria
-
 class RaytracerProcessingPrinter: ProcessingPrinter {
     var addedGeometry: [SceneGeometry] = []
     var sceneCamera: Camera?

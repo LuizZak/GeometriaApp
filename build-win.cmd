@@ -3,7 +3,12 @@
 @SET CONFIG=%1
 @if not defined CONFIG @SET CONFIG=debug
 
-swift build -c=%CONFIG%
+@SET BUILD_ARGS=-c=%CONFIG%
+
+@REM TODO: Enable -cross-module-optimization once Swift compiler properly supports it without crashing
+@REM @if %CONFIG%==release @SET BUILD_ARGS=%BUILD_ARGS% -Xswiftc -cross-module-optimization
+
+swift build %BUILD_ARGS%
 
 @if %errorlevel% neq 0 @exit /b %errorlevel%
 

@@ -1,5 +1,4 @@
 import WinSDK
-import Geometria
 
 public struct Point {
     public static let zero: Self = .init(x: 0, y: 0)

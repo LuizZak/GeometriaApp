@@ -16,7 +16,7 @@ class MainWindow: Window {
         let fontUrl = Resources.bundle.path(forResource: "NotoSans-Regular", ofType: "ttf")!
         
         let stopwatch = Stopwatch.start()
-
+        
         do {
             try UISettings.initialize(
                 .init(fontManager: Blend2DFontManager(),

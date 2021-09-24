@@ -53,7 +53,7 @@ class ImagineUIWrapper {
         self.height = height
         
         rootView.location = .zero
-        rootView.size = .init(x: Double(width), y: Double(height))
+        rootView.size = .init(width: Double(width), height: Double(height))
         
         bounds = BLRect(location: .zero, size: BLSize(w: Double(width), h: Double(height)))
         currentRedrawRegion = bounds.asRectangle

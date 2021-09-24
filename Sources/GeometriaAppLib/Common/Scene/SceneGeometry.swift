@@ -1,5 +1,4 @@
 import blend2d
-import Geometria
 
 // TODO: Split raytracing and distance function components into separate types
 // TODO: to try to clean up this implementation.
