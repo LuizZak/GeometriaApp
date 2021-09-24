@@ -1,9 +1,11 @@
+import ImagineUI
+
 /// Splits the viewport into squares to render.
 class TiledBatcher: RenderingBatcher {
     typealias Pixel = PixelCoord
-    typealias PixelRect = Rectangle2<Pixel>
+    typealias PixelRect = UIIntRectangle
     
-    private var viewportSize: PixelCoord = .zero
+    private var viewportSize: ViewportSize = .zero
     private var tiles: [Tile] = []
     private var nextTileIndex: Int = 0
     private var tileSize: Int
@@ -17,10 +19,10 @@ class TiledBatcher: RenderingBatcher {
     
     private(set) var hasBatches: Bool = false
     
-    convenience init(splitting viewportSize: PixelCoord, estimatedThreadCount: Int, shuffleOrder: Bool = false) {
+    convenience init(splitting viewportSize: ViewportSize, estimatedThreadCount: Int, shuffleOrder: Bool = false) {
         let tileSize = viewportSize / (estimatedThreadCount * 2)
         
-        self.init(tileSize: tileSize.maximalComponent, shuffleOrder: shuffleOrder)
+        self.init(tileSize: max(tileSize.width, tileSize.height), shuffleOrder: shuffleOrder)
     }
     
     init(tileSize: Int, shuffleOrder: Bool = false) {
@@ -28,7 +30,7 @@ class TiledBatcher: RenderingBatcher {
         self.shuffleOrder = shuffleOrder
     }
     
-    func initialize(viewportSize: PixelCoord) {
+    func initialize(viewportSize: ViewportSize) {
         self.viewportSize = viewportSize
         nextTileIndex = 0
         
@@ -52,8 +54,8 @@ class TiledBatcher: RenderingBatcher {
         
         let viewRect = PixelRect(location: .zero, size: viewportSize)
         
-        let tilesX = Int((Double(viewportSize.x) / Double(tileSize)).rounded(.up))
-        let tilesY = Int((Double(viewportSize.y) / Double(tileSize)).rounded(.up))
+        let tilesX = Int((Double(viewportSize.width) / Double(tileSize)).rounded(.up))
+        let tilesY = Int((Double(viewportSize.height) / Double(tileSize)).rounded(.up))
         
         for i in 0..<tilesY {
             let y = i * tileSize

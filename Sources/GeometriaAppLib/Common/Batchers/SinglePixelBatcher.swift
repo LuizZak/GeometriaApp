@@ -2,7 +2,7 @@
 /// Used for debugging.
 class SinglePixelBatcher: RenderingBatcher {
     let displayName: String = "Single pixel"
-    var viewportSize: PixelCoord = .zero
+    var viewportSize: ViewportSize = .zero
     var batchesServedProgress: Double = 0
     var hasBatches: Bool = true
     var pixel: PixelCoord
@@ -11,7 +11,7 @@ class SinglePixelBatcher: RenderingBatcher {
         self.pixel = pixel
     }
     
-    func initialize(viewportSize: PixelCoord) {
+    func initialize(viewportSize: ViewportSize) {
         self.hasBatches = true
         self.viewportSize = viewportSize
     }

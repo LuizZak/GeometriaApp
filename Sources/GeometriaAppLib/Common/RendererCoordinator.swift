@@ -29,7 +29,7 @@ class RendererCoordinator: RendererWorkerContext {
     
     @Event var stateDidChange: EventSource<State>
     
-    var viewportSize: PixelCoord
+    var viewportSize: ViewportSize
     var buffer: RendererBufferWriter
     var hasWork: Bool = true
     
@@ -42,7 +42,7 @@ class RendererCoordinator: RendererWorkerContext {
     var batcher: RenderingBatcher
     
     init(renderer: RendererType,
-         viewportSize: PixelCoord,
+         viewportSize: ViewportSize,
          buffer: RendererBufferWriter,
          threadCount: Int,
          batcher: RenderingBatcher) {
@@ -68,7 +68,7 @@ class RendererCoordinator: RendererWorkerContext {
     
     func initialize() {
         hasWork = true
-        _totalPixels = Int64(viewportSize.x) * Int64(viewportSize.y)
+        _totalPixels = Int64(viewportSize.width) * Int64(viewportSize.height)
         currentPixels = 0
         buffer.clearAll(color: .white)
         

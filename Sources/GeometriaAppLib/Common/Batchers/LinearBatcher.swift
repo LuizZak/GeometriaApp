@@ -1,9 +1,11 @@
+import ImagineUI
+
 /// A batcher that serves pixels to render in straight lines, weaving around
 /// the screen space.
 class LinearBatcher: RenderingBatcher {
     private var initialized: Bool = false
     private let direction: Direction
-    private var viewportSize: PixelCoord = .zero
+    private var viewportSize: ViewportSize = .zero
     
     /// List of starts of lines to feed threads
     private var lines: [PixelCoord] = []
@@ -24,7 +26,7 @@ class LinearBatcher: RenderingBatcher {
         self.direction = direction
     }
     
-    func initialize(viewportSize: PixelCoord) {
+    func initialize(viewportSize: ViewportSize) {
         self.viewportSize = viewportSize
         initialized = true
         hasBatches = true
@@ -47,12 +49,12 @@ class LinearBatcher: RenderingBatcher {
         let maxLength: Int
         switch direction {
         case .horizontal:
-            maxLength = viewportSize.x
+            maxLength = viewportSize.width
         case .vertical:
-            maxLength = viewportSize.y
+            maxLength = viewportSize.height
         }
         
-        assert(lines[nextLineIndex] < viewportSize)
+        assert(lines[nextLineIndex].asUIIntSize < viewportSize)
         
         return LineBatch(coord: lines[nextLineIndex], direction: direction, maxLength: maxLength)
     }
@@ -63,9 +65,9 @@ class LinearBatcher: RenderingBatcher {
         let lastLine: Int
         switch direction {
         case .horizontal:
-            lastLine = viewportSize.y
+            lastLine = viewportSize.height
         case .vertical:
-            lastLine = viewportSize.x
+            lastLine = viewportSize.width
         }
         
         for i in 0..<lastLine {

@@ -14,13 +14,17 @@ class ProcessingPrinter {
     
     var buffer: String = ""
     
-    var size: PixelCoord
+    var size: RVector2D
     var scale: Double
     
     var drawOrigin: Bool = true
     var drawGrid: Bool = false
+
+    convenience init(size: ViewportSize, scale: Double = 25.0) {
+        self.init(size: RVector2D(size), scale: scale)
+    }
     
-    init(size: PixelCoord = .init(x: 800, y: 600), scale: Double = 25.0) {
+    init(size: RVector2D = .init(x: 800, y: 600), scale: Double = 25.0) {
         self.size = size
         self.scale = scale
     }

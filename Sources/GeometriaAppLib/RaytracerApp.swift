@@ -139,7 +139,7 @@ public class RaytracerApp: Blend2DApp {
         }
         
         let image = BLImage(width: width, height: height, format: .prgb32)
-        let viewportSize = image.size.asVector2i
+        let viewportSize = image.size.asViewportSize
         
         let buffer = Blend2DBufferWriter(image: image)
         self.buffer = buffer

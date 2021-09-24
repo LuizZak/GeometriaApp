@@ -1,4 +1,5 @@
 import SwiftBlend2D
+import ImagineUI
 
 /// Class that performs raymarching on a scene.
 final class Raymarcher: RendererType {
@@ -9,9 +10,9 @@ final class Raymarcher: RendererType {
     var maxBounces: Int = 5
     var scene: Scene
     var camera: Camera
-    var viewportSize: PixelCoord
+    var viewportSize: ViewportSize
     
-    init(scene: Scene, camera: Camera, viewportSize: PixelCoord) {
+    init(scene: Scene, camera: Camera, viewportSize: ViewportSize) {
         self.scene = scene
         self.camera = camera
         self.viewportSize = viewportSize
@@ -31,7 +32,7 @@ final class Raymarcher: RendererType {
         
         processingPrinter =
         RaytracerProcessingPrinter(
-            viewportSize: viewportSize,
+            viewportSize: RVector2D(viewportSize),
             sceneCamera: camera
         )
     }

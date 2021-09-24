@@ -1,3 +1,5 @@
+import ImagineUI
+
 struct Camera {
     var cameraPlane: ProjectivePointNormalPlane3<RVector3D> =
         .makeCorrectedPlane(point: RVector3D.unitZ * 5,
@@ -21,13 +23,13 @@ struct Camera {
     var cameraDownsize: Double = 0.3
     var cameraSizeScale: Double = 0.1
     
-    var viewportSize: PixelCoord {
+    var viewportSize: ViewportSize {
         didSet {
             recomputeCamera()
         }
     }
     
-    init(viewportSize: PixelCoord) {
+    init(viewportSize: ViewportSize) {
         self.viewportSize = viewportSize
         
         recomputeCamera()
@@ -35,7 +37,7 @@ struct Camera {
     
     mutating func recomputeCamera() {
         cameraSizeScale = (cameraSizeInWorld / RVector2D(viewportSize)).maximalComponent * cameraDownsize
-        cameraPlane.point.z = Double(viewportSize.y) * cameraSizeScale + cameraZOffset
+        cameraPlane.point.z = Double(viewportSize.height) * cameraSizeScale + cameraZOffset
         cameraCenterPoint = cameraPlane.point + cameraPlane.normal * cameraCenterOffset
     }
     

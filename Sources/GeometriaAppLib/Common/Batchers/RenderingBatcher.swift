@@ -15,7 +15,7 @@ protocol RenderingBatcher {
     
     /// Initializes this batcher to its initial state with a given viewport size.
     /// Must be invoked before ``nextBatch(maxSize:)``.
-    mutating func initialize(viewportSize: PixelCoord)
+    mutating func initialize(viewportSize: ViewportSize)
     
     /// Returns a new batch of screen-space pixels to render.
     /// 

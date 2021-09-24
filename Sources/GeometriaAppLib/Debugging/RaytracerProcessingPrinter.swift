@@ -1,8 +1,8 @@
 class RaytracerProcessingPrinter: ProcessingPrinter {
     var addedGeometry: [SceneGeometry] = []
     var sceneCamera: Camera?
-    
-    init(viewportSize: PixelCoord, sceneCamera: Camera? = nil) {
+
+    init(viewportSize: RVector2D, sceneCamera: Camera? = nil) {
         self.sceneCamera = sceneCamera
         super.init(size: viewportSize, scale: 1.5)
     }
@@ -70,8 +70,8 @@ class RaytracerProcessingPrinter: ProcessingPrinter {
 }
 
 extension RaytracerProcessingPrinter {
-    static func withRaytracerPrinter(viewportSize: PixelCoord, _ block: (RaytracerProcessingPrinter) -> Void) {
-        let printer = RaytracerProcessingPrinter(viewportSize: viewportSize)
+    static func withRaytracerPrinter(viewportSize: ViewportSize, _ block: (RaytracerProcessingPrinter) -> Void) {
+        let printer = RaytracerProcessingPrinter(viewportSize: RVector2D(viewportSize))
         
         block(printer)
         

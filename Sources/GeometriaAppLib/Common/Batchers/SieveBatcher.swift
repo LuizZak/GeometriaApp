@@ -31,7 +31,7 @@ class SieveBatcher: RenderingBatcher {
     
     /// Boolean map of all pixels that have been served
     private var servedPixelsMap: [Bool] = []
-    private var viewportSize: PixelCoordinates = .zero
+    private var viewportSize: ViewportSize = .zero
     
     fileprivate var pixelCount: Int = 0
     fileprivate var isRunning: Bool = true
@@ -48,9 +48,9 @@ class SieveBatcher: RenderingBatcher {
         
     }
     
-    func initialize(viewportSize: PixelCoordinates) {
+    func initialize(viewportSize: ViewportSize) {
         self.viewportSize = viewportSize
-        pixelCount = viewportSize.x * viewportSize.y
+        pixelCount = viewportSize.width * viewportSize.height
         servedPixelsMap = .init(repeating: false, count: pixelCount)
         fillMultiplesCounters()
         
@@ -143,10 +143,10 @@ class SieveBatcher: RenderingBatcher {
     
     class BaseCounter: IndexCounter {
         fileprivate weak var context: IndexCounterContext?
-        var viewportSize: PixelCoordinates
+        var viewportSize: ViewportSize
         var isAtEnd: Bool = false
         
-        fileprivate init(viewportSize: PixelCoordinates, context: IndexCounterContext?) {
+        fileprivate init(viewportSize: ViewportSize, context: IndexCounterContext?) {
             self.viewportSize = viewportSize
             self.context = context
         }
@@ -165,8 +165,8 @@ class SieveBatcher: RenderingBatcher {
             
             assert(p < context.pixelCount)
             
-            let x = p % viewportSize.x
-            let y = p / viewportSize.x
+            let x = p % viewportSize.width
+            let y = p / viewportSize.width
             
             return PixelCoordinates(x: x, y: y)
         }
@@ -190,7 +190,7 @@ class SieveBatcher: RenderingBatcher {
         var prime: Int
         var multiple: Int
         
-        fileprivate init(prime: Int, viewportSize: PixelCoordinates, context: IndexCounterContext?, multiple: Int = 1) {
+        fileprivate init(prime: Int, viewportSize: ViewportSize, context: IndexCounterContext?, multiple: Int = 1) {
             self.prime = prime
             self.multiple = multiple
             
@@ -212,7 +212,7 @@ class SieveBatcher: RenderingBatcher {
         var prime: Int
         var nextPrimeIndex: Int
         
-        fileprivate init(prime: Int, nextPrimeIndex: Int, viewportSize: PixelCoordinates, context: IndexCounterContext?) {
+        fileprivate init(prime: Int, nextPrimeIndex: Int, viewportSize: ViewportSize, context: IndexCounterContext?) {
             self.prime = prime
             self.nextPrimeIndex = nextPrimeIndex
             

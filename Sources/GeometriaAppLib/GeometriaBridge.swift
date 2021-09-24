@@ -47,7 +47,10 @@ public typealias RPlane3D = PointNormalPlane3<RVector3D>
 public typealias RRay3D = DirectionalRay3<RVector3D>
 
 /// Screen-space pixel coordinates
-public typealias PixelCoord = Vector2i
+public typealias PixelCoord = UIIntPoint //Vector2i
+
+/// Screen-space size
+public typealias ViewportSize = UIIntSize //Vector2i
 
 public extension RVector2D {
     var asBLPoint: BLPoint {
@@ -56,6 +59,18 @@ public extension RVector2D {
     
     var asBLSize: BLSize {
         return BLSize(w: x, h: y)
+    }
+
+    init(_ point: UIIntPoint) {
+        self.init(x: Double(point.x), y: Double(point.y))
+    }
+
+    init(_ size: UISize) {
+        self.init(x: size.width, y: size.height)
+    }
+
+    init(_ size: UIIntSize) {
+        self.init(x: Double(size.width), y: Double(size.height))
     }
 }
 
@@ -190,6 +205,10 @@ extension BLSizeI: Vector2Type {
     
     public var asVector2i: Vector2i {
         return Vector2i(x: Int(w), y: Int(h))
+    }
+
+    public var asViewportSize: ViewportSize {
+        return ViewportSize(width: Int(w), height: Int(h))
     }
     
     public var x: Scalar {
