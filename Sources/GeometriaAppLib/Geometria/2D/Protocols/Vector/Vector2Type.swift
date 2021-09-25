@@ -11,7 +11,7 @@ public protocol Vector2Type: VectorType {
     
     /// Initializes a new instance of this `Vector2Type` type by copying the
     /// coordinates of another `Vector2Type` of matching scalar type.
-    init<Vector: Vector2Type>(_ vector: Vector) where Vector.Scalar == Scalar
+    init<Vector: Vector2Type>(_ vector: Vector)
 }
 
 public extension Vector2Type {
@@ -55,7 +55,7 @@ public extension Vector2Type {
         }
     }
     
-    init<Vector: Vector2Type>(_ vector: Vector) where Vector.Scalar == Scalar {
+    init<Vector: Vector2Type>(_ vector: Vector) {
         self.init(x: vector.x, y: vector.y)
     }
 }

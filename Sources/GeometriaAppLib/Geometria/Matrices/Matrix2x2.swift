@@ -164,7 +164,7 @@ public struct Matrix2x2: MatrixType, CustomStringConvertible {
     /// Initializes a new matrix with the given ``Vector2Type`` values as the
     /// values for each row.
     @_transparent
-    public init<Vector: Vector2Type>(rows: (Vector, Vector)) where Vector.Scalar == Scalar {
+    public init<Vector: Vector2Type>(rows: (Vector, Vector)) {
         self.init(rows: (
             (rows.0.x, rows.0.y),
             (rows.1.x, rows.1.y)
@@ -213,7 +213,7 @@ public struct Matrix2x2: MatrixType, CustomStringConvertible {
     /// Transforms a given vector as a point, applying scaling, rotation and
     /// translation to the vector.
     @_transparent
-    public func transformPoint<Vector: Vector2FloatingPoint>(_ vec: Vector) -> Vector where Vector.Scalar == Scalar {
+    public func transformPoint<Vector: Vector2FloatingPoint>(_ vec: Vector) -> Vector {
         let px = vec.dot(.init(r0Vec))
         let py = vec.dot(.init(r1Vec))
         

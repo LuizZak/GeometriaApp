@@ -29,20 +29,11 @@
         }
       },
       {
-        "package": "SwiftCOM",
-        "repositoryURL": "https://github.com/compnerd/swift-com.git",
+        "package": "LibPNG",
+        "repositoryURL": "https://github.com/LuizZak/swift-libpng.git",
         "state": {
-          "branch": null,
-          "revision": "ebbc617d3b7ba3a2023988a74bebd118deea4cc5",
-          "version": null
-        }
-      },
-      {
-        "package": "swift-log",
-        "repositoryURL": "https://github.com/apple/swift-log.git",
-        "state": {
-          "branch": "main",
-          "revision": "a7e6d7fef58b8909ec9463a492e257ab00d89a4b",
+          "branch": "master",
+          "revision": "1d5b94c822dde80c4c2d7d742cd50d1d83c5abb1",
           "version": null
         }
       },

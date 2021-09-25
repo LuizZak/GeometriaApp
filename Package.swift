@@ -8,7 +8,6 @@ var packageDependencies: [Package.Dependency] =  [
     .package(url: "https://github.com/apple/swift-numerics.git", from: "1.0.0"),
     .package(url: "https://github.com/LuizZak/ImagineUI.git", .branch("master")),    //.package(url: "https://github.com/LuizZak/ImagineUI.git", branch: "master"),
     .package(name: "SwiftBlend2D", url: "https://github.com/LuizZak/swift-blend2d.git", .branch("master")), //.package(url: "https://github.com/LuizZak/swift-blend2d.git", branch: "master")
-    .package(url: "https://github.com/apple/swift-log.git", .branch("main")),
 ]
 
 var geometriaAppTarget: Target = .executableTarget(
@@ -32,6 +31,7 @@ var osTargets: [Target] = []
 #if os(Windows)
 
 packageDependencies.append(contentsOf: [
+    .package(url: "https://github.com/apple/swift-log.git", .branch("main")),
     .package(name: "SwiftCOM", url: "https://github.com/compnerd/swift-com.git", .revision("ebbc617d3b7ba3a2023988a74bebd118deea4cc5"))
 ])
 

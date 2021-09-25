@@ -2,14 +2,14 @@
 public protocol Vector3Additive: Vector3Type, VectorAdditive where SubVector2: Vector2Additive {
     /// Creates a new vector with the coordinates of a given ``Vector2Type``,
     /// and 0 on the ``z`` axis.
-    init<V: Vector2Type>(_ vec: V) where V.Scalar == Scalar
+    init<V: Vector2Type>(_ vec: V)
 }
 
 public extension Vector3Additive {
     /// Creates a new vector with the coordinates of a given ``Vector2Type``,
     /// and 0 on the ``z`` axis.
     @_transparent
-    init<V: Vector2Type>(_ vec: V) where V.Scalar == Scalar {
+    init<V: Vector2Type>(_ vec: V) {
         self.init(vec, z: .zero)
     }
 }
