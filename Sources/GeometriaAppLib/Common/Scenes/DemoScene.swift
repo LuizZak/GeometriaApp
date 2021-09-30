@@ -40,6 +40,7 @@ enum DemoScene {
             
             // Bumpy Sphere
             SceneGeometry(
+                id: 0,
                 bumpySphere: .init(center: .init(x: 70, y: 150, z: 45), radius: 30),
                 material: .init(bumpNoiseFrequency: 1.0,
                                 bumpMagnitude: 1.0 / 40.0,

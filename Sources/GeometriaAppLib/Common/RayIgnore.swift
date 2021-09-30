@@ -4,20 +4,20 @@ enum RayIgnore {
     case none
     
     /// Ignores the attached geometry object fully.
-    case full(SceneGeometry)
+    case full(id: Int)
     
     /// Ignores entrance rays for a given geometry object.
-    case entrance(SceneGeometry, minimumRayLengthSquared: Double = 0.0)
+    case entrance(id: Int, minimumRayLengthSquared: Double = 0.0)
     
     /// Ignores exit rays for a given geometry object.
-    case exit(SceneGeometry, minimumRayLengthSquared: Double = 0.0)
+    case exit(id: Int, minimumRayLengthSquared: Double = 0.0)
     
     /// Returns `true` iff this ``RayIgnore`` instance is `.full` case, with the
     /// given geometry assigned.
-    func shouldIgnoreFully(sceneGeometry: SceneGeometry) -> Bool {
+    func shouldIgnoreFully(id: Int) -> Bool {
         switch self {
-        case .full(let geometry):
-            return geometry === sceneGeometry
+        case .full(let geoId):
+            return geoId == id
         case .none, .entrance, .exit:
             return false
         }
@@ -34,20 +34,20 @@ enum RayIgnore {
     /// (entrance) or singular point of intersection is returned, if no entrance
     /// is available, the exit point is returned, and if no exit point is
     /// available `nil` is then ultimately returned.
-    func computePointNormalOfInterest<Vector>(sceneGeometry: SceneGeometry,
+    func computePointNormalOfInterest<Vector>(id: Int,
                                               intersection: ConvexLineIntersection<Vector>) -> PointNormal<Vector>? {
         
         switch self {
         case .none:
             break
             
-        case .full(let geometry):
-            if geometry === sceneGeometry {
+        case .full(let geoId):
+            if geoId == id {
                 return nil
             }
             
-        case .entrance(let geometry, _):
-            if geometry !== sceneGeometry {
+        case .entrance(let geoId, _):
+            if geoId != id {
                 break
             }
             
@@ -57,8 +57,8 @@ enum RayIgnore {
                 return nil
             }
             
-        case .exit(let geometry, _):
-            if geometry !== sceneGeometry {
+        case .exit(let geoId, _):
+            if geoId != id {
                 break
             }
             

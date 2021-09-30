@@ -45,7 +45,7 @@ struct RayHit {
           intersection: ConvexLineIntersection<RVector3D>,
           sceneGeometry: SceneGeometry) {
         
-        guard let poi = rayIgnore.computePointNormalOfInterest(sceneGeometry: sceneGeometry, intersection: intersection) else {
+        guard let poi = rayIgnore.computePointNormalOfInterest(id: sceneGeometry.id, intersection: intersection) else {
             return nil
         }
         
@@ -58,7 +58,7 @@ struct RayHit {
     /// Returns `nil` if ``RayIgnore/computePointNormalOfInterest`` returns `nil`
     func assignPointOfInterest(from rayIgnore: RayIgnore) -> RayHit? {
         guard let poi = rayIgnore.computePointNormalOfInterest(
-            sceneGeometry: sceneGeometry,
+            id: sceneGeometry.id,
             intersection: intersection
         ) else {
             return nil

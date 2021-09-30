@@ -21,7 +21,7 @@ final class Scene {
                              lastHit: nil,
                              ignoring: ignoring)
         
-        for geo in geometries where !ignoring.shouldIgnoreFully(sceneGeometry: geo) {
+        for geo in geometries where !ignoring.shouldIgnoreFully(id: geo.id) {
             result = geo.doRayCast(partialResult: result)
         }
         
@@ -33,7 +33,7 @@ final class Scene {
     func intersectAll(ray: RRay3D, ignoring: RayIgnore = .none) -> [RayHit] {
         var hits: [RayHit] = []
         
-        for geo in geometries where !ignoring.shouldIgnoreFully(sceneGeometry: geo) {
+        for geo in geometries where !ignoring.shouldIgnoreFully(id: geo.id) {
             if let hit = geo.doRayCast(ray: ray, ignoring: ignoring) {
                 hits.append(hit)
             }

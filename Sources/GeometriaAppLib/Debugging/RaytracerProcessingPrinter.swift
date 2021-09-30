@@ -8,7 +8,7 @@ class RaytracerProcessingPrinter: ProcessingPrinter {
     }
     
     func add(geometry: SceneGeometry) {
-        guard !addedGeometry.contains(where: { $0 === geometry }) else {
+        guard !addedGeometry.contains(where: { $0.id == geometry.id }) else {
             return
         }
         

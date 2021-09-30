@@ -6,12 +6,14 @@ import blend2d
 final class SceneGeometry {
     private var _doRayCast: (_ rayInfo: RayInfo) -> ConvexLineIntersection<RVector3D>
     private var _signedDistanceFunction: (_ point: RVector3D, _ minDistance: Double) -> Double
+    var id: Int
     var geometry: GeometricType
     var bounds: AABB3<RVector3D>?
     var boundingSphere: RSphere3D?
     var material: Material
     
-    init(bumpySphere: Sphere3<RVector3D>, material: Material) {
+    init(id: Int, bumpySphere: Sphere3<RVector3D>, material: Material) {
+        self.id = id
         self.bounds = bumpySphere.bounds
         self.material = material
         self.geometry = bumpySphere
@@ -76,7 +78,9 @@ final class SceneGeometry {
         }
     }
     
-    init<C: ConvexType & SignedDistanceMeasurableType & BoundableType>(convex: C, material: Material) where C.Vector == RVector3D {
+    init<C: ConvexType & SignedDistanceMeasurableType & BoundableType>(id: Int, convex: C, material: Material) where C.Vector == RVector3D {
+        self.id = id
+
         let bounds = convex.bounds
         
         self.bounds = bounds
@@ -114,7 +118,9 @@ final class SceneGeometry {
         }
     }
     
-    init<C: Convex3Type & SignedDistanceMeasurableType & BoundableType>(convex3 convex: C, material: Material) where C.Vector == RVector3D {
+    init<C: Convex3Type & SignedDistanceMeasurableType & BoundableType>(id: Int, convex3 convex: C, material: Material) where C.Vector == RVector3D {
+        self.id = id
+
         let bounds = convex.bounds
         
         self.bounds = bounds
@@ -152,7 +158,9 @@ final class SceneGeometry {
         }
     }
     
-    init<P: LineIntersectablePlaneType & BoundableType & SignedDistanceMeasurableType>(boundedPlane: P, material: Material) where P.Vector == RVector3D {
+    init<P: LineIntersectablePlaneType & BoundableType & SignedDistanceMeasurableType>(id: Int, boundedPlane: P, material: Material) where P.Vector == RVector3D {
+        self.id = id
+
         let bounds = boundedPlane.bounds
         
         self.bounds = bounds
@@ -189,7 +197,9 @@ final class SceneGeometry {
         }
     }
     
-    init<P: LineIntersectablePlaneType & SignedDistanceMeasurableType>(plane: P, material: Material) where P.Vector == RVector3D {
+    init<P: LineIntersectablePlaneType & SignedDistanceMeasurableType>(id: Int, plane: P, material: Material) where P.Vector == RVector3D {
+        self.id = id
+
         self.material = material
         self.geometry = plane
         
@@ -245,7 +255,7 @@ final class SceneGeometry {
     /// Returns `nil` if this geometry was not intersected according to the ray
     /// and `ignore` rule specified.
     func doRayCast(ray: RRay3D, rayMagnitudeSquared: Double, ignoring: RayIgnore) -> RayHit? {
-        guard !ignoring.shouldIgnoreFully(sceneGeometry: self) else {
+        guard !ignoring.shouldIgnoreFully(id: id) else {
             return nil
         }
         
@@ -263,7 +273,7 @@ final class SceneGeometry {
     ///
     /// Returns `.infinity` in case this geometry is ignored by `ignoring`.
     func signedDistanceFunction(_ point: RVector3D, minDistance: Double, ignoring: RayIgnore = .none) -> Double {
-        guard !ignoring.shouldIgnoreFully(sceneGeometry: self) else {
+        guard !ignoring.shouldIgnoreFully(id: id) else {
             return .infinity
         }
         
@@ -271,10 +281,10 @@ final class SceneGeometry {
         
         // Handle ray ignore
         switch ignoring {
-        case let .exit(geo, dist) where result < 0 && geo === self && abs(result) < dist:
+        case let .exit(geoId, dist) where result < 0 && geoId == id && abs(result) < dist:
             return .infinity
             
-        case let .entrance(geo, dist) where result > 0 && geo === self && abs(result) < dist:
+        case let .entrance(geoId, dist) where result > 0 && geoId == id && abs(result) < dist:
             return .infinity
             
         default:
