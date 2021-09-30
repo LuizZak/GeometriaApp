@@ -9,6 +9,7 @@ R = Reset  |   Space = Pause
 """
 
 public class RaytracerApp: Blend2DApp {
+    private var _updateTimer: SchedulerTimerType?
     private let _font: Font
     private var _isResizing: Bool = false
     private var _timeStarted: TimeInterval = 0.0
@@ -53,6 +54,10 @@ public class RaytracerApp: Blend2DApp {
         ui.sampleRenderScale = appRenderScale
         restartRendering()
         createUI()
+    }
+
+    deinit {
+        _updateTimer?.invalidate()
     }
     
     func createUI() {
@@ -122,6 +127,12 @@ public class RaytracerApp: Blend2DApp {
     }
     
     func restartRendering() {
+        _updateTimer = Scheduler.instance.scheduleTimer(interval: 1 / 60.0, repeats: true) { [weak self] in
+            guard let self = self else { return }
+
+            self.update(UISettings.timeInSeconds())
+        }
+
         rendererCoordinator?.cancel()
         
         guard !_isResizing && width > 0 && height > 0 else {

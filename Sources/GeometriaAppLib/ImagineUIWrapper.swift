@@ -1,6 +1,7 @@
 import Foundation
 import ImagineUI
 import SwiftBlend2D
+import Blend2DRenderer
 
 class ImagineUIWrapper {
     private var lastFrame: TimeInterval = 0
@@ -25,7 +26,6 @@ class ImagineUIWrapper {
         bounds = BLRect(location: .zero, size: BLSize(w: Double(size.w), h: Double(size.h)))
         rootViews = []
         controlSystem.delegate = self
-        UISettings.scale = sampleRenderScale.asVector2
         
         addRootView(rootView)
     }
@@ -105,7 +105,7 @@ class ImagineUIWrapper {
         
         // Debug render
         for rootView in rootViews {
-            DebugDraw.debugDrawRecursive(rootView, flags: debugDrawFlags, to: ctx)
+            DebugDraw.debugDrawRecursive(rootView, flags: debugDrawFlags, in: renderer)
         }
     }
     
@@ -135,6 +135,10 @@ class ImagineUIWrapper {
 }
 
 extension ImagineUIWrapper: DefaultControlSystemDelegate {
+    func firstResponderChanged(_ newFirstResponder: KeyboardEventHandler?) {
+
+    }
+
     func bringRootViewToFront(_ rootView: RootView) {
         rootViews.removeAll(where: { $0 == rootView })
         rootViews.append(rootView)
@@ -163,6 +167,10 @@ extension ImagineUIWrapper: DefaultControlSystemDelegate {
 }
 
 extension ImagineUIWrapper: RootViewRedrawInvalidationDelegate {
+    func rootViewInvalidatedLayout(_ rootView: RootView) {
+
+    }
+
     func rootView(_ rootView: RootView, invalidateRect rect: UIRectangle) {
         guard let intersectedRect = rect.intersection(bounds.asRectangle) else {
             return

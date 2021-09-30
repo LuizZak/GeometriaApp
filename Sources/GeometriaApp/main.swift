@@ -2,7 +2,7 @@
 
 import GeometriaWindows
 
-_=winMain()
+_=try start()
 
 #elseif os(macOS)
 

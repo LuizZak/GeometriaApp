@@ -17,7 +17,6 @@ public protocol Blend2DApp: AnyObject {
     func didEndLiveResize()
     func resize(width: Int, height: Int)
     
-    func update(_ time: TimeInterval)
     func performLayout()
     func render(context ctx: BLContext)
     
@@ -33,8 +32,6 @@ public protocol Blend2DApp: AnyObject {
 public extension Blend2DApp {
     func willStartLiveResize() { }
     func didEndLiveResize() { }
-    
-    func update(_ time: TimeInterval) {}
     
     func mouseDown(event: MouseEventArgs) { }
     func mouseMoved(event: MouseEventArgs) { }

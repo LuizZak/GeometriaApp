@@ -20,6 +20,7 @@ dependencies: [
     // "Geometria",
     .product(name: "Numerics", package: "swift-numerics"),
     "ImagineUI",
+    .product(name: "Blend2DRenderer", package: "ImagineUI"),
     "SwiftBlend2D",
 ],
 resources: [
@@ -30,10 +31,9 @@ var osTargets: [Target] = []
 
 #if os(Windows)
 
-packageDependencies.append(contentsOf: [
-    .package(url: "https://github.com/apple/swift-log.git", .branch("main")),
-    .package(name: "SwiftCOM", url: "https://github.com/compnerd/swift-com.git", .revision("ebbc617d3b7ba3a2023988a74bebd118deea4cc5"))
-])
+packageDependencies.append(
+    .package(url: "https://github.com/LuizZak/ImagineUI-Win.git", .branch("main"))
+)
 
 geometriaAppTarget.dependencies.append(
     "GeometriaWindows"
@@ -43,11 +43,10 @@ osTargets.append(
     .target(
         name: "GeometriaWindows",
         dependencies: [
-            "ImagineUI",
             "SwiftBlend2D",
-            "GeometriaAppLib",
-            "SwiftCOM",
-            .product(name: "Logging", package: "swift-log"),
+            "ImagineUI-Win",
+            .product(name: "Blend2DRenderer", package: "ImagineUI"),
+            "GeometriaAppLib"
         ],
         exclude: [
             "GeometriaApp.exe.manifest"
