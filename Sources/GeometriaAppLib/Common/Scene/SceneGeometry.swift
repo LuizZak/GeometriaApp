@@ -78,7 +78,7 @@ final class SceneGeometry {
         }
     }
     
-    init<C: ConvexType & SignedDistanceMeasurableType & BoundableType>(id: Int, convex: C, material: Material) where C.Vector == RVector3D {
+    init<C: ConvexType & SignedDistanceMeasurableType & BoundableType>(id: Int, convex: C, material: Material, useBoundSphere: Bool) where C.Vector == RVector3D {
         self.id = id
 
         let bounds = convex.bounds
@@ -87,15 +87,21 @@ final class SceneGeometry {
         self.material = material
         self.geometry = convex
         
-        let sphere = RSphere3D(center: bounds.center, radius: bounds.size.maximalComponent / 2)
-        
-        _signedDistanceFunction = { (vec, minDist) in
-            // Do bounds check before passing down distance function
-            if sphere.signedDistance(to: vec) > minDist {
-                return minDist
-            }
+        if useBoundSphere {
+            let sphere = RSphere3D(center: bounds.center, radius: bounds.size.maximalComponent / 2)
             
-            return convex.signedDistance(to: vec)
+            _signedDistanceFunction = { (vec, minDist) in
+                // Do bounds check before passing down distance function
+                if sphere.signedDistance(to: vec) > minDist {
+                    return minDist
+                }
+
+                return convex.signedDistance(to: vec)
+            }
+        } else {
+            _signedDistanceFunction = { (vec, minDist) in
+                convex.signedDistance(to: vec)
+            }
         }
         
         _doRayCast = { rayInfo in
@@ -118,7 +124,7 @@ final class SceneGeometry {
         }
     }
     
-    init<C: Convex3Type & SignedDistanceMeasurableType & BoundableType>(id: Int, convex3 convex: C, material: Material) where C.Vector == RVector3D {
+    init<C: Convex3Type & SignedDistanceMeasurableType & BoundableType>(id: Int, convex3 convex: C, material: Material, useBoundSphere: Bool) where C.Vector == RVector3D {
         self.id = id
 
         let bounds = convex.bounds
@@ -127,15 +133,21 @@ final class SceneGeometry {
         self.material = material
         self.geometry = convex
         
-        let sphere = RSphere3D(center: bounds.center, radius: bounds.size.maximalComponent / 2)
-        
-        _signedDistanceFunction = { (vec, minDist) in
-            // Do bounds check before passing down distance function
-            if sphere.signedDistance(to: vec) > minDist {
-                return minDist
-            }
+        if useBoundSphere && convex is AABB<RVector3D> {
+            let sphere = RSphere3D(center: bounds.center, radius: bounds.size.maximalComponent / 2)
             
-            return convex.signedDistance(to: vec)
+            _signedDistanceFunction = { (vec, minDist) in
+                // Do bounds check before passing down distance function
+                if sphere.signedDistance(to: vec) > minDist {
+                    return minDist
+                }
+
+                return convex.signedDistance(to: vec)
+            }
+        } else {
+            _signedDistanceFunction = { (vec, minDist) in
+                convex.signedDistance(to: vec)
+            }
         }
         
         _doRayCast = { rayInfo in

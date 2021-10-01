@@ -17,11 +17,11 @@ struct SceneBuilder {
     }
     
     static func buildExpression<C: Convex3Type & SignedDistanceMeasurableType & BoundableType>(_ expression: C) -> PartialScene where C.Vector == RVector3D {
-        SceneGeometry(id: 0, convex3: expression, material: .default).toPartialScene()
+        SceneGeometry(id: 0, convex3: expression, material: .default, useBoundSphere: true).toPartialScene()
     }
     
     static func buildExpression<C: Convex3Type & SignedDistanceMeasurableType & BoundableType>(_ expression: (C, Material)) -> PartialScene where C.Vector == RVector3D {
-        SceneGeometry(id: 0, convex3: expression.0, material: expression.1).toPartialScene()
+        SceneGeometry(id: 0, convex3: expression.0, material: expression.1, useBoundSphere: true).toPartialScene()
     }
     
     static func buildExpression(_ expression: RDisk3D) -> PartialScene {
