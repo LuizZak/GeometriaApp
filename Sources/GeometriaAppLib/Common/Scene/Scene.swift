@@ -24,7 +24,7 @@ struct Scene {
         var index = 0
         while index < geometries.count {
             defer { index += 1 }
-            guard ignoring.shouldIgnoreFully(id: geometries[index].id) else {
+            guard !ignoring.shouldIgnoreFully(id: geometries[index].id) else {
                 continue
             }
             
@@ -38,15 +38,9 @@ struct Scene {
     @inlinable
     func intersectAll(ray: RRay3D, ignoring: RayIgnore = .none) -> [RayHit] {
         var hits: [RayHit] = []
-
-        var index = 0
-        while index < geometries.count {
-            defer { index += 1 }
-            guard ignoring.shouldIgnoreFully(id: geometries[index].id) else {
-                continue
-            }
-                
-            if let hit = geometries[index].doRayCast(ray: ray, ignoring: ignoring) {
+        
+        for geo in geometries where !ignoring.shouldIgnoreFully(id: geo.id) {
+            if let hit = geo.doRayCast(ray: ray, ignoring: ignoring) {
                 hits.append(hit)
             }
         }
