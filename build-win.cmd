@@ -17,9 +17,7 @@ swift build %BUILD_ARGS%
 
 @echo Preparing binary...
 
-@for /f %%i in ('swift build -c=%CONFIG% --show-bin-path') do (
-    @set BIN_DIR=%%i
-)
+@for /f %%i in ('swift build -c=%CONFIG% --show-bin-path') do @set BIN_DIR=%%i
 
 @SET BIN_NAME=GeometriaApp.exe
 @SET WINDOWS_SOURCE_PATH=Sources\GeometriaWindows

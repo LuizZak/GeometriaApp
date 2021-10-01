@@ -8,7 +8,6 @@ final class SceneGeometry {
     var id: Int
     var geometry: GeometricType
     var bounds: AABB3<RVector3D>?
-    var boundingSphere: RSphere3D?
     var material: Material
     
     init(id: Int, bumpySphere: Sphere3<RVector3D>, material: Material) {
@@ -72,7 +71,7 @@ final class SceneGeometry {
         }
     }
     
-    init<C: ConvexType & BoundableType>(id: Int, convex: C, material: Material, useBoundSphere: Bool) where C.Vector == RVector3D {
+    init<C: ConvexType & BoundableType>(id: Int, convex: C, material: Material) where C.Vector == RVector3D {
         self.id = id
 
         let bounds = convex.bounds
@@ -101,7 +100,7 @@ final class SceneGeometry {
         }
     }
     
-    init<C: Convex3Type & BoundableType>(id: Int, convex3 convex: C, material: Material, useBoundSphere: Bool) where C.Vector == RVector3D {
+    init<C: Convex3Type & BoundableType>(id: Int, convex3 convex: C, material: Material) where C.Vector == RVector3D {
         self.id = id
 
         let bounds = convex.bounds
