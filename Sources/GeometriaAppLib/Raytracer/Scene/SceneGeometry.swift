@@ -5,7 +5,6 @@ import blend2d
 
 struct SceneGeometry {
     private var _doRayCast: (_ rayInfo: RayInfo) -> ConvexLineIntersection<RVector3D>
-    var _signedDistanceFunction: (_ point: RVector3D, _ minDistance: Double) -> Double
     var id: Int
     var geometry: GeometricType
     var bounds: AABB3<RVector3D>?
@@ -17,11 +16,6 @@ struct SceneGeometry {
         self.bounds = bumpySphere.bounds
         self.material = material
         self.geometry = bumpySphere
-        
-        // TODO: Implement bumpiness
-        _signedDistanceFunction = { (vec, _) in
-            bumpySphere.signedDistance(to: vec)
-        }
         
         _doRayCast = { rayInfo in
             var intersection = bumpySphere.intersection(with: rayInfo.ray)
@@ -78,7 +72,7 @@ struct SceneGeometry {
         }
     }
     
-    init<C: ConvexType & SignedDistanceMeasurableType & BoundableType>(id: Int, convex: C, material: Material, useBoundSphere: Bool) where C.Vector == RVector3D {
+    init<C: ConvexType & BoundableType>(id: Int, convex: C, material: Material, useBoundSphere: Bool) where C.Vector == RVector3D {
         self.id = id
 
         let bounds = convex.bounds
@@ -86,23 +80,6 @@ struct SceneGeometry {
         self.bounds = bounds
         self.material = material
         self.geometry = convex
-        
-        if useBoundSphere {
-            let sphere = RSphere3D(center: bounds.center, radius: bounds.size.maximalComponent / 2)
-            
-            _signedDistanceFunction = { (vec, minDist) in
-                // Do bounds check before passing down distance function
-                if sphere.signedDistance(to: vec) > minDist {
-                    return minDist
-                }
-
-                return convex.signedDistance(to: vec)
-            }
-        } else {
-            _signedDistanceFunction = { (vec, minDist) in
-                convex.signedDistance(to: vec)
-            }
-        }
         
         _doRayCast = { rayInfo in
             let intersection = convex.intersection(with: rayInfo.ray)
@@ -124,7 +101,7 @@ struct SceneGeometry {
         }
     }
     
-    init<C: Convex3Type & SignedDistanceMeasurableType & BoundableType>(id: Int, convex3 convex: C, material: Material, useBoundSphere: Bool) where C.Vector == RVector3D {
+    init<C: Convex3Type & BoundableType>(id: Int, convex3 convex: C, material: Material, useBoundSphere: Bool) where C.Vector == RVector3D {
         self.id = id
 
         let bounds = convex.bounds
@@ -132,24 +109,7 @@ struct SceneGeometry {
         self.bounds = bounds
         self.material = material
         self.geometry = convex
-        
-        if useBoundSphere && convex is AABB<RVector3D> {
-            let sphere = RSphere3D(center: bounds.center, radius: bounds.size.maximalComponent / 2)
-            
-            _signedDistanceFunction = { (vec, minDist) in
-                // Do bounds check before passing down distance function
-                if sphere.signedDistance(to: vec) > minDist {
-                    return minDist
-                }
-
-                return convex.signedDistance(to: vec)
-            }
-        } else {
-            _signedDistanceFunction = { (vec, minDist) in
-                convex.signedDistance(to: vec)
-            }
-        }
-        
+                
         _doRayCast = { rayInfo in
             let intersection = convex.intersection(with: rayInfo.ray)
             switch intersection {
@@ -170,7 +130,7 @@ struct SceneGeometry {
         }
     }
     
-    init<P: LineIntersectablePlaneType & BoundableType & SignedDistanceMeasurableType>(id: Int, boundedPlane: P, material: Material) where P.Vector == RVector3D {
+    init<P: LineIntersectablePlaneType & BoundableType>(id: Int, boundedPlane: P, material: Material) where P.Vector == RVector3D {
         self.id = id
 
         let bounds = boundedPlane.bounds
@@ -178,17 +138,6 @@ struct SceneGeometry {
         self.bounds = bounds
         self.material = material
         self.geometry = boundedPlane
-        
-        let sphere = RSphere3D(center: bounds.center, radius: bounds.size.maximalComponent / 2)
-        
-        _signedDistanceFunction = { (vec, minDist) in
-            // Do bounds check before passing down distance function
-            if sphere.signedDistance(to: vec) > minDist {
-                return minDist
-            }
-            
-            return boundedPlane.signedDistance(to: vec)
-        }
         
         _doRayCast = { rayInfo in
             guard let inter = boundedPlane.intersection(with: rayInfo.ray) else {
@@ -209,15 +158,11 @@ struct SceneGeometry {
         }
     }
     
-    init<P: LineIntersectablePlaneType & SignedDistanceMeasurableType>(id: Int, plane: P, material: Material) where P.Vector == RVector3D {
+    init<P: LineIntersectablePlaneType>(id: Int, plane: P, material: Material) where P.Vector == RVector3D {
         self.id = id
 
         self.material = material
         self.geometry = plane
-        
-        _signedDistanceFunction = { (vec, _) in
-            plane.signedDistance(to: vec)
-        }
         
         _doRayCast = { rayInfo in
             guard let inter = plane.intersection(with: rayInfo.ray) else {
@@ -278,32 +223,6 @@ struct SceneGeometry {
         return RayHit(findingPointOfInterestOf: ignoring,
                       intersection: result,
                       sceneGeometry: self)
-    }
-    
-    /// Returns the result of the distance function applied using a given point
-    /// vector.
-    ///
-    /// Returns `.infinity` in case this geometry is ignored by `ignoring`.
-    func signedDistanceFunction(_ point: RVector3D, minDistance: Double, ignoring: RayIgnore = .none) -> Double {
-        guard !ignoring.shouldIgnoreFully(id: id) else {
-            return .infinity
-        }
-        
-        let result = _signedDistanceFunction(point, minDistance)
-        
-        // Handle ray ignore
-        switch ignoring {
-        case let .exit(geoId, dist) where result < 0 && geoId == id && abs(result) < dist:
-            return .infinity
-            
-        case let .entrance(geoId, dist) where result > 0 && geoId == id && abs(result) < dist:
-            return .infinity
-            
-        default:
-            break
-        }
-        
-        return result
     }
     
     private struct RayInfo {

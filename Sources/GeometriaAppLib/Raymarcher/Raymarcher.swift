@@ -92,7 +92,7 @@ struct Raymarcher<SceneType: RaymarchingSceneType>: RendererType {
         // Sketch a dummy pixel color value for now
         let factor: Double = Double(iteration) / Double(maxMarchIterationCount)
         
-        return mergeColors(scene.skyColor, .black, factor: factor)
+        return mergeColors(scene.skyColor, .black, factor: 1 - factor)
     }
     
     private func distanceFunction(_ vector: RVector3D) -> RaymarchingResult {

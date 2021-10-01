@@ -16,7 +16,7 @@ public class RaytracerApp: Blend2DApp {
     private var _timeEnded: TimeInterval = 0.0
     private var _mouseLocation: BLPointI = .zero
     
-    private var threadCount: Int = 8
+    private var threadCount: Int = 12
     
     private var ui: ImagineUIWrapper
     
