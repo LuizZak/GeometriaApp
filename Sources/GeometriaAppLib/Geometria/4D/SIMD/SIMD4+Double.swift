@@ -1,4 +1,4 @@
-#if false // canImport(simd)
+#if canImport(simd)
 
 import simd
 
@@ -65,9 +65,7 @@ extension SIMD4: VectorFloatingPoint where Scalar == Double {
 }
 
 extension SIMD4: Vector4FloatingPoint where Scalar == Double {
-    public init<V>(_ other: V) where V : Vector4Type, V.Scalar : BinaryInteger {
-        self.init(x: Scalar(other.x), y: Scalar(other.y), z: Scalar(other.z), w: Scalar(other.w))
-    }
+    
 }
 
 extension SIMD4: SignedDistanceMeasurableType where Scalar == Double {

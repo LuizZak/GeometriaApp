@@ -528,8 +528,10 @@ extension AABB: ConvexType where Vector: VectorFloatingPoint {
 
 extension AABB: SignedDistanceMeasurableType where Vector: VectorFloatingPoint {
     // Distance function derived from: https://iquilezles.org/www/articles/distfunctions/distfunctions.htm
+    @inlinable
     public func signedDistance(to point: Vector) -> Vector.Scalar {
-        let q = abs(point - center) - size / 2
+        let s2 = size / 2
+        let q = abs(point - (location + s2)) - s2
         let distOutside = max(q, .zero).length
         let distInside = min(q, .zero).maximalComponent
         

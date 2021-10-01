@@ -1,11 +1,25 @@
 import SwiftBlend2D
 import ImagineUI
 
+#if false // canImport(simd)
+
+import simd
+
+/// Vector2 for Raytracing operations
+public typealias RVector2D = SIMD2<Double>
+
+/// Vector3 for Raytracing operations
+public typealias RVector3D = SIMD3<Double>
+
+#else
+
 /// Vector2 for Raytracing operations
 public typealias RVector2D = Vector2D
 
 /// Vector3 for Raytracing operations
 public typealias RVector3D = Vector3D
+
+#endif
 
 /// Rectangle for Raytracing operations
 public typealias RRectangle = Rectangle2<RVector2D>
@@ -35,7 +49,7 @@ public typealias REllipse3D = Ellipse3<RVector3D>
 public typealias RCylinder3D = Cylinder3<RVector3D>
 
 /// Disk3 for Raytracing operations
-public typealias RDisk3D = Disk3<Vector3D>
+public typealias RDisk3D = Disk3<RVector3D>
 
 /// LinePolygon2 for Raytracing operations
 public typealias RPolyLine2D = LinePolygon2<RVector2D>

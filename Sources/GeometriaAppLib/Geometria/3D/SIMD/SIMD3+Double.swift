@@ -1,9 +1,13 @@
-#if false // canImport(simd)
+#if canImport(simd)
 
 import RealModule
 import simd
 
-extension SIMD3: VectorType {
+extension SIMD3: GeometricType where Scalar == Double {
+    
+}
+
+extension SIMD3: VectorType where Scalar == Double {
     
 }
 
@@ -67,7 +71,7 @@ extension SIMD3: AdditiveArithmetic where Scalar: FloatingPoint {
     
 }
 
-extension SIMD3: VectorAdditive where Scalar: FloatingPoint {
+extension SIMD3: VectorAdditive where Scalar == Double {
     
 }
 
@@ -178,10 +182,7 @@ extension SIMD3: SignedDistanceMeasurableType where Scalar == Double {
 }
 
 extension SIMD3: Vector3FloatingPoint where Scalar == Double {
-    @_transparent
-    public init<V>(_ other: V) where V: Vector3Type, V.Scalar: BinaryInteger {
-        self.init(x: Scalar(other.x), y: Scalar(other.y), z: Scalar(other.z))
-    }
+    
 }
 
 extension SIMD3: VectorReal where Scalar == Double {

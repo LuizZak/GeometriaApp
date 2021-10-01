@@ -6,7 +6,7 @@ class ProcessingPrinter {
     private let identDepth: Int = 2
     private var currentIndent: Int = 0
     private var draws: [String] = []
-    var cylinders: [Cylinder3<Vector3D>] = []
+    var cylinders: [Cylinder3<RVector3D>] = []
     var shouldPrintDrawNormal: Bool = false
     var shouldPrintDrawTangent: Bool = false
     var is3D: Bool = false
@@ -149,7 +149,7 @@ class ProcessingPrinter {
         addDrawLine("popMatrix();")
     }
     
-    func add(cylinder: Cylinder3<Vector3D>) {
+    func add(cylinder: Cylinder3<RVector3D>) {
         is3D = true
         
         cylinders.append(cylinder)
@@ -317,7 +317,7 @@ class ProcessingPrinter {
     // MARK: - Function Printing
     
     func printSetup() {
-        func printCylinder(_ cylinder: Cylinder3<Vector3D>) {
+        func printCylinder(_ cylinder: Cylinder3<RVector3D>) {
             let start = vec3PVectorString(cylinder.start)
             let end = vec3PVectorString(cylinder.end)
             

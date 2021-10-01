@@ -1,9 +1,13 @@
-#if false // canImport(simd)
+#if canImport(simd)
 
 import RealModule
 import simd
 
-extension SIMD2: VectorType {
+extension SIMD2: GeometricType where Scalar == Double {
+    
+}
+
+extension SIMD2: VectorType where Scalar == Double {
     
 }
 
@@ -67,7 +71,7 @@ extension SIMD2: AdditiveArithmetic where Scalar: FloatingPoint {
     
 }
 
-extension SIMD2: VectorAdditive where Scalar: FloatingPoint {
+extension SIMD2: VectorAdditive where Scalar == Double {
     
 }
 
@@ -223,10 +227,7 @@ extension SIMD2: SignedDistanceMeasurableType where Scalar == Double {
 }
 
 extension SIMD2: Vector2FloatingPoint where Scalar == Double {
-    @_transparent
-    public init<V>(_ other: V) where V: Vector2Type, V.Scalar: BinaryInteger {
-        self.init(x: Scalar(other.x), y: Scalar(other.y))
-    }
+    
 }
 
 extension SIMD2: VectorReal where Scalar == Double {
@@ -289,23 +290,23 @@ extension SIMD2: Vector2Real where Scalar == Double {
     @inlinable
     public static func matrix(scale: Self = .one,
                               rotate angle: Scalar = 0,
-                              translate: Self = Self(x: 0, y: 0)) -> Matrix3x2<Scalar> {
+                              translate: Self = Self(x: 0, y: 0)) -> Matrix3x2 {
         
-        Matrix3x2<Scalar>.transformation(xScale: scale.x,
-                                       yScale: scale.y,
-                                       angle: angle,
-                                       xOffset: translate.x,
-                                       yOffset: translate.y)
+        Matrix3x2.transformation(xScale: scale.x,
+                                 yScale: scale.y,
+                                 angle: angle,
+                                 xOffset: translate.x,
+                                 yOffset: translate.y)
     }
     
     @inlinable
-    public static func * (lhs: Self, rhs: Matrix3x2<Scalar>) -> Self {
-        Matrix3x2<Scalar>.transformPoint(matrix: rhs, point: lhs)
+    public static func * (lhs: Self, rhs: Matrix3x2) -> Self {
+        Matrix3x2.transformPoint(matrix: rhs, point: lhs)
     }
     
     @inlinable
-    public static func *= (lhs: inout Self, rhs: Matrix3x2<Scalar>) {
-        lhs = Matrix3x2<Scalar>.transformPoint(matrix: rhs, point: lhs)
+    public static func *= (lhs: inout Self, rhs: Matrix3x2) {
+        lhs = Matrix3x2.transformPoint(matrix: rhs, point: lhs)
     }
 }
 
