@@ -1,19 +1,19 @@
 import SwiftBlend2D
 
 extension SceneGeometry {
-    func withColor(_ color: BLRgba32) {
+    mutating func withColor(_ color: BLRgba32) {
         material.color = color
     }
     
-    func withTransparency(_ transparency: Double) {
+    mutating func withTransparency(_ transparency: Double) {
         material.transparency = transparency
     }
     
-    func withReflectivity(_ reflectivity: Double) {
+    mutating func withReflectivity(_ reflectivity: Double) {
         material.reflectivity = reflectivity
     }
     
-    func withRefractiveIndex(_ refractiveIndex: Double) {
+    mutating func withRefractiveIndex(_ refractiveIndex: Double) {
         material.refractiveIndex = refractiveIndex
     }
 }

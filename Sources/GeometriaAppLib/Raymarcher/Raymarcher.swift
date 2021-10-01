@@ -2,15 +2,14 @@ import SwiftBlend2D
 import ImagineUI
 
 /// Class that performs raymarching on a scene.
-final class Raymarcher: RendererType {
+struct Raymarcher: RendererType {
     private static var _attemptedDebugInMultithreadedYet = false
     private var processingPrinter: RaytracerProcessingPrinter?
     
+    let scene: Scene
+    let camera: Camera
+    let viewportSize: ViewportSize
     var isMultiThreaded: Bool = false
-    var maxBounces: Int = 5
-    var scene: Scene
-    var camera: Camera
-    var viewportSize: ViewportSize
     
     init(scene: Scene, camera: Camera, viewportSize: ViewportSize) {
         self.scene = scene
@@ -20,7 +19,7 @@ final class Raymarcher: RendererType {
     
     // MARK: - Debugging
     
-    func beginDebug() {
+    mutating func beginDebug() {
         if isMultiThreaded {
             if !Self._attemptedDebugInMultithreadedYet {
                 Self._attemptedDebugInMultithreadedYet = true
@@ -31,13 +30,13 @@ final class Raymarcher: RendererType {
         }
         
         processingPrinter =
-        RaytracerProcessingPrinter(
-            viewportSize: RVector2D(viewportSize),
-            sceneCamera: camera
-        )
+            RaytracerProcessingPrinter(
+                viewportSize: RVector2D(viewportSize),
+                sceneCamera: camera
+            )
     }
     
-    func endDebug() {
+    mutating func endDebug() {
         processingPrinter?.printAll()
         processingPrinter = nil
     }
@@ -58,6 +57,8 @@ final class Raymarcher: RendererType {
         
         let maxMarchIterationCount = 50
         let minimumMarchTolerance: Double = 0.001
+        let maxDistance: Double = 1000
+
         var iteration = 0
         
         while iteration < maxMarchIterationCount {
@@ -79,6 +80,10 @@ final class Raymarcher: RendererType {
             if signedDistance < minimumMarchTolerance {
                 break
             }
+            if signedDistance >= maxDistance {
+                iteration = maxMarchIterationCount
+                break
+            }
             
             ray.start = ray.projectedMagnitude(signedDistance)
         }
@@ -92,8 +97,11 @@ final class Raymarcher: RendererType {
     private func distanceFunction(_ vector: RVector3D) -> MarchResult {
         var dist: Double = .infinity
         
-        for geo in scene.geometries {
-            dist = min(dist, geo.signedDistanceFunction(vector, minDistance: dist))
+        var index = 0
+        let count = scene.geometries.count
+        while index < count {
+            defer { index += 1 }
+            dist = min(dist, scene.geometries[index]._signedDistanceFunction(vector, dist))
         }
         
         return MarchResult(signedDistance: dist)

@@ -3,7 +3,7 @@ import SwiftBlend2D
 @resultBuilder
 struct SceneBuilder {
     static func buildFinalResult(_ component: PartialScene) -> Scene {
-        let scene = Scene()
+        var scene = Scene()
         if let skyColor = component.skyColor {
             scene.skyColor = skyColor
         }
@@ -73,7 +73,7 @@ struct PartialScene {
 
 extension SceneBuilder {
     static func makeScene(@SceneBuilder _ builder: () -> Scene) -> Scene {
-        let scene = builder()
+        var scene = builder()
         for index in 0..<scene.geometries.count {
             scene.geometries[index].id = index + 1
         }

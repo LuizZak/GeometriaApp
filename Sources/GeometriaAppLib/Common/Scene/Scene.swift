@@ -1,6 +1,6 @@
 import SwiftBlend2D
 
-final class Scene {
+struct Scene {
     // Sky color for pixels that don't intersect with geometry
     var skyColor: BLRgba32 = .cornflowerBlue
     
@@ -9,7 +9,7 @@ final class Scene {
     /// Direction an infinitely far away point light is pointed at the scene
     @UnitVector var sunDirection: RVector3D = RVector3D(x: -20, y: 40, z: -30)
     
-    func addGeometry(_ geometry: SceneGeometry) {
+    mutating func addGeometry(_ geometry: SceneGeometry) {
         geometries.append(geometry)
     }
     
@@ -21,8 +21,14 @@ final class Scene {
                              lastHit: nil,
                              ignoring: ignoring)
         
-        for geo in geometries where !ignoring.shouldIgnoreFully(id: geo.id) {
-            result = geo.doRayCast(partialResult: result)
+        var index = 0
+        while index < geometries.count {
+            defer { index += 1 }
+            guard ignoring.shouldIgnoreFully(id: geometries[index].id) else {
+                continue
+            }
+            
+            result = geometries[index].doRayCast(partialResult: result)
         }
         
         return result.lastHit
@@ -32,9 +38,15 @@ final class Scene {
     @inlinable
     func intersectAll(ray: RRay3D, ignoring: RayIgnore = .none) -> [RayHit] {
         var hits: [RayHit] = []
-        
-        for geo in geometries where !ignoring.shouldIgnoreFully(id: geo.id) {
-            if let hit = geo.doRayCast(ray: ray, ignoring: ignoring) {
+
+        var index = 0
+        while index < geometries.count {
+            defer { index += 1 }
+            guard ignoring.shouldIgnoreFully(id: geometries[index].id) else {
+                continue
+            }
+                
+            if let hit = geometries[index].doRayCast(ray: ray, ignoring: ignoring) {
                 hits.append(hit)
             }
         }

@@ -4,7 +4,7 @@ import Dispatch
 import ImagineUI
 
 /// Class that coordinates rendering dispatching across multi-threaded contexts.
-class RendererCoordinator: RendererWorkerContext {
+final class RendererCoordinator: RendererWorkerContext {
     private var _renderer: RendererType
     private var _threadCount: Int
     private var _totalPixels: Int64 = 0

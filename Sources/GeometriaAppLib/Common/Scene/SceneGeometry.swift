@@ -3,9 +3,9 @@ import blend2d
 // TODO: Split raytracing and distance function components into separate types
 // TODO: to try to clean up this implementation.
 
-final class SceneGeometry {
+struct SceneGeometry {
     private var _doRayCast: (_ rayInfo: RayInfo) -> ConvexLineIntersection<RVector3D>
-    private var _signedDistanceFunction: (_ point: RVector3D, _ minDistance: Double) -> Double
+    var _signedDistanceFunction: (_ point: RVector3D, _ minDistance: Double) -> Double
     var id: Int
     var geometry: GeometricType
     var bounds: AABB3<RVector3D>?
