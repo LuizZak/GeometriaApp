@@ -1,5 +1,9 @@
 @resultBuilder
 struct RaymarchingSceneBuilder {
+    static func buildExpression(_ value: RAABB3D) -> BoundedSphereRaymarchingElement<GeometryRaymarchingElement<RAABB3D>> {
+        .init(geometry: value)
+    }
+    
     static func buildExpression<T>(_ value: T) -> GeometryRaymarchingElement<T> where T: SignedDistanceMeasurableType {
         .init(geometry: value)
     }
