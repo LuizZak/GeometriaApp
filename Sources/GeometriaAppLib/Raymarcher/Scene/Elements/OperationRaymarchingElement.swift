@@ -7,6 +7,6 @@ struct OperationRaymarchingElement<T0: RaymarchingElement, T1: RaymarchingElemen
         let t0Result = t0.signedDistance(to: point, current: current)
         let t1Result = t1.signedDistance(to: point, current: current)
 
-        return RaymarchingResult.union(current, operation(t0Result, t1Result))
+        return min(current, operation(t0Result, t1Result))
     }
 }

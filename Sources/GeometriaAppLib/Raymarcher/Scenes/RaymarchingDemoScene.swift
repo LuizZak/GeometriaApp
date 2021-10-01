@@ -13,15 +13,13 @@ enum RaymarchingDemoScene {
             // Shiny Sphere
             RSphere3D(center: .init(x: 0, y: 150, z: 45), radius: 30)
             
-            subtraction {
-                // Cylinder
-                RCylinder3D(start: .init(x: 60, y: 150, z: 0),
-                            end: .init(x: 60, y: 150, z: 100),
-                            radius: 20)
-                
-                // Bumpy Sphere
-                RSphere3D(center: .init(x: 70, y: 150, z: 45), radius: 30)
-            }
+            // Cylinder
+            RCylinder3D(start: .init(x: 60, y: 150, z: 0),
+                        end: .init(x: 60, y: 150, z: 100),
+                        radius: 20)
+            
+            // Bumpy Sphere
+            RSphere3D(center: .init(x: 70, y: 150, z: 45), radius: 30)
 
             /*
             SceneGeometry(
@@ -60,16 +58,42 @@ extension RaymarchingDemoScene {
     static func element<T: RaymarchingElement>(@RaymarchingElementBuilder _ builder: () -> T) -> T {
         builder()
     }
+}
 
-    static func intersection<T0: RaymarchingElement, T1: RaymarchingElement>(@RaymarchingElementBuilder _ builder: () -> TupleRaymarchingElement2<T0, T1>) -> OperationRaymarchingElement<T0, T1> {
+// Reference for distance function modifiers:
+// https://www.iquilezles.org/www/articles/distfunctions/distfunctions.htm
+
+// MARK: Basic operations
+
+extension RaymarchingDemoScene {
+    static func intersection<T0, T1>(@RaymarchingElementBuilder _ builder: () -> TupleRaymarchingElement2<T0, T1>) -> IntersectionElement<T0, T1> {
         let value = builder()
 
-        return .init(t0: value.t0, t1: value.t1, operation: RaymarchingResult.intersection)
+        return .init(t0: value.t0, t1: value.t1)
     }
 
-    static func subtraction<T0: RaymarchingElement, T1: RaymarchingElement>(@RaymarchingElementBuilder _ builder: () -> TupleRaymarchingElement2<T0, T1>) -> OperationRaymarchingElement<T0, T1> {
+    static func subtraction<T0, T1>(@RaymarchingElementBuilder _ builder: () -> TupleRaymarchingElement2<T0, T1>) -> SubtractionElement<T0, T1> {
         let value = builder()
 
-        return .init(t0: value.t0, t1: value.t1, operation: RaymarchingResult.subtraction)
+        return .init(t0: value.t0, t1: value.t1)
+    }
+}
+
+// MARK: Basic operations - smoothed
+
+extension RaymarchingDemoScene {
+    static func union<T0, T1>(smoothSize: Double, @RaymarchingElementBuilder _ builder: () -> TupleRaymarchingElement2<T0, T1>) -> SmoothUnionElement<T0, T1> {
+        let value = builder()
+        return .init(t0: value.t0, t1: value.t1, smoothSize: smoothSize)
+    }
+
+    static func intersection<T0, T1>(smoothSize: Double, @RaymarchingElementBuilder _ builder: () -> TupleRaymarchingElement2<T0, T1>) -> SmoothIntersectionElement<T0, T1> {
+        let value = builder()
+        return .init(t0: value.t0, t1: value.t1, smoothSize: smoothSize)
+    }
+
+    static func subtraction<T0, T1>(smoothSize: Double, @RaymarchingElementBuilder _ builder: () -> TupleRaymarchingElement2<T0, T1>) -> SmoothSubtractionElement<T0, T1> {
+        let value = builder()
+        return .init(t0: value.t0, t1: value.t1, smoothSize: smoothSize)
     }
 }

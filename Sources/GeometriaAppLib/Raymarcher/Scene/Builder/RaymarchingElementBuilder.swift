@@ -1,8 +1,29 @@
 @resultBuilder
 struct RaymarchingElementBuilder {
-    static func buildExpression(_ value: RAABB3D) -> BoundedSphereRaymarchingElement<GeometryRaymarchingElement<RAABB3D>> {
+
+    // MARK: Concrete types
+
+    static func buildExpression(_ value: RSphere3D) -> SphereRaymarchingElement {
         .init(geometry: value)
     }
+
+    static func buildExpression(_ value: RAABB3D) -> AABBRaymarchingElement {
+        .init(geometry: value)
+    }
+
+    static func buildExpression(_ value: RCylinder3D) -> CylinderRaymarchingElement {
+        .init(geometry: value)
+    }
+
+    static func buildExpression(_ value: RPlane3D) -> PlaneRaymarchingElement {
+        .init(geometry: value)
+    }
+
+    static func buildExpression(_ value: RDisk3D) -> DiskRaymarchingElement {
+        .init(geometry: value)
+    }
+
+    // MARK: Generic types
     
     static func buildExpression<T>(_ value: T) -> GeometryRaymarchingElement<T> where T: SignedDistanceMeasurableType {
         .init(geometry: value)
