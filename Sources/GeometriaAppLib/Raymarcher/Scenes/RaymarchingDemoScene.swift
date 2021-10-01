@@ -1,7 +1,7 @@
 enum RaymarchingDemoScene {
     static func makeScene() -> some RaymarchingSceneType {
         // TODO: Add support for materials
-        RaymarchingSceneBuilder.makeScene {
+        RaymarchingElementBuilder.makeScene(skyColor: .cornflowerBlue) {
             // Back AABB
             RAABB3D(minimum: .init(x: -50, y: 200, z: 10),
                     maximum: .init(x: 0, y: 210, z: 50))
@@ -13,13 +13,16 @@ enum RaymarchingDemoScene {
             // Shiny Sphere
             RSphere3D(center: .init(x: 0, y: 150, z: 45), radius: 30)
             
-            // Cylinder
-            RCylinder3D(start: .init(x: 60, y: 150, z: 0),
-                        end: .init(x: 60, y: 150, z: 100),
-                        radius: 20)
-            
-            // Bumpy Sphere
-            RSphere3D(center: .init(x: 70, y: 150, z: 45), radius: 30)
+            subtraction {
+                // Cylinder
+                RCylinder3D(start: .init(x: 60, y: 150, z: 0),
+                            end: .init(x: 60, y: 150, z: 100),
+                            radius: 20)
+                
+                // Bumpy Sphere
+                RSphere3D(center: .init(x: 70, y: 150, z: 45), radius: 30)
+            }
+
             /*
             SceneGeometry(
                 id: 0,
@@ -50,5 +53,23 @@ enum RaymarchingDemoScene {
             // Floor plane
             RPlane3D(point: .zero, normal: .unitZ)
         }
+    }
+}
+
+extension RaymarchingDemoScene {
+    static func element<T: RaymarchingElement>(@RaymarchingElementBuilder _ builder: () -> T) -> T {
+        builder()
+    }
+
+    static func intersection<T0: RaymarchingElement, T1: RaymarchingElement>(@RaymarchingElementBuilder _ builder: () -> TupleRaymarchingElement2<T0, T1>) -> OperationRaymarchingElement<T0, T1> {
+        let value = builder()
+
+        return .init(t0: value.t0, t1: value.t1, operation: RaymarchingResult.intersection)
+    }
+
+    static func subtraction<T0: RaymarchingElement, T1: RaymarchingElement>(@RaymarchingElementBuilder _ builder: () -> TupleRaymarchingElement2<T0, T1>) -> OperationRaymarchingElement<T0, T1> {
+        let value = builder()
+
+        return .init(t0: value.t0, t1: value.t1, operation: RaymarchingResult.subtraction)
     }
 }

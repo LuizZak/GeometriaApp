@@ -56,6 +56,32 @@
 				"label": "Run Win32 (debug)",
 				"type": "shell",
 				"command": "run-win.cmd",
+				"args": [
+					"debug"
+				],
+				"presentation": {
+					"reveal": "always"
+				},
+				"group": "build",
+				"windows": {
+					"options": {
+						"shell": {
+							"executable": "C:\\WINDOWS\\System32\\cmd.exe",
+							"args": [
+								"/d",
+								"/c",
+							]
+						}
+					}
+				}
+			},
+			{
+				"label": "Run Win32 (release)",
+				"type": "shell",
+				"command": "run-win.cmd",
+				"args": [
+					"release"
+				],
 				"presentation": {
 					"reveal": "always"
 				},
@@ -165,9 +191,9 @@
 			".*.sw?": true,
 			"**/.DS_Store": true
 		},
-		"ShortcutMenuBar.userButton01Command": "workbench.action.tasks.runTask|Build (debug)",
-		"ShortcutMenuBar.userButton02Command": "workbench.action.tasks.runTask|Build Win32 (debug)",
-		"ShortcutMenuBar.userButton03Command": "workbench.action.tasks.runTask|Run Win32 (debug)",
+		"ShortcutMenuBar.userButton01Command": "workbench.action.tasks.runTask|Build Win32 (debug)",
+		"ShortcutMenuBar.userButton02Command": "workbench.action.tasks.runTask|Run Win32 (debug)",
+		"ShortcutMenuBar.userButton03Command": "workbench.action.tasks.runTask|Run Win32 (release)",
 	},
 	"extensions": {
 		"recommendations": [

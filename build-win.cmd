@@ -8,13 +8,18 @@
 @REM TODO: Enable -cross-module-optimization once Swift compiler properly supports it without crashing
 @REM @if %CONFIG%==release @SET BUILD_ARGS=%BUILD_ARGS% -Xswiftc -cross-module-optimization
 
+@REM Emit debug symbols
+@SET BUILD_ARGS=%BUILD_ARGS% -Xswiftc -g -Xswiftc -debug-info-format=codeview
+
 swift build %BUILD_ARGS%
 
 @if %errorlevel% neq 0 @exit /b %errorlevel%
 
 @echo Preparing binary...
 
-@for /f %%i in ('swift build -c=%CONFIG% --show-bin-path') do @set BIN_DIR=%%i
+@for /f %%i in ('swift build -c=%CONFIG% --show-bin-path') do (
+    @set BIN_DIR=%%i
+)
 
 @SET BIN_NAME=GeometriaApp.exe
 @SET WINDOWS_SOURCE_PATH=Sources\GeometriaWindows

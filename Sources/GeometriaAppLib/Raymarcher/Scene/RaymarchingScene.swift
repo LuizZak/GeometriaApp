@@ -8,3 +8,9 @@ struct RaymarchingScene<T: RaymarchingElement>: RaymarchingSceneType {
         root.signedDistance(to: point, current: current)
     }
 }
+
+extension RaymarchingElementBuilder {
+    static func makeScene<T>(skyColor: BLRgba32, @RaymarchingElementBuilder _ builder: () -> T) -> RaymarchingScene<T> where T: RaymarchingElement {
+        .init(root: builder(), skyColor: .cornflowerBlue)
+    }
+}
