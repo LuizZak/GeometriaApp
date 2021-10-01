@@ -38,6 +38,7 @@ class GeometriaWindow: Blend2DWindowContentType {
     }
 
     func render(context ctx: BLContext, renderScale: UIVector, clipRegion: ClipRegion) {
+        ctx.scale(by: renderScale.asBLPoint)
         raytracer.render(context: ctx)
     }
 
