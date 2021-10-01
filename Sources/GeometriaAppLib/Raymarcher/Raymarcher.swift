@@ -4,7 +4,7 @@ import ImagineUI
 private var _attemptedDebugInMultithreadedYet = false
 
 /// Class that performs raymarching on a scene.
-struct Raymarcher<SceneType: RaymarchingSceneType>: RendererType {
+final class Raymarcher<SceneType: RaymarchingSceneType>: RendererType {
     private var processingPrinter: RaytracerProcessingPrinter?
     
     let scene: SceneType
@@ -20,7 +20,7 @@ struct Raymarcher<SceneType: RaymarchingSceneType>: RendererType {
     
     // MARK: - Debugging
     
-    mutating func beginDebug() {
+    func beginDebug() {
         if isMultiThreaded {
             if !_attemptedDebugInMultithreadedYet {
                 _attemptedDebugInMultithreadedYet = true
@@ -37,7 +37,7 @@ struct Raymarcher<SceneType: RaymarchingSceneType>: RendererType {
             )
     }
     
-    mutating func endDebug() {
+    func endDebug() {
         processingPrinter?.printAll()
         processingPrinter = nil
     }

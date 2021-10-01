@@ -1,6 +1,6 @@
 import SwiftBlend2D
 
-protocol RendererType {
+protocol RendererType: AnyObject {
     /// Gets or sets the camera for this renderer.
     ///
     /// Should not be set on multi-threaded contexts with potential for data
@@ -18,6 +18,6 @@ protocol RendererType {
     /// It is safe to call in multi-threaded contexts.
     func render(pixelAt coord: PixelCoord) -> BLRgba32
     
-    mutating func beginDebug()
-    mutating func endDebug()
+    func beginDebug()
+    func endDebug()
 }

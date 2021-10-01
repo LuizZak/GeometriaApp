@@ -43,18 +43,18 @@ final class RendererWorker: CustomStringConvertible {
         _print("Worker started")
         defer { _print("Worker finished") }
         
+        guard let renderer = _context?.renderer() else {
+            _print("Context returned nil renderer")
+            _isCancelled = true
+            return
+        }
+
         while !_isCancelled {
             if _isPaused { Thread.sleep(milliseconds: 1); continue; }
             if _isCancelled { return }
             
             guard let context = _context else {
                 _print("Worker has nil context")
-                _isCancelled = true
-                return
-            }
-            
-            guard let renderer = context.renderer() else {
-                _print("Context returned nil renderer")
                 _isCancelled = true
                 return
             }
