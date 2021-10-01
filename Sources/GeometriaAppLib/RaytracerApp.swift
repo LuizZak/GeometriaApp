@@ -166,15 +166,18 @@ public class RaytracerApp: Blend2DApp {
 //        let batcher = SieveBatcher()
 //        let batcher = LinearBatcher()
         
-        let scene = DemoScene.makeScene()
-        
         #if false
+        
+        let scene = DemoScene.makeScene()
         
         let renderer = Raytracer(scene: scene,
                                  camera: Camera(viewportSize: viewportSize),
                                  viewportSize: viewportSize)
         
         #else
+
+        
+        let scene = RaymarchingDemoScene.makeScene()
         
         let renderer = Raymarcher(scene: scene,
                                   camera: Camera(viewportSize: viewportSize),

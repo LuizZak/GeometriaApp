@@ -1,17 +1,18 @@
 import SwiftBlend2D
 import ImagineUI
 
+private var _attemptedDebugInMultithreadedYet = false
+
 /// Class that performs raymarching on a scene.
-struct Raymarcher: RendererType {
-    private static var _attemptedDebugInMultithreadedYet = false
+struct Raymarcher<SceneType: RaymarchingSceneType>: RendererType {
     private var processingPrinter: RaytracerProcessingPrinter?
     
-    let scene: Scene
+    let scene: SceneType
     let camera: Camera
     let viewportSize: ViewportSize
     var isMultiThreaded: Bool = false
     
-    init(scene: Scene, camera: Camera, viewportSize: ViewportSize) {
+    init(scene: SceneType, camera: Camera, viewportSize: ViewportSize) {
         self.scene = scene
         self.camera = camera
         self.viewportSize = viewportSize
@@ -21,8 +22,8 @@ struct Raymarcher: RendererType {
     
     mutating func beginDebug() {
         if isMultiThreaded {
-            if !Self._attemptedDebugInMultithreadedYet {
-                Self._attemptedDebugInMultithreadedYet = true
+            if !_attemptedDebugInMultithreadedYet {
+                _attemptedDebugInMultithreadedYet = true
                 print("Attempted to invoke Raymarcher.beginDebug() with a multi-pixel, multi-threaded render, which is potentially not intended. Ignoring...")
             }
             
@@ -66,7 +67,7 @@ struct Raymarcher: RendererType {
             
             let next = distanceFunction(ray.start)
             
-            let signedDistance = next.signedDistance
+            let signedDistance = next.distance
             
             // Scene is empty?
             if signedDistance.isInfinite {
@@ -94,21 +95,7 @@ struct Raymarcher: RendererType {
         return mergeColors(scene.skyColor, .black, factor: factor)
     }
     
-    private func distanceFunction(_ vector: RVector3D) -> MarchResult {
-        var dist: Double = .infinity
-        
-        var index = 0
-        let count = scene.geometries.count
-        while index < count {
-            defer { index += 1 }
-            dist = min(dist, scene.geometries[index]._signedDistanceFunction(vector, dist))
-        }
-        
-        return MarchResult(signedDistance: dist)
-    }
-    
-    private struct MarchResult {
-        /// Distance to nearest geometry
-        var signedDistance: Double
+    private func distanceFunction(_ vector: RVector3D) -> RaymarchingResult {
+        scene.signedDistance(to: vector, current: .emptyResult())
     }
 }

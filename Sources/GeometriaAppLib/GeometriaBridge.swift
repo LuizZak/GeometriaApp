@@ -1,7 +1,7 @@
 import SwiftBlend2D
 import ImagineUI
 
-#if false // canImport(simd)
+#if canImport(simd)
 
 import simd
 
