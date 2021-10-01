@@ -2,6 +2,7 @@ import AppKit
 import SwiftUI
 import SwiftBlend2D
 import ImagineUI
+import Blend2DRenderer
 import GeometriaAppLib
 import QuartzCore
 
@@ -256,7 +257,8 @@ class CanvasView: NSView {
         return MouseEventArgs(location: UIVector(x: Double(point.x), y: Double(bounds.height - point.y)),
                               buttons: mouseButton,
                               delta: UIVector(x: scrollingDeltaX, y: scrollingDeltaY),
-                              clicks: clickCount)
+                              clicks: clickCount,
+                              modifiers: [])
     }
     
     func incrementUpdateWorkQueue() {
@@ -264,8 +266,6 @@ class CanvasView: NSView {
     }
     
     func update() {
-        app.update(CACurrentMediaTime())
-        
         if let first = redrawBounds.first {
             let options = BLContext.CreateOptions(threadCount: 4)
             
@@ -333,6 +333,12 @@ extension CanvasView: Blend2DAppDelegate {
             NSCursor.resizeLeftRight.set()
         case .resizeUpDown:
             NSCursor.resizeUpDown.set()
+        case .resizeTopLeftBottomRight:
+            break
+        case .resizeTopRightBottomLeft:
+            break
+        case .resizeAll:
+            break
         case let .custom(imagePath, hotspot):
             let cursor = NSCursor(image: NSImage(byReferencingFile: imagePath)!,
                                   hotSpot: NSPoint(x: hotspot.x, y: hotspot.y))
