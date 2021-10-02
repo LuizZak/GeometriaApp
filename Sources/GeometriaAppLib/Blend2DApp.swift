@@ -3,6 +3,7 @@ import SwiftBlend2D
 import ImagineUI
 
 public protocol Blend2DAppDelegate: AnyObject {
+    func needsLayout(_ view: View)
     func invalidate(bounds: UIRectangle)
     func setMouseCursor(_ cursor: MouseCursorKind)
     func setMouseHiddenUntilMouseMoves()

@@ -1,30 +1,68 @@
-@echo Building project...
+@ECHO OFF
 
-@SET CONFIG=%1
-@if not defined CONFIG @SET CONFIG=debug
+SETLOCAL
 
-@SET BUILD_ARGS=-c=%CONFIG%
+REM
+REM Collect parameters
+REM
 
-@REM TODO: Enable -cross-module-optimization once Swift compiler properly supports it without crashing
-@REM @if %CONFIG%==release @SET BUILD_ARGS=%BUILD_ARGS% -Xswiftc -cross-module-optimization
+IF "%~1"=="" (
+    SET CONFIG=debug
+) ELSE (
+    SET CONFIG=%1
+)
 
-@REM Emit debug symbols
-@SET BUILD_ARGS=%BUILD_ARGS% -Xswiftc -g -Xswiftc -debug-info-format=codeview
+REM
+REM Script
+REM
+
+CALL config 1> NUL
+
+ECHO Build settings:
+ECHO --
+ECHO CONFIG=%CONFIG%
+ECHO BIN_NAME=%BIN_NAME%
+ECHO MANIFEST_PATH=%MANIFEST_PATH%
+ECHO --
+
+ECHO Building project...
+
+SET BUILD_ARGS=-c=%CONFIG%
+
+REM TODO: Enable -cross-module-optimization once Swift compiler properly supports it without crashing
+REM if %CONFIG%==release SET BUILD_ARGS=%BUILD_ARGS% -Xswiftc -cross-module-optimization
+
+REM Emit debug symbols
+IF %CONFIG%=="debug" (
+    SET BUILD_ARGS=%BUILD_ARGS% -Xswiftc -g -Xswiftc -debug-info-format=codeview
+) ELSE (
+    IF %CONFIG%==debug (
+        SET BUILD_ARGS=%BUILD_ARGS% -Xswiftc -g -Xswiftc -debug-info-format=codeview
+    )
+)
+
+@ECHO ON
 
 swift build %BUILD_ARGS%
 
-@if %errorlevel% neq 0 @exit /b %errorlevel%
+@ECHO OFF
 
-@echo Preparing binary...
+IF %errorlevel% neq 0 (
+    EXIT /b %errorlevel%
+)
 
-@for /f %%i in ('swift build -c=%CONFIG% --show-bin-path') do @set BIN_DIR=%%i
+ECHO Preparing binary...
 
-@SET BIN_NAME=GeometriaApp.exe
-@SET WINDOWS_SOURCE_PATH=Sources\GeometriaWindows
+FOR /f %%i IN ('swift build -c=%CONFIG% --show-bin-path') DO (
+    SET BIN_DIR=%%i
+)
 
-@SET MANIFEST_PATH=%WINDOWS_SOURCE_PATH%\GeometriaApp.exe.manifest
-@SET BIN_PATH=%BIN_DIR%\%BIN_NAME%
+SET BIN_PATH=%BIN_DIR%\%BIN_NAME%
 
 mt -nologo -manifest %MANIFEST_PATH% -outputresource:%BIN_PATH%
 
-@echo Done building!
+IF %errorlevel% neq 0 (
+    EXIT /b %errorlevel%
+)
+
+ECHO Done building!

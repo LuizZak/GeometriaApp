@@ -166,7 +166,7 @@ public class RaytracerApp: Blend2DApp {
 //        let batcher = SieveBatcher()
 //        let batcher = LinearBatcher()
         
-        #if true
+        #if false
         
         let scene = DemoScene.makeScene()
         
@@ -241,7 +241,7 @@ public class RaytracerApp: Blend2DApp {
     // MARK: - UI
     
     public func performLayout() {
-        
+        ui.performLayout()
     }
     
     public func keyDown(event: KeyEventArgs) {

@@ -81,6 +81,10 @@ class GeometriaWindow: Blend2DWindowContentType {
 }
 
 extension GeometriaWindow: Blend2DAppDelegate {
+    func needsLayout(_ view: View) {
+        delegate?.needsLayout(view)
+    }
+
     func invalidate(bounds: UIRectangle) {
         delegate?.invalidate(bounds: bounds)
     }

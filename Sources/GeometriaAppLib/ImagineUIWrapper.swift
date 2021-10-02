@@ -73,8 +73,6 @@ class ImagineUIWrapper {
         let delta = time - lastFrame
         lastFrame = time
         Scheduler.instance.onFixedFrame(delta)
-        
-        performLayout()
     }
     
     func performLayout() {
@@ -168,7 +166,7 @@ extension ImagineUIWrapper: DefaultControlSystemDelegate {
 
 extension ImagineUIWrapper: RootViewRedrawInvalidationDelegate {
     func rootViewInvalidatedLayout(_ rootView: RootView) {
-
+        delegate?.needsLayout(rootView)
     }
 
     func rootView(_ rootView: RootView, invalidateRect rect: UIRectangle) {
