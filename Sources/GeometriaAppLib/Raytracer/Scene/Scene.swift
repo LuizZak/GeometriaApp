@@ -75,11 +75,11 @@ struct Scene {
                      point: RVector3D,
                      normal: RVector3D,
                      intersection: ConvexLineIntersection<RVector3D>,
-                     sceneGeometry: SceneGeometry) -> PartialRayResult {
+                     id: Int) -> PartialRayResult {
             
             let hit = RayHit(pointOfInterest: .init(point: point, normal: normal),
                              intersection: intersection,
-                             sceneGeometry: sceneGeometry)
+                             id: id)
             
             return withHit(hit)
         }

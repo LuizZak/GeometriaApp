@@ -221,7 +221,7 @@ final class SceneGeometry {
         
         return RayHit(findingPointOfInterestOf: ignoring,
                       intersection: result,
-                      sceneGeometry: self)
+                      id: id)
     }
     
     private struct RayInfo {

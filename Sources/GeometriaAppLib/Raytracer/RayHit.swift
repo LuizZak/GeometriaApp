@@ -30,26 +30,26 @@ struct RayHit {
     /// during the raycasting invocation where this ray hit was created.
     var pointOfInterest: PointNormal<RVector3D>
     var intersection: ConvexLineIntersection<RVector3D>
-    var sceneGeometry: SceneGeometry
+    var id: Int
     
     init(pointOfInterest: PointNormal<RVector3D>,
          intersection: ConvexLineIntersection<RVector3D>,
-         sceneGeometry: SceneGeometry) {
+         id: Int) {
         
         self.pointOfInterest = pointOfInterest
         self.intersection = intersection
-        self.sceneGeometry = sceneGeometry
+        self.id = id
     }
     
     init?(findingPointOfInterestOf rayIgnore: RayIgnore,
           intersection: ConvexLineIntersection<RVector3D>,
-          sceneGeometry: SceneGeometry) {
+          id: Int) {
         
-        guard let poi = rayIgnore.computePointNormalOfInterest(id: sceneGeometry.id, intersection: intersection) else {
+        guard let poi = rayIgnore.computePointNormalOfInterest(id: id, intersection: intersection) else {
             return nil
         }
         
-        self.init(pointOfInterest: poi, intersection: intersection, sceneGeometry: sceneGeometry)
+        self.init(pointOfInterest: poi, intersection: intersection, id: id)
     }
     
     /// Computes a new ``RayHit`` from the parameters of this instance, while
@@ -58,13 +58,13 @@ struct RayHit {
     /// Returns `nil` if ``RayIgnore/computePointNormalOfInterest`` returns `nil`
     func assignPointOfInterest(from rayIgnore: RayIgnore) -> RayHit? {
         guard let poi = rayIgnore.computePointNormalOfInterest(
-            id: sceneGeometry.id,
+            id: id,
             intersection: intersection
         ) else {
             return nil
         }
         
-        return RayHit(pointOfInterest: poi, intersection: intersection, sceneGeometry: sceneGeometry)
+        return RayHit(pointOfInterest: poi, intersection: intersection, id: id)
     }
     
     /// Specifies where the ray hit the geometry.

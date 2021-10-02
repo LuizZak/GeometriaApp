@@ -80,13 +80,15 @@ final class Raytracer: RendererType {
         default:
             break
         }
+
+        let sceneGeometry = scene.geometries[hit.id]
         
         processingPrinter?.add(hit: hit, ray: ray)
-        processingPrinter?.add(geometry: hit.sceneGeometry)
+        processingPrinter?.add(geometry: sceneGeometry)
         processingPrinter?.add(intersection: hit.intersection)
         
-        let geometry = hit.sceneGeometry.geometry
-        let material = hit.sceneGeometry.material
+        let geometry = sceneGeometry.geometry
+        let material = sceneGeometry.material
         let invTransparency = 1 - material.transparency
         var color = mergeColors(scene.skyColor, material.color, factor: invTransparency)
         var minimumShade: Double = 0.0
@@ -138,7 +140,7 @@ final class Raytracer: RendererType {
         if material.transparency > 0.0 {
             // Raycast past geometry and add color
             var rayThroughObject: RRay3D = RRay3D(start: hit.point, direction: ray.direction)
-            var rayIgnore: RayIgnore = .full(id: hit.sceneGeometry.id)
+            var rayIgnore: RayIgnore = .full(id: hit.id)
             
             // If refraction is active, create a ray that points to the exit
             // point of the refracted ray that was generated inside the object's
@@ -157,13 +159,13 @@ final class Raytracer: RendererType {
                 // Allow bouncing out of the geometry, but not in
                 let minDist = 0.01
                 let minDistSq = minDist * minDist
-                rayIgnore = .entrance(id: hit.sceneGeometry.id, minimumRayLengthSquared: minDist * minDist)
+                rayIgnore = .entrance(id: hit.id, minimumRayLengthSquared: minDist * minDist)
                 // Do a sanitity check that the ray isn't going to collide
                 // immediately with the same geometry - if it does, skip the
                 // geometry fully in the subsequent raycast
-                let innerHit = hit.sceneGeometry.doRayCast(ray: innerRay, ignoring: rayIgnore)
+                let innerHit = sceneGeometry.doRayCast(ray: innerRay, ignoring: rayIgnore)
                 if let innerHit = innerHit, innerHit.point.distanceSquared(to: hit.point) <= minDistSq {
-                    rayIgnore = .full(id: hit.sceneGeometry.id)
+                    rayIgnore = .full(id: hit.id)
                 }
                 
                 rayThroughObject = innerRay
@@ -180,9 +182,9 @@ final class Raytracer: RendererType {
             // Raycast from normal and fade in the reflected color
             let ignoring: RayIgnore
             if hit.hitDirection == .inside {
-                ignoring = .entrance(id: hit.sceneGeometry.id, minimumRayLengthSquared: minimumRayToleranceSq)
+                ignoring = .entrance(id: hit.id, minimumRayLengthSquared: minimumRayToleranceSq)
             } else {
-                ignoring = .exit(id: hit.sceneGeometry.id, minimumRayLengthSquared: minimumRayToleranceSq)
+                ignoring = .exit(id: hit.id, minimumRayLengthSquared: minimumRayToleranceSq)
             }
             let reflection = reflect(direction: ray.direction, normal: hit.normal)
             let normRay = RRay3D(start: hit.point, direction: reflection)
@@ -246,11 +248,11 @@ final class Raytracer: RendererType {
     private func calculateShadow(for hit: RayHit) -> Double {
         let ray = RRay3D(start: hit.point, direction: -scene.sunDirection)
         
-        let intersections = scene.intersectAll(ray: ray, ignoring: .full(id: hit.sceneGeometry.id))
+        let intersections = scene.intersectAll(ray: ray, ignoring: .full(id: hit.id))
         
         let transparency =
         intersections
-            .map(\.sceneGeometry.material.transparency)
+            .map { scene.geometries[$0.id].material.transparency }
             .reduce(1.0, *)
         
         return max(0.0, min(1.0, 1 - transparency))

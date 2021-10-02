@@ -154,6 +154,10 @@
 		{
 			"name": "Swift Package Dependencies",
 			"path": ".build/checkouts"
+		},
+		{
+			"name": "Build",
+			"path": ".build/x86_64-unknown-windows-msvc"
 		}
 	],
 	"settings": {

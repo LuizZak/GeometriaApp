@@ -75,7 +75,7 @@ extension SceneBuilder {
     static func makeScene(@SceneBuilder _ builder: () -> Scene) -> Scene {
         let scene = builder()
         for index in 0..<scene.geometries.count {
-            scene.geometries[index].id = index + 1
+            scene.geometries[index].id = index
         }
 
         return scene
