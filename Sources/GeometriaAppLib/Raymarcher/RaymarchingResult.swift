@@ -1,14 +1,20 @@
 struct RaymarchingResult {
     var distance: Double
+    var material: RaymarcherMaterial?
+
+    init(distance: Double, material: RaymarcherMaterial?) {
+        self.distance = distance
+        self.material = material
+    }
 
     @_transparent
     func addingDistance(_ distance: Double) -> Self {
-        .init(distance: self.distance + distance)
+        .init(distance: self.distance + distance, material: material)
     }
 
     @_transparent
     static func emptyResult() -> Self {
-        .init(distance: .infinity)
+        .init(distance: .infinity, material: nil)
     }
 
     @_transparent
@@ -24,21 +30,15 @@ struct RaymarchingResult {
         if r0.distance > r1.distance {
             return r0
         }
+        
         return r1
-    }
-
-    @_transparent
-    static func mix(_ r0: Self, _ r1: Self, factor: Double) -> Self {
-        let dist = r0.distance * (1 - factor) + r1.distance * factor
-
-        return .init(distance: dist)
     }
 }
 
 extension RaymarchingResult {
     @_transparent
     static prefix func - (lhs: Self) -> Self {
-        .init(distance: -lhs.distance)
+        .init(distance: -lhs.distance, material: lhs.material)
     }
 }
 
@@ -54,5 +54,7 @@ func max(_ lhs: RaymarchingResult, _ rhs: RaymarchingResult) -> RaymarchingResul
 
 @_transparent
 func mix(_ lhs: RaymarchingResult, _ rhs: RaymarchingResult, factor: Double) -> RaymarchingResult {
-    RaymarchingResult.mix(lhs, rhs, factor: factor)
+    let dist = lhs.distance * (1 - factor) + rhs.distance * factor
+
+    return .init(distance: dist, material: mix(lhs.material, rhs.material, factor: factor))
 }

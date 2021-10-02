@@ -45,11 +45,11 @@ IF %CONFIG%=="debug" (
 
 swift build %BUILD_ARGS%
 
-@ECHO OFF
-
-IF %errorlevel% neq 0 (
-    EXIT /b %errorlevel%
+@IF %errorlevel% neq 0 @(
+    @EXIT /b %errorlevel%
 )
+
+@ECHO OFF
 
 ECHO Preparing binary...
 
