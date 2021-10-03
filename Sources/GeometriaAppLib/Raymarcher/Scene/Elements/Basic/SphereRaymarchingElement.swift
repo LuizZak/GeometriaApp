@@ -1,4 +1,4 @@
-struct SphereRaymarchingElement: RaymarchingElement {
+struct SphereRaymarchingElement: BoundedRaymarchingElement {
     var geometry: RSphere3D
     var material: RaymarcherMaterial
 
@@ -10,5 +10,9 @@ struct SphereRaymarchingElement: RaymarchingElement {
         }
 
         return .init(distance: distance, material: material)
+    }
+
+    func makeBounds() -> RaymarchingBounds {
+        RaymarchingBounds.makeBounds(for: geometry)
     }
 }

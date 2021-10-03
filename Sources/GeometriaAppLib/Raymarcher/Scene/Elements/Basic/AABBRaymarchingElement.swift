@@ -1,19 +1,8 @@
-struct AABBRaymarchingElement: RaymarchingElement {
+struct AABBRaymarchingElement: BoundedRaymarchingElement {
     var geometry: RAABB3D
     var material: RaymarcherMaterial
-    var boundingSphere: RSphere3D
-
-    init(geometry: RAABB3D, material: RaymarcherMaterial) {
-        self.geometry = geometry
-        self.material = material
-        boundingSphere = RSphere3D(center: geometry.bounds.center, radius: geometry.bounds.size.maximalComponent / 2)
-    }
 
     func signedDistance(to point: RVector3D, current: RaymarchingResult) -> RaymarchingResult {
-        guard boundingSphere.signedDistance(to: point) < current.distance else {
-            return current
-        }
-        
         let distance = geometry.signedDistance(to: point)
         
         guard distance < current.distance else {
@@ -21,5 +10,9 @@ struct AABBRaymarchingElement: RaymarchingElement {
         }
 
         return .init(distance: distance, material: material)
+    }
+
+    func makeBounds() -> RaymarchingBounds {
+        RaymarchingBounds.makeBounds(for: geometry)
     }
 }

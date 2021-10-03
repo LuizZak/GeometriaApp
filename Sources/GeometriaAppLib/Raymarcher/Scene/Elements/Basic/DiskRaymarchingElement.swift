@@ -1,6 +1,4 @@
-import SwiftBlend2D
-
-struct DiskRaymarchingElement: RaymarchingElement {
+struct DiskRaymarchingElement: BoundedRaymarchingElement {
     var geometry: RDisk3D
     var material: RaymarcherMaterial
 
@@ -12,5 +10,9 @@ struct DiskRaymarchingElement: RaymarchingElement {
         }
 
         return .init(distance: distance, material: material)
+    }
+
+    func makeBounds() -> RaymarchingBounds {
+        RaymarchingBounds.makeBounds(for: geometry)
     }
 }

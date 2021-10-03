@@ -65,7 +65,10 @@ final class Raymarcher<SceneType: RaymarchingSceneType>: RendererType {
         let maxDistance: Double = 10000
 
         var result: RaymarchingResult = .emptyResult()
+        var traveled: Double = 0.0
         var iteration = 0
+        var hit = false
+        var escaped = false
         
         while iteration < maxMarchIterationCount {
             defer { iteration += 1 }
@@ -73,9 +76,11 @@ final class Raymarcher<SceneType: RaymarchingSceneType>: RendererType {
             result = distanceFunction(ray.start)
             
             let signedDistance = result.distance
+            traveled += signedDistance
             
             // Scene is empty?
             if signedDistance.isInfinite {
+                escaped = true
                 break
             }
             // Something broke in the algorithms?
@@ -84,27 +89,30 @@ final class Raymarcher<SceneType: RaymarchingSceneType>: RendererType {
             }
             
             if signedDistance < minimumMarchTolerance {
+                hit = true
                 break
             }
             if signedDistance >= maxDistance {
-                iteration = maxMarchIterationCount
+                escaped = true
                 break
             }
             
             ray.start = ray.projectedMagnitude(signedDistance)
         }
 
+        escaped = escaped || iteration == maxMarchIterationCount
+
         let materialColor = result.material.map { computeColor(at: ray.start, material: $0) }
 
         var resultColor: BLRgba32
-        if result.distance >= maxDistance || iteration == maxMarchIterationCount {
+        if escaped {
             resultColor = scene.skyColor
         } else {
             resultColor = materialColor ?? scene.skyColor
         }
         
         // Compute color based on normal
-        if result.distance < minimumMarchTolerance, let materialColor = materialColor {
+        if hit, let materialColor = materialColor {
             let norm = calcNormal(ray.start)
 
             // TODO: Reflections?
@@ -120,7 +128,7 @@ final class Raymarcher<SceneType: RaymarchingSceneType>: RendererType {
             resultColor = mergeColors(resultColor, .black, factor: (1 - shade) * invTransparency)
         }
 
-        // Compute shadowFactor
+        // Compute shadow
         let shadowFactor = computeShadowFactor(at: ray.start, startDist: result.distance)
         resultColor = mergeColors(resultColor, .black, factor: (1 - shadowFactor) * 0.7)
 
