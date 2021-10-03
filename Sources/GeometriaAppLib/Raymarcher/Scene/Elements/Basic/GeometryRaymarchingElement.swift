@@ -8,7 +8,13 @@ struct GeometryRaymarchingElement<T: SignedDistanceMeasurableType>: RaymarchingE
         guard distance < current.distance else {
             return current
         }
-
+        
         return .init(distance: distance, material: material)
+    }
+}
+
+extension GeometryRaymarchingElement: BoundedRaymarchingElement where T: BoundableType {
+    func makeBounds() -> RaymarchingBounds {
+        RaymarchingBounds.makeBounds(for: geometry)
     }
 }

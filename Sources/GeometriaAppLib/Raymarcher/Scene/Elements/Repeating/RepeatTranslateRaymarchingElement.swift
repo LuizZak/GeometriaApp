@@ -15,7 +15,7 @@ struct RepeatTranslateRaymarchingElement<T: RaymarchingElement>: RaymarchingElem
 
             // If a translation brought the geometry farther away from the point, 
             // the remaining translations will be farther away as well.
-            if next.distance > current.distance {
+            if index > 0 && next.distance > current.distance {
                 return current
             }
 
@@ -23,5 +23,13 @@ struct RepeatTranslateRaymarchingElement<T: RaymarchingElement>: RaymarchingElem
         }
         
         return current
+    }
+}
+
+extension RepeatTranslateRaymarchingElement: BoundedRaymarchingElement where T: BoundedRaymarchingElement {
+    func makeBounds() -> RaymarchingBounds {
+        let bounds = element.makeBounds()
+        
+        return bounds.union(bounds.offsetBy(translation * Double(count)))
     }
 }

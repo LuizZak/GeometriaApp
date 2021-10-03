@@ -9,3 +9,11 @@ struct SubtractionElement<T0: RaymarchingElement, T1: RaymarchingElement>: Rayma
         return max(v0, -v1)
     }
 }
+
+extension SubtractionElement: BoundedRaymarchingElement where T0: BoundedRaymarchingElement, T1: BoundedRaymarchingElement {
+    // TODO: Not ideal to create a bound out of the union here, but it's better
+    // TODO: than not being bounded at all.
+    func makeBounds() -> RaymarchingBounds {
+        t0.makeBounds().union(t1.makeBounds())
+    }
+}

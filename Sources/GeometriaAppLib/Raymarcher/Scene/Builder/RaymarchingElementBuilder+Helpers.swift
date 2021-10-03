@@ -14,10 +14,6 @@ func repeatTranslate<T: RaymarchingElement>(count: Int, translation: RVector3D, 
     .init(element: builder(), translation: translation, count: count)
 }
 
-func repeatTranslate<T: BoundedRaymarchingElement>(count: Int, translation: RVector3D, @RaymarchingElementBuilder _ builder: () -> T) -> RepeatTranslateBoundedRaymarchingElement<T> {
-    .init(element: builder(), translation: translation, count: count)
-}
-
 // Reference for distance function modifiers:
 // https://www.iquilezles.org/www/articles/distfunctions/distfunctions.htm
 
