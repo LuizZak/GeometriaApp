@@ -312,6 +312,10 @@ class CanvasView: NSView {
 }
 
 extension CanvasView: Blend2DAppDelegate {
+    func needsLayout(_ view: ImagineUI.View) {
+        view.performLayout()
+    }
+    
     func invalidate(bounds: UIRectangle) {
         let rectBounds = NSRect(x: bounds.x,
                                 y: Double(self.bounds.height) - bounds.y - bounds.height,
