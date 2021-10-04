@@ -82,13 +82,13 @@ struct RayHit: Equatable {
     @_transparent
     func translated(by vector: RVector3D) -> RayHit {
         var hit = self
-
+        
         hit.intersection = hit.intersection.mappingPointNormals { (pn, _) in
             var pn = pn
             pn.point += vector
             return pn
         }
-
+        
         hit.pointOfInterest.point += vector
 
         return hit

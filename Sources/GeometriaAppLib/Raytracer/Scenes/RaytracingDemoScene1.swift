@@ -16,8 +16,8 @@ private func scene() -> some RaytracingElement {
             makeEllipse()
 
             makeDisk()
-            .repeatTranslated(count: 5, translation: .unitX * 30)
-            .makeBoundingBox()
+                .repeatTranslated(count: 5, translation: .unitX * 30)
+                .makeBoundingBox()
         }
 
         group {
