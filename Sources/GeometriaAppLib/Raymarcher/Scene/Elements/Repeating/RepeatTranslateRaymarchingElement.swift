@@ -1,8 +1,20 @@
-struct RepeatTranslateRaymarchingElement<T: RaymarchingElement>: RaymarchingElement {
+struct RepeatTranslateRaymarchingElement<T: RaymarchingElement> {
     var element: T
     var translation: RVector3D
     var count: Int
+}
 
+extension RepeatTranslateRaymarchingElement: Element {
+    mutating func attributeIds(_ idFactory: inout ElementIdFactory) {
+        element.attributeIds(&idFactory)
+    }
+
+    func queryScene(id: Int) -> Element? {
+        element.queryScene(id: id)
+    }
+}
+
+extension RepeatTranslateRaymarchingElement: RaymarchingElement {
     @inlinable
     func signedDistance(to point: RVector3D, current: RaymarchingResult) -> RaymarchingResult {
         var current = current
@@ -27,9 +39,9 @@ struct RepeatTranslateRaymarchingElement<T: RaymarchingElement>: RaymarchingElem
     }
 }
 
-extension RepeatTranslateRaymarchingElement: BoundedRaymarchingElement where T: BoundedRaymarchingElement {
-    func makeRaymarchingBounds() -> RaymarchingBounds {
-        let bounds = element.makeRaymarchingBounds()
+extension RepeatTranslateRaymarchingElement: BoundedElement where T: BoundedElement {
+    func makeBounds() -> RaymarchingBounds {
+        let bounds = element.makeBounds()
         
         return bounds.union(bounds.offsetBy(translation * Double(count - 1)))
     }

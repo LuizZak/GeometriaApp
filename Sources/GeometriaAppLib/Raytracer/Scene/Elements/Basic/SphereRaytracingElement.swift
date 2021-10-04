@@ -1,8 +1,4 @@
-struct SphereRaytracingElement {
-    var id: Int = 0
-    var geometry: RSphere3D
-    var material: Material
-}
+typealias SphereRaytracingElement = SphereElement
 
 extension SphereRaytracingElement: RaytracingElement {
     func raycast(query: RayQuery) -> RayQuery {
@@ -35,21 +31,5 @@ extension SphereRaytracingElement: RaytracingElement {
         }
 
         results.append(hit)
-    }
-    
-    @_transparent
-    mutating func attributeIds(_ idFactory: inout RaytracingElementIdFactory) {
-        id = idFactory.makeId()
-    }
-
-    @_transparent
-    func queryScene(id: Int) -> RaytracingElement? {
-        id == self.id ? self : nil
-    }
-}
-
-extension SphereRaytracingElement: BoundedRaytracingElement {
-    func makeRaytracingBounds() -> RaytracingBounds {
-        .makeRaytracingBounds(for: geometry)
     }
 }

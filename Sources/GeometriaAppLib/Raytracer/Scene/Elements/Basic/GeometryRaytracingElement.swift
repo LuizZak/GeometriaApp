@@ -1,10 +1,6 @@
-struct GeometryRaytracingElement<T> {
-    var id: Int = 0
-    var geometry: T
-    var material: Material
-}
+typealias GeometryRaytracingElement<T: Convex3Type> = GeometryElement<T> where T.Vector == RVector3D
 
-extension GeometryRaytracingElement: RaytracingElement where T: Convex3Type, T.Vector == RVector3D {
+extension GeometryRaytracingElement: RaytracingElement {
     func raycast(query: RayQuery) -> RayQuery {
         guard !query.ignoring.shouldIgnoreFully(id: id) else {
             return query
@@ -38,18 +34,12 @@ extension GeometryRaytracingElement: RaytracingElement where T: Convex3Type, T.V
     }
     
     @_transparent
-    mutating func attributeIds(_ idFactory: inout RaytracingElementIdFactory) {
+    mutating func attributeIds(_ idFactory: inout ElementIdFactory) {
         id = idFactory.makeId()
     }
 
     @_transparent
     func queryScene(id: Int) -> RaytracingElement? {
         id == self.id ? self : nil
-    }
-}
-
-extension GeometryRaytracingElement: BoundedRaytracingElement where T: Convex3Type & BoundableType, T.Vector == RVector3D {
-    func makeRaytracingBounds() -> RaytracingBounds {
-        .makeRaytracingBounds(for: geometry)
     }
 }

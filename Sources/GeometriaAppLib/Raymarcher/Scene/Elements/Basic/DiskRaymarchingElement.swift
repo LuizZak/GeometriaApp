@@ -12,9 +12,3 @@ extension DiskRaymarchingElement: RaymarchingElement {
         return .init(distance: distance, material: material)
     }
 }
-
-extension DiskRaymarchingElement: BoundedRaymarchingElement {
-    func makeRaymarchingBounds() -> RaymarchingBounds {
-        RaymarchingBounds.makeRaymarchingBounds(for: geometry)
-    }
-}

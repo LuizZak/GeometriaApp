@@ -12,7 +12,7 @@ protocol RaytracingSceneType {
     /// Returns a list of all geometry that intersects a given ray.
     func intersectAll(ray: RRay3D, ignoring: RayIgnore) -> [RayHit]
 
-    mutating func attributeIds(_ idFactory: inout RaytracingElementIdFactory)
+    mutating func attributeIds(_ idFactory: inout ElementIdFactory)
 
     /// Returns an item on this scene matching a specified id, across all elements
     /// on the scene.

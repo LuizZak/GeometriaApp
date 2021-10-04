@@ -15,7 +15,7 @@ private func scene() -> some RaymarchingElement {
     makeGreekBuilding(withBaseCenteredAt: .init(x: 0, y: 300, z: 0))
 }
 
-private func makeGreekBuilding(withBaseCenteredAt point: RVector3D) -> some BoundedRaymarchingElement {
+private func makeGreekBuilding(withBaseCenteredAt point: RVector3D) -> some RaymarchingElement & BoundedElement {
     let building = group {
         let pillars = makePillar(
             at: .init(x: 0, y: 0, z: 0),
@@ -25,7 +25,7 @@ private func makeGreekBuilding(withBaseCenteredAt point: RVector3D) -> some Boun
         .repeatTranslated(count: 10, translation: .unitX * 30).makeBoundingBox()
         .repeatTranslated(count: 2, translation: .unitY * 150).makeBoundingBox()
 
-        let pillarBounds = pillars.makeRaymarchingBounds()
+        let pillarBounds = pillars.makeBounds()
 
         let baseSize = pillarBounds.size.take.xy + .init(x: 5, y: 5)
 
@@ -42,11 +42,11 @@ private func makeGreekBuilding(withBaseCenteredAt point: RVector3D) -> some Boun
         pillars
     }
     
-    return building.centered(at: .init(point.take.xy, z: point.z + building.makeRaymarchingBounds().size.z / 2)).makeBoundingBox()
+    return building.centered(at: .init(point.take.xy, z: point.z + building.makeBounds().size.z / 2)).makeBoundingBox()
 }
 
 @RaymarchingElementBuilder
-private func makeBase(center: RVector3D, size: RVector2D) -> some BoundedRaymarchingElement {
+private func makeBase(center: RVector3D, size: RVector2D) -> some RaymarchingElement & BoundedElement {
     let sizeIncrease = RVector3D(x: 5, y: 5, z: 0)
     let translation = RVector3D(x: 0, y: 0, z: -5)
 
@@ -60,7 +60,7 @@ private func makeBase(center: RVector3D, size: RVector2D) -> some BoundedRaymarc
 }
 
 @RaymarchingElementBuilder
-private func makeTop(center: RVector3D, size: RVector2D) -> some BoundedRaymarchingElement {
+private func makeTop(center: RVector3D, size: RVector2D) -> some RaymarchingElement & BoundedElement {
     let sizeIncrease = RVector3D(x: 5, y: 5, z: 0)
     let translation = RVector3D(x: 0, y: 0, z: 5)
 
@@ -72,7 +72,7 @@ private func makeTop(center: RVector3D, size: RVector2D) -> some BoundedRaymarch
 }
 
 @RaymarchingElementBuilder
-private func makePillar(at point: RVector3D, height: Double, radius: Double) -> some BoundedRaymarchingElement {
+private func makePillar(at point: RVector3D, height: Double, radius: Double) -> some RaymarchingElement & BoundedElement {
     let start = point
     let end = point + .unitZ * height
 

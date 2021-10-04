@@ -13,11 +13,25 @@ struct IntersectionElement<T0: RaymarchingElement, T1: RaymarchingElement>: Raym
     }
 }
 
-extension IntersectionElement: BoundedRaymarchingElement where T0: BoundedRaymarchingElement, T1: BoundedRaymarchingElement {
+extension IntersectionElement: Element {
+    mutating func attributeIds(_ idFactory: inout ElementIdFactory) {
+        t0.attributeIds(&idFactory)
+        t1.attributeIds(&idFactory)
+    }
+
+    func queryScene(id: Int) -> Element? {
+        if let el = t0.queryScene(id: id) { return el }
+        if let el = t1.queryScene(id: id) { return el }
+
+        return nil
+    }
+}
+
+extension IntersectionElement: BoundedElement where T0: BoundedElement, T1: BoundedElement {
     // TODO: Not ideal to create a bound out of the union here, but it's better
     // TODO: than not being bounded at all. Replace with .intersection() later?
-    func makeRaymarchingBounds() -> RaymarchingBounds {
-        t0.makeRaymarchingBounds().union(t1.makeRaymarchingBounds())
+    func makeBounds() -> ElementBounds {
+        t0.makeBounds().union(t1.makeBounds())
     }
 }
 

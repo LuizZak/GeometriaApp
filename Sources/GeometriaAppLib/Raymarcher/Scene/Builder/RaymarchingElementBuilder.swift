@@ -103,11 +103,7 @@ struct RaymarchingElementBuilder {
 
 // MARK: Bounded types
 extension RaymarchingElementBuilder {
-    static func buildArray(_ components: [BoundedRaymarchingElement]) -> BoundedArrayRaymarchingElement {
-        .init(elements: components)
-    }
-
-    static func buildArray<T>(_ components: [T]) -> BoundedTypedArrayRaymarchingElement<T> where T: BoundedRaymarchingElement {
+    static func buildArray<T>(_ components: [T]) -> BoundedTypedArrayElement<T> where T: RaymarchingElement & BoundedElement {
         .init(elements: components)
     }
 }

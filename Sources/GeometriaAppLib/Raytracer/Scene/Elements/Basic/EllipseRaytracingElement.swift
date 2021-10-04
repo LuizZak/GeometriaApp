@@ -32,20 +32,4 @@ extension EllipseRaytracingElement: RaytracingElement {
 
         results.append(hit)
     }
-    
-    @_transparent
-    mutating func attributeIds(_ idFactory: inout RaytracingElementIdFactory) {
-        id = idFactory.makeId()
-    }
-
-    @_transparent
-    func queryScene(id: Int) -> RaytracingElement? {
-        id == self.id ? self : nil
-    }
-}
-
-extension EllipseRaytracingElement: BoundedRaytracingElement {
-    func makeRaytracingBounds() -> RaytracingBounds {
-        .makeRaytracingBounds(for: geometry)
-    }
 }

@@ -28,7 +28,7 @@ struct RaytracingScene<T: RaytracingElement>: RaytracingSceneType {
         return hits
     }
     
-    mutating func attributeIds(_ idFactory: inout RaytracingElementIdFactory) {
+    mutating func attributeIds(_ idFactory: inout ElementIdFactory) {
         root.attributeIds(&idFactory)
     }
 
@@ -36,14 +36,14 @@ struct RaytracingScene<T: RaytracingElement>: RaytracingSceneType {
     /// on the scene.
     /// Returns `nil` if no element with the given ID was found on this scene.
     func queryScene(id: Int) -> RaytracingElement? {
-        root.queryScene(id: id)
+        root.queryScene(id: id) as? RaytracingElement
     }
 }
 
 extension RaytracingElementBuilder {
     static func makeScene<T>(skyColor: BLRgba32, @RaytracingElementBuilder _ builder: () -> T) -> RaytracingScene<T> where T: RaytracingElement {
         var scene = RaytracingScene<T>(root: builder(), skyColor: .cornflowerBlue)
-        var ids = RaytracingElementIdFactory()
+        var ids = ElementIdFactory()
         scene.attributeIds(&ids)
 
         return scene

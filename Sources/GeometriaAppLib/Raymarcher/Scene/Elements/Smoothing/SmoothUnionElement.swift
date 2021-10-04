@@ -17,6 +17,20 @@ struct SmoothUnionElement<T0: RaymarchingElement, T1: RaymarchingElement>: Rayma
     }
 }
 
+extension SmoothUnionElement: Element {
+    mutating func attributeIds(_ idFactory: inout ElementIdFactory) {
+        t0.attributeIds(&idFactory)
+        t1.attributeIds(&idFactory)
+    }
+
+    func queryScene(id: Int) -> Element? {
+        if let el = t0.queryScene(id: id) { return el }
+        if let el = t1.queryScene(id: id) { return el }
+
+        return nil
+    }
+}
+
 @_transparent
 func union<T0, T1>(smoothSize: Double, @RaymarchingElementBuilder _ builder: () -> TupleRaymarchingElement2<T0, T1>) -> SmoothUnionElement<T0, T1> {
     let value = builder()

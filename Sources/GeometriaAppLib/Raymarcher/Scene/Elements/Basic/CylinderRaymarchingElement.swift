@@ -12,9 +12,3 @@ extension CylinderRaymarchingElement: RaymarchingElement {
         return .init(distance: distance, material: material)
     }
 }
-
-extension CylinderRaymarchingElement: BoundedRaymarchingElement {
-    func makeRaymarchingBounds() -> RaymarchingBounds {
-        RaymarchingBounds.makeRaymarchingBounds(for: geometry)
-    }
-}

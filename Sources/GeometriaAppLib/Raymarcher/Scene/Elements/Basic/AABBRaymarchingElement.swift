@@ -12,9 +12,3 @@ extension AABBRaymarchingElement: RaymarchingElement {
         return .init(distance: distance, material: material)
     }
 }
-
-extension AABBRaymarchingElement: BoundedRaymarchingElement {
-    func makeRaymarchingBounds() -> RaymarchingBounds {
-        RaymarchingBounds.makeRaymarchingBounds(for: geometry)
-    }
-}

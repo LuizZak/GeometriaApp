@@ -7,3 +7,13 @@ struct ModuloRaymarchingElement<T: RaymarchingElement>: RaymarchingElement {
         element.signedDistance(to: abs(point) % phase, current: current)
     }
 }
+
+extension ModuloRaymarchingElement: Element {
+    mutating func attributeIds(_ idFactory: inout ElementIdFactory) {
+        element.attributeIds(&idFactory)
+    }
+
+    func queryScene(id: Int) -> Element? {
+        element.queryScene(id: id)
+    }
+}

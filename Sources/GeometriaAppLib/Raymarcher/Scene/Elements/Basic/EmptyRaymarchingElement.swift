@@ -6,10 +6,3 @@ extension EmptyRaymarchingElement: RaymarchingElement {
         current
     }
 }
-
-extension EmptyRaymarchingElement: BoundedRaymarchingElement {
-    @_transparent
-    func makeRaymarchingBounds() -> RaymarchingBounds {
-        .zero
-    }
-}

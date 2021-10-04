@@ -1,25 +1,36 @@
-struct BoundedArrayRaymarchingElement: BoundedRaymarchingElement {
-    var elements: [BoundedRaymarchingElement]
+struct BoundedArrayRaymarchingElement {
+    var elements: [RaymarchingElement & BoundedElement]
+}
 
-    @inlinable
-    func signedDistance(to point: RVector3D, current: RaymarchingResult) -> RaymarchingResult {
-        var current = current
-
-        for el in elements {
-            current = el.signedDistance(to: point, current: current)
+extension BoundedArrayRaymarchingElement: Element {
+    @_transparent
+    mutating func attributeIds(_ idFactory: inout ElementIdFactory) {
+        elements = elements.map {
+            var el = $0
+            el.attributeIds(&idFactory)
+            return el
         }
-        
-        return current
     }
 
-    func makeRaymarchingBounds() -> RaymarchingBounds {
-        elements.map { $0.makeRaymarchingBounds() }.reduce(.zero) { $0.union($1) }
+    @_transparent
+    func queryScene(id: Int) -> Element? {
+        for element in elements {
+            if let result = element.queryScene(id: id) {
+                return result
+            }
+        }
+
+        return nil
     }
 }
 
-struct BoundedTypedArrayRaymarchingElement<T: BoundedRaymarchingElement>: BoundedRaymarchingElement {
-    var elements: [T]
+extension BoundedArrayRaymarchingElement: BoundedElement {
+    func makeBounds() -> RaymarchingBounds {
+        elements.map { $0.makeBounds() }.reduce(.zero) { $0.union($1) }
+    }
+}
 
+extension BoundedArrayRaymarchingElement: RaymarchingElement {
     @inlinable
     func signedDistance(to point: RVector3D, current: RaymarchingResult) -> RaymarchingResult {
         var current = current
@@ -29,9 +40,5 @@ struct BoundedTypedArrayRaymarchingElement<T: BoundedRaymarchingElement>: Bounde
         }
         
         return current
-    }
-
-    func makeRaymarchingBounds() -> RaymarchingBounds {
-        elements.map { $0.makeRaymarchingBounds() }.reduce(.zero) { $0.union($1) }
     }
 }

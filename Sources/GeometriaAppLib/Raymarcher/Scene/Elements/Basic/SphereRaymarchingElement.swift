@@ -12,9 +12,3 @@ extension SphereRaymarchingElement: RaymarchingElement {
         return .init(distance: distance, material: material)
     }
 }
-
-extension SphereRaymarchingElement: BoundedRaymarchingElement {
-    func makeRaymarchingBounds() -> RaymarchingBounds {
-        RaymarchingBounds.makeRaymarchingBounds(for: geometry)
-    }
-}

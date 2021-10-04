@@ -1,4 +1,4 @@
-struct RaytracingElementIdFactory {
+struct ElementIdFactory {
     private var _nextId: Int = 0
     
     mutating func makeId() -> Int {

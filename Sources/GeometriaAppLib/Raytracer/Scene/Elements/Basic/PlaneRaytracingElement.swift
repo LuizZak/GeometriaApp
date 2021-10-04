@@ -1,8 +1,4 @@
-struct PlaneRaytracingElement {
-    var id: Int = 0
-    var geometry: RPlane3D
-    var material: Material
-}
+typealias PlaneRaytracingElement = PlaneElement
 
 extension PlaneRaytracingElement: RaytracingElement {
     func raycast(query: RayQuery) -> RayQuery {
@@ -35,15 +31,5 @@ extension PlaneRaytracingElement: RaytracingElement {
         }
 
         results.append(hit)
-    }
-    
-    @_transparent
-    mutating func attributeIds(_ idFactory: inout RaytracingElementIdFactory) {
-        id = idFactory.makeId()
-    }
-
-    @_transparent
-    func queryScene(id: Int) -> RaytracingElement? {
-        id == self.id ? self : nil
     }
 }
