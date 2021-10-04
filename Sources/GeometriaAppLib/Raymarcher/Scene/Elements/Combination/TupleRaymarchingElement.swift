@@ -2,6 +2,7 @@ struct TupleRaymarchingElement2<T0: RaymarchingElement, T1: RaymarchingElement>:
     var t0: T0
     var t1: T1
 
+    @inlinable
     func signedDistance(to point: RVector3D, current: RaymarchingResult) -> RaymarchingResult {
         var current = current
 
@@ -17,6 +18,7 @@ struct TupleRaymarchingElement3<T0: RaymarchingElement, T1: RaymarchingElement, 
     var t1: T1
     var t2: T2
 
+    @inlinable
     func signedDistance(to point: RVector3D, current: RaymarchingResult) -> RaymarchingResult {
         var current = current
 
@@ -34,6 +36,7 @@ struct TupleRaymarchingElement4<T0: RaymarchingElement, T1: RaymarchingElement, 
     var t2: T2
     var t3: T3
 
+    @inlinable
     func signedDistance(to point: RVector3D, current: RaymarchingResult) -> RaymarchingResult {
         var current = current
 
@@ -53,6 +56,7 @@ struct TupleRaymarchingElement5<T0: RaymarchingElement, T1: RaymarchingElement, 
     var t3: T3
     var t4: T4
 
+    @inlinable
     func signedDistance(to point: RVector3D, current: RaymarchingResult) -> RaymarchingResult {
         var current = current
 
@@ -74,6 +78,7 @@ struct TupleRaymarchingElement6<T0: RaymarchingElement, T1: RaymarchingElement, 
     var t4: T4
     var t5: T5
 
+    @inlinable
     func signedDistance(to point: RVector3D, current: RaymarchingResult) -> RaymarchingResult {
         var current = current
 
@@ -97,6 +102,7 @@ struct TupleRaymarchingElement7<T0: RaymarchingElement, T1: RaymarchingElement, 
     var t5: T5
     var t6: T6
 
+    @inlinable
     func signedDistance(to point: RVector3D, current: RaymarchingResult) -> RaymarchingResult {
         var current = current
 
@@ -122,6 +128,7 @@ struct TupleRaymarchingElement8<T0: RaymarchingElement, T1: RaymarchingElement, 
     var t6: T6
     var t7: T7
 
+    @inlinable
     func signedDistance(to point: RVector3D, current: RaymarchingResult) -> RaymarchingResult {
         var current = current
 

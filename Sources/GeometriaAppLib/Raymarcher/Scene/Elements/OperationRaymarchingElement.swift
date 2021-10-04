@@ -3,6 +3,7 @@ struct OperationRaymarchingElement<T0: RaymarchingElement, T1: RaymarchingElemen
     var t1: T1
     var operation: (RaymarchingResult, RaymarchingResult) -> RaymarchingResult
 
+    @inlinable
     func signedDistance(to point: RVector3D, current: RaymarchingResult) -> RaymarchingResult {
         let t0Result = t0.signedDistance(to: point, current: current)
         let t1Result = t1.signedDistance(to: point, current: current)

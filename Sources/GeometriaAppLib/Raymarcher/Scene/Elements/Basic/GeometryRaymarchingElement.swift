@@ -2,6 +2,7 @@ struct GeometryRaymarchingElement<T: SignedDistanceMeasurableType>: RaymarchingE
     var geometry: T
     var material: RaymarcherMaterial
 
+    @inlinable
     func signedDistance(to point: RVector3D, current: RaymarchingResult) -> RaymarchingResult {
         let distance = geometry.signedDistance(to: point)
         

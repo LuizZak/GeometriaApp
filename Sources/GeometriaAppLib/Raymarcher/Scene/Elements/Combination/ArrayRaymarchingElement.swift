@@ -1,6 +1,7 @@
 struct ArrayRaymarchingElement: RaymarchingElement {
     var elements: [RaymarchingElement]
 
+    @inlinable
     func signedDistance(to point: RVector3D, current: RaymarchingResult) -> RaymarchingResult {
         var current = current
 

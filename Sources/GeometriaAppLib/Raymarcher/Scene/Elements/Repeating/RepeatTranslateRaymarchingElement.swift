@@ -3,6 +3,7 @@ struct RepeatTranslateRaymarchingElement<T: RaymarchingElement>: RaymarchingElem
     var translation: RVector3D
     var count: Int
 
+    @inlinable
     func signedDistance(to point: RVector3D, current: RaymarchingResult) -> RaymarchingResult {
         var current = current
 
@@ -30,6 +31,18 @@ extension RepeatTranslateRaymarchingElement: BoundedRaymarchingElement where T: 
     func makeBounds() -> RaymarchingBounds {
         let bounds = element.makeBounds()
         
-        return bounds.union(bounds.offsetBy(translation * Double(count)))
+        return bounds.union(bounds.offsetBy(translation * Double(count - 1)))
     }
+}
+
+extension RaymarchingElement {
+    @_transparent
+    func repeatTranslated(count: Int, translation: RVector3D) -> RepeatTranslateRaymarchingElement<Self> {
+        .init(element: self, translation: translation, count: count)
+    }
+}
+
+@_transparent
+func repeatTranslated<T: RaymarchingElement>(count: Int, translation: RVector3D, @RaymarchingElementBuilder _ builder: () -> T) -> RepeatTranslateRaymarchingElement<T> {
+    builder().repeatTranslated(count: count, translation: translation)
 }

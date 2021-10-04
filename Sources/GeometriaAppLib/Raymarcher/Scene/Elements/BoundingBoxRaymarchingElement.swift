@@ -9,6 +9,7 @@ struct BoundingBoxRaymarchingElement<T>: BoundedRaymarchingElement where T: Raym
         bounds = RaymarchingBounds.makeBounds(for: boundingBox)
     }
     
+    @inlinable
     func signedDistance(to point: RVector3D, current: RaymarchingResult) -> RaymarchingResult {
         guard boundingBox.signedDistance(to: point) < current.distance else {
             return current
@@ -28,4 +29,28 @@ extension BoundingBoxRaymarchingElement {
         
         self.init(element: element, boundingBox: geometry.bounds)
     }
+
+    @_transparent
+    func makeBoundingBox() -> Self {
+        self
+    }
+}
+
+extension RaymarchingElement {
+    @_transparent
+    func withBoundingBox(box: RAABB3D) -> BoundingBoxRaymarchingElement<Self> {
+        .init(element: self, boundingBox: box)
+    }
+}
+
+extension BoundedRaymarchingElement {
+    @_transparent
+    func makeBoundingBox() -> BoundingBoxRaymarchingElement<Self> {
+        .init(element: self)
+    }
+}
+
+@_transparent
+func boundingBox<T: BoundedRaymarchingElement>(@RaymarchingElementBuilder _ builder: () -> T) -> BoundingBoxRaymarchingElement<T> {
+    builder().makeBoundingBox()
 }

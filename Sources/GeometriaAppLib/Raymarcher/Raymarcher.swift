@@ -60,9 +60,9 @@ final class Raymarcher<SceneType: RaymarchingSceneType>: RendererType {
     private func raymarch(ray: RRay3D, bounceCount: Int = 0) -> BLRgba32 {
         var ray = ray
         
-        let maxMarchIterationCount = 500
+        let maxMarchIterationCount = 1000
         let minimumMarchTolerance: Double = 0.001
-        let maxDistance: Double = 10000
+        let maxDistance: Double = 100000
 
         var result: RaymarchingResult = .emptyResult()
         var traveled: Double = 0.0

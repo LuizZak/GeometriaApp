@@ -9,6 +9,7 @@ struct BoundingSphereRaymarchingElement<T>: BoundedRaymarchingElement where T: R
         bounds = RaymarchingBounds.makeBounds(for: boundingSphere)
     }
     
+    @inlinable
     func signedDistance(to point: RVector3D, current: RaymarchingResult) -> RaymarchingResult {
         guard boundingSphere.signedDistance(to: point) < current.distance else {
             return current
@@ -31,4 +32,21 @@ extension BoundingSphereRaymarchingElement {
         
         self.init(element: element, boundingSphere: sphere)
     }
+
+    @_transparent
+    func makeBoundingSphere() -> Self {
+        self
+    }
+}
+
+extension BoundedRaymarchingElement {
+    @_transparent
+    func makeBoundingSphere() -> BoundingSphereRaymarchingElement<Self> {
+        .init(element: self)
+    }
+}
+
+@_transparent
+func boundingSphere<T: BoundedRaymarchingElement>(@RaymarchingElementBuilder _ builder: () -> T) -> BoundingSphereRaymarchingElement<T> {
+    builder().makeBoundingSphere()
 }

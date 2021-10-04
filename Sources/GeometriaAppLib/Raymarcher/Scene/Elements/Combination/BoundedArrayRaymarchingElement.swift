@@ -1,6 +1,7 @@
 struct BoundedArrayRaymarchingElement: BoundedRaymarchingElement {
     var elements: [BoundedRaymarchingElement]
 
+    @inlinable
     func signedDistance(to point: RVector3D, current: RaymarchingResult) -> RaymarchingResult {
         var current = current
 
@@ -19,6 +20,7 @@ struct BoundedArrayRaymarchingElement: BoundedRaymarchingElement {
 struct BoundedTypedArrayRaymarchingElement<T: BoundedRaymarchingElement>: BoundedRaymarchingElement {
     var elements: [T]
 
+    @inlinable
     func signedDistance(to point: RVector3D, current: RaymarchingResult) -> RaymarchingResult {
         var current = current
 

@@ -57,6 +57,12 @@ public typealias RPolyLine2D = LinePolygon2<RVector2D>
 /// PointNormalPlane3 for Raytracing operations
 public typealias RPlane3D = PointNormalPlane3<RVector3D>
 
+/// Line3 for Raytracing operations
+public typealias RLine3D = Line3<RVector3D>
+
+/// LineSegment3 for Raytracing operations
+public typealias RLineSegment3D = LineSegment3<RVector3D>
+
 /// DirectionalRay3 for Raytracing operations
 public typealias RRay3D = DirectionalRay3<RVector3D>
 

@@ -1,7 +1,10 @@
+// Reference for distance function modifiers:
+// https://www.iquilezles.org/www/articles/distfunctions/distfunctions.htm
 struct SubtractionElement<T0: RaymarchingElement, T1: RaymarchingElement>: RaymarchingElement {
     var t0: T0
     var t1: T1
 
+    @inlinable
     func signedDistance(to point: RVector3D, current: RaymarchingResult) -> RaymarchingResult {
         let v0 = t0.signedDistance(to: point, current: current)
         let v1 = t1.signedDistance(to: point, current: current)
@@ -16,4 +19,11 @@ extension SubtractionElement: BoundedRaymarchingElement where T0: BoundedRaymarc
     func makeBounds() -> RaymarchingBounds {
         t0.makeBounds().union(t1.makeBounds())
     }
+}
+
+@_transparent
+func subtraction<T0, T1>(@RaymarchingElementBuilder _ builder: () -> TupleRaymarchingElement2<T0, T1>) -> SubtractionElement<T0, T1> {
+    let value = builder()
+
+    return .init(t0: value.t0, t1: value.t1)
 }

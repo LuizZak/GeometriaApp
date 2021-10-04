@@ -2,6 +2,7 @@ struct CylinderRaymarchingElement: BoundedRaymarchingElement {
     var geometry: RCylinder3D
     var material: RaymarcherMaterial
 
+    @inlinable
     func signedDistance(to point: RVector3D, current: RaymarchingResult) -> RaymarchingResult {
         let distance = geometry.signedDistance(to: point)
         
