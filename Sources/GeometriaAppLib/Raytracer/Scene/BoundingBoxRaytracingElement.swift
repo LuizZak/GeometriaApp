@@ -10,11 +10,23 @@ struct BoundingBoxRaytracingElement<T>: BoundedRaytracingElement where T: Raytra
     }
     
     func raycast(query: RayQuery) -> RayQuery {
-        element.raycast(query: query)
+        guard intersects(query: query) else {
+            return query
+        }
+
+        return element.raycast(query: query)
     }
 
     func raycast(query: RayQuery, results: inout [RayHit]) {
+        guard intersects(query: query) else {
+            return
+        }
+
         element.raycast(query: query, results: &results)
+    }
+
+    private func intersects(query: RayQuery) -> Bool {
+        boundingBox.intersects(line: query.ray)
     }
     
     mutating func attributeIds(_ idFactory: inout RaytracingElementIdFactory) {

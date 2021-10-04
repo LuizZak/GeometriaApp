@@ -103,6 +103,7 @@ final class Raytracer<SceneType: RaytracingSceneType>: RendererType {
         
         var color: BLRgba32
         var minimumShade: Double = 0.0
+        var refl: Double = 1.0
         
         switch material {
         case .diffuse(let material):
@@ -116,7 +117,8 @@ final class Raytracer<SceneType: RaytracingSceneType>: RendererType {
             color = mergeColors(color, .black, factor: (1 - shade) * invTransparency)
             
             // Find rates for reflection and transmission within material
-            let (refl, trans) = fresnel(ray.direction, hit.normal, material.refractiveIndex)
+            let trans: Double
+            (refl, trans) = fresnel(ray.direction, hit.normal, material.refractiveIndex)
             
             // Transparency / refraction
             if material.transparency > 0.0 {
@@ -186,23 +188,11 @@ final class Raytracer<SceneType: RaytracingSceneType>: RendererType {
                 
                 color = mergeColors(color, secondHit, factor: factor)
             }
-            
-            // TODO: Improve handling of shadow and direct light in refractive materials
-            
-            // Shadow or sunlight
-            let shadow = calculateShadow(for: hit)
-            if shadow > 0 {
-                // Shadow
-                color = mergeColors(color, .black, factor: 0.5 * shadow)
-            } else {
-                // Sunlight direction
-                let sunDirDot = max(0.0, min(1, pow(hit.normal.dot(-scene.sunDirection), 5)))
-                
-                if material.hasRefraction {
-                    color = mergeColors(color, .white, factor: sunDirDot * refl)
-                } else {
-                    color = mergeColors(color, .white, factor: sunDirDot)
-                }
+
+            // TODO: Figure out how to handle refraction in shadow computation
+            // TODO: bellow more gracefully.
+            if !material.hasRefraction {
+                refl = 1.0
             }
             
         case let .checkerboard(checkerSize, color1, color2):
@@ -245,6 +235,20 @@ final class Raytracer<SceneType: RaytracingSceneType>: RendererType {
             // Shading
             let shade = max(0.0, min(1 - minimumShade, hit.normal.dot(-ray.direction)))
             color = mergeColors(color, .black, factor: 1 - shade)
+        }
+        
+        // TODO: Improve handling of shadow and direct light in refractive materials
+        
+        // Shadow or sunlight
+        let shadow = calculateShadow(for: hit)
+        if shadow > 0 {
+            // Shadow
+            color = mergeColors(color, .black, factor: 0.5 * shadow)
+        } else {
+            // Sunlight direction
+            let sunDirDot = max(0.0, min(1, pow(hit.normal.dot(-scene.sunDirection), 5)))
+            
+            color = mergeColors(color, .white, factor: sunDirDot * refl)
         }
         
         // Fade distant pixels to skyColor
