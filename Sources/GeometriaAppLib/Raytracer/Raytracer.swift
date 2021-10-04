@@ -1,9 +1,10 @@
 import SwiftBlend2D
 import ImagineUI
 
+private var _attemptedDebugInMultithreadedYet = false
+
 /// Class that performs raytracing on a scene.
-final class Raytracer: RendererType {
-    private static var _attemptedDebugInMultithreadedYet = false
+final class Raytracer<SceneType: RaytracingSceneType>: RendererType {
     private var processingPrinter: RaytracerProcessingPrinter?
     
     private let minimumRayToleranceSq: Double = 0.001
@@ -13,11 +14,11 @@ final class Raytracer: RendererType {
     
     var isMultiThreaded: Bool = false
     var maxBounces: Int = 15
-    var scene: Scene
+    var scene: SceneType
     var camera: Camera
     var viewportSize: ViewportSize
     
-    init(scene: Scene, camera: Camera, viewportSize: ViewportSize) {
+    init(scene: SceneType, camera: Camera, viewportSize: ViewportSize) {
         self.scene = scene
         self.camera = camera
         self.viewportSize = viewportSize
@@ -27,8 +28,8 @@ final class Raytracer: RendererType {
     
     func beginDebug() {
         if isMultiThreaded {
-            if !Raytracer._attemptedDebugInMultithreadedYet {
-                Raytracer._attemptedDebugInMultithreadedYet = true
+            if !_attemptedDebugInMultithreadedYet {
+                _attemptedDebugInMultithreadedYet = true
                 print("Attempted to invoke Raytracer.beginDebug() with a multi-pixel, multi-threaded render, which is potentially not intended. Ignoring...")
             }
             
@@ -105,7 +106,7 @@ final class Raytracer: RendererType {
         
         switch material {
         case .diffuse(let material):
-            let sceneGeometry = scene.geometries[hit.id]
+            let sceneGeometry = scene.queryScene(id: hit.id)!
             
             let invTransparency = 1 - material.transparency
             color = mergeColors(scene.skyColor, material.color, factor: invTransparency)
@@ -144,7 +145,8 @@ final class Raytracer: RendererType {
                     // Do a sanitity check that the ray isn't going to collide
                     // immediately with the same geometry - if it does, skip the
                     // geometry fully in the subsequent raycast
-                    let innerHit = sceneGeometry.doRayCast(ray: innerRay, ignoring: rayIgnore)
+                    let query = RayQuery(ray: innerRay, ignoring: rayIgnore)
+                    let innerHit = sceneGeometry.raycast(query: query).lastHit
                     if let innerHit = innerHit, innerHit.point.distanceSquared(to: hit.point) <= minDistSq {
                         rayIgnore = .full(id: hit.id)
                     }

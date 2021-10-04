@@ -29,12 +29,12 @@ struct RayHit {
     /// normals in ``intersection``, according to the ``RayIgnore`` that was used
     /// during the raycasting invocation where this ray hit was created.
     var pointOfInterest: PointNormal<RVector3D>
-    var intersection: ConvexLineIntersection<RVector3D>
+    var intersection: RConvexLineResult3D
     var material: RaytracingMaterial?
     var id: Int
     
     init(pointOfInterest: PointNormal<RVector3D>,
-         intersection: ConvexLineIntersection<RVector3D>,
+         intersection: RConvexLineResult3D,
          material: RaytracingMaterial?,
          id: Int) {
         
@@ -45,7 +45,7 @@ struct RayHit {
     }
     
     init?(findingPointOfInterestOf rayIgnore: RayIgnore,
-          intersection: ConvexLineIntersection<RVector3D>,
+          intersection: RConvexLineResult3D,
           material: RaytracingMaterial?,
           id: Int) {
         

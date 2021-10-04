@@ -34,8 +34,8 @@ enum RayIgnore {
     /// (entrance) or singular point of intersection is returned, if no entrance
     /// is available, the exit point is returned, and if no exit point is
     /// available `nil` is then ultimately returned.
-    func computePointNormalOfInterest<Vector>(id: Int,
-                                              intersection: ConvexLineIntersection<Vector>) -> PointNormal<Vector>? {
+    func computePointNormalOfInterest(id: Int,
+                                      intersection: RConvexLineResult3D) -> RPointNormal3D? {
         
         switch self {
         case .none:
@@ -73,8 +73,8 @@ enum RayIgnore {
     }
 }
 
-private extension ConvexLineIntersection {
-    var entrancePoint: PointNormal<Vector>? {
+private extension RConvexLineResult3D {
+    var entrancePoint: RPointNormal3D? {
         switch self {
         case .enter(let e), .singlePoint(let e), .enterExit(let e, _):
             return e
@@ -82,7 +82,8 @@ private extension ConvexLineIntersection {
             return nil
         }
     }
-    var exitPoint: PointNormal<Vector>? {
+
+    var exitPoint: RPointNormal3D? {
         switch self {
         case .exit(let e), .singlePoint(let e), .enterExit(_, let e):
             return e

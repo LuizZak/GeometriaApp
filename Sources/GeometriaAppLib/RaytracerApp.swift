@@ -168,20 +168,24 @@ public class RaytracerApp: Blend2DApp {
         
         #if true
         
-        let scene = DemoScene.makeScene()
+        let scene = RaytracingDemoScene.makeScene()
         
-        let renderer = Raytracer(scene: scene,
-                                 camera: Camera(viewportSize: viewportSize),
-                                 viewportSize: viewportSize)
+        let renderer = Raytracer(
+            scene: scene,
+            camera: Camera(viewportSize: viewportSize),
+            viewportSize: viewportSize
+        )
         
         #else
 
         
         let scene = RaymarchingDemoScene2.makeScene()
         
-        let renderer = Raymarcher(scene: scene,
-                                  camera: Camera(viewportSize: viewportSize),
-                                  viewportSize: viewportSize)
+        let renderer = Raymarcher(
+            scene: scene,
+            camera: Camera(viewportSize: viewportSize),
+            viewportSize: viewportSize
+        )
         
         #endif
         

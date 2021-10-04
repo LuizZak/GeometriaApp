@@ -66,6 +66,12 @@ public typealias RLineSegment3D = LineSegment3<RVector3D>
 /// DirectionalRay3 for Raytracing operations
 public typealias RRay3D = DirectionalRay3<RVector3D>
 
+/// PointNormal3 for Raytracing operations
+public typealias RPointNormal3D = PointNormal<RVector3D>
+
+/// ConvexLineIntersection for Raytracing operations
+public typealias RConvexLineResult3D = ConvexLineIntersection<RVector3D>
+
 /// Screen-space pixel coordinates
 public typealias PixelCoord = UIIntPoint //Vector2i
 

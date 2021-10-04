@@ -13,4 +13,9 @@ protocol RaytracingSceneType {
     func intersectAll(ray: RRay3D, ignoring: RayIgnore) -> [RayHit]
 
     mutating func attributeIds(_ idFactory: inout RaytracingElementIdFactory)
+
+    /// Returns an item on this scene matching a specified id, across all elements
+    /// on the scene.
+    /// Returns `nil` if no element with the given ID was found on this scene.
+    func queryScene(id: Int) -> RaytracingElement?
 }

@@ -4,6 +4,10 @@ struct AABBRaytracingElement: RaytracingElement {
     var material: RaytracingMaterial
     
     func raycast(query: RayQuery) -> RayQuery {
+        guard !query.ignoring.shouldIgnoreFully(id: id) else {
+            return query
+        }
+
         let intersection = query.intersect(geometry)
         guard let hit = RayHit(findingPointOfInterestOf: query.ignoring,
                                intersection: intersection,
@@ -16,6 +20,10 @@ struct AABBRaytracingElement: RaytracingElement {
     }
 
     func raycast(query: RayQuery, results: inout [RayHit]) {
+        guard !query.ignoring.shouldIgnoreFully(id: id) else {
+            return
+        }
+
         let intersection = query.intersect(geometry)
         guard let hit = RayHit(findingPointOfInterestOf: query.ignoring,
                                intersection: intersection,
@@ -29,5 +37,9 @@ struct AABBRaytracingElement: RaytracingElement {
     
     mutating func attributeIds(_ idFactory: inout RaytracingElementIdFactory) {
         id = idFactory.makeId()
+    }
+
+    func queryScene(id: Int) -> RaytracingElement? {
+        id == self.id ? self : nil
     }
 }

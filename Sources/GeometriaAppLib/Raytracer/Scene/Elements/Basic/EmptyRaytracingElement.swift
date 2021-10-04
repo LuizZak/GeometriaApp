@@ -13,4 +13,8 @@ struct EmptyRaytracingElement: RaytracingElement {
     func attributeIds(_ idFactory: inout RaytracingElementIdFactory) {
         
     }
+
+    func queryScene(id: Int) -> RaytracingElement? {
+        nil
+    }
 }

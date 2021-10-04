@@ -21,6 +21,11 @@ struct TupleRaytracingElement2<T0: RaytracingElement, T1: RaytracingElement>: Ra
         t0.attributeIds(&idFactory)
         t1.attributeIds(&idFactory)
     }
+
+    func queryScene(id: Int) -> RaytracingElement? {
+        t0.queryScene(id: id) ??
+        t1.queryScene(id: id)
+    }
 }
 
 struct TupleRaytracingElement3<T0: RaytracingElement, T1: RaytracingElement, T2: RaytracingElement>: RaytracingElement {
@@ -49,6 +54,12 @@ struct TupleRaytracingElement3<T0: RaytracingElement, T1: RaytracingElement, T2:
         t0.attributeIds(&idFactory)
         t1.attributeIds(&idFactory)
         t2.attributeIds(&idFactory)
+    }
+
+    func queryScene(id: Int) -> RaytracingElement? {
+        t0.queryScene(id: id) ??
+        t1.queryScene(id: id) ??
+        t2.queryScene(id: id)
     }
 }
 
@@ -82,6 +93,13 @@ struct TupleRaytracingElement4<T0: RaytracingElement, T1: RaytracingElement, T2:
         t1.attributeIds(&idFactory)
         t2.attributeIds(&idFactory)
         t3.attributeIds(&idFactory)
+    }
+
+    func queryScene(id: Int) -> RaytracingElement? {
+        t0.queryScene(id: id) ??
+        t1.queryScene(id: id) ??
+        t2.queryScene(id: id) ??
+        t3.queryScene(id: id)
     }
 }
 
@@ -119,6 +137,14 @@ struct TupleRaytracingElement5<T0: RaytracingElement, T1: RaytracingElement, T2:
         t2.attributeIds(&idFactory)
         t3.attributeIds(&idFactory)
         t4.attributeIds(&idFactory)
+    }
+
+    func queryScene(id: Int) -> RaytracingElement? {
+        t0.queryScene(id: id) ??
+        t1.queryScene(id: id) ??
+        t2.queryScene(id: id) ??
+        t3.queryScene(id: id) ??
+        t4.queryScene(id: id)
     }
 }
 
@@ -160,6 +186,15 @@ struct TupleRaytracingElement6<T0: RaytracingElement, T1: RaytracingElement, T2:
         t3.attributeIds(&idFactory)
         t4.attributeIds(&idFactory)
         t5.attributeIds(&idFactory)
+    }
+
+    func queryScene(id: Int) -> RaytracingElement? {
+        t0.queryScene(id: id) ??
+        t1.queryScene(id: id) ??
+        t2.queryScene(id: id) ??
+        t3.queryScene(id: id) ??
+        t4.queryScene(id: id) ??
+        t5.queryScene(id: id)
     }
 }
 
@@ -205,6 +240,16 @@ struct TupleRaytracingElement7<T0: RaytracingElement, T1: RaytracingElement, T2:
         t4.attributeIds(&idFactory)
         t5.attributeIds(&idFactory)
         t6.attributeIds(&idFactory)
+    }
+
+    func queryScene(id: Int) -> RaytracingElement? {
+        t0.queryScene(id: id) ??
+        t1.queryScene(id: id) ??
+        t2.queryScene(id: id) ??
+        t3.queryScene(id: id) ??
+        t4.queryScene(id: id) ??
+        t5.queryScene(id: id) ??
+        t6.queryScene(id: id)
     }
 }
 
@@ -254,5 +299,16 @@ struct TupleRaytracingElement8<T0: RaytracingElement, T1: RaytracingElement, T2:
         t5.attributeIds(&idFactory)
         t6.attributeIds(&idFactory)
         t7.attributeIds(&idFactory)
+    }
+
+    func queryScene(id: Int) -> RaytracingElement? {
+        t0.queryScene(id: id) ??
+        t1.queryScene(id: id) ??
+        t2.queryScene(id: id) ??
+        t3.queryScene(id: id) ??
+        t4.queryScene(id: id) ??
+        t5.queryScene(id: id) ??
+        t6.queryScene(id: id) ??
+        t7.queryScene(id: id)
     }
 }

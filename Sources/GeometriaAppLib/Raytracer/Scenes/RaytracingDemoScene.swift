@@ -46,13 +46,15 @@ enum RaytracingDemoScene {
             
             // Bumpy Sphere
             // TODO: Add support for bumpy materials
-//            SceneGeometry(
-//                id: 0,
-//                bumpySphere: .init(center: .init(x: 70, y: 150, z: 45), radius: 30),
-//                material: .init(bumpNoiseFrequency: 1.0,
-//                                bumpMagnitude: 1.0 / 40.0,
-//                                reflectivity: 0.4)
-//            )
+            (
+                RSphere3D(center: .init(x: 70, y: 150, z: 45), radius: 30),
+
+                RaytracingMaterial.diffuse(
+                    .init(bumpNoiseFrequency: 1.0,
+                          bumpMagnitude: 1.0 / 40.0,
+                          reflectivity: 0.4)
+                )
+            )
             
             // Ellipse
             (

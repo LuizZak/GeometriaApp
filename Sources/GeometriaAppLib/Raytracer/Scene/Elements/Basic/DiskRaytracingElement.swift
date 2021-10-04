@@ -4,7 +4,11 @@ struct DiskRaytracingElement: RaytracingElement {
     var material: RaytracingMaterial
     
     func raycast(query: RayQuery) -> RayQuery {
-        let intersection = intersection(query)
+        guard !query.ignoring.shouldIgnoreFully(id: id) else {
+            return query
+        }
+
+        let intersection = query.intersect(geometry)
         guard let hit = RayHit(findingPointOfInterestOf: query.ignoring,
                                intersection: intersection,
                                material: material,
@@ -16,7 +20,11 @@ struct DiskRaytracingElement: RaytracingElement {
     }
 
     func raycast(query: RayQuery, results: inout [RayHit]) {
-        let intersection = intersection(query)
+        guard !query.ignoring.shouldIgnoreFully(id: id) else {
+            return
+        }
+
+        let intersection = query.intersect(geometry)
         guard let hit = RayHit(findingPointOfInterestOf: query.ignoring,
                                intersection: intersection,
                                material: material,
@@ -27,33 +35,11 @@ struct DiskRaytracingElement: RaytracingElement {
         results.append(hit)
     }
     
-    private func intersection(_ query: RayQuery) -> ConvexLineIntersection<RVector3D> {
-        guard let inter = intersectionPoint(query) else {
-            return .noIntersection
-        }
-        
-        let dSquared = inter.distanceSquared(to: query.ray.start)
-        guard dSquared < query.rayMagnitudeSquared else {
-            return .noIntersection
-        }
-        
-        var normal: RVector3D = geometry.normal
-        if normal.dot(query.ray.direction) > 0 {
-            normal = -normal
-        }
-        
-        return .singlePoint(PointNormal(point: inter, normal: normal))
-    }
-    
-    private func intersectionPoint(_ query: RayQuery) -> RVector3D? {
-        if query.rayMagnitudeSquared.isFinite {
-            return geometry.intersection(with: query.lineSegment)
-        }
-        
-        return geometry.intersection(with: query.ray)
-    }
-    
     mutating func attributeIds(_ idFactory: inout RaytracingElementIdFactory) {
         id = idFactory.makeId()
+    }
+
+    func queryScene(id: Int) -> RaytracingElement? {
+        id == self.id ? self : nil
     }
 }
