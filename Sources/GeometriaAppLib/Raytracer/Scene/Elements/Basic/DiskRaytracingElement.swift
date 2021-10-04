@@ -1,8 +1,10 @@
-struct DiskRaytracingElement: RaytracingElement {
+struct DiskRaytracingElement {
     var id: Int = 0
     var geometry: RDisk3D
     var material: RaytracingMaterial
-    
+}
+
+extension DiskRaytracingElement: RaytracingElement {
     func raycast(query: RayQuery) -> RayQuery {
         guard !query.ignoring.shouldIgnoreFully(id: id) else {
             return query
@@ -41,5 +43,11 @@ struct DiskRaytracingElement: RaytracingElement {
 
     func queryScene(id: Int) -> RaytracingElement? {
         id == self.id ? self : nil
+    }
+}
+
+extension DiskRaytracingElement: BoundedRaytracingElement {
+    func makeBounds() -> RaytracingBounds {
+        .makeBounds(for: geometry)
     }
 }

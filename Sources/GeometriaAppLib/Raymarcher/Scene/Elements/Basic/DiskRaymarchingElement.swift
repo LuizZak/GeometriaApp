@@ -1,7 +1,9 @@
-struct DiskRaymarchingElement: BoundedRaymarchingElement {
+struct DiskRaymarchingElement {
     var geometry: RDisk3D
     var material: RaymarcherMaterial
+}
 
+extension DiskRaymarchingElement: RaymarchingElement {
     @inlinable
     func signedDistance(to point: RVector3D, current: RaymarchingResult) -> RaymarchingResult {
         let distance = geometry.signedDistance(to: point)
@@ -12,7 +14,9 @@ struct DiskRaymarchingElement: BoundedRaymarchingElement {
 
         return .init(distance: distance, material: material)
     }
+}
 
+extension DiskRaymarchingElement: BoundedRaymarchingElement {
     func makeBounds() -> RaymarchingBounds {
         RaymarchingBounds.makeBounds(for: geometry)
     }

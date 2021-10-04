@@ -1,7 +1,9 @@
-struct CylinderRaymarchingElement: BoundedRaymarchingElement {
+struct CylinderRaymarchingElement {
     var geometry: RCylinder3D
     var material: RaymarcherMaterial
+}
 
+extension CylinderRaymarchingElement: RaymarchingElement {
     @inlinable
     func signedDistance(to point: RVector3D, current: RaymarchingResult) -> RaymarchingResult {
         let distance = geometry.signedDistance(to: point)
@@ -12,7 +14,9 @@ struct CylinderRaymarchingElement: BoundedRaymarchingElement {
 
         return .init(distance: distance, material: material)
     }
+}
 
+extension CylinderRaymarchingElement: BoundedRaymarchingElement {
     func makeBounds() -> RaymarchingBounds {
         RaymarchingBounds.makeBounds(for: geometry)
     }

@@ -1,7 +1,9 @@
-struct PlaneRaymarchingElement: RaymarchingElement {
+struct PlaneRaymarchingElement {
     var geometry: RPlane3D
     var material: RaymarcherMaterial
+}
 
+extension PlaneRaymarchingElement: RaymarchingElement {
     @inlinable
     func signedDistance(to point: RVector3D, current: RaymarchingResult) -> RaymarchingResult {
         let distance = geometry.signedDistance(to: point)

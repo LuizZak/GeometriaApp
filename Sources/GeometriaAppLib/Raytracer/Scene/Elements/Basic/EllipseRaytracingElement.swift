@@ -1,8 +1,10 @@
-struct EllipseRaytracingElement: RaytracingElement {
+struct EllipseRaytracingElement {
     var id: Int = 0
     var geometry: REllipse3D
     var material: RaytracingMaterial
-    
+}
+
+extension EllipseRaytracingElement: RaytracingElement {
     func raycast(query: RayQuery) -> RayQuery {
         guard !query.ignoring.shouldIgnoreFully(id: id) else {
             return query
@@ -41,5 +43,11 @@ struct EllipseRaytracingElement: RaytracingElement {
 
     func queryScene(id: Int) -> RaytracingElement? {
         id == self.id ? self : nil
+    }
+}
+
+extension EllipseRaytracingElement: BoundedRaytracingElement {
+    func makeBounds() -> RaytracingBounds {
+        .makeBounds(for: geometry)
     }
 }

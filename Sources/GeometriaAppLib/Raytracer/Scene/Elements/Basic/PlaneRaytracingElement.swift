@@ -1,8 +1,10 @@
-struct PlaneRaytracingElement: RaytracingElement {
+struct PlaneRaytracingElement {
     var id: Int = 0
     var geometry: RPlane3D
     var material: RaytracingMaterial
-    
+}
+
+extension PlaneRaytracingElement: RaytracingElement {
     func raycast(query: RayQuery) -> RayQuery {
         guard !query.ignoring.shouldIgnoreFully(id: id) else {
             return query
