@@ -3,13 +3,18 @@ struct TupleRaytracingElement2<T0: RaytracingElement, T1: RaytracingElement>: Ra
     var t1: T1
 
     @inlinable
-    func raycast(partial: Scene.PartialRayResult) -> Scene.PartialRayResult {
-        var partial = partial
+    func raycast(query: RayQuery) -> RayQuery {
+        var query = query
         
-        partial = t0.raycast(partial: partial)
-        partial = t1.raycast(partial: partial)
+        query = t0.raycast(query: query)
+        query = t1.raycast(query: query)
         
-        return partial
+        return query
+    }
+    
+    mutating func attributeIds(_ idFactory: inout RaytracingElementIdFactory) {
+        t0.attributeIds(&idFactory)
+        t1.attributeIds(&idFactory)
     }
 }
 
@@ -19,14 +24,20 @@ struct TupleRaytracingElement3<T0: RaytracingElement, T1: RaytracingElement, T2:
     var t2: T2
 
     @inlinable
-    func raycast(partial: Scene.PartialRayResult) -> Scene.PartialRayResult {
-        var partial = partial
+    func raycast(query: RayQuery) -> RayQuery {
+        var query = query
 
-        partial = t0.raycast(partial: partial)
-        partial = t1.raycast(partial: partial)
-        partial = t2.raycast(partial: partial)
+        query = t0.raycast(query: query)
+        query = t1.raycast(query: query)
+        query = t2.raycast(query: query)
 
-        return partial
+        return query
+    }
+    
+    mutating func attributeIds(_ idFactory: inout RaytracingElementIdFactory) {
+        t0.attributeIds(&idFactory)
+        t1.attributeIds(&idFactory)
+        t2.attributeIds(&idFactory)
     }
 }
 
@@ -37,15 +48,22 @@ struct TupleRaytracingElement4<T0: RaytracingElement, T1: RaytracingElement, T2:
     var t3: T3
 
     @inlinable
-    func raycast(partial: Scene.PartialRayResult) -> Scene.PartialRayResult {
-        var partial = partial
+    func raycast(query: RayQuery) -> RayQuery {
+        var query = query
 
-        partial = t0.raycast(partial: partial)
-        partial = t1.raycast(partial: partial)
-        partial = t2.raycast(partial: partial)
-        partial = t3.raycast(partial: partial)
+        query = t0.raycast(query: query)
+        query = t1.raycast(query: query)
+        query = t2.raycast(query: query)
+        query = t3.raycast(query: query)
 
-        return partial
+        return query
+    }
+    
+    mutating func attributeIds(_ idFactory: inout RaytracingElementIdFactory) {
+        t0.attributeIds(&idFactory)
+        t1.attributeIds(&idFactory)
+        t2.attributeIds(&idFactory)
+        t3.attributeIds(&idFactory)
     }
 }
 
@@ -57,16 +75,24 @@ struct TupleRaytracingElement5<T0: RaytracingElement, T1: RaytracingElement, T2:
     var t4: T4
 
     @inlinable
-    func raycast(partial: Scene.PartialRayResult) -> Scene.PartialRayResult {
-        var partial = partial
+    func raycast(query: RayQuery) -> RayQuery {
+        var query = query
 
-        partial = t0.raycast(partial: partial)
-        partial = t1.raycast(partial: partial)
-        partial = t2.raycast(partial: partial)
-        partial = t3.raycast(partial: partial)
-        partial = t4.raycast(partial: partial)
+        query = t0.raycast(query: query)
+        query = t1.raycast(query: query)
+        query = t2.raycast(query: query)
+        query = t3.raycast(query: query)
+        query = t4.raycast(query: query)
 
-        return partial
+        return query
+    }
+    
+    mutating func attributeIds(_ idFactory: inout RaytracingElementIdFactory) {
+        t0.attributeIds(&idFactory)
+        t1.attributeIds(&idFactory)
+        t2.attributeIds(&idFactory)
+        t3.attributeIds(&idFactory)
+        t4.attributeIds(&idFactory)
     }
 }
 
@@ -79,17 +105,26 @@ struct TupleRaytracingElement6<T0: RaytracingElement, T1: RaytracingElement, T2:
     var t5: T5
 
     @inlinable
-    func raycast(partial: Scene.PartialRayResult) -> Scene.PartialRayResult {
-        var partial = partial
+    func raycast(query: RayQuery) -> RayQuery {
+        var query = query
 
-        partial = t0.raycast(partial: partial)
-        partial = t1.raycast(partial: partial)
-        partial = t2.raycast(partial: partial)
-        partial = t3.raycast(partial: partial)
-        partial = t4.raycast(partial: partial)
-        partial = t5.raycast(partial: partial)
+        query = t0.raycast(query: query)
+        query = t1.raycast(query: query)
+        query = t2.raycast(query: query)
+        query = t3.raycast(query: query)
+        query = t4.raycast(query: query)
+        query = t5.raycast(query: query)
 
-        return partial
+        return query
+    }
+    
+    mutating func attributeIds(_ idFactory: inout RaytracingElementIdFactory) {
+        t0.attributeIds(&idFactory)
+        t1.attributeIds(&idFactory)
+        t2.attributeIds(&idFactory)
+        t3.attributeIds(&idFactory)
+        t4.attributeIds(&idFactory)
+        t5.attributeIds(&idFactory)
     }
 }
 
@@ -103,18 +138,28 @@ struct TupleRaytracingElement7<T0: RaytracingElement, T1: RaytracingElement, T2:
     var t6: T6
 
     @inlinable
-    func raycast(partial: Scene.PartialRayResult) -> Scene.PartialRayResult {
-        var partial = partial
+    func raycast(query: RayQuery) -> RayQuery {
+        var query = query
 
-        partial = t0.raycast(partial: partial)
-        partial = t1.raycast(partial: partial)
-        partial = t2.raycast(partial: partial)
-        partial = t3.raycast(partial: partial)
-        partial = t4.raycast(partial: partial)
-        partial = t5.raycast(partial: partial)
-        partial = t6.raycast(partial: partial)
+        query = t0.raycast(query: query)
+        query = t1.raycast(query: query)
+        query = t2.raycast(query: query)
+        query = t3.raycast(query: query)
+        query = t4.raycast(query: query)
+        query = t5.raycast(query: query)
+        query = t6.raycast(query: query)
 
-        return partial
+        return query
+    }
+    
+    mutating func attributeIds(_ idFactory: inout RaytracingElementIdFactory) {
+        t0.attributeIds(&idFactory)
+        t1.attributeIds(&idFactory)
+        t2.attributeIds(&idFactory)
+        t3.attributeIds(&idFactory)
+        t4.attributeIds(&idFactory)
+        t5.attributeIds(&idFactory)
+        t6.attributeIds(&idFactory)
     }
 }
 
@@ -129,18 +174,29 @@ struct TupleRaytracingElement8<T0: RaytracingElement, T1: RaytracingElement, T2:
     var t7: T7
 
     @inlinable
-    func raycast(partial: Scene.PartialRayResult) -> Scene.PartialRayResult {
-        var partial = partial
+    func raycast(query: RayQuery) -> RayQuery {
+        var query = query
 
-        partial = t0.raycast(partial: partial)
-        partial = t1.raycast(partial: partial)
-        partial = t2.raycast(partial: partial)
-        partial = t3.raycast(partial: partial)
-        partial = t4.raycast(partial: partial)
-        partial = t5.raycast(partial: partial)
-        partial = t6.raycast(partial: partial)
-        partial = t7.raycast(partial: partial)
+        query = t0.raycast(query: query)
+        query = t1.raycast(query: query)
+        query = t2.raycast(query: query)
+        query = t3.raycast(query: query)
+        query = t4.raycast(query: query)
+        query = t5.raycast(query: query)
+        query = t6.raycast(query: query)
+        query = t7.raycast(query: query)
 
-        return partial
+        return query
+    }
+    
+    mutating func attributeIds(_ idFactory: inout RaytracingElementIdFactory) {
+        t0.attributeIds(&idFactory)
+        t1.attributeIds(&idFactory)
+        t2.attributeIds(&idFactory)
+        t3.attributeIds(&idFactory)
+        t4.attributeIds(&idFactory)
+        t5.attributeIds(&idFactory)
+        t6.attributeIds(&idFactory)
+        t7.attributeIds(&idFactory)
     }
 }

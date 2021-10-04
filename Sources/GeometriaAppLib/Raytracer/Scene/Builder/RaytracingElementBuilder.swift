@@ -9,6 +9,13 @@ struct RaytracingElementBuilder {
     static func buildExpression(_ value: (RSphere3D, RaytracingMaterial)) -> SphereRaytracingElement {
         .init(geometry: value.0, material: value.1)
     }
+    
+    static func buildExpression(_ value: REllipse3D) -> EllipseRaytracingElement {
+        .init(geometry: value, material: .default)
+    }
+    static func buildExpression(_ value: (REllipse3D, RaytracingMaterial)) -> EllipseRaytracingElement {
+        .init(geometry: value.0, material: value.1)
+    }
 
     static func buildExpression(_ value: RAABB3D) -> AABBRaytracingElement {
         .init(geometry: value, material: .default)

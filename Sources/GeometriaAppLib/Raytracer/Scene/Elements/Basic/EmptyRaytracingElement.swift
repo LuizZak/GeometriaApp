@@ -1,6 +1,11 @@
 struct EmptyRaytracingElement: RaytracingElement {
     @_transparent
-    func raycast(partial: Scene.PartialRayResult) -> Scene.PartialRayResult {
-        partial
+    func raycast(query: RayQuery) -> RayQuery {
+        query
+    }
+    
+    @_transparent
+    func attributeIds(_ idFactory: inout RaytracingElementIdFactory) {
+        
     }
 }

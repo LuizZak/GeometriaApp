@@ -182,7 +182,7 @@ final class SceneGeometry {
         }
     }
     
-    func doRayCast(partialResult: Scene.PartialRayResult) -> Scene.PartialRayResult {
+    func doRayCast(partialResult: RayQuery) -> RayQuery {
         if let aabb = self.bounds, let rayAABB = partialResult.rayAABB {
             if !aabb.intersects(rayAABB) {
                 return partialResult

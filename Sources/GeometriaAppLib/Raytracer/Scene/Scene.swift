@@ -16,7 +16,7 @@ struct Scene {
     @inlinable
     func intersect(ray: RRay3D, ignoring: RayIgnore = .none) -> RayHit? {
         var result =
-            PartialRayResult(ray: ray,
+            RayQuery(ray: ray,
                              rayMagnitudeSquared: .infinity,
                              lineSegment: .init(start: ray.start, end: ray.start),
                              lastHit: nil,
@@ -48,64 +48,64 @@ struct Scene {
         
         return hits
     }
+}
+
+struct RayQuery {
+    var ray: RRay3D
     
-    struct PartialRayResult {
-        var ray: RRay3D
+    var rayAABB: RAABB3D?
+    
+    /// Current magnitude of ray's hit point. Is `.infinity` for newly casted
+    /// rays that did not intersect geometry yet.
+    var rayMagnitudeSquared: Double
+    
+    /// If `rayMagnitudeSquared` is not `.infinity`, returns a line segment
+    /// that represents the current magnitude of the ray.
+    ///
+    /// If `rayMagnitudeSquared == .infinity`, the result is undefined.
+    var lineSegment: RLineSegment3D
+    
+    var lastHit: RayHit?
+    
+    var ignoring: RayIgnore
+    
+    func intersect<Convex: Convex3Type>(_ convex: Convex) -> ConvexLineIntersection<RVector3D> where Convex.Vector == RVector3D {
+            rayMagnitudeSquared.isFinite
+                ? convex.intersection(with: lineSegment)
+                : convex.intersection(with: ray)
+    }
+    
+    func withHit(_ rayHit: RayHit) -> RayQuery {
+        let point = rayHit.point
+        let magnitudeSquared = point.distanceSquared(to: ray.start)
         
-        var rayAABB: RAABB3D?
+        let lineSegment =
+        RLineSegment3D(
+            start: ray.start,
+            end: ray.projectedMagnitude(magnitudeSquared.squareRoot())
+        )
         
-        /// Current magnitude of ray's hit point. Is `.infinity` for newly casted
-        /// rays that did not intersect geometry yet.
-        var rayMagnitudeSquared: Double
+        let newAABB = RAABB3D(minimum: RVector3D.pointwiseMin(ray.start, point),
+                              maximum: RVector3D.pointwiseMax(ray.start, point))
         
-        /// If `rayMagnitudeSquared` is not `.infinity`, returns a line segment
-        /// that represents the current magnitude of the ray.
-        ///
-        /// If `rayMagnitudeSquared == .infinity`, the result is undefined.
-        var lineSegment: RLineSegment3D
+        return RayQuery(ray: ray,
+                                rayAABB: newAABB,
+                                rayMagnitudeSquared: magnitudeSquared,
+                                lineSegment: lineSegment,
+                                lastHit: rayHit,
+                                ignoring: ignoring)
+    }
+    
+    func withHit(magnitudeSquared: Double,
+                 point: RVector3D,
+                 normal: RVector3D,
+                 intersection: ConvexLineIntersection<RVector3D>,
+                 id: Int) -> RayQuery {
         
-        var lastHit: RayHit?
+        let hit = RayHit(pointOfInterest: .init(point: point, normal: normal),
+                         intersection: intersection,
+                         id: id)
         
-        var ignoring: RayIgnore
-        
-        func intersect<Convex: Convex3Type>(_ convex: Convex) -> ConvexLineIntersection<RVector3D> where Convex.Vector == RVector3D {
-                rayMagnitudeSquared.isFinite
-                    ? convex.intersection(with: lineSegment)
-                    : convex.intersection(with: ray)
-        }
-        
-        func withHit(_ rayHit: RayHit) -> PartialRayResult {
-            let point = rayHit.point
-            let magnitudeSquared = point.distanceSquared(to: ray.start)
-            
-            let lineSegment =
-            RLineSegment3D(
-                start: ray.start,
-                end: ray.projectedMagnitude(magnitudeSquared.squareRoot())
-            )
-            
-            let newAABB = RAABB3D(minimum: RVector3D.pointwiseMin(ray.start, point),
-                                  maximum: RVector3D.pointwiseMax(ray.start, point))
-            
-            return PartialRayResult(ray: ray,
-                                    rayAABB: newAABB,
-                                    rayMagnitudeSquared: magnitudeSquared,
-                                    lineSegment: lineSegment,
-                                    lastHit: rayHit,
-                                    ignoring: ignoring)
-        }
-        
-        func withHit(magnitudeSquared: Double,
-                     point: RVector3D,
-                     normal: RVector3D,
-                     intersection: ConvexLineIntersection<RVector3D>,
-                     id: Int) -> PartialRayResult {
-            
-            let hit = RayHit(pointOfInterest: .init(point: point, normal: normal),
-                             intersection: intersection,
-                             id: id)
-            
-            return withHit(hit)
-        }
+        return withHit(hit)
     }
 }

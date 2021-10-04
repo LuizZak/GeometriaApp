@@ -1,6 +1,5 @@
 enum RaymarchingDemoScene1 {
     static func makeScene() -> some RaymarchingSceneType {
-        // TODO: Add support for materials
         RaymarchingElementBuilder.makeScene(skyColor: .cornflowerBlue) {
             // Back AABB
             (

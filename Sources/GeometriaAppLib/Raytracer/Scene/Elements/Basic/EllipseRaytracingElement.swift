@@ -3,14 +3,18 @@ struct EllipseRaytracingElement: RaytracingElement {
     var geometry: REllipse3D
     var material: RaytracingMaterial
     
-    func raycast(partial: Scene.PartialRayResult) -> Scene.PartialRayResult {
-        let intersection = partial.intersect(geometry)
-        guard let hit = RayHit(findingPointOfInterestOf: partial.ignoring,
+    func raycast(query: RayQuery) -> RayQuery {
+        let intersection = query.intersect(geometry)
+        guard let hit = RayHit(findingPointOfInterestOf: query.ignoring,
                                intersection: intersection,
                                id: id) else {
-            return partial
+            return query
         }
         
-        return partial.withHit(hit)
+        return query.withHit(hit)
+    }
+    
+    mutating func attributeIds(_ idFactory: inout RaytracingElementIdFactory) {
+        id = idFactory.makeId()
     }
 }

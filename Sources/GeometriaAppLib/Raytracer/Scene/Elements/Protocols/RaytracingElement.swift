@@ -1,3 +1,5 @@
 protocol RaytracingElement {
-    func raycast(partial: Scene.PartialRayResult) -> Scene.PartialRayResult
+    func raycast(query: RayQuery) -> RayQuery
+    
+    mutating func attributeIds(_ idFactory: inout RaytracingElementIdFactory)
 }
