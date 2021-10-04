@@ -1,4 +1,4 @@
-struct RayQuery {
+struct RayQuery: Equatable {
     var ray: RRay3D
     
     var rayAABB: RAABB3D?
@@ -116,5 +116,19 @@ extension RayQuery {
         rayMagnitudeSquared.isFinite
             ? geometry.intersection(with: lineSegment)
             : geometry.intersection(with: ray)
+    }
+
+    /// Translates the components of this ray query, returning a new ray query
+    /// that is shifted in space by an ammout specified by `vector`.
+    @_transparent
+    func translated(by vector: RVector3D) -> Self {
+        var query = self
+        query.ray = query.ray.offsetBy(vector)
+
+        guard let hit = query.lastHit else {
+            return query
+        }
+
+        return query.withHit(hit.translated(by: vector))
     }
 }

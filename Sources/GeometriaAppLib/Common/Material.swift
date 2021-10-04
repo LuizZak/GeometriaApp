@@ -1,6 +1,6 @@
 import SwiftBlend2D
 
-enum Material {
+enum Material: Equatable {
     static let `default`: Self = .diffuse(.default)
 
     case diffuse(DiffuseMaterial)

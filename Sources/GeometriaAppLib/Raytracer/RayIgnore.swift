@@ -1,5 +1,5 @@
 /// Specifies ignore patterns for geometries during raytracing.
-enum RayIgnore {
+enum RayIgnore: Equatable {
     /// Include all geometries in ray intersection, i.e. ignore none.
     case none
     

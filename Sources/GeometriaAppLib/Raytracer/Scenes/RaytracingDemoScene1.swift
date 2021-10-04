@@ -1,4 +1,4 @@
-enum RaytracingDemoScene {
+enum RaytracingDemoScene1 {
     static func makeScene() -> some RaytracingSceneType {
         RaytracingElementBuilder.makeScene(skyColor: .cornflowerBlue) {
             scene()

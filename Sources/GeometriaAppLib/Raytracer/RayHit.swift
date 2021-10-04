@@ -1,6 +1,6 @@
 // import Geometria
 
-struct RayHit {
+struct RayHit: Equatable {
     /// Convenience for `pointOfInterest.point`
     @_transparent
     var point: RVector3D {
@@ -75,6 +75,23 @@ struct RayHit {
         }
         
         return RayHit(pointOfInterest: poi, intersection: intersection, material: material, id: id)
+    }
+
+    /// Translates the components of this ray hit, returning a new hit that is 
+    /// shifted in space by an ammout specified by `vector`.
+    @_transparent
+    func translated(by vector: RVector3D) -> RayHit {
+        var hit = self
+
+        hit.intersection = hit.intersection.mappingPointNormals { (pn, _) in
+            var pn = pn
+            pn.point += vector
+            return pn
+        }
+
+        hit.pointOfInterest.point += vector
+
+        return hit
     }
     
     /// Specifies where the ray hit the geometry.

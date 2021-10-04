@@ -1,6 +1,6 @@
 import SwiftBlend2D
 
-struct DiffuseMaterial: CustomStringConvertible {
+struct DiffuseMaterial: Equatable, CustomStringConvertible {
     static let `default`: DiffuseMaterial = .init()
     
     // TODO: Attempt using different type for defining color in raytracer to

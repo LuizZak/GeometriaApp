@@ -4,37 +4,29 @@ extension RepeatTranslateRaytracingElement: RaytracingElement {
     @inlinable
     func raycast(query: RayQuery) -> RayQuery {
         var current = query
-        let startRay = query.ray
 
         var index = 0
         while index < count {
             defer { index += 1 }
             
-            var next = current
-            next.ray = startRay.offsetBy(-translation * Double(index))
-
-            current = element.raycast(query: next)
+            current = element.raycast(query: current)
+            current = current.translated(by: -translation)
         }
 
-        current.ray = startRay
+        let totalTranslation = translation * Double(count)
         
-        return current
+        return current.translated(by: totalTranslation)
     }
 
     func raycast(query: RayQuery, results: inout [RayHit]) {
         var current = query
-        let startRay = query.ray
 
         var index = 0
         while index < count {
             defer { index += 1 }
             
-            var next = current
-            next.ray = startRay.offsetBy(-translation * Double(index))
-
-            element.raycast(query: next, results: &results)
-
-            current = next
+            element.raycast(query: current, results: &results)
+            current = current.translated(by: -translation)
         }
     }
 }
