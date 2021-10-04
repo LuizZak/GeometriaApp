@@ -82,7 +82,7 @@ final class Raytracer<SceneType: RaytracingSceneType>: RendererType {
         return computeColor(material: material, ray: ray, hit: hit, bounceCount: bounceCount)
     }
     
-    private func computeColor(material: RaytracingMaterial,
+    private func computeColor(material: Material,
                               ray: RRay3D,
                               hit: RayHit,
                               ignoring: RayIgnore = .none,

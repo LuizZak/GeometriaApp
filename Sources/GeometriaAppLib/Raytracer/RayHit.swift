@@ -33,13 +33,13 @@ struct RayHit {
     /// during the raycasting invocation where this ray hit was created.
     var pointOfInterest: PointNormal<RVector3D>
     var intersection: RConvexLineResult3D
-    var material: RaytracingMaterial?
+    var material: Material?
     var id: Int
     
     @_transparent
     init(pointOfInterest: PointNormal<RVector3D>,
          intersection: RConvexLineResult3D,
-         material: RaytracingMaterial?,
+         material: Material?,
          id: Int) {
         
         self.pointOfInterest = pointOfInterest
@@ -51,7 +51,7 @@ struct RayHit {
     @_transparent
     init?(findingPointOfInterestOf rayIgnore: RayIgnore,
           intersection: RConvexLineResult3D,
-          material: RaytracingMaterial?,
+          material: Material?,
           id: Int) {
         
         guard let poi = rayIgnore.computePointNormalOfInterest(id: id, intersection: intersection) else {

@@ -1,7 +1,7 @@
 struct CylinderRaytracingElement {
     var id: Int = 0
     var geometry: RCylinder3D
-    var material: RaytracingMaterial
+    var material: Material
 }
 
 extension CylinderRaytracingElement: RaytracingElement {

@@ -52,7 +52,7 @@ struct BoundingBoxRaytracingElement<T>: BoundedRaytracingElement where T: Raytra
 }
 
 extension BoundingBoxRaytracingElement {
-    init<Geometry>(geometry: Geometry, material: RaytracingMaterial) where Geometry: SignedDistanceMeasurableType & BoundableType, Geometry.Vector == RVector3D, T == GeometryRaytracingElement<Geometry> {
+    init<Geometry>(geometry: Geometry, material: Material) where Geometry: SignedDistanceMeasurableType & BoundableType, Geometry.Vector == RVector3D, T == GeometryRaytracingElement<Geometry> {
         let element = GeometryRaytracingElement(geometry: geometry, material: material)
         
         self.init(element: element, boundingBox: geometry.bounds)

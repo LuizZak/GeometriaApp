@@ -24,7 +24,7 @@ struct BoundingSphereRaymarchingElement<T>: BoundedRaymarchingElement where T: R
 }
 
 extension BoundingSphereRaymarchingElement {
-    init<Geometry>(geometry: Geometry, material: RaymarcherMaterial) where Geometry: SignedDistanceMeasurableType & BoundableType, Geometry.Vector == RVector3D, T == GeometryRaymarchingElement<Geometry> {
+    init<Geometry>(geometry: Geometry, material: Material) where Geometry: SignedDistanceMeasurableType & BoundableType, Geometry.Vector == RVector3D, T == GeometryRaymarchingElement<Geometry> {
         let bounds = geometry.bounds
         let sphere = RSphere3D(center: bounds.center, radius: bounds.size.maximalComponent / 2)
         

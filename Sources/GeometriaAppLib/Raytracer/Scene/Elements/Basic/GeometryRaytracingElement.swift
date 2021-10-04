@@ -1,7 +1,7 @@
 struct GeometryRaytracingElement<T> {
     var id: Int = 0
     var geometry: T
-    var material: RaytracingMaterial
+    var material: Material
 }
 
 extension GeometryRaytracingElement: RaytracingElement where T: Convex3Type, T.Vector == RVector3D {

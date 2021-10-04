@@ -1,7 +1,7 @@
 import SwiftBlend2D
 
-struct Material: CustomStringConvertible {
-    static let `default`: Material = .init()
+struct DiffuseMaterial: CustomStringConvertible {
+    static let `default`: DiffuseMaterial = .init()
     
     // TODO: Attempt using different type for defining color in raytracer to
     // TODO: see if it improves performance over BLRgba32.
@@ -50,7 +50,7 @@ struct Material: CustomStringConvertible {
 }
 
 @_transparent
-func mix(_ m0: Material, _ m1: Material, factor: Double) -> Material {
+func mix(_ m0: DiffuseMaterial, _ m1: DiffuseMaterial, factor: Double) -> DiffuseMaterial {
     let color = mix(m0.color, m1.color, factor: factor)
     let bumpNoiseFrequency = mix(m0.bumpNoiseFrequency, m1.bumpNoiseFrequency, factor: factor)
     let bumpMagnitude = mix(m0.bumpMagnitude, m1.bumpMagnitude, factor: factor)
@@ -69,7 +69,7 @@ func mix(_ m0: Material, _ m1: Material, factor: Double) -> Material {
 }
 
 @_transparent
-func mix(_ m0: Material?, _ m1: Material?, factor: Double) -> Material? {
+func mix(_ m0: DiffuseMaterial?, _ m1: DiffuseMaterial?, factor: Double) -> DiffuseMaterial? {
     guard let m0 = m0 else {
         return m1
     }

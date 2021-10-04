@@ -1,6 +1,6 @@
 struct CylinderRaymarchingElement {
     var geometry: RCylinder3D
-    var material: RaymarcherMaterial
+    var material: Material
 }
 
 extension CylinderRaymarchingElement: RaymarchingElement {

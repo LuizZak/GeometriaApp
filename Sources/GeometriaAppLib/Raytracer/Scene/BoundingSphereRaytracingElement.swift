@@ -48,7 +48,7 @@ struct BoundingSphereRaytracingElement<T>: BoundedRaytracingElement where T: Ray
 }
 
 extension BoundingSphereRaytracingElement {
-    init<Geometry>(geometry: Geometry, material: RaytracingMaterial) where Geometry: SignedDistanceMeasurableType & BoundableType, Geometry.Vector == RVector3D, T == GeometryRaytracingElement<Geometry> {
+    init<Geometry>(geometry: Geometry, material: Material) where Geometry: SignedDistanceMeasurableType & BoundableType, Geometry.Vector == RVector3D, T == GeometryRaytracingElement<Geometry> {
         let bounds = geometry.bounds
         let sphere = RSphere3D(center: bounds.center, radius: bounds.size.maximalComponent / 2)
         

@@ -1,7 +1,7 @@
 struct PlaneRaytracingElement {
     var id: Int = 0
     var geometry: RPlane3D
-    var material: RaytracingMaterial
+    var material: Material
 }
 
 extension PlaneRaytracingElement: RaytracingElement {

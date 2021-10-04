@@ -1,6 +1,6 @@
 struct SphereRaymarchingElement {
     var geometry: RSphere3D
-    var material: RaymarcherMaterial
+    var material: Material
 }
 
 extension SphereRaymarchingElement: RaymarchingElement {

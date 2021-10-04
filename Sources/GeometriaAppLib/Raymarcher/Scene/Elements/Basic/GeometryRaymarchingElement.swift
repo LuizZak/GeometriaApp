@@ -1,6 +1,6 @@
 struct GeometryRaymarchingElement<T> {
     var geometry: T
-    var material: RaymarcherMaterial
+    var material: Material
 }
 
 extension GeometryRaymarchingElement: RaymarchingElement where T: SignedDistanceMeasurableType, T.Vector == RVector3D {

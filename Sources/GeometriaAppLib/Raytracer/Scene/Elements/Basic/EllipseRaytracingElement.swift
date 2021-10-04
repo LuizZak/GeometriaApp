@@ -1,7 +1,7 @@
 struct EllipseRaytracingElement {
     var id: Int = 0
     var geometry: REllipse3D
-    var material: RaytracingMaterial
+    var material: Material
 }
 
 extension EllipseRaytracingElement: RaytracingElement {

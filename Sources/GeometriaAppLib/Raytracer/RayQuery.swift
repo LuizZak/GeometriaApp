@@ -44,7 +44,7 @@ struct RayQuery {
                  point: RVector3D,
                  normal: RVector3D,
                  intersection: RConvexLineResult3D,
-                 material: RaytracingMaterial,
+                 material: Material,
                  id: Int) -> RayQuery {
         
         let hit = RayHit(

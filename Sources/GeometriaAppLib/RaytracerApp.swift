@@ -166,7 +166,7 @@ public class RaytracerApp: Blend2DApp {
 //        let batcher = SieveBatcher()
 //        let batcher = LinearBatcher()
         
-        #if true
+        #if false
         
         let scene = RaytracingDemoScene.makeScene()
         

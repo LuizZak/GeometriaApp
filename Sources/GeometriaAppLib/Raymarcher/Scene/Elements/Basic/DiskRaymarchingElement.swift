@@ -1,6 +1,6 @@
 struct DiskRaymarchingElement {
     var geometry: RDisk3D
-    var material: RaymarcherMaterial
+    var material: Material
 }
 
 extension DiskRaymarchingElement: RaymarchingElement {

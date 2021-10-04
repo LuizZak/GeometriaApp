@@ -1,7 +1,7 @@
 struct DiskRaytracingElement {
     var id: Int = 0
     var geometry: RDisk3D
-    var material: RaytracingMaterial
+    var material: Material
 }
 
 extension DiskRaytracingElement: RaytracingElement {

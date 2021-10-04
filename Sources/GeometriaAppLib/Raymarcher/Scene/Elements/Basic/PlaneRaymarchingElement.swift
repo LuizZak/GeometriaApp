@@ -1,6 +1,6 @@
 struct PlaneRaymarchingElement {
     var geometry: RPlane3D
-    var material: RaymarcherMaterial
+    var material: Material
 }
 
 extension PlaneRaymarchingElement: RaymarchingElement {

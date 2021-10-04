@@ -6,7 +6,7 @@ enum RaymarchingDemoScene1 {
                 RAABB3D(minimum: .init(x: -50, y: 200, z: 10),
                         maximum: .init(x: 0, y: 210, z: 50)),
                 
-                RaymarcherMaterial.solid(.indianRed)
+                Material.solid(.indianRed)
             )
             
             // Top AABB
@@ -56,7 +56,7 @@ enum RaymarchingDemoScene1 {
                             end: .init(x: 60, y: 150, z: 100),
                             radius: 20),
             
-            RaymarcherMaterial.solid(.init(r: 128, g: 128, b: 128, a: 255))
+            Material.solid(.init(r: 128, g: 128, b: 128, a: 255))
 
             // TODO: Add refractive material
             /*
@@ -91,7 +91,7 @@ enum RaymarchingDemoScene1 {
                     normal: .unitY,
                     radius: 12),
 
-            RaymarcherMaterial.target(center: .init(x: -10, y: 110, z: 20), stripeFrequency: 5.0, color1: .red, color2: .white)
+            Material.target(center: .init(x: -10, y: 110, z: 20), stripeFrequency: 5.0, color1: .red, color2: .white)
         )
     }
 
@@ -100,7 +100,7 @@ enum RaymarchingDemoScene1 {
         (
             RPlane3D(point: .zero, normal: .unitZ),
 
-            RaymarcherMaterial.checkerboard(size: 50.0, color1: .white, color2: .black)
+            Material.checkerboard(size: 50.0, color1: .white, color2: .black)
         )
     }
 }

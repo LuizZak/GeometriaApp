@@ -1,8 +1,8 @@
 struct RaymarchingResult {
     var distance: Double
-    var material: RaymarcherMaterial?
+    var material: Material?
 
-    init(distance: Double, material: RaymarcherMaterial?) {
+    init(distance: Double, material: Material?) {
         self.distance = distance
         self.material = material
     }

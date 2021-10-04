@@ -1,7 +1,7 @@
 struct AABBRaytracingElement {
     var id: Int = 0
     var geometry: RAABB3D
-    var material: RaytracingMaterial
+    var material: Material
 }
 
 extension AABBRaytracingElement: RaytracingElement {

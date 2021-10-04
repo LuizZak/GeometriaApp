@@ -1,6 +1,6 @@
 struct AABBRaymarchingElement {
     var geometry: RAABB3D
-    var material: RaymarcherMaterial
+    var material: Material
 }
 
 extension AABBRaymarchingElement: RaymarchingElement {

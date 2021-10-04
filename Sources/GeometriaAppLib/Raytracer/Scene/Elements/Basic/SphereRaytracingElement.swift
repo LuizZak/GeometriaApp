@@ -1,7 +1,7 @@
 struct SphereRaytracingElement {
     var id: Int = 0
     var geometry: RSphere3D
-    var material: RaytracingMaterial
+    var material: Material
 }
 
 extension SphereRaytracingElement: RaytracingElement {

@@ -6,35 +6,35 @@ struct RaymarchingElementBuilder {
     static func buildExpression(_ value: RSphere3D) -> SphereRaymarchingElement {
         .init(geometry: value, material: .default)
     }
-    static func buildExpression(_ value: (RSphere3D, RaymarcherMaterial)) -> SphereRaymarchingElement {
+    static func buildExpression(_ value: (RSphere3D, Material)) -> SphereRaymarchingElement {
         .init(geometry: value.0, material: value.1)
     }
 
     static func buildExpression(_ value: RAABB3D) -> AABBRaymarchingElement {
         .init(geometry: value, material: .default)
     }
-    static func buildExpression(_ value: (RAABB3D, RaymarcherMaterial)) -> AABBRaymarchingElement {
+    static func buildExpression(_ value: (RAABB3D, Material)) -> AABBRaymarchingElement {
         .init(geometry: value.0, material: value.1)
     }
 
     static func buildExpression(_ value: RCylinder3D) -> CylinderRaymarchingElement {
         .init(geometry: value, material: .default)
     }
-    static func buildExpression(_ value: (RCylinder3D, RaymarcherMaterial)) -> CylinderRaymarchingElement {
+    static func buildExpression(_ value: (RCylinder3D, Material)) -> CylinderRaymarchingElement {
         .init(geometry: value.0, material: value.1)
     }
 
     static func buildExpression(_ value: RPlane3D) -> PlaneRaymarchingElement {
         .init(geometry: value, material: .default)
     }
-    static func buildExpression(_ value: (RPlane3D, RaymarcherMaterial)) -> PlaneRaymarchingElement {
+    static func buildExpression(_ value: (RPlane3D, Material)) -> PlaneRaymarchingElement {
         .init(geometry: value.0, material: value.1)
     }
     
     static func buildExpression(_ value: RDisk3D) -> DiskRaymarchingElement {
         .init(geometry: value, material: .default)
     }
-    static func buildExpression(_ value: (RDisk3D, RaymarcherMaterial)) -> DiskRaymarchingElement {
+    static func buildExpression(_ value: (RDisk3D, Material)) -> DiskRaymarchingElement {
         .init(geometry: value.0, material: value.1)
     }
 
@@ -56,7 +56,7 @@ struct RaymarchingElementBuilder {
 
     // MARK: Generic types
     
-    static func buildExpression<T>(_ value: T, _ material: RaymarcherMaterial = .default) -> GeometryRaymarchingElement<T> where T: SignedDistanceMeasurableType {
+    static func buildExpression<T>(_ value: T, _ material: Material = .default) -> GeometryRaymarchingElement<T> where T: SignedDistanceMeasurableType {
         .init(geometry: value, material: material)
     }
     

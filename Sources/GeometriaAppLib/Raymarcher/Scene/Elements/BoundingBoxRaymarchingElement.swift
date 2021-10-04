@@ -24,7 +24,7 @@ struct BoundingBoxRaymarchingElement<T>: BoundedRaymarchingElement where T: Raym
 }
 
 extension BoundingBoxRaymarchingElement {
-    init<Geometry>(geometry: Geometry, material: RaymarcherMaterial) where Geometry: SignedDistanceMeasurableType & BoundableType, Geometry.Vector == RVector3D, T == GeometryRaymarchingElement<Geometry> {
+    init<Geometry>(geometry: Geometry, material: Material) where Geometry: SignedDistanceMeasurableType & BoundableType, Geometry.Vector == RVector3D, T == GeometryRaymarchingElement<Geometry> {
         let element = GeometryRaymarchingElement(geometry: geometry, material: material)
         
         self.init(element: element, boundingBox: geometry.bounds)

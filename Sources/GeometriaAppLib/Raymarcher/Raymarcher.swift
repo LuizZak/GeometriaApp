@@ -184,10 +184,10 @@ final class Raymarcher<SceneType: RaymarchingSceneType>: RendererType {
         return res
     }
 
-    private func computeColor(at point: RVector3D, material: RaymarcherMaterial) -> BLRgba32 {
+    private func computeColor(at point: RVector3D, material: Material) -> BLRgba32 {
         switch material {
-        case .solid(let color):
-            return color
+        case .diffuse(let material):
+            return material.color
 
         case let .checkerboard(checkerSize, color1, color2):
             let checkerPhase = abs(point) % checkerSize * 2
