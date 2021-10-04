@@ -68,7 +68,10 @@ extension RayQuery {
     }
 
     func intersect<Convex: Convex3Type>(_ geometry: Convex) -> RConvexLineResult3D where Convex.Vector == RVector3D {
-        let intersection = geometry.intersection(with: ray)
+        let intersection = 
+            rayMagnitudeSquared.isFinite
+            ? geometry.intersection(with: lineSegment)
+            : geometry.intersection(with: ray)
 
         switch intersection {
         case .enter(let pt),
@@ -88,7 +91,7 @@ extension RayQuery {
     }
     
     func intersect<Plane: LineIntersectablePlaneType>(_ geometry: Plane) -> RConvexLineResult3D where Plane.Vector == RVector3D {
-        guard let inter = intersectionPoint(geometry) else {
+        guard let inter = intersection(geometry) else {
             return .noIntersection
         }
         
@@ -105,11 +108,10 @@ extension RayQuery {
         return .singlePoint(PointNormal(point: inter, normal: normal))
     }
     
-    func intersectionPoint<Plane: LineIntersectablePlaneType>(_ geometry: Plane) -> RVector3D? where Plane.Vector == RVector3D {
-        if rayMagnitudeSquared.isFinite {
-            return geometry.intersection(with: lineSegment)
-        }
-        
-        return geometry.intersection(with: ray)
+    @_transparent
+    private func intersection<Plane: LineIntersectablePlaneType>(_ geometry: Plane) -> RVector3D? where Plane.Vector == RVector3D {
+        rayMagnitudeSquared.isFinite
+            ? geometry.intersection(with: lineSegment)
+            : geometry.intersection(with: ray)
     }
 }

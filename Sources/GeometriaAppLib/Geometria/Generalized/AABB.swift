@@ -447,10 +447,10 @@ extension AABB: ConvexType where Vector: VectorFloatingPoint {
             
             tNear = max(tNear, tMin[index])
             tFar = min(tFar, tMax[index])
-            
-            if tNear > tFar {
-                return .noIntersection
-            }
+        }
+
+        if tNear > tFar {
+            return .noIntersection
         }
         
         // TODO: Attempt to derive normal during computation above

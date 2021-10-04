@@ -9,13 +9,18 @@ enum RaytracingDemoScene {
 @RaytracingElementBuilder
 private func scene() -> some RaytracingElement {
     boundingBox {
-        makeBackAABB()
-        makeTopAABB()
-        makeShinySphere()
-        makeCylinder()
-        makeBumpySphere()
-        makeEllipse()
-        makeDisk()
+        boundingBox {
+            makeBackAABB()
+            makeTopAABB()
+            makeShinySphere()
+            makeEllipse()
+            makeDisk()
+        }
+
+        boundingBox {
+            makeCylinder()
+            makeBumpySphere()
+        }
     }
     
     makeFloorPlane()
