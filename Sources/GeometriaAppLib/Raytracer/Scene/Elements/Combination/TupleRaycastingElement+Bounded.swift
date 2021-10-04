@@ -1,27 +1,27 @@
 typealias BoundedTupleRaytracingElement2<T0, T1> =
-    TupleRaytracingElement2<T0, T1> where 
-        T0: BoundedRaytracingElement, 
+    TupleRaytracingElement2<T0, T1> where
+        T0: BoundedRaytracingElement,
         T1: BoundedRaytracingElement
 
 typealias BoundedTupleRaytracingElement3<T0, T1, T2> =
-    TupleRaytracingElement3<T0, T1, T2> where 
-        T0: BoundedRaytracingElement, 
-        T1: BoundedRaytracingElement, 
+    TupleRaytracingElement3<T0, T1, T2> where
+        T0: BoundedRaytracingElement,
+        T1: BoundedRaytracingElement,
         T2: BoundedRaytracingElement
 
 typealias BoundedTupleRaytracingElement4<T0, T1, T2, T3> =
-    TupleRaytracingElement4<T0, T1, T2, T3> where 
-        T0: BoundedRaytracingElement, 
-        T1: BoundedRaytracingElement, 
-        T2: BoundedRaytracingElement, 
+    TupleRaytracingElement4<T0, T1, T2, T3> where
+        T0: BoundedRaytracingElement,
+        T1: BoundedRaytracingElement,
+        T2: BoundedRaytracingElement,
         T3: BoundedRaytracingElement
 
-typealias BoundedTupleRaytracingElement5<T0, T1, T2, T3, T4> = 
+typealias BoundedTupleRaytracingElement5<T0, T1, T2, T3, T4> =
     TupleRaytracingElement5<T0, T1, T2, T3, T4> where
         T0: BoundedRaytracingElement,
         T1: BoundedRaytracingElement,
         T2: BoundedRaytracingElement,
-        T3: BoundedRaytracingElement, 
+        T3: BoundedRaytracingElement,
         T4: BoundedRaytracingElement
 
 typealias BoundedTupleRaytracingElement6<T0, T1, T2, T3, T4, T5> =
@@ -30,20 +30,20 @@ typealias BoundedTupleRaytracingElement6<T0, T1, T2, T3, T4, T5> =
         T1: BoundedRaytracingElement,
         T2: BoundedRaytracingElement,
         T3: BoundedRaytracingElement,
-        T4: BoundedRaytracingElement, 
+        T4: BoundedRaytracingElement,
         T5: BoundedRaytracingElement
 
-typealias BoundedTupleRaytracingElement7<T0, T1, T2, T3, T4, T5, T6> = 
+typealias BoundedTupleRaytracingElement7<T0, T1, T2, T3, T4, T5, T6> =
     TupleRaytracingElement7<T0, T1, T2, T3, T4, T5, T6> where
         T0: BoundedRaytracingElement,
         T1: BoundedRaytracingElement,
         T2: BoundedRaytracingElement,
         T3: BoundedRaytracingElement,
         T4: BoundedRaytracingElement,
-        T5: BoundedRaytracingElement, 
+        T5: BoundedRaytracingElement,
         T6: BoundedRaytracingElement
 
-typealias BoundedTupleRaytracingElement8<T0, T1, T2, T3, T4, T5, T6, T7> = 
+typealias BoundedTupleRaytracingElement8<T0, T1, T2, T3, T4, T5, T6, T7> =
     TupleRaytracingElement8<T0, T1, T2, T3, T4, T5, T6, T7> where
         T0: BoundedRaytracingElement,
         T1: BoundedRaytracingElement,
@@ -51,7 +51,7 @@ typealias BoundedTupleRaytracingElement8<T0, T1, T2, T3, T4, T5, T6, T7> =
         T3: BoundedRaytracingElement,
         T4: BoundedRaytracingElement,
         T5: BoundedRaytracingElement,
-        T6: BoundedRaytracingElement, 
+        T6: BoundedRaytracingElement,
         T7: BoundedRaytracingElement
 
 

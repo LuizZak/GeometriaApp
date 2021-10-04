@@ -1,7 +1,60 @@
-struct TupleRaytracingElement2<T0: RaytracingElement, T1: RaytracingElement>: RaytracingElement {
-    var t0: T0
-    var t1: T1
+typealias TupleRaytracingElement2<T0, T1> =
+    TupleElement2<T0, T1> where
+        T0: RaytracingElement,
+        T1: RaytracingElement
 
+typealias TupleRaytracingElement3<T0, T1, T2> =
+    TupleElement3<T0, T1, T2> where
+        T0: RaytracingElement,
+        T1: RaytracingElement,
+        T2: RaytracingElement
+
+typealias TupleRaytracingElement4<T0, T1, T2, T3> =
+    TupleElement4<T0, T1, T2, T3> where
+        T0: RaytracingElement,
+        T1: RaytracingElement,
+        T2: RaytracingElement,
+        T3: RaytracingElement
+
+typealias TupleRaytracingElement5<T0, T1, T2, T3, T4> =
+    TupleElement5<T0, T1, T2, T3, T4> where
+        T0: RaytracingElement,
+        T1: RaytracingElement,
+        T2: RaytracingElement,
+        T3: RaytracingElement,
+        T4: RaytracingElement
+
+typealias TupleRaytracingElement6<T0, T1, T2, T3, T4, T5> =
+    TupleElement6<T0, T1, T2, T3, T4, T5> where
+        T0: RaytracingElement,
+        T1: RaytracingElement,
+        T2: RaytracingElement,
+        T3: RaytracingElement,
+        T4: RaytracingElement,
+        T5: RaytracingElement
+
+typealias TupleRaytracingElement7<T0, T1, T2, T3, T4, T5, T6> =
+    TupleElement7<T0, T1, T2, T3, T4, T5, T6> where
+        T0: RaytracingElement,
+        T1: RaytracingElement,
+        T2: RaytracingElement,
+        T3: RaytracingElement,
+        T4: RaytracingElement,
+        T5: RaytracingElement,
+        T6: RaytracingElement
+
+typealias TupleRaytracingElement8<T0, T1, T2, T3, T4, T5, T6, T7> =
+    TupleElement8<T0, T1, T2, T3, T4, T5, T6, T7> where
+        T0: RaytracingElement,
+        T1: RaytracingElement,
+        T2: RaytracingElement,
+        T3: RaytracingElement,
+        T4: RaytracingElement,
+        T5: RaytracingElement,
+        T6: RaytracingElement,
+        T7: RaytracingElement
+
+extension TupleRaytracingElement2: RaytracingElement {
     @inlinable
     func raycast(query: RayQuery) -> RayQuery {
         var query = query
@@ -30,11 +83,7 @@ struct TupleRaytracingElement2<T0: RaytracingElement, T1: RaytracingElement>: Ra
     }
 }
 
-struct TupleRaytracingElement3<T0: RaytracingElement, T1: RaytracingElement, T2: RaytracingElement>: RaytracingElement {
-    var t0: T0
-    var t1: T1
-    var t2: T2
-
+extension TupleRaytracingElement3: RaytracingElement {
     @inlinable
     func raycast(query: RayQuery) -> RayQuery {
         var query = query
@@ -67,12 +116,7 @@ struct TupleRaytracingElement3<T0: RaytracingElement, T1: RaytracingElement, T2:
     }
 }
 
-struct TupleRaytracingElement4<T0: RaytracingElement, T1: RaytracingElement, T2: RaytracingElement, T3: RaytracingElement>: RaytracingElement {
-    var t0: T0
-    var t1: T1
-    var t2: T2
-    var t3: T3
-
+extension TupleRaytracingElement4: RaytracingElement {
     @inlinable
     func raycast(query: RayQuery) -> RayQuery {
         var query = query
@@ -109,13 +153,7 @@ struct TupleRaytracingElement4<T0: RaytracingElement, T1: RaytracingElement, T2:
     }
 }
 
-struct TupleRaytracingElement5<T0: RaytracingElement, T1: RaytracingElement, T2: RaytracingElement, T3: RaytracingElement, T4: RaytracingElement>: RaytracingElement {
-    var t0: T0
-    var t1: T1
-    var t2: T2
-    var t3: T3
-    var t4: T4
-
+extension TupleRaytracingElement5: RaytracingElement {
     @inlinable
     func raycast(query: RayQuery) -> RayQuery {
         var query = query
@@ -156,14 +194,7 @@ struct TupleRaytracingElement5<T0: RaytracingElement, T1: RaytracingElement, T2:
     }
 }
 
-struct TupleRaytracingElement6<T0: RaytracingElement, T1: RaytracingElement, T2: RaytracingElement, T3: RaytracingElement, T4: RaytracingElement, T5: RaytracingElement>: RaytracingElement {
-    var t0: T0
-    var t1: T1
-    var t2: T2
-    var t3: T3
-    var t4: T4
-    var t5: T5
-
+extension TupleRaytracingElement6: RaytracingElement {
     @inlinable
     func raycast(query: RayQuery) -> RayQuery {
         var query = query
@@ -208,15 +239,7 @@ struct TupleRaytracingElement6<T0: RaytracingElement, T1: RaytracingElement, T2:
     }
 }
 
-struct TupleRaytracingElement7<T0: RaytracingElement, T1: RaytracingElement, T2: RaytracingElement, T3: RaytracingElement, T4: RaytracingElement, T5: RaytracingElement, T6: RaytracingElement>: RaytracingElement {
-    var t0: T0
-    var t1: T1
-    var t2: T2
-    var t3: T3
-    var t4: T4
-    var t5: T5
-    var t6: T6
-
+extension TupleRaytracingElement7: RaytracingElement {
     @inlinable
     func raycast(query: RayQuery) -> RayQuery {
         var query = query
@@ -265,16 +288,7 @@ struct TupleRaytracingElement7<T0: RaytracingElement, T1: RaytracingElement, T2:
     }
 }
 
-struct TupleRaytracingElement8<T0: RaytracingElement, T1: RaytracingElement, T2: RaytracingElement, T3: RaytracingElement, T4: RaytracingElement, T5: RaytracingElement, T6: RaytracingElement, T7: RaytracingElement>: RaytracingElement {
-    var t0: T0
-    var t1: T1
-    var t2: T2
-    var t3: T3
-    var t4: T4
-    var t5: T5
-    var t6: T6
-    var t7: T7
-
+extension TupleRaytracingElement8: RaytracingElement {
     @inlinable
     func raycast(query: RayQuery) -> RayQuery {
         var query = query

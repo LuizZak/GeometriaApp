@@ -1,27 +1,27 @@
 typealias BoundedTupleRaymarchingElement2<T0, T1> =
-    TupleRaymarchingElement2<T0, T1> where 
-        T0: BoundedRaymarchingElement, 
+    TupleRaymarchingElement2<T0, T1> where
+        T0: BoundedRaymarchingElement,
         T1: BoundedRaymarchingElement
 
 typealias BoundedTupleRaymarchingElement3<T0, T1, T2> =
-    TupleRaymarchingElement3<T0, T1, T2> where 
-        T0: BoundedRaymarchingElement, 
-        T1: BoundedRaymarchingElement, 
+    TupleRaymarchingElement3<T0, T1, T2> where
+        T0: BoundedRaymarchingElement,
+        T1: BoundedRaymarchingElement,
         T2: BoundedRaymarchingElement
 
 typealias BoundedTupleRaymarchingElement4<T0, T1, T2, T3> =
-    TupleRaymarchingElement4<T0, T1, T2, T3> where 
-        T0: BoundedRaymarchingElement, 
-        T1: BoundedRaymarchingElement, 
-        T2: BoundedRaymarchingElement, 
+    TupleRaymarchingElement4<T0, T1, T2, T3> where
+        T0: BoundedRaymarchingElement,
+        T1: BoundedRaymarchingElement,
+        T2: BoundedRaymarchingElement,
         T3: BoundedRaymarchingElement
 
-typealias BoundedTupleRaymarchingElement5<T0, T1, T2, T3, T4> = 
+typealias BoundedTupleRaymarchingElement5<T0, T1, T2, T3, T4> =
     TupleRaymarchingElement5<T0, T1, T2, T3, T4> where
         T0: BoundedRaymarchingElement,
         T1: BoundedRaymarchingElement,
         T2: BoundedRaymarchingElement,
-        T3: BoundedRaymarchingElement, 
+        T3: BoundedRaymarchingElement,
         T4: BoundedRaymarchingElement
 
 typealias BoundedTupleRaymarchingElement6<T0, T1, T2, T3, T4, T5> =
@@ -30,20 +30,20 @@ typealias BoundedTupleRaymarchingElement6<T0, T1, T2, T3, T4, T5> =
         T1: BoundedRaymarchingElement,
         T2: BoundedRaymarchingElement,
         T3: BoundedRaymarchingElement,
-        T4: BoundedRaymarchingElement, 
+        T4: BoundedRaymarchingElement,
         T5: BoundedRaymarchingElement
 
-typealias BoundedTupleRaymarchingElement7<T0, T1, T2, T3, T4, T5, T6> = 
+typealias BoundedTupleRaymarchingElement7<T0, T1, T2, T3, T4, T5, T6> =
     TupleRaymarchingElement7<T0, T1, T2, T3, T4, T5, T6> where
         T0: BoundedRaymarchingElement,
         T1: BoundedRaymarchingElement,
         T2: BoundedRaymarchingElement,
         T3: BoundedRaymarchingElement,
         T4: BoundedRaymarchingElement,
-        T5: BoundedRaymarchingElement, 
+        T5: BoundedRaymarchingElement,
         T6: BoundedRaymarchingElement
 
-typealias BoundedTupleRaymarchingElement8<T0, T1, T2, T3, T4, T5, T6, T7> = 
+typealias BoundedTupleRaymarchingElement8<T0, T1, T2, T3, T4, T5, T6, T7> =
     TupleRaymarchingElement8<T0, T1, T2, T3, T4, T5, T6, T7> where
         T0: BoundedRaymarchingElement,
         T1: BoundedRaymarchingElement,
@@ -51,9 +51,8 @@ typealias BoundedTupleRaymarchingElement8<T0, T1, T2, T3, T4, T5, T6, T7> =
         T3: BoundedRaymarchingElement,
         T4: BoundedRaymarchingElement,
         T5: BoundedRaymarchingElement,
-        T6: BoundedRaymarchingElement, 
+        T6: BoundedRaymarchingElement,
         T7: BoundedRaymarchingElement
-
 
 extension BoundedTupleRaymarchingElement2: BoundedRaymarchingElement {
     func makeRaymarchingBounds() -> RaymarchingBounds {

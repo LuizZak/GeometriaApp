@@ -1,7 +1,60 @@
-struct TupleRaymarchingElement2<T0: RaymarchingElement, T1: RaymarchingElement>: RaymarchingElement {
-    var t0: T0
-    var t1: T1
+typealias TupleRaymarchingElement2<T0, T1> =
+    TupleElement2<T0, T1> where
+        T0: RaymarchingElement,
+        T1: RaymarchingElement
 
+typealias TupleRaymarchingElement3<T0, T1, T2> =
+    TupleElement3<T0, T1, T2> where
+        T0: RaymarchingElement,
+        T1: RaymarchingElement,
+        T2: RaymarchingElement
+
+typealias TupleRaymarchingElement4<T0, T1, T2, T3> =
+    TupleElement4<T0, T1, T2, T3> where
+        T0: RaymarchingElement,
+        T1: RaymarchingElement,
+        T2: RaymarchingElement,
+        T3: RaymarchingElement
+
+typealias TupleRaymarchingElement5<T0, T1, T2, T3, T4> =
+    TupleElement5<T0, T1, T2, T3, T4> where
+        T0: RaymarchingElement,
+        T1: RaymarchingElement,
+        T2: RaymarchingElement,
+        T3: RaymarchingElement,
+        T4: RaymarchingElement
+
+typealias TupleRaymarchingElement6<T0, T1, T2, T3, T4, T5> =
+    TupleElement6<T0, T1, T2, T3, T4, T5> where
+        T0: RaymarchingElement,
+        T1: RaymarchingElement,
+        T2: RaymarchingElement,
+        T3: RaymarchingElement,
+        T4: RaymarchingElement,
+        T5: RaymarchingElement
+
+typealias TupleRaymarchingElement7<T0, T1, T2, T3, T4, T5, T6> =
+    TupleElement7<T0, T1, T2, T3, T4, T5, T6> where
+        T0: RaymarchingElement,
+        T1: RaymarchingElement,
+        T2: RaymarchingElement,
+        T3: RaymarchingElement,
+        T4: RaymarchingElement,
+        T5: RaymarchingElement,
+        T6: RaymarchingElement
+
+typealias TupleRaymarchingElement8<T0, T1, T2, T3, T4, T5, T6, T7> =
+    TupleElement8<T0, T1, T2, T3, T4, T5, T6, T7> where
+        T0: RaymarchingElement,
+        T1: RaymarchingElement,
+        T2: RaymarchingElement,
+        T3: RaymarchingElement,
+        T4: RaymarchingElement,
+        T5: RaymarchingElement,
+        T6: RaymarchingElement,
+        T7: RaymarchingElement
+
+extension TupleRaymarchingElement2: RaymarchingElement {
     @inlinable
     func signedDistance(to point: RVector3D, current: RaymarchingResult) -> RaymarchingResult {
         var current = current
@@ -13,11 +66,7 @@ struct TupleRaymarchingElement2<T0: RaymarchingElement, T1: RaymarchingElement>:
     }
 }
 
-struct TupleRaymarchingElement3<T0: RaymarchingElement, T1: RaymarchingElement, T2: RaymarchingElement>: RaymarchingElement {
-    var t0: T0
-    var t1: T1
-    var t2: T2
-
+extension TupleRaymarchingElement3: RaymarchingElement {
     @inlinable
     func signedDistance(to point: RVector3D, current: RaymarchingResult) -> RaymarchingResult {
         var current = current
@@ -30,12 +79,7 @@ struct TupleRaymarchingElement3<T0: RaymarchingElement, T1: RaymarchingElement, 
     }
 }
 
-struct TupleRaymarchingElement4<T0: RaymarchingElement, T1: RaymarchingElement, T2: RaymarchingElement, T3: RaymarchingElement>: RaymarchingElement {
-    var t0: T0
-    var t1: T1
-    var t2: T2
-    var t3: T3
-
+extension TupleRaymarchingElement4: RaymarchingElement {
     @inlinable
     func signedDistance(to point: RVector3D, current: RaymarchingResult) -> RaymarchingResult {
         var current = current
@@ -49,13 +93,7 @@ struct TupleRaymarchingElement4<T0: RaymarchingElement, T1: RaymarchingElement, 
     }
 }
 
-struct TupleRaymarchingElement5<T0: RaymarchingElement, T1: RaymarchingElement, T2: RaymarchingElement, T3: RaymarchingElement, T4: RaymarchingElement>: RaymarchingElement {
-    var t0: T0
-    var t1: T1
-    var t2: T2
-    var t3: T3
-    var t4: T4
-
+extension TupleRaymarchingElement5: RaymarchingElement {
     @inlinable
     func signedDistance(to point: RVector3D, current: RaymarchingResult) -> RaymarchingResult {
         var current = current
@@ -70,14 +108,7 @@ struct TupleRaymarchingElement5<T0: RaymarchingElement, T1: RaymarchingElement, 
     }
 }
 
-struct TupleRaymarchingElement6<T0: RaymarchingElement, T1: RaymarchingElement, T2: RaymarchingElement, T3: RaymarchingElement, T4: RaymarchingElement, T5: RaymarchingElement>: RaymarchingElement {
-    var t0: T0
-    var t1: T1
-    var t2: T2
-    var t3: T3
-    var t4: T4
-    var t5: T5
-
+extension TupleRaymarchingElement6: RaymarchingElement {
     @inlinable
     func signedDistance(to point: RVector3D, current: RaymarchingResult) -> RaymarchingResult {
         var current = current
@@ -93,15 +124,7 @@ struct TupleRaymarchingElement6<T0: RaymarchingElement, T1: RaymarchingElement, 
     }
 }
 
-struct TupleRaymarchingElement7<T0: RaymarchingElement, T1: RaymarchingElement, T2: RaymarchingElement, T3: RaymarchingElement, T4: RaymarchingElement, T5: RaymarchingElement, T6: RaymarchingElement>: RaymarchingElement {
-    var t0: T0
-    var t1: T1
-    var t2: T2
-    var t3: T3
-    var t4: T4
-    var t5: T5
-    var t6: T6
-
+extension TupleRaymarchingElement7: RaymarchingElement {
     @inlinable
     func signedDistance(to point: RVector3D, current: RaymarchingResult) -> RaymarchingResult {
         var current = current
@@ -118,16 +141,7 @@ struct TupleRaymarchingElement7<T0: RaymarchingElement, T1: RaymarchingElement, 
     }
 }
 
-struct TupleRaymarchingElement8<T0: RaymarchingElement, T1: RaymarchingElement, T2: RaymarchingElement, T3: RaymarchingElement, T4: RaymarchingElement, T5: RaymarchingElement, T6: RaymarchingElement, T7: RaymarchingElement>: RaymarchingElement {
-    var t0: T0
-    var t1: T1
-    var t2: T2
-    var t3: T3
-    var t4: T4
-    var t5: T5
-    var t6: T6
-    var t7: T7
-
+extension TupleRaymarchingElement8: RaymarchingElement {
     @inlinable
     func signedDistance(to point: RVector3D, current: RaymarchingResult) -> RaymarchingResult {
         var current = current
