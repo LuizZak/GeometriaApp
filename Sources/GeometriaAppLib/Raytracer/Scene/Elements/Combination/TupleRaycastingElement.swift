@@ -23,8 +23,10 @@ struct TupleRaytracingElement2<T0: RaytracingElement, T1: RaytracingElement>: Ra
     }
 
     func queryScene(id: Int) -> RaytracingElement? {
-        t0.queryScene(id: id) ??
-        t1.queryScene(id: id)
+        if let el = t0.queryScene(id: id) { return el }
+        if let el = t1.queryScene(id: id) { return el }
+
+        return nil
     }
 }
 
@@ -57,9 +59,11 @@ struct TupleRaytracingElement3<T0: RaytracingElement, T1: RaytracingElement, T2:
     }
 
     func queryScene(id: Int) -> RaytracingElement? {
-        t0.queryScene(id: id) ??
-        t1.queryScene(id: id) ??
-        t2.queryScene(id: id)
+        if let el = t0.queryScene(id: id) { return el }
+        if let el = t1.queryScene(id: id) { return el }
+        if let el = t2.queryScene(id: id) { return el }
+
+        return nil
     }
 }
 
@@ -96,10 +100,12 @@ struct TupleRaytracingElement4<T0: RaytracingElement, T1: RaytracingElement, T2:
     }
 
     func queryScene(id: Int) -> RaytracingElement? {
-        t0.queryScene(id: id) ??
-        t1.queryScene(id: id) ??
-        t2.queryScene(id: id) ??
-        t3.queryScene(id: id)
+        if let el = t0.queryScene(id: id) { return el }
+        if let el = t1.queryScene(id: id) { return el }
+        if let el = t2.queryScene(id: id) { return el }
+        if let el = t3.queryScene(id: id) { return el }
+
+        return nil
     }
 }
 
@@ -140,11 +146,13 @@ struct TupleRaytracingElement5<T0: RaytracingElement, T1: RaytracingElement, T2:
     }
 
     func queryScene(id: Int) -> RaytracingElement? {
-        t0.queryScene(id: id) ??
-        t1.queryScene(id: id) ??
-        t2.queryScene(id: id) ??
-        t3.queryScene(id: id) ??
-        t4.queryScene(id: id)
+        if let el = t0.queryScene(id: id) { return el }
+        if let el = t1.queryScene(id: id) { return el }
+        if let el = t2.queryScene(id: id) { return el }
+        if let el = t3.queryScene(id: id) { return el }
+        if let el = t4.queryScene(id: id) { return el }
+
+        return nil
     }
 }
 
@@ -189,12 +197,14 @@ struct TupleRaytracingElement6<T0: RaytracingElement, T1: RaytracingElement, T2:
     }
 
     func queryScene(id: Int) -> RaytracingElement? {
-        t0.queryScene(id: id) ??
-        t1.queryScene(id: id) ??
-        t2.queryScene(id: id) ??
-        t3.queryScene(id: id) ??
-        t4.queryScene(id: id) ??
-        t5.queryScene(id: id)
+        if let el = t0.queryScene(id: id) { return el }
+        if let el = t1.queryScene(id: id) { return el }
+        if let el = t2.queryScene(id: id) { return el }
+        if let el = t3.queryScene(id: id) { return el }
+        if let el = t4.queryScene(id: id) { return el }
+        if let el = t5.queryScene(id: id) { return el }
+
+        return nil
     }
 }
 
@@ -243,13 +253,15 @@ struct TupleRaytracingElement7<T0: RaytracingElement, T1: RaytracingElement, T2:
     }
 
     func queryScene(id: Int) -> RaytracingElement? {
-        t0.queryScene(id: id) ??
-        t1.queryScene(id: id) ??
-        t2.queryScene(id: id) ??
-        t3.queryScene(id: id) ??
-        t4.queryScene(id: id) ??
-        t5.queryScene(id: id) ??
-        t6.queryScene(id: id)
+        if let el = t0.queryScene(id: id) { return el }
+        if let el = t1.queryScene(id: id) { return el }
+        if let el = t2.queryScene(id: id) { return el }
+        if let el = t3.queryScene(id: id) { return el }
+        if let el = t4.queryScene(id: id) { return el }
+        if let el = t5.queryScene(id: id) { return el }
+        if let el = t6.queryScene(id: id) { return el }
+
+        return nil
     }
 }
 
@@ -302,13 +314,15 @@ struct TupleRaytracingElement8<T0: RaytracingElement, T1: RaytracingElement, T2:
     }
 
     func queryScene(id: Int) -> RaytracingElement? {
-        t0.queryScene(id: id) ??
-        t1.queryScene(id: id) ??
-        t2.queryScene(id: id) ??
-        t3.queryScene(id: id) ??
-        t4.queryScene(id: id) ??
-        t5.queryScene(id: id) ??
-        t6.queryScene(id: id) ??
-        t7.queryScene(id: id)
+        if let el = t0.queryScene(id: id) { return el }
+        if let el = t1.queryScene(id: id) { return el }
+        if let el = t2.queryScene(id: id) { return el }
+        if let el = t3.queryScene(id: id) { return el }
+        if let el = t4.queryScene(id: id) { return el }
+        if let el = t5.queryScene(id: id) { return el }
+        if let el = t6.queryScene(id: id) { return el }
+        if let el = t7.queryScene(id: id) { return el }
+
+        return nil
     }
 }

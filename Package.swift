@@ -15,17 +15,18 @@ var geometriaAppTarget: Target = .executableTarget(
 )
 
 var geometriaAppLibTarget: Target = .target(
-name: "GeometriaAppLib",
-dependencies: [
-    // "Geometria",
-    .product(name: "Numerics", package: "swift-numerics"),
-    "ImagineUI",
-    .product(name: "Blend2DRenderer", package: "ImagineUI"),
-    "SwiftBlend2D",
-],
-resources: [
-    .copy("Resources/NotoSans-Regular.ttf")
-])
+    name: "GeometriaAppLib",
+    dependencies: [
+        // "Geometria",
+        .product(name: "Numerics", package: "swift-numerics"),
+        "ImagineUI",
+        .product(name: "Blend2DRenderer", package: "ImagineUI"),
+        "SwiftBlend2D",
+    ],
+    resources: [
+        .copy("Resources/NotoSans-Regular.ttf")
+    ]
+)
 
 var osTargets: [Target] = []
 
