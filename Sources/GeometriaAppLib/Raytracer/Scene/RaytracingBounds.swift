@@ -79,7 +79,8 @@ extension BoundingBoxRaytracingElement {
 extension BoundingSphereRaytracingElement {
     init(element: T) where T: BoundedRaytracingElement {
         let bounds = element.makeBounds()
-        let sphere = RSphere3D(center: bounds.center, radius: bounds.size.maximalComponent / 2)
+        let boundsLength = bounds.maximum.distance(to: bounds.minimum)
+        let sphere = RSphere3D(center: bounds.center, radius: boundsLength / 2)
 
         self.init(element: element, boundingSphere: sphere)
     }
