@@ -6,7 +6,7 @@ struct BoundingSphereRaymarchingElement<T>: BoundedRaymarchingElement where T: R
     init(element: T, boundingSphere: RSphere3D) {
         self.element = element
         self.boundingSphere = boundingSphere
-        bounds = RaymarchingBounds.makeBounds(for: boundingSphere)
+        bounds = RaymarchingBounds.makeRaymarchingBounds(for: boundingSphere)
     }
     
     @inlinable
@@ -18,7 +18,7 @@ struct BoundingSphereRaymarchingElement<T>: BoundedRaymarchingElement where T: R
         return element.signedDistance(to: point, current: current)
     }
 
-    func makeBounds() -> RaymarchingBounds {
+    func makeRaymarchingBounds() -> RaymarchingBounds {
         bounds
     }
 }

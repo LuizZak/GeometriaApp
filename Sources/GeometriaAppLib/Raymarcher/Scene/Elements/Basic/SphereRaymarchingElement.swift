@@ -1,7 +1,4 @@
-struct SphereRaymarchingElement {
-    var geometry: RSphere3D
-    var material: Material
-}
+typealias SphereRaymarchingElement = SphereElement
 
 extension SphereRaymarchingElement: RaymarchingElement {
     @inlinable
@@ -17,7 +14,7 @@ extension SphereRaymarchingElement: RaymarchingElement {
 }
 
 extension SphereRaymarchingElement: BoundedRaymarchingElement {
-    func makeBounds() -> RaymarchingBounds {
-        RaymarchingBounds.makeBounds(for: geometry)
+    func makeRaymarchingBounds() -> RaymarchingBounds {
+        RaymarchingBounds.makeRaymarchingBounds(for: geometry)
     }
 }

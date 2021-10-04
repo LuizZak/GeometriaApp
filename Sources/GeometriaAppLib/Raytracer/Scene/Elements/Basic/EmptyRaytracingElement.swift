@@ -1,4 +1,6 @@
-struct EmptyRaytracingElement: RaytracingElement {
+typealias EmptyRaytracingElement = EmptyElement
+
+extension EmptyRaytracingElement: RaytracingElement {
     @_transparent
     func raycast(query: RayQuery) -> RayQuery {
         query

@@ -28,8 +28,8 @@ struct RepeatTranslateRaymarchingElement<T: RaymarchingElement>: RaymarchingElem
 }
 
 extension RepeatTranslateRaymarchingElement: BoundedRaymarchingElement where T: BoundedRaymarchingElement {
-    func makeBounds() -> RaymarchingBounds {
-        let bounds = element.makeBounds()
+    func makeRaymarchingBounds() -> RaymarchingBounds {
+        let bounds = element.makeRaymarchingBounds()
         
         return bounds.union(bounds.offsetBy(translation * Double(count - 1)))
     }

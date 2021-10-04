@@ -25,7 +25,7 @@ private func makeGreekBuilding(withBaseCenteredAt point: RVector3D) -> some Boun
         .repeatTranslated(count: 10, translation: .unitX * 30).makeBoundingBox()
         .repeatTranslated(count: 2, translation: .unitY * 150).makeBoundingBox()
 
-        let pillarBounds = pillars.makeBounds()
+        let pillarBounds = pillars.makeRaymarchingBounds()
 
         let baseSize = pillarBounds.size.take.xy + .init(x: 5, y: 5)
 
@@ -42,7 +42,7 @@ private func makeGreekBuilding(withBaseCenteredAt point: RVector3D) -> some Boun
         pillars
     }
     
-    return building.centered(at: .init(point.take.xy, z: point.z + building.makeBounds().size.z / 2)).makeBoundingBox()
+    return building.centered(at: .init(point.take.xy, z: point.z + building.makeRaymarchingBounds().size.z / 2)).makeBoundingBox()
 }
 
 @RaymarchingElementBuilder

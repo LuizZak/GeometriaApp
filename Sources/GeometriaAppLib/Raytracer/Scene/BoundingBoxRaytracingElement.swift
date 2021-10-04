@@ -6,7 +6,7 @@ struct BoundingBoxRaytracingElement<T>: BoundedRaytracingElement where T: Raytra
     init(element: T, boundingBox: RAABB3D) {
         self.element = element
         self.boundingBox = boundingBox
-        bounds = RaytracingBounds.makeBounds(for: boundingBox)
+        bounds = RaytracingBounds.makeRaytracingBounds(for: boundingBox)
     }
     
     func raycast(query: RayQuery) -> RayQuery {
@@ -46,7 +46,7 @@ struct BoundingBoxRaytracingElement<T>: BoundedRaytracingElement where T: Raytra
         element.queryScene(id: id)
     }
 
-    func makeBounds() -> RaytracingBounds {
+    func makeRaytracingBounds() -> RaytracingBounds {
         bounds
     }
 }

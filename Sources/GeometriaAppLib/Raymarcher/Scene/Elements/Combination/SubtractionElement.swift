@@ -16,8 +16,8 @@ struct SubtractionElement<T0: RaymarchingElement, T1: RaymarchingElement>: Rayma
 extension SubtractionElement: BoundedRaymarchingElement where T0: BoundedRaymarchingElement, T1: BoundedRaymarchingElement {
     // TODO: Not ideal to create a bound out of the union here, but it's better
     // TODO: than not being bounded at all.
-    func makeBounds() -> RaymarchingBounds {
-        t0.makeBounds().union(t1.makeBounds())
+    func makeRaymarchingBounds() -> RaymarchingBounds {
+        t0.makeRaymarchingBounds().union(t1.makeRaymarchingBounds())
     }
 }
 

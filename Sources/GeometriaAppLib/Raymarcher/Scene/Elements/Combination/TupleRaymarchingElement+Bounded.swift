@@ -56,71 +56,71 @@ typealias BoundedTupleRaymarchingElement8<T0, T1, T2, T3, T4, T5, T6, T7> =
 
 
 extension BoundedTupleRaymarchingElement2: BoundedRaymarchingElement {
-    func makeBounds() -> RaymarchingBounds {
-        t0.makeBounds()
-        .union(t1.makeBounds())
+    func makeRaymarchingBounds() -> RaymarchingBounds {
+        t0.makeRaymarchingBounds()
+        .union(t1.makeRaymarchingBounds())
     }
 }
 
 extension BoundedTupleRaymarchingElement3: BoundedRaymarchingElement {
-    func makeBounds() -> RaymarchingBounds {
-        t0.makeBounds()
-        .union(t1.makeBounds())
-        .union(t2.makeBounds())
+    func makeRaymarchingBounds() -> RaymarchingBounds {
+        t0.makeRaymarchingBounds()
+        .union(t1.makeRaymarchingBounds())
+        .union(t2.makeRaymarchingBounds())
     }
 }
 
 extension BoundedTupleRaymarchingElement4: BoundedRaymarchingElement {
-    func makeBounds() -> RaymarchingBounds {
-        t0.makeBounds()
-        .union(t1.makeBounds())
-        .union(t2.makeBounds())
-        .union(t3.makeBounds())
+    func makeRaymarchingBounds() -> RaymarchingBounds {
+        t0.makeRaymarchingBounds()
+        .union(t1.makeRaymarchingBounds())
+        .union(t2.makeRaymarchingBounds())
+        .union(t3.makeRaymarchingBounds())
     }
 }
 
 extension BoundedTupleRaymarchingElement5: BoundedRaymarchingElement {
-    func makeBounds() -> RaymarchingBounds {
-        t0.makeBounds()
-        .union(t1.makeBounds())
-        .union(t2.makeBounds())
-        .union(t3.makeBounds())
-        .union(t4.makeBounds())
+    func makeRaymarchingBounds() -> RaymarchingBounds {
+        t0.makeRaymarchingBounds()
+        .union(t1.makeRaymarchingBounds())
+        .union(t2.makeRaymarchingBounds())
+        .union(t3.makeRaymarchingBounds())
+        .union(t4.makeRaymarchingBounds())
     }
 }
 
 extension BoundedTupleRaymarchingElement6: BoundedRaymarchingElement {
-    func makeBounds() -> RaymarchingBounds {
-        t0.makeBounds()
-        .union(t1.makeBounds())
-        .union(t2.makeBounds())
-        .union(t3.makeBounds())
-        .union(t4.makeBounds())
-        .union(t5.makeBounds())
+    func makeRaymarchingBounds() -> RaymarchingBounds {
+        t0.makeRaymarchingBounds()
+        .union(t1.makeRaymarchingBounds())
+        .union(t2.makeRaymarchingBounds())
+        .union(t3.makeRaymarchingBounds())
+        .union(t4.makeRaymarchingBounds())
+        .union(t5.makeRaymarchingBounds())
     }
 }
 
 extension BoundedTupleRaymarchingElement7: BoundedRaymarchingElement {
-    func makeBounds() -> RaymarchingBounds {
-        t0.makeBounds()
-        .union(t1.makeBounds())
-        .union(t2.makeBounds())
-        .union(t3.makeBounds())
-        .union(t4.makeBounds())
-        .union(t5.makeBounds())
-        .union(t6.makeBounds())
+    func makeRaymarchingBounds() -> RaymarchingBounds {
+        t0.makeRaymarchingBounds()
+        .union(t1.makeRaymarchingBounds())
+        .union(t2.makeRaymarchingBounds())
+        .union(t3.makeRaymarchingBounds())
+        .union(t4.makeRaymarchingBounds())
+        .union(t5.makeRaymarchingBounds())
+        .union(t6.makeRaymarchingBounds())
     }
 }
 
 extension BoundedTupleRaymarchingElement8: BoundedRaymarchingElement {
-    func makeBounds() -> RaymarchingBounds {
-        t0.makeBounds()
-        .union(t1.makeBounds())
-        .union(t2.makeBounds())
-        .union(t3.makeBounds())
-        .union(t4.makeBounds())
-        .union(t5.makeBounds())
-        .union(t6.makeBounds())
-        .union(t7.makeBounds())
+    func makeRaymarchingBounds() -> RaymarchingBounds {
+        t0.makeRaymarchingBounds()
+        .union(t1.makeRaymarchingBounds())
+        .union(t2.makeRaymarchingBounds())
+        .union(t3.makeRaymarchingBounds())
+        .union(t4.makeRaymarchingBounds())
+        .union(t5.makeRaymarchingBounds())
+        .union(t6.makeRaymarchingBounds())
+        .union(t7.makeRaymarchingBounds())
     }
 }

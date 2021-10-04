@@ -1,6 +1,4 @@
-struct EmptyRaymarchingElement {
-
-}
+typealias EmptyRaymarchingElement = EmptyElement
 
 extension EmptyRaymarchingElement: RaymarchingElement {
     @_transparent
@@ -11,7 +9,7 @@ extension EmptyRaymarchingElement: RaymarchingElement {
 
 extension EmptyRaymarchingElement: BoundedRaymarchingElement {
     @_transparent
-    func makeBounds() -> RaymarchingBounds {
+    func makeRaymarchingBounds() -> RaymarchingBounds {
         .zero
     }
 }

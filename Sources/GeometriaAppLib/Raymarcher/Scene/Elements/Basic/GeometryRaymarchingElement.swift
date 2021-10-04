@@ -1,7 +1,4 @@
-struct GeometryRaymarchingElement<T> {
-    var geometry: T
-    var material: Material
-}
+typealias GeometryRaymarchingElement<T> = GeometryElement<T>
 
 extension GeometryRaymarchingElement: RaymarchingElement where T: SignedDistanceMeasurableType, T.Vector == RVector3D {
     @inlinable
@@ -17,7 +14,7 @@ extension GeometryRaymarchingElement: RaymarchingElement where T: SignedDistance
 }
 
 extension GeometryRaymarchingElement: BoundedRaymarchingElement where T: SignedDistanceMeasurableType & BoundableType, T.Vector == RVector3D {
-    func makeBounds() -> RaymarchingBounds {
-        RaymarchingBounds.makeBounds(for: geometry)
+    func makeRaymarchingBounds() -> RaymarchingBounds {
+        RaymarchingBounds.makeRaymarchingBounds(for: geometry)
     }
 }

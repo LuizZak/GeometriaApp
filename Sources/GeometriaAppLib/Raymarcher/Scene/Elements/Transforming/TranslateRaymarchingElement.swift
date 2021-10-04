@@ -10,8 +10,8 @@ struct TranslateRaymarchingElement<T: RaymarchingElement>: RaymarchingElement {
 
 extension TranslateRaymarchingElement: BoundedRaymarchingElement where T: BoundedRaymarchingElement {
     @_transparent
-    func makeBounds() -> RaymarchingBounds {
-        element.makeBounds().offsetBy(translation)
+    func makeRaymarchingBounds() -> RaymarchingBounds {
+        element.makeRaymarchingBounds().offsetBy(translation)
     }
 }
 
@@ -30,28 +30,28 @@ extension RaymarchingElement {
 
     @_transparent
     func centered(at center: RVector3D) -> TranslateRaymarchingElement<Self> where Self: BoundedRaymarchingElement {
-        let bounds = self.makeBounds()
+        let bounds = self.makeRaymarchingBounds()
 
         return translated(by: center - bounds.center)
     }
 
     @_transparent
     func centered(atX x: Double) -> TranslateRaymarchingElement<Self> where Self: BoundedRaymarchingElement {
-        let bounds = self.makeBounds()
+        let bounds = self.makeRaymarchingBounds()
 
         return translated(by: (x - bounds.center.x) * .unitX)
     }
 
     @_transparent
     func centered(atY y: Double) -> TranslateRaymarchingElement<Self> where Self: BoundedRaymarchingElement {
-        let bounds = self.makeBounds()
+        let bounds = self.makeRaymarchingBounds()
 
         return translated(by: (y - bounds.center.y) * .unitY)
     }
 
     @_transparent
     func centered(atZ z: Double) -> TranslateRaymarchingElement<Self> where Self: BoundedRaymarchingElement {
-        let bounds = self.makeBounds()
+        let bounds = self.makeRaymarchingBounds()
 
         return translated(by: (z - bounds.center.z) * .unitZ)
     }
@@ -70,27 +70,27 @@ extension TranslateRaymarchingElement {
 
     @_transparent
     func centered(at center: RVector3D) -> TranslateRaymarchingElement<T> where T: BoundedRaymarchingElement {
-        let bounds = element.makeBounds()
+        let bounds = element.makeRaymarchingBounds()
         return translated(by: center - bounds.center)
     }
 
     @_transparent
     func centered(atX x: Double) -> TranslateRaymarchingElement<T> where T: BoundedRaymarchingElement {
-        let bounds = self.makeBounds()
+        let bounds = self.makeRaymarchingBounds()
 
         return translated(by: (x - bounds.center.x) * .unitX)
     }
 
     @_transparent
     func centered(atY y: Double) -> TranslateRaymarchingElement<T> where T: BoundedRaymarchingElement {
-        let bounds = self.makeBounds()
+        let bounds = self.makeRaymarchingBounds()
 
         return translated(by: (y - bounds.center.y) * .unitY)
     }
 
     @_transparent
     func centered(atZ z: Double) -> TranslateRaymarchingElement<T> where T: BoundedRaymarchingElement {
-        let bounds = self.makeBounds()
+        let bounds = self.makeRaymarchingBounds()
 
         return translated(by: (z - bounds.center.z) * .unitZ)
     }

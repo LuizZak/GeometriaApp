@@ -49,7 +49,7 @@ extension SphereRaytracingElement: RaytracingElement {
 }
 
 extension SphereRaytracingElement: BoundedRaytracingElement {
-    func makeBounds() -> RaytracingBounds {
-        .makeBounds(for: geometry)
+    func makeRaytracingBounds() -> RaytracingBounds {
+        .makeRaytracingBounds(for: geometry)
     }
 }

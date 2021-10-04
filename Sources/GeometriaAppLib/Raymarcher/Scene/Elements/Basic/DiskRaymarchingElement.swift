@@ -1,7 +1,4 @@
-struct DiskRaymarchingElement {
-    var geometry: RDisk3D
-    var material: Material
-}
+typealias DiskRaymarchingElement = DiskElement
 
 extension DiskRaymarchingElement: RaymarchingElement {
     @inlinable
@@ -17,7 +14,7 @@ extension DiskRaymarchingElement: RaymarchingElement {
 }
 
 extension DiskRaymarchingElement: BoundedRaymarchingElement {
-    func makeBounds() -> RaymarchingBounds {
-        RaymarchingBounds.makeBounds(for: geometry)
+    func makeRaymarchingBounds() -> RaymarchingBounds {
+        RaymarchingBounds.makeRaymarchingBounds(for: geometry)
     }
 }

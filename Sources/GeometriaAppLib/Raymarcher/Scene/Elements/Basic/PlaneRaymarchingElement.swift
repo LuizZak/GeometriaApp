@@ -1,7 +1,4 @@
-struct PlaneRaymarchingElement {
-    var geometry: RPlane3D
-    var material: Material
-}
+typealias PlaneRaymarchingElement = PlaneElement
 
 extension PlaneRaymarchingElement: RaymarchingElement {
     @inlinable

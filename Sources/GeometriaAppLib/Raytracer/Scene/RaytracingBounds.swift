@@ -10,7 +10,7 @@ extension RaytracingBounds {
     }
 
     @_transparent
-    static func makeBounds(for value: RSphere3D) -> RaytracingBounds {
+    static func makeRaytracingBounds(for value: RSphere3D) -> RaytracingBounds {
         return value
     }
 }
@@ -47,13 +47,13 @@ extension RSphere3D {
 
 extension BoundingBoxRaytracingElement {
     init(element: T) where T: BoundedRaytracingElement {
-        self.init(element: element, boundingBox: element.makeBounds().bounds)
+        self.init(element: element, boundingBox: element.makeRaytracingBounds().bounds)
     }
 }
 
 extension BoundingSphereRaytracingElement {
     init(element: T) where T: BoundedRaytracingElement {
-        self.init(element: element, boundingSphere: element.makeBounds())
+        self.init(element: element, boundingSphere: element.makeRaytracingBounds())
     }
 }
 
@@ -61,24 +61,22 @@ extension BoundingSphereRaytracingElement {
 
 typealias RaytracingBounds = RAABB3D
 
-/*
 extension RaytracingBounds {
     @_transparent
-    static func makeBounds<T: BoundableType>(for value: T) -> Self where T.Vector == RVector3D {
+    static func makeRaytracingBounds<T: BoundableType>(for value: T) -> Self where T.Vector == RVector3D {
         value.bounds
     }
 }
-*/
 
 extension BoundingBoxRaytracingElement {
     init(element: T) where T: BoundedRaytracingElement {
-        self.init(element: element, boundingBox: element.makeBounds())
+        self.init(element: element, boundingBox: element.makeRaytracingBounds())
     }
 }
 
 extension BoundingSphereRaytracingElement {
     init(element: T) where T: BoundedRaytracingElement {
-        let bounds = element.makeBounds()
+        let bounds = element.makeRaytracingBounds()
         let boundsLength = bounds.maximum.distance(to: bounds.minimum)
         let sphere = RSphere3D(center: bounds.center, radius: boundsLength / 2)
 

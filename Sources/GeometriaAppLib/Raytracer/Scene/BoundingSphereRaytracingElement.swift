@@ -6,7 +6,7 @@ struct BoundingSphereRaytracingElement<T>: BoundedRaytracingElement where T: Ray
     init(element: T, boundingSphere: RSphere3D) {
         self.element = element
         self.boundingSphere = boundingSphere
-        bounds = RaytracingBounds.makeBounds(for: boundingSphere)
+        bounds = RaytracingBounds.makeRaytracingBounds(for: boundingSphere)
     }
     
     func raycast(query: RayQuery) -> RayQuery {
@@ -42,7 +42,7 @@ struct BoundingSphereRaytracingElement<T>: BoundedRaytracingElement where T: Ray
         element.queryScene(id: id)
     }
 
-    func makeBounds() -> RaytracingBounds {
+    func makeRaytracingBounds() -> RaytracingBounds {
         bounds
     }
 }

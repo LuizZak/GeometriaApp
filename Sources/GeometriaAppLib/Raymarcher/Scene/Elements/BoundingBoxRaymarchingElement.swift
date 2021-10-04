@@ -6,7 +6,7 @@ struct BoundingBoxRaymarchingElement<T>: BoundedRaymarchingElement where T: Raym
     init(element: T, boundingBox: RAABB3D) {
         self.element = element
         self.boundingBox = boundingBox
-        bounds = RaymarchingBounds.makeBounds(for: boundingBox)
+        bounds = RaymarchingBounds.makeRaymarchingBounds(for: boundingBox)
     }
     
     @inlinable
@@ -18,7 +18,7 @@ struct BoundingBoxRaymarchingElement<T>: BoundedRaymarchingElement where T: Raym
         return element.signedDistance(to: point, current: current)
     }
 
-    func makeBounds() -> RaymarchingBounds {
+    func makeRaymarchingBounds() -> RaymarchingBounds {
         bounds
     }
 }

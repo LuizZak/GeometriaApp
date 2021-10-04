@@ -1,8 +1,4 @@
-struct EllipseRaytracingElement {
-    var id: Int = 0
-    var geometry: REllipse3D
-    var material: Material
-}
+typealias EllipseRaytracingElement = EllipseElement
 
 extension EllipseRaytracingElement: RaytracingElement {
     func raycast(query: RayQuery) -> RayQuery {
@@ -49,7 +45,7 @@ extension EllipseRaytracingElement: RaytracingElement {
 }
 
 extension EllipseRaytracingElement: BoundedRaytracingElement {
-    func makeBounds() -> RaytracingBounds {
-        .makeBounds(for: geometry)
+    func makeRaytracingBounds() -> RaytracingBounds {
+        .makeRaytracingBounds(for: geometry)
     }
 }

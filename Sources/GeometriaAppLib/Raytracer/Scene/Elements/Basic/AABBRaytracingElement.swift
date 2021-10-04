@@ -1,8 +1,4 @@
-struct AABBRaytracingElement {
-    var id: Int = 0
-    var geometry: RAABB3D
-    var material: Material
-}
+typealias AABBRaytracingElement = AABBElement
 
 extension AABBRaytracingElement: RaytracingElement {
     func raycast(query: RayQuery) -> RayQuery {
@@ -49,7 +45,7 @@ extension AABBRaytracingElement: RaytracingElement {
 }
 
 extension AABBRaytracingElement: BoundedRaytracingElement {
-    func makeBounds() -> RaytracingBounds {
-        .makeBounds(for: geometry)
+    func makeRaytracingBounds() -> RaytracingBounds {
+        .makeRaytracingBounds(for: geometry)
     }
 }

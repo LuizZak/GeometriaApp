@@ -1,7 +1,4 @@
-struct AABBRaymarchingElement {
-    var geometry: RAABB3D
-    var material: Material
-}
+typealias AABBRaymarchingElement = AABBElement
 
 extension AABBRaymarchingElement: RaymarchingElement {
     @inlinable
@@ -17,7 +14,7 @@ extension AABBRaymarchingElement: RaymarchingElement {
 }
 
 extension AABBRaymarchingElement: BoundedRaymarchingElement {
-    func makeBounds() -> RaymarchingBounds {
-        RaymarchingBounds.makeBounds(for: geometry)
+    func makeRaymarchingBounds() -> RaymarchingBounds {
+        RaymarchingBounds.makeRaymarchingBounds(for: geometry)
     }
 }

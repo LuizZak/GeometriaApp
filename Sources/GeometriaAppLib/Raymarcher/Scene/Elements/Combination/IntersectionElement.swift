@@ -16,8 +16,8 @@ struct IntersectionElement<T0: RaymarchingElement, T1: RaymarchingElement>: Raym
 extension IntersectionElement: BoundedRaymarchingElement where T0: BoundedRaymarchingElement, T1: BoundedRaymarchingElement {
     // TODO: Not ideal to create a bound out of the union here, but it's better
     // TODO: than not being bounded at all. Replace with .intersection() later?
-    func makeBounds() -> RaymarchingBounds {
-        t0.makeBounds().union(t1.makeBounds())
+    func makeRaymarchingBounds() -> RaymarchingBounds {
+        t0.makeRaymarchingBounds().union(t1.makeRaymarchingBounds())
     }
 }
 

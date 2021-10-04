@@ -49,7 +49,7 @@ extension GeometryRaytracingElement: RaytracingElement where T: Convex3Type, T.V
 }
 
 extension GeometryRaytracingElement: BoundedRaytracingElement where T: Convex3Type & BoundableType, T.Vector == RVector3D {
-    func makeBounds() -> RaytracingBounds {
-        .makeBounds(for: geometry)
+    func makeRaytracingBounds() -> RaytracingBounds {
+        .makeRaytracingBounds(for: geometry)
     }
 }

@@ -1,8 +1,4 @@
-struct DiskRaytracingElement {
-    var id: Int = 0
-    var geometry: RDisk3D
-    var material: Material
-}
+typealias DiskRaytracingElement = DiskElement
 
 extension DiskRaytracingElement: RaytracingElement {
     func raycast(query: RayQuery) -> RayQuery {
@@ -49,7 +45,7 @@ extension DiskRaytracingElement: RaytracingElement {
 }
 
 extension DiskRaytracingElement: BoundedRaytracingElement {
-    func makeBounds() -> RaytracingBounds {
-        .makeBounds(for: geometry)
+    func makeRaytracingBounds() -> RaytracingBounds {
+        .makeRaytracingBounds(for: geometry)
     }
 }

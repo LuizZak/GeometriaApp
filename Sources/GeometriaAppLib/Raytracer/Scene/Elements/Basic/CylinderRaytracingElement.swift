@@ -1,8 +1,4 @@
-struct CylinderRaytracingElement {
-    var id: Int = 0
-    var geometry: RCylinder3D
-    var material: Material
-}
+typealias CylinderRaytracingElement = CylinderElement
 
 extension CylinderRaytracingElement: RaytracingElement {
     func raycast(query: RayQuery) -> RayQuery {
@@ -49,7 +45,7 @@ extension CylinderRaytracingElement: RaytracingElement {
 }
 
 extension CylinderRaytracingElement: BoundedRaytracingElement {
-    func makeBounds() -> RaytracingBounds {
-        .makeBounds(for: geometry)
+    func makeRaytracingBounds() -> RaytracingBounds {
+        .makeRaytracingBounds(for: geometry)
     }
 }

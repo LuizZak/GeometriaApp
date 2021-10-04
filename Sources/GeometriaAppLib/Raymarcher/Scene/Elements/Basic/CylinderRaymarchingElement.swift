@@ -1,7 +1,4 @@
-struct CylinderRaymarchingElement {
-    var geometry: RCylinder3D
-    var material: Material
-}
+typealias CylinderRaymarchingElement = CylinderElement
 
 extension CylinderRaymarchingElement: RaymarchingElement {
     @inlinable
@@ -17,7 +14,7 @@ extension CylinderRaymarchingElement: RaymarchingElement {
 }
 
 extension CylinderRaymarchingElement: BoundedRaymarchingElement {
-    func makeBounds() -> RaymarchingBounds {
-        RaymarchingBounds.makeBounds(for: geometry)
+    func makeRaymarchingBounds() -> RaymarchingBounds {
+        RaymarchingBounds.makeRaymarchingBounds(for: geometry)
     }
 }

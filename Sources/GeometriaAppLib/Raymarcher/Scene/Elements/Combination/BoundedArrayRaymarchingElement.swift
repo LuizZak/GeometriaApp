@@ -12,8 +12,8 @@ struct BoundedArrayRaymarchingElement: BoundedRaymarchingElement {
         return current
     }
 
-    func makeBounds() -> RaymarchingBounds {
-        elements.map { $0.makeBounds() }.reduce(.zero) { $0.union($1) }
+    func makeRaymarchingBounds() -> RaymarchingBounds {
+        elements.map { $0.makeRaymarchingBounds() }.reduce(.zero) { $0.union($1) }
     }
 }
 
@@ -31,7 +31,7 @@ struct BoundedTypedArrayRaymarchingElement<T: BoundedRaymarchingElement>: Bounde
         return current
     }
 
-    func makeBounds() -> RaymarchingBounds {
-        elements.map { $0.makeBounds() }.reduce(.zero) { $0.union($1) }
+    func makeRaymarchingBounds() -> RaymarchingBounds {
+        elements.map { $0.makeRaymarchingBounds() }.reduce(.zero) { $0.union($1) }
     }
 }
