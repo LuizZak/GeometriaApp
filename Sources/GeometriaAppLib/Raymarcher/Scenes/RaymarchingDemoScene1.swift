@@ -21,8 +21,8 @@ private func scene() -> some RaymarchingElement {
                 .repeatTranslated(count: 5, translation: .unitX * 30)
                 .makeBoundingBox()
         }
-
-        group {
+        
+        subtraction {
             makeCylinder()
             makeBumpySphere()
         }

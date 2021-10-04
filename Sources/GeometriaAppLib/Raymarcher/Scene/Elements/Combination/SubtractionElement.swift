@@ -9,7 +9,7 @@ struct SubtractionElement<T0: RaymarchingElement, T1: RaymarchingElement>: Rayma
         let v0 = t0.signedDistance(to: point, current: current)
         let v1 = t1.signedDistance(to: point, current: current)
         
-        return max(v0, -v1)
+        return min(current, max(v0, -v1))
     }
 }
 
