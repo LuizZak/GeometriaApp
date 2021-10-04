@@ -30,12 +30,15 @@ enum RaymarchingDemoScene1 {
             */
             
             makeDisk()
+                .repeatTranslated(count: 5, translation: .unitX * 30)
+                .makeBoundingBox()
+
             makeFloorPlane()
         }
     }
 
     @RaymarchingElementBuilder
-    private static func makeShinySphere() -> some RaymarchingElement {
+    private static func makeShinySphere() -> SphereRaymarchingElement {
         (
             RSphere3D(center: .init(x: 0, y: 150, z: 45), radius: 30) //,
             
@@ -50,7 +53,7 @@ enum RaymarchingDemoScene1 {
     }
 
     @RaymarchingElementBuilder
-    private static func makeCylinder() -> some RaymarchingElement {
+    private static func makeCylinder() -> CylinderRaymarchingElement {
         (
             RCylinder3D(start: .init(x: 60, y: 150, z: 0),
                             end: .init(x: 60, y: 150, z: 100),
@@ -71,7 +74,7 @@ enum RaymarchingDemoScene1 {
     }
 
     @RaymarchingElementBuilder
-    private static func makeBumpySphere() -> some RaymarchingElement {
+    private static func makeBumpySphere() -> SphereRaymarchingElement {
         (
             RSphere3D(center: .init(x: 70, y: 150, z: 45), radius: 30)
 
@@ -85,7 +88,7 @@ enum RaymarchingDemoScene1 {
     }
 
     @RaymarchingElementBuilder
-    private static func makeDisk() -> some RaymarchingElement {
+    private static func makeDisk() -> DiskRaymarchingElement {
         (
             RDisk3D(center: .init(x: -10, y: 110, z: 20),
                     normal: .unitY,
@@ -96,7 +99,7 @@ enum RaymarchingDemoScene1 {
     }
 
     @RaymarchingElementBuilder
-    private static func makeFloorPlane() -> some RaymarchingElement {
+    private static func makeFloorPlane() -> PlaneRaymarchingElement {
         (
             RPlane3D(point: .zero, normal: .unitZ),
 

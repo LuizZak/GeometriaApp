@@ -14,7 +14,10 @@ private func scene() -> some RaytracingElement {
             makeTopAABB()
             makeShinySphere()
             makeEllipse()
+
             makeDisk()
+            .repeatTranslated(count: 5, translation: .unitX * 30)
+            .makeBoundingBox()
         }
 
         group {
