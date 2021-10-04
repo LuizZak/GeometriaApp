@@ -58,6 +58,7 @@ private func makeBase(center: RVector3D, size: RVector2D) -> some BoundedRaymarc
         makeAABB(center: center + translation * 4, size: .init(size, z: 5) + sizeIncrease * 4)
     }
 }
+
 @RaymarchingElementBuilder
 private func makeTop(center: RVector3D, size: RVector2D) -> some BoundedRaymarchingElement {
     let sizeIncrease = RVector3D(x: 5, y: 5, z: 0)
@@ -70,18 +71,15 @@ private func makeTop(center: RVector3D, size: RVector2D) -> some BoundedRaymarch
     }
 }
 
+@RaymarchingElementBuilder
 private func makePillar(at point: RVector3D, height: Double, radius: Double) -> some BoundedRaymarchingElement {
     let start = point
     let end = point + .unitZ * height
 
-    let mainCylinder = cylinder(start: start, end: end, radius: radius, color: .white)
-
-    return boundingBox {
+    boundingBox {
+        cylinder(start: start, end: end, radius: radius, color: .white)
         cylinder(start: start, end: start + .unitZ * 5, radius: radius + 1, color: .white)
         cylinder(start: end, end: end - .unitZ * 5, radius: radius + 1, color: .white)
-
-        PillarWaveRaymarchingElement(element: mainCylinder)
-        //mainCylinder
     }
 }
 
@@ -104,65 +102,4 @@ private func makeFloorPlane() -> PlaneRaymarchingElement {
         geometry: .init(point: .zero, normal: .unitZ),
         material: .checkerboard(size: 50.0, color1: .white, color2: .black)
     )
-}
-
-private struct PillarWaveRaymarchingElement: BoundedRaymarchingElement {
-    var element: CylinderRaymarchingElement
-    var line: RLineSegment3D
-    var magnitude: Double
-
-    init(element: CylinderRaymarchingElement) {
-        self.element = element
-        self.line = element.geometry.asLineSegment
-        self.magnitude = element.geometry.radius
-    }
-
-    @inline(never)
-    func signedDistance(to point: RVector3D, current: RaymarchingResult) -> RaymarchingResult {
-        let mag = line.projectAsScalar(point)
-        if !line.containsProjectedNormalizedMagnitude(mag) {
-            return element.signedDistance(to: point, current: current)
-        }
-
-        let projected = line.projectedNormalizedMagnitude(mag)
-        let projectedLine = RLineSegment2D(start: projected, end: point)
-        
-        let diff = point - projected
-        let distToCenter = diff.length
-        let angle = diff.take.xy.angle
-        let c = cos(angle)
-        let s = sin(angle)
-
-        let x = c * element.geometry.radius
-        let y = s * element.geometry.radius
-
-        let p = projected + RVector3D(x: x, y: y, z: point.z)
-
-        let distToSurface = p.distance(to: point)
-        let result = distToCenter < element.geometry.radius ? -distToSurface : distToSurface
-
-        return RaymarchingResult(distance: result, material: element.material)
-
-        //return element.signedDistance(to: point, current: current)
-        /*
-        let projected = line.project(point)
-        let diff = point - projected
-        let angle = diff.take.xy.angle
-        let c = cos(angle * 10)
-
-        var cyl = element.signedDistance(to: point, current: current)
-        if cyl.distance >= current.distance {
-            return cyl
-        }
-
-        cyl.distance *= 1.1
-        
-        return cyl
-        */
-    }
-
-    @_transparent 
-    func makeBounds() -> RaymarchingBounds {
-        element.makeBounds()
-    }
 }
