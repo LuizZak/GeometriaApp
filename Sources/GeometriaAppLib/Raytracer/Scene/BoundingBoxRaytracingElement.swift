@@ -26,7 +26,9 @@ struct BoundingBoxRaytracingElement<T>: BoundedRaytracingElement where T: Raytra
     }
 
     private func intersects(query: RayQuery) -> Bool {
-        boundingBox.intersects(line: query.ray)
+        query.rayMagnitudeSquared.isFinite 
+            ? boundingBox.intersects(line: query.lineSegment)
+            : boundingBox.intersects(line: query.ray)
     }
     
     mutating func attributeIds(_ idFactory: inout RaytracingElementIdFactory) {
