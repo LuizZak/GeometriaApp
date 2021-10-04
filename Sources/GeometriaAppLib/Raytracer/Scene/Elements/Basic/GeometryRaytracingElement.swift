@@ -37,10 +37,12 @@ extension GeometryRaytracingElement: RaytracingElement where T: Convex3Type, T.V
         results.append(hit)
     }
     
+    @_transparent
     mutating func attributeIds(_ idFactory: inout RaytracingElementIdFactory) {
         id = idFactory.makeId()
     }
 
+    @_transparent
     func queryScene(id: Int) -> RaytracingElement? {
         id == self.id ? self : nil
     }

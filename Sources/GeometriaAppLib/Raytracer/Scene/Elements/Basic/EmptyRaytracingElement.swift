@@ -14,6 +14,7 @@ struct EmptyRaytracingElement: RaytracingElement {
         
     }
 
+    @_transparent
     func queryScene(id: Int) -> RaytracingElement? {
         nil
     }

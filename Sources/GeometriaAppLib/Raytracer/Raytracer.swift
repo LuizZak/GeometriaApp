@@ -148,7 +148,12 @@ final class Raytracer<SceneType: RaytracingSceneType>: RendererType {
                     // immediately with the same geometry - if it does, skip the
                     // geometry fully in the subsequent raycast
                     let query = RayQuery(ray: innerRay, ignoring: rayIgnore)
+
+                    // TODO: Find a way to query the scene instead of the generic
+                    // TODO: geometry object like this since it incurs a performance
+                    // TODO: penalty.
                     let innerHit = sceneGeometry.raycast(query: query).lastHit
+
                     if let innerHit = innerHit, innerHit.point.distanceSquared(to: hit.point) <= minDistSq {
                         rayIgnore = .full(id: hit.id)
                     }
