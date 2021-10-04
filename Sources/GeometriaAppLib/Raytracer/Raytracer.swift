@@ -67,168 +67,18 @@ final class Raytracer: RendererType {
             return scene.skyColor
         }
         
-        // Detect short distances that should avoid re-bounces
-        var canRebounce = true
-        switch ignoring {
-        case .entrance(_, let minimumRayLengthSquared), .exit(_, let minimumRayLengthSquared):
-            let dist = hit.pointOfInterest.point.distanceSquared(to: ray.start)
-            if dist < minimumRayLengthSquared {
-                processingPrinter?.add(ray: ray)
-                canRebounce = false
-            }
-            
-        default:
-            break
-        }
-
-        let sceneGeometry = scene.geometries[hit.id]
+        //let sceneGeometry = scene.geometries[hit.id]
         
         processingPrinter?.add(hit: hit, ray: ray)
-        processingPrinter?.add(geometry: sceneGeometry)
+        //processingPrinter?.add(geometry: sceneGeometry)
         processingPrinter?.add(intersection: hit.intersection)
         
-        let geometry = sceneGeometry.geometry
-        let material = sceneGeometry.material
-        let invTransparency = 1 - material.transparency
-        var color = mergeColors(scene.skyColor, material.color, factor: invTransparency)
-        var minimumShade: Double = 0.0
-        
-        if geometry is RPlane3D {
-            minimumShade = 0.6
-            
-            let checkerSize = 50.0
-            let checkerPhase = abs(hit.point) % checkerSize * 2
-            
-            var isWhite = false
-            
-            switch (checkerPhase.x, checkerPhase.y) {
-            case (checkerSize..., checkerSize...), (0...checkerSize, 0...checkerSize):
-                isWhite = false
-            default:
-                isWhite = true
-            }
-            
-            if hit.point.x < 0 {
-                isWhite.toggle()
-            }
-            if hit.point.y < 0 {
-                isWhite.toggle()
-            }
-            
-            color = isWhite ? .white : .black
-        } else if let disk = geometry as? Disk3<RVector3D> {
-            // Distance at which the disk color changes from white to red.
-            let stripeFrequency = 5.0
-            let dist = hit.point.distance(to: disk.center)
-            
-            let phase = dist.truncatingRemainder(dividingBy: stripeFrequency)
-            if phase < stripeFrequency / 2 {
-                color = .red
-            } else {
-                color = .white
-            }
+        // No material information, potentially a hit against invisible geometry?
+        guard let material = hit.material else {
+            return scene.skyColor
         }
         
-        // Shading
-        let shade = max(0.0, min(1 - minimumShade, hit.normal.dot(-ray.direction)))
-        color = mergeColors(color, .black, factor: (1 - shade) * invTransparency)
-        
-        // Find rates for reflection and transmission within material
-        let (refl, trans) = fresnel(ray.direction, hit.normal, material.refractiveIndex)
-        
-        // Transparency / refraction
-        if material.transparency > 0.0 {
-            // Raycast past geometry and add color
-            var rayThroughObject: RRay3D = RRay3D(start: hit.point, direction: ray.direction)
-            var rayIgnore: RayIgnore = .full(id: hit.id)
-            
-            // If refraction is active, create a ray that points to the exit
-            // point of the refracted ray that was generated inside the object's
-            // geometry.
-        refraction:
-            if trans > 0 && canRebounce {
-                guard let refractIn = refract(ray.direction, hit.normal, material.refractiveIndex) else {
-                    break refraction
-                }
-                
-                // TODO: Fix odd behavior of refraction where small internal
-                // TODO: bounces of rays lead to incorrect pixels.
-                
-                // Ray that traverses within the geometry
-                let innerRay = RRay3D(start: hit.point + hit.normal * bias, direction: refractIn)
-                // Allow bouncing out of the geometry, but not in
-                let minDist = 0.01
-                let minDistSq = minDist * minDist
-                rayIgnore = .entrance(id: hit.id, minimumRayLengthSquared: minDist * minDist)
-                // Do a sanitity check that the ray isn't going to collide
-                // immediately with the same geometry - if it does, skip the
-                // geometry fully in the subsequent raycast
-                let innerHit = sceneGeometry.doRayCast(ray: innerRay, ignoring: rayIgnore)
-                if let innerHit = innerHit, innerHit.point.distanceSquared(to: hit.point) <= minDistSq {
-                    rayIgnore = .full(id: hit.id)
-                }
-                
-                rayThroughObject = innerRay
-            }
-            
-            let backColor = raytrace(ray: rayThroughObject,
-                                     ignoring: rayIgnore,
-                                     bounceCount: bounceCount + 1)
-            color = mergeColors(color, backColor, factor: material.transparency * trans)
-        }
-        
-        // Reflectivity
-        if material.reflectivity > 0.0 && bounceCount < maxBounces && canRebounce {
-            // Raycast from normal and fade in the reflected color
-            let ignoring: RayIgnore
-            if hit.hitDirection == .inside {
-                ignoring = .entrance(id: hit.id, minimumRayLengthSquared: minimumRayToleranceSq)
-            } else {
-                ignoring = .exit(id: hit.id, minimumRayLengthSquared: minimumRayToleranceSq)
-            }
-            let reflection = reflect(direction: ray.direction, normal: hit.normal)
-            let normRay = RRay3D(start: hit.point, direction: reflection)
-            let secondHit = raytrace(ray: normRay,
-                                     ignoring: ignoring,
-                                     bounceCount: bounceCount + 1)
-            
-            var factor: Double
-            if material.refractiveIndex != 1.0 {
-                factor = refl + (1 - material.transparency)
-            } else {
-                factor = refl + material.reflectivity
-            }
-            
-            factor = max(0, min(1, factor))
-            
-            color = mergeColors(color, secondHit, factor: factor)
-        }
-        
-        // TODO: Improve handling of shadow and direct light in refractive materials
-        
-        // Shadow or sunlight
-        let shadow = calculateShadow(for: hit)
-        if shadow > 0 {
-            // Shadow
-            color = mergeColors(color, .black, factor: 0.5 * shadow)
-        } else {
-            // Sunlight direction
-            let sunDirDot = max(0.0, min(1, pow(hit.normal.dot(-scene.sunDirection), 5)))
-            
-            if material.hasRefraction {
-                color = mergeColors(color, .white, factor: sunDirDot * refl)
-            } else {
-                color = mergeColors(color, .white, factor: sunDirDot)
-            }
-        }
-        
-        // Fade distant pixels to skyColor
-        let far = 1000.0
-        let dist = ray.a.distanceSquared(to: hit.point)
-        let distFactor = max(0, min(1, dist / (far * far)))
-        color = mergeColors(color, scene.skyColor, factor: distFactor)
-        
-        return color
+        return computeColor(material: material, ray: ray, hit: hit, bounceCount: bounceCount)
     }
     
     private func computeColor(material: RaytracingMaterial,
@@ -425,7 +275,18 @@ final class Raytracer: RendererType {
         
         let transparency =
         intersections
-            .map { scene.geometries[$0.id].material.transparency }
+            .map { 
+                switch $0.material {
+                case .diffuse(let material)?:
+                    return material.transparency
+                
+                case .target, .checkerboard:
+                    return 0.0
+
+                case nil:
+                    return 1.0
+                }
+             }
             .reduce(1.0, *)
         
         return max(0.0, min(1.0, 1 - transparency))

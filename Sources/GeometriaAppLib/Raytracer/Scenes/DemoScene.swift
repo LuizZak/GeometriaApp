@@ -5,7 +5,10 @@ enum DemoScene {
             (
                 RAABB3D(minimum: .init(x: -50, y: 200, z: 10),
                         maximum: .init(x: 0, y: 210, z: 50)),
-                Material(color: .indianRed)
+
+                RaytracingMaterial.diffuse(
+                    .init(color: .indianRed)
+                )
             )
             
             // Top AABB
@@ -18,10 +21,12 @@ enum DemoScene {
             (
                 RSphere3D(center: .init(x: 0, y: 150, z: 45), radius: 30),
                 
-                Material(color: .gray,
+                RaytracingMaterial.diffuse(
+                    .init(color: .gray,
                          reflectivity: 0.6,
                          transparency: 1.0,
                          refractiveIndex: 1.3)
+                )
             )
             
             // Cylinder
@@ -30,21 +35,23 @@ enum DemoScene {
                             end: .init(x: 60, y: 150, z: 100),
                             radius: 20),
                 
-                Material(color: .init(r: 128, g: 128, b: 128, a: 255),
+                RaytracingMaterial.diffuse(
+                    .init(color: .init(r: 128, g: 128, b: 128, a: 255),
                          bumpNoiseFrequency: 1.0,
                          bumpMagnitude: 0.0,
                          reflectivity: 0.0,
                          transparency: 1.0,
                          refractiveIndex: 1.3)
+                )
             )
             
             // Bumpy Sphere
             SceneGeometry(
                 id: 0,
                 bumpySphere: .init(center: .init(x: 70, y: 150, z: 45), radius: 30),
-                material: .init(bumpNoiseFrequency: 1.0,
-                                bumpMagnitude: 1.0 / 40.0,
-                                reflectivity: 0.4)
+                material: .diffuse(.init(bumpNoiseFrequency: 1.0,
+                                    bumpMagnitude: 1.0 / 40.0,
+                                    reflectivity: 0.4))
             )
             
             // TODO: Implement ellipse distance function and re-add this
@@ -60,12 +67,24 @@ enum DemoScene {
             */
             
             // Disk
-            RDisk3D(center: .init(x: -10, y: 110, z: 20),
-                    normal: .unitY,
-                    radius: 12)
+            (
+                RDisk3D(center: .init(x: -10, y: 110, z: 20),
+                        normal: .unitY,
+                        radius: 12),
+                
+                RaytracingMaterial
+                .target(center: .init(x: -10, y: 110, z: 20), 
+                        stripeFrequency: 5.0, 
+                        color1: .red, 
+                        color2: .white)
+            )
             
             // Floor plane
-            RPlane3D(point: .zero, normal: .unitZ)
+            (
+                RPlane3D(point: .zero, normal: .unitZ),
+                
+                RaytracingMaterial.checkerboard(size: 50.0, color1: .white, color2: .black)
+            )
         }
     }
 }

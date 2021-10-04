@@ -88,22 +88,26 @@ struct RayQuery {
         let newAABB = RAABB3D(minimum: RVector3D.pointwiseMin(ray.start, point),
                               maximum: RVector3D.pointwiseMax(ray.start, point))
         
-        return RayQuery(ray: ray,
-                                rayAABB: newAABB,
-                                rayMagnitudeSquared: magnitudeSquared,
-                                lineSegment: lineSegment,
-                                lastHit: rayHit,
-                                ignoring: ignoring)
+        return RayQuery(
+            ray: ray,
+            rayAABB: newAABB,
+            rayMagnitudeSquared: magnitudeSquared,
+            lineSegment: lineSegment,
+            lastHit: rayHit,
+            ignoring: ignoring
+        )
     }
     
     func withHit(magnitudeSquared: Double,
                  point: RVector3D,
                  normal: RVector3D,
                  intersection: ConvexLineIntersection<RVector3D>,
+                 material: RaytracingMaterial,
                  id: Int) -> RayQuery {
         
         let hit = RayHit(pointOfInterest: .init(point: point, normal: normal),
                          intersection: intersection,
+                         material: material,
                          id: id)
         
         return withHit(hit)

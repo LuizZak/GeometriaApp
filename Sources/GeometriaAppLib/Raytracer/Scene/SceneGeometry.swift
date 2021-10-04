@@ -8,9 +8,9 @@ final class SceneGeometry {
     var id: Int
     var geometry: GeometricType
     var bounds: AABB3<RVector3D>?
-    var material: Material
+    var material: RaytracingMaterial
     
-    init(id: Int, bumpySphere: Sphere3<RVector3D>, material: Material) {
+    init(id: Int, bumpySphere: Sphere3<RVector3D>, material: RaytracingMaterial) {
         self.id = id
         self.bounds = bumpySphere.bounds
         self.material = material
@@ -71,7 +71,7 @@ final class SceneGeometry {
         }
     }
     
-    init<C: ConvexType & BoundableType>(id: Int, convex: C, material: Material) where C.Vector == RVector3D {
+    init<C: ConvexType & BoundableType>(id: Int, convex: C, material: RaytracingMaterial) where C.Vector == RVector3D {
         self.id = id
 
         let bounds = convex.bounds
@@ -100,7 +100,7 @@ final class SceneGeometry {
         }
     }
     
-    init<C: Convex3Type & BoundableType>(id: Int, convex3 convex: C, material: Material) where C.Vector == RVector3D {
+    init<C: Convex3Type & BoundableType>(id: Int, convex3 convex: C, material: RaytracingMaterial) where C.Vector == RVector3D {
         self.id = id
 
         let bounds = convex.bounds
@@ -129,7 +129,7 @@ final class SceneGeometry {
         }
     }
     
-    init<P: LineIntersectablePlaneType & BoundableType>(id: Int, boundedPlane: P, material: Material) where P.Vector == RVector3D {
+    init<P: LineIntersectablePlaneType & BoundableType>(id: Int, boundedPlane: P, material: RaytracingMaterial) where P.Vector == RVector3D {
         self.id = id
 
         let bounds = boundedPlane.bounds
@@ -157,7 +157,7 @@ final class SceneGeometry {
         }
     }
     
-    init<P: LineIntersectablePlaneType>(id: Int, plane: P, material: Material) where P.Vector == RVector3D {
+    init<P: LineIntersectablePlaneType>(id: Int, plane: P, material: RaytracingMaterial) where P.Vector == RVector3D {
         self.id = id
 
         self.material = material
@@ -221,6 +221,7 @@ final class SceneGeometry {
         
         return RayHit(findingPointOfInterestOf: ignoring,
                       intersection: result,
+                      material: material,
                       id: id)
     }
     

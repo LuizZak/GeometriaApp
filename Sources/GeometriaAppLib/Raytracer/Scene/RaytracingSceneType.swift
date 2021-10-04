@@ -7,5 +7,10 @@ protocol RaytracingSceneType {
     /// Direction an infinitely far away point light is pointed at the scene
     var sunDirection: RVector3D { get }
     
+    func intersect(ray: RRay3D, ignoring: RayIgnore) -> RayHit?
+    
+    /// Returns a list of all geometry that intersects a given ray.
+    func intersectAll(ray: RRay3D, ignoring: RayIgnore) -> [RayHit]
+
     mutating func attributeIds(_ idFactory: inout RaytracingElementIdFactory)
 }

@@ -11,6 +11,11 @@ struct TupleRaytracingElement2<T0: RaytracingElement, T1: RaytracingElement>: Ra
         
         return query
     }
+
+    func raycast(query: RayQuery, results: inout [RayHit]) {
+        t0.raycast(query: query, results: &results)
+        t1.raycast(query: query, results: &results)
+    }
     
     mutating func attributeIds(_ idFactory: inout RaytracingElementIdFactory) {
         t0.attributeIds(&idFactory)
@@ -32,6 +37,12 @@ struct TupleRaytracingElement3<T0: RaytracingElement, T1: RaytracingElement, T2:
         query = t2.raycast(query: query)
 
         return query
+    }
+
+    func raycast(query: RayQuery, results: inout [RayHit]) {
+        t0.raycast(query: query, results: &results)
+        t1.raycast(query: query, results: &results)
+        t2.raycast(query: query, results: &results)
     }
     
     mutating func attributeIds(_ idFactory: inout RaytracingElementIdFactory) {
@@ -57,6 +68,13 @@ struct TupleRaytracingElement4<T0: RaytracingElement, T1: RaytracingElement, T2:
         query = t3.raycast(query: query)
 
         return query
+    }
+
+    func raycast(query: RayQuery, results: inout [RayHit]) {
+        t0.raycast(query: query, results: &results)
+        t1.raycast(query: query, results: &results)
+        t2.raycast(query: query, results: &results)
+        t3.raycast(query: query, results: &results)
     }
     
     mutating func attributeIds(_ idFactory: inout RaytracingElementIdFactory) {
@@ -85,6 +103,14 @@ struct TupleRaytracingElement5<T0: RaytracingElement, T1: RaytracingElement, T2:
         query = t4.raycast(query: query)
 
         return query
+    }
+
+    func raycast(query: RayQuery, results: inout [RayHit]) {
+        t0.raycast(query: query, results: &results)
+        t1.raycast(query: query, results: &results)
+        t2.raycast(query: query, results: &results)
+        t3.raycast(query: query, results: &results)
+        t4.raycast(query: query, results: &results)
     }
     
     mutating func attributeIds(_ idFactory: inout RaytracingElementIdFactory) {
@@ -116,6 +142,15 @@ struct TupleRaytracingElement6<T0: RaytracingElement, T1: RaytracingElement, T2:
         query = t5.raycast(query: query)
 
         return query
+    }
+
+    func raycast(query: RayQuery, results: inout [RayHit]) {
+        t0.raycast(query: query, results: &results)
+        t1.raycast(query: query, results: &results)
+        t2.raycast(query: query, results: &results)
+        t3.raycast(query: query, results: &results)
+        t4.raycast(query: query, results: &results)
+        t5.raycast(query: query, results: &results)
     }
     
     mutating func attributeIds(_ idFactory: inout RaytracingElementIdFactory) {
@@ -150,6 +185,16 @@ struct TupleRaytracingElement7<T0: RaytracingElement, T1: RaytracingElement, T2:
         query = t6.raycast(query: query)
 
         return query
+    }
+
+    func raycast(query: RayQuery, results: inout [RayHit]) {
+        t0.raycast(query: query, results: &results)
+        t1.raycast(query: query, results: &results)
+        t2.raycast(query: query, results: &results)
+        t3.raycast(query: query, results: &results)
+        t4.raycast(query: query, results: &results)
+        t5.raycast(query: query, results: &results)
+        t6.raycast(query: query, results: &results)
     }
     
     mutating func attributeIds(_ idFactory: inout RaytracingElementIdFactory) {
@@ -187,6 +232,17 @@ struct TupleRaytracingElement8<T0: RaytracingElement, T1: RaytracingElement, T2:
         query = t7.raycast(query: query)
 
         return query
+    }
+
+    func raycast(query: RayQuery, results: inout [RayHit]) {
+        t0.raycast(query: query, results: &results)
+        t1.raycast(query: query, results: &results)
+        t2.raycast(query: query, results: &results)
+        t3.raycast(query: query, results: &results)
+        t4.raycast(query: query, results: &results)
+        t5.raycast(query: query, results: &results)
+        t6.raycast(query: query, results: &results)
+        t7.raycast(query: query, results: &results)
     }
     
     mutating func attributeIds(_ idFactory: inout RaytracingElementIdFactory) {

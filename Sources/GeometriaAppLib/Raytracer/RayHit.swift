@@ -30,26 +30,30 @@ struct RayHit {
     /// during the raycasting invocation where this ray hit was created.
     var pointOfInterest: PointNormal<RVector3D>
     var intersection: ConvexLineIntersection<RVector3D>
+    var material: RaytracingMaterial?
     var id: Int
     
     init(pointOfInterest: PointNormal<RVector3D>,
          intersection: ConvexLineIntersection<RVector3D>,
+         material: RaytracingMaterial?,
          id: Int) {
         
         self.pointOfInterest = pointOfInterest
         self.intersection = intersection
+        self.material = material
         self.id = id
     }
     
     init?(findingPointOfInterestOf rayIgnore: RayIgnore,
           intersection: ConvexLineIntersection<RVector3D>,
+          material: RaytracingMaterial?,
           id: Int) {
         
         guard let poi = rayIgnore.computePointNormalOfInterest(id: id, intersection: intersection) else {
             return nil
         }
         
-        self.init(pointOfInterest: poi, intersection: intersection, id: id)
+        self.init(pointOfInterest: poi, intersection: intersection, material: material, id: id)
     }
     
     /// Computes a new ``RayHit`` from the parameters of this instance, while
@@ -64,7 +68,7 @@ struct RayHit {
             return nil
         }
         
-        return RayHit(pointOfInterest: poi, intersection: intersection, id: id)
+        return RayHit(pointOfInterest: poi, intersection: intersection, material: material, id: id)
     }
     
     /// Specifies where the ray hit the geometry.
