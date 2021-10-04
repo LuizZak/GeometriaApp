@@ -27,8 +27,7 @@ struct RayQuery {
             end: ray.projectedMagnitude(magnitudeSquared.squareRoot())
         )
         
-        let newAABB = RAABB3D(minimum: RVector3D.pointwiseMin(ray.start, point),
-                              maximum: RVector3D.pointwiseMax(ray.start, point))
+        let newAABB = lineSegment.bounds
         
         return RayQuery(
             ray: ray,
@@ -39,7 +38,8 @@ struct RayQuery {
             ignoring: ignoring
         )
     }
-    
+
+    @_transparent
     func withHit(magnitudeSquared: Double,
                  point: RVector3D,
                  normal: RVector3D,
@@ -47,16 +47,19 @@ struct RayQuery {
                  material: RaytracingMaterial,
                  id: Int) -> RayQuery {
         
-        let hit = RayHit(pointOfInterest: .init(point: point, normal: normal),
-                         intersection: intersection,
-                         material: material,
-                         id: id)
+        let hit = RayHit(
+            pointOfInterest: .init(point: point, normal: normal),
+            intersection: intersection,
+            material: material,
+            id: id
+        )
         
         return withHit(hit)
     }
 }
 
-extension RayQuery {    
+extension RayQuery {
+    @_transparent
     init(ray: RRay3D, ignoring: RayIgnore) {
         self = RayQuery(
             ray: ray,

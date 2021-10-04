@@ -2,14 +2,17 @@
 
 struct RayHit {
     /// Convenience for `pointOfInterest.point`
+    @_transparent
     var point: RVector3D {
         return pointOfInterest.point
     }
     /// Convenience for `pointOfInterest.normal`
+    @_transparent
     var normal: RVector3D {
         return pointOfInterest.normal
     }
     
+    @_transparent
     var hitDirection: HitDirection {
         switch intersection {
         case .exit:
@@ -33,6 +36,7 @@ struct RayHit {
     var material: RaytracingMaterial?
     var id: Int
     
+    @_transparent
     init(pointOfInterest: PointNormal<RVector3D>,
          intersection: RConvexLineResult3D,
          material: RaytracingMaterial?,
@@ -44,6 +48,7 @@ struct RayHit {
         self.id = id
     }
     
+    @_transparent
     init?(findingPointOfInterestOf rayIgnore: RayIgnore,
           intersection: RConvexLineResult3D,
           material: RaytracingMaterial?,
@@ -60,6 +65,7 @@ struct RayHit {
     /// assigning the point-of-interest of a given ``RayIgnore`` instance.
     ///
     /// Returns `nil` if ``RayIgnore/computePointNormalOfInterest`` returns `nil`
+    @_transparent
     func assignPointOfInterest(from rayIgnore: RayIgnore) -> RayHit? {
         guard let poi = rayIgnore.computePointNormalOfInterest(
             id: id,

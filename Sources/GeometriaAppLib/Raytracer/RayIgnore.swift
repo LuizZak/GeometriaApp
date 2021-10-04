@@ -11,6 +11,10 @@ enum RayIgnore {
     
     /// Ignores exit rays for a given geometry object.
     case exit(id: Int, minimumRayLengthSquared: Double = 0.0)
+
+    /// A ray ignore that only affects a single ID, and all other IDs are
+    /// ignored.
+    indirect case singleId(id: Int, RayIgnore)
     
     /// Returns `true` iff this ``RayIgnore`` instance is `.full` case, with the
     /// given geometry assigned.
@@ -18,6 +22,12 @@ enum RayIgnore {
         switch self {
         case .full(let geoId):
             return geoId == id
+        case let .singleId(geoId, ignore):
+            if geoId != id {
+                return true
+            }
+
+            return ignore.shouldIgnoreFully(id: geoId)
         case .none, .entrance, .exit:
             return false
         }
@@ -40,7 +50,13 @@ enum RayIgnore {
         switch self {
         case .none:
             break
+
+        case let .singleId(geoId, ignore):
+            if geoId != id {
+                return nil
+            }
             
+            return ignore.computePointNormalOfInterest(id: id, intersection: intersection)
         case .full(let geoId):
             if geoId == id {
                 return nil

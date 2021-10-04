@@ -26,7 +26,11 @@ struct BoundingBoxRaytracingElement<T>: BoundedRaytracingElement where T: Raytra
     }
 
     private func intersects(query: RayQuery) -> Bool {
-        query.rayMagnitudeSquared.isFinite 
+        if let aabb = query.rayAABB, !bounds.intersects(aabb) {
+            return false
+        }
+
+        return query.rayMagnitudeSquared.isFinite 
             ? boundingBox.intersects(line: query.lineSegment)
             : boundingBox.intersects(line: query.ray)
     }

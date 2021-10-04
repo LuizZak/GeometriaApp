@@ -13,7 +13,7 @@ final class Raytracer<SceneType: RaytracingSceneType>: RendererType {
     private let bias: Double = 0.01
     
     var isMultiThreaded: Bool = false
-    var maxBounces: Int = 15
+    var maxBounces: Int = 5
     var scene: SceneType
     var camera: Camera
     var viewportSize: ViewportSize
@@ -59,7 +59,7 @@ final class Raytracer<SceneType: RaytracingSceneType>: RendererType {
     }
     
     private func raytrace(ray: RRay3D, ignoring: RayIgnore = .none, bounceCount: Int = 0) -> BLRgba32 {
-        if bounceCount >= maxBounces {
+        if bounceCount > maxBounces {
             return BLRgba32.transparentBlack
         }
         
@@ -107,8 +107,6 @@ final class Raytracer<SceneType: RaytracingSceneType>: RendererType {
         
         switch material {
         case .diffuse(let material):
-            let sceneGeometry = scene.queryScene(id: hit.id)!
-            
             let invTransparency = 1 - material.transparency
             color = mergeColors(scene.skyColor, material.color, factor: invTransparency)
             
@@ -147,12 +145,11 @@ final class Raytracer<SceneType: RaytracingSceneType>: RendererType {
                     // Do a sanitity check that the ray isn't going to collide
                     // immediately with the same geometry - if it does, skip the
                     // geometry fully in the subsequent raycast
-                    let query = RayQuery(ray: innerRay, ignoring: rayIgnore)
-
-                    // TODO: Find a way to query the scene instead of the generic
-                    // TODO: geometry object like this since it incurs a performance
-                    // TODO: penalty.
-                    let innerHit = sceneGeometry.raycast(query: query).lastHit
+                    let innerHit = 
+                    scene.intersect(
+                        ray: innerRay, 
+                        ignoring: .singleId(id: hit.id, rayIgnore)
+                    )
 
                     if let innerHit = innerHit, innerHit.point.distanceSquared(to: hit.point) <= minDistSq {
                         rayIgnore = .full(id: hit.id)
