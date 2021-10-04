@@ -17,7 +17,7 @@ private func scene() -> some RaytracingElement {
             makeDisk()
         }
 
-        boundingBox {
+        group {
             makeCylinder()
             makeBumpySphere()
         }

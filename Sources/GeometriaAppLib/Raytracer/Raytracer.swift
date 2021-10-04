@@ -7,10 +7,10 @@ private var _attemptedDebugInMultithreadedYet = false
 final class Raytracer<SceneType: RaytracingSceneType>: RendererType {
     private var processingPrinter: RaytracerProcessingPrinter?
     
-    private let minimumRayToleranceSq: Double = 0.001
+    private let minimumRayToleranceSq: Double = 0.00001
     
     /// Bias used when creating rays for refraction and reflection.
-    private let bias: Double = 0.01
+    private let bias: Double = 0.0001
     
     var isMultiThreaded: Bool = false
     var maxBounces: Int = 5
