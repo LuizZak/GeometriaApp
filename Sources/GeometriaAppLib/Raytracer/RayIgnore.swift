@@ -102,7 +102,7 @@ enum RayIgnore: Equatable {
     /// is of interest, or if this ``RayIgnore`` rule instance ignores the only
     /// available intersection.
     func computePointNormalsOfInterest(id: Int,
-                                       intersection: RConvexLineResult3D) -> [(point: RPointNormal3D, hitDirection: RayHit.HitDirection)]? {
+                                       intersection: RConvexLineResult3D) -> [(point: RPointNormal3D, hitDirection: RayHit.HitDirection)] {
         
         // Pre-check before looking into each point normal
         switch self {
