@@ -9,7 +9,7 @@ struct BoundingBoxElement<T: Element> {
 }
 
 extension BoundingBoxElement {
-    init<Geometry>(geometry: Geometry, material: Material) where Geometry: BoundableType, Geometry.Vector == RVector3D, T == GeometryElement<Geometry> {
+    init<Geometry>(geometry: Geometry, material: Int) where Geometry: BoundableType, Geometry.Vector == RVector3D, T == GeometryElement<Geometry> {
         let element = GeometryElement(geometry: geometry, material: material)
         
         self.init(element: element, boundingBox: geometry.bounds)

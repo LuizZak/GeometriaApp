@@ -4,44 +4,44 @@ struct RaytracingElementBuilder {
     // MARK: Concrete types
 
     static func buildExpression(_ value: RSphere3D) -> SphereRaytracingElement {
-        .init(geometry: value, material: .default)
+        .init(geometry: value, material: MaterialId.defaultMaterial)
     }
-    static func buildExpression(_ value: (RSphere3D, Material)) -> SphereRaytracingElement {
+    static func buildExpression(_ value: (RSphere3D, MaterialId)) -> SphereRaytracingElement {
         .init(geometry: value.0, material: value.1)
     }
     
     static func buildExpression(_ value: REllipse3D) -> EllipseRaytracingElement {
-        .init(geometry: value, material: .default)
+        .init(geometry: value, material: MaterialId.defaultMaterial)
     }
-    static func buildExpression(_ value: (REllipse3D, Material)) -> EllipseRaytracingElement {
+    static func buildExpression(_ value: (REllipse3D, MaterialId)) -> EllipseRaytracingElement {
         .init(geometry: value.0, material: value.1)
     }
 
     static func buildExpression(_ value: RAABB3D) -> AABBRaytracingElement {
-        .init(geometry: value, material: .default)
+        .init(geometry: value, material: MaterialId.defaultMaterial)
     }
-    static func buildExpression(_ value: (RAABB3D, Material)) -> AABBRaytracingElement {
+    static func buildExpression(_ value: (RAABB3D, MaterialId)) -> AABBRaytracingElement {
         .init(geometry: value.0, material: value.1)
     }
 
     static func buildExpression(_ value: RCylinder3D) -> CylinderRaytracingElement {
-        .init(geometry: value, material: .default)
+        .init(geometry: value, material: MaterialId.defaultMaterial)
     }
-    static func buildExpression(_ value: (RCylinder3D, Material)) -> CylinderRaytracingElement {
+    static func buildExpression(_ value: (RCylinder3D, MaterialId)) -> CylinderRaytracingElement {
         .init(geometry: value.0, material: value.1)
     }
 
     static func buildExpression(_ value: RPlane3D) -> PlaneRaytracingElement {
-        .init(geometry: value, material: .default)
+        .init(geometry: value, material: MaterialId.defaultMaterial)
     }
-    static func buildExpression(_ value: (RPlane3D, Material)) -> PlaneRaytracingElement {
+    static func buildExpression(_ value: (RPlane3D, MaterialId)) -> PlaneRaytracingElement {
         .init(geometry: value.0, material: value.1)
     }
     
     static func buildExpression(_ value: RDisk3D) -> DiskRaytracingElement {
-        .init(geometry: value, material: .default)
+        .init(geometry: value, material: MaterialId.defaultMaterial)
     }
-    static func buildExpression(_ value: (RDisk3D, Material)) -> DiskRaytracingElement {
+    static func buildExpression(_ value: (RDisk3D, MaterialId)) -> DiskRaytracingElement {
         .init(geometry: value.0, material: value.1)
     }
 
@@ -59,7 +59,7 @@ struct RaytracingElementBuilder {
 
     // MARK: Generic types
     
-    static func buildExpression<T>(_ value: T, _ material: Material = .default) -> GeometryRaytracingElement<T> where T: Convex3Type {
+    static func buildExpression<T>(_ value: T, _ material: MaterialId = MaterialId.defaultMaterial) -> GeometryRaytracingElement<T> where T: Convex3Type {
         .init(geometry: value, material: material)
     }
     

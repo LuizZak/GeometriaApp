@@ -4,38 +4,53 @@ struct ElementBuilder {
     // MARK: Concrete types
 
     static func buildExpression(_ value: RSphere3D) -> SphereElement {
-        .init(geometry: value, material: .default)
+        .init(geometry: value, material: 0)
     }
-    static func buildExpression(_ value: (RSphere3D, Material)) -> SphereElement {
+    static func buildExpression(_ value: (RSphere3D, Int)) -> SphereElement {
         .init(geometry: value.0, material: value.1)
+    }
+    static func buildExpression<T: RawRepresentable>(_ value: (RSphere3D, T)) -> SphereElement where T.RawValue == Int {
+        .init(geometry: value.0, material: value.1.rawValue)
     }
 
     static func buildExpression(_ value: RAABB3D) -> AABBElement {
-        .init(geometry: value, material: .default)
+        .init(geometry: value, material: 0)
     }
-    static func buildExpression(_ value: (RAABB3D, Material)) -> AABBElement {
+    static func buildExpression(_ value: (RAABB3D, Int)) -> AABBElement {
         .init(geometry: value.0, material: value.1)
+    }
+    static func buildExpression<T: RawRepresentable>(_ value: (RAABB3D, T)) -> AABBElement where T.RawValue == Int {
+        .init(geometry: value.0, material: value.1.rawValue)
     }
 
     static func buildExpression(_ value: RCylinder3D) -> CylinderElement {
-        .init(geometry: value, material: .default)
+        .init(geometry: value, material: 0)
     }
-    static func buildExpression(_ value: (RCylinder3D, Material)) -> CylinderElement {
+    static func buildExpression(_ value: (RCylinder3D, Int)) -> CylinderElement {
         .init(geometry: value.0, material: value.1)
+    }
+    static func buildExpression<T: RawRepresentable>(_ value: (RCylinder3D, T)) -> CylinderElement where T.RawValue == Int {
+        .init(geometry: value.0, material: value.1.rawValue)
     }
 
     static func buildExpression(_ value: RPlane3D) -> PlaneElement {
-        .init(geometry: value, material: .default)
+        .init(geometry: value, material: 0)
     }
-    static func buildExpression(_ value: (RPlane3D, Material)) -> PlaneElement {
+    static func buildExpression(_ value: (RPlane3D, Int)) -> PlaneElement {
         .init(geometry: value.0, material: value.1)
+    }
+    static func buildExpression<T: RawRepresentable>(_ value: (RPlane3D, T)) -> PlaneElement where T.RawValue == Int {
+        .init(geometry: value.0, material: value.1.rawValue)
     }
     
     static func buildExpression(_ value: RDisk3D) -> DiskElement {
-        .init(geometry: value, material: .default)
+        .init(geometry: value, material: 0)
     }
-    static func buildExpression(_ value: (RDisk3D, Material)) -> DiskElement {
+    static func buildExpression(_ value: (RDisk3D, Int)) -> DiskElement {
         .init(geometry: value.0, material: value.1)
+    }
+    static func buildExpression<T: RawRepresentable>(_ value: (RDisk3D, T)) -> DiskElement where T.RawValue == Int {
+        .init(geometry: value.0, material: value.1.rawValue)
     }
 
     static func buildArray<T>(_ components: [T]) -> TypedArrayElement<T> {
@@ -56,8 +71,8 @@ struct ElementBuilder {
 
     // MARK: Generic types
     
-    static func buildExpression<T>(_ value: T, _ material: Material = .default) -> GeometryElement<T> {
-        .init(geometry: value, material: material)
+    static func buildExpression<T>(_ value: (T, Int)) -> GeometryElement<T> {
+        .init(geometry: value.0, material: value.1)
     }
     
     static func buildExpression<T>(_ value: T) -> T {

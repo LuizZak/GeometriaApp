@@ -1,7 +1,7 @@
 struct SphereElement {
     var id: Int = 0
     var geometry: RSphere3D
-    var material: Material
+    var material: MaterialId
 }
 
 extension SphereElement: Element {

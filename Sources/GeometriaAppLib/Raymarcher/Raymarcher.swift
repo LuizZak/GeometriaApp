@@ -6,6 +6,7 @@ private var _attemptedDebugInMultithreadedYet = false
 /// Class that performs raymarching on a scene.
 final class Raymarcher<SceneType: RaymarchingSceneType>: RendererType {
     private var processingPrinter: RaytracerProcessingPrinter?
+    private var materialMapCache: MaterialMap
     
     let scene: SceneType
     let camera: Camera
@@ -16,6 +17,7 @@ final class Raymarcher<SceneType: RaymarchingSceneType>: RendererType {
         self.scene = scene
         self.camera = camera
         self.viewportSize = viewportSize
+        self.materialMapCache = scene.materialMap()
     }
     
     // MARK: - Debugging
@@ -102,7 +104,7 @@ final class Raymarcher<SceneType: RaymarchingSceneType>: RendererType {
 
         escaped = escaped || iteration == maxMarchIterationCount
 
-        let materialColor = result.material.map { computeColor(at: ray.start, material: $0) }
+        let materialColor = result.material.map { computeColor(at: ray.start, materialId: $0) }
 
         var resultColor: BLRgba32
         if escaped {
@@ -184,7 +186,14 @@ final class Raymarcher<SceneType: RaymarchingSceneType>: RendererType {
         return res
     }
 
-    private func computeColor(at point: RVector3D, material: Material) -> BLRgba32 {
+    private func computeColor(at point: RVector3D, materialId: MaterialId) -> BLRgba32 {
+        let material = materialMapCache[materialId]
+        /*
+        guard let material = materialMapCache[materialId] else {
+            return .transparentBlack
+        }
+        */
+
         switch material {
         case .diffuse(let material):
             return material.color

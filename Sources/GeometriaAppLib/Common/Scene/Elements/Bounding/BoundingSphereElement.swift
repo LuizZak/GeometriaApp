@@ -13,7 +13,7 @@ struct BoundingSphereElement<T: Element> {
 }
 
 extension BoundingSphereElement {
-    init<Geometry>(geometry: Geometry, material: Material) where Geometry: BoundableType, Geometry.Vector == RVector3D, T == GeometryElement<Geometry> {
+    init<Geometry>(geometry: Geometry, material: Int) where Geometry: BoundableType, Geometry.Vector == RVector3D, T == GeometryElement<Geometry> {
         let bounds = geometry.bounds
         let sphere = RSphere3D(center: bounds.center, radius: bounds.size.maximalComponent / 2)
         

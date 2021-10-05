@@ -2,9 +2,7 @@ import SwiftBlend2D
 
 enum RaytracingDemoScene2 {
     static func makeScene() -> some RaytracingSceneType {
-        let materials: [Int: Material] = [
-            :
-        ]
+        let materials: MaterialMap = makeMaterialMap(MaterialMapEnum.self)
         
         return RaytracingElementBuilder.makeScene(skyColor: .cornflowerBlue, materials: materials) {
             scene()
@@ -81,29 +79,48 @@ private func makePillar(at point: RVector3D, height: Double, radius: Double) -> 
     let end = point + .unitZ * height
 
     boundingBox {
-        cylinder(start: start, end: end, radius: radius, color: .white)
-        cylinder(start: start, end: start + .unitZ * 5, radius: radius + 1, color: .white)
-        cylinder(start: end, end: end - .unitZ * 5, radius: radius + 1, color: .white)
+        cylinder(start: start, end: end, radius: radius)
+        cylinder(start: start, end: start + .unitZ * 5, radius: radius + 1)
+        cylinder(start: end, end: end - .unitZ * 5, radius: radius + 1)
     }
 }
 
-private func cylinder(start: RVector3D, end: RVector3D, radius: Double, color: BLRgba32 = .gray) -> CylinderRaytracingElement {
+private func cylinder(start: RVector3D, end: RVector3D, radius: Double) -> CylinderRaytracingElement {
     CylinderRaytracingElement(
         geometry: .init(start: start, end: end, radius: radius),
-        material: .solid(color)
+        material: MaterialMapEnum.monument.rawValue
     )
 }
 
 private func makeAABB(center: RVector3D, size: RVector3D) -> AABBRaytracingElement {
     AABBRaytracingElement(
         geometry: .init(minimum: center - size / 2, maximum: center + size / 2),
-        material: .solid(.white)
+        material: MaterialMapEnum.monument.rawValue
     )
 }
 
 private func makeFloorPlane() -> PlaneRaytracingElement {
     PlaneRaytracingElement(
         geometry: .init(point: .zero, normal: .unitZ),
-        material: .checkerboard(size: 50.0, color1: .white, color2: .black)
+        material: MaterialMapEnum.floor.rawValue
     )
+}
+
+private enum MaterialMapEnum: Int, CaseIterable, MaterialMapEnumType {
+    case floor = 1
+    case monument = 2
+
+    func makeMaterial() -> Material {
+        switch self {
+        case .floor:
+            return .checkerboard(
+                size: 50.0, 
+                color1: .white, 
+                color2: .black
+            )
+        
+        case .monument:
+            return .solid(.white)
+        }
+    }
 }

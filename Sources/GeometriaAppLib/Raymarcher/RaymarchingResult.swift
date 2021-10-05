@@ -1,8 +1,8 @@
 struct RaymarchingResult {
     var distance: Double
-    var material: Material?
+    var material: Int?
 
-    init(distance: Double, material: Material?) {
+    init(distance: Double, material: Int?) {
         self.distance = distance
         self.material = material
     }
@@ -53,8 +53,14 @@ func max(_ lhs: RaymarchingResult, _ rhs: RaymarchingResult) -> RaymarchingResul
 }
 
 @_transparent
+func mixMaterial(_ lhs: Int?, _ rhs: Int?, factor: Double) -> Int? {
+    // TODO: Do proper material mixing?
+    lhs ?? rhs
+}
+
+@_transparent
 func mix(_ lhs: RaymarchingResult, _ rhs: RaymarchingResult, factor: Double) -> RaymarchingResult {
     let dist = lhs.distance * (1 - factor) + rhs.distance * factor
 
-    return .init(distance: dist, material: mix(lhs.material, rhs.material, factor: factor))
+    return .init(distance: dist, material: mixMaterial(lhs.material, rhs.material, factor: factor))
 }

@@ -10,7 +10,7 @@ struct RaytracingScene<T: RaytracingElement>: RaytracingSceneType {
     @UnitVector var sunDirection: RVector3D = RVector3D(x: -20, y: 40, z: -30)
 
     /// Mapping of materials and their IDs.
-    var materialIdMap: [Int: Material]
+    var materialIdMap: MaterialMap
     
     @inlinable
     func intersect(ray: RRay3D, ignoring: RayIgnore = .none) -> RayHit? {
@@ -44,12 +44,17 @@ struct RaytracingScene<T: RaytracingElement>: RaytracingSceneType {
 
     /// Returns the material associated with a given element ID.
     func material(id: Int) -> Material? {
-        return nil
+        materialIdMap[id]
+    }
+
+    /// Gets the full material map for this scene type
+    func materialMap() -> MaterialMap {
+        materialIdMap
     }
 }
 
 extension RaytracingElementBuilder {
-    static func makeScene<T>(skyColor: BLRgba32, materials: [Int: Material], @RaytracingElementBuilder _ builder: () -> T) -> RaytracingScene<T> where T: RaytracingElement {
+    static func makeScene<T>(skyColor: BLRgba32, materials: MaterialMap, @RaytracingElementBuilder _ builder: () -> T) -> RaytracingScene<T> where T: RaytracingElement {
         var scene = RaytracingScene<T>(
             root: builder(),
             skyColor: .cornflowerBlue,

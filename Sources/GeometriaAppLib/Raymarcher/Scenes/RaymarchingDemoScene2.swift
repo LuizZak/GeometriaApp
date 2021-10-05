@@ -2,10 +2,8 @@ import SwiftBlend2D
 
 enum RaymarchingDemoScene2 {
     static func makeScene() -> some RaymarchingSceneType {
-        let materials: [Int: Material] = [
-            :
-        ]
-        
+        let materials: MaterialMap = makeMaterialMap(MaterialMapEnum.self)
+
         return RaymarchingElementBuilder.makeScene(skyColor: .cornflowerBlue, materials: materials) {
             scene()
         }
@@ -90,20 +88,39 @@ private func makePillar(at point: RVector3D, height: Double, radius: Double) -> 
 private func cylinder(start: RVector3D, end: RVector3D, radius: Double, color: BLRgba32 = .gray) -> CylinderRaymarchingElement {
     CylinderRaymarchingElement(
         geometry: .init(start: start, end: end, radius: radius),
-        material: .solid(color)
+        material: MaterialMapEnum.monument.rawValue
     )
 }
 
 private func makeAABB(center: RVector3D, size: RVector3D) -> AABBRaymarchingElement {
     AABBRaymarchingElement(
         geometry: .init(minimum: center - size / 2, maximum: center + size / 2),
-        material: .solid(.white)
+        material: MaterialMapEnum.monument.rawValue
     )
 }
 
 private func makeFloorPlane() -> PlaneRaymarchingElement {
     PlaneRaymarchingElement(
         geometry: .init(point: .zero, normal: .unitZ),
-        material: .checkerboard(size: 50.0, color1: .white, color2: .black)
+        material: MaterialMapEnum.floor.rawValue
     )
+}
+
+private enum MaterialMapEnum: Int, CaseIterable, MaterialMapEnumType {
+    case floor = 1
+    case monument = 2
+
+    func makeMaterial() -> Material {
+        switch self {
+        case .floor:
+            return .checkerboard(
+                size: 50.0, 
+                color1: .white, 
+                color2: .black
+            )
+        
+        case .monument:
+            return .solid(.white)
+        }
+    }
 }

@@ -1,6 +1,6 @@
 enum RaymarchingDemoScene1 {
     static func makeScene() -> some RaymarchingSceneType {
-        let materials: [Int: Material] = makeMaterialMap(MaterialId.self)
+        let materials: MaterialMap = makeMaterialMap(MaterialMapEnum.self)
 
         return RaymarchingElementBuilder.makeScene(skyColor: .cornflowerBlue, materials: materials) {
             scene()
@@ -40,7 +40,7 @@ private func makeBackAABB() -> AABBRaymarchingElement {
             minimum: .init(x: -50, y: 200, z: 10),
             maximum: .init(x: 0, y: 210, z: 50)
         ),
-        material: .diffuse(.init(color: .indianRed))
+        material: MaterialMapEnum.backAABB.rawValue
     )
 }
 
@@ -51,7 +51,7 @@ private func makeTopAABB() -> AABBRaymarchingElement {
             minimum: .init(x: -70, y: 120, z: 60),
             maximum: .init(x: 10, y: 140, z: 112)
         ),
-        material: .default
+        material: MaterialMapEnum.default.rawValue
     )
 }
 
@@ -62,12 +62,7 @@ private func makeShinySphere() -> SphereRaymarchingElement {
             center: .init(x: 0, y: 150, z: 45), 
             radius: 30
         ),
-        material: .diffuse(
-            .init(color: .gray,
-                  reflectivity: 0.6,
-                  transparency: 1.0,
-                  refractiveIndex: 1.3)
-        )
+        material: MaterialMapEnum.shiny.rawValue
     )
 }
 
@@ -79,14 +74,7 @@ private func makeCylinder() -> CylinderRaymarchingElement {
             end: .init(x: 60, y: 150, z: 100),
             radius: 20
         ),
-        material: .diffuse(
-            .init(color: .init(r: 128, g: 128, b: 128, a: 255),
-                  bumpNoiseFrequency: 1.0,
-                  bumpMagnitude: 0.0,
-                  reflectivity: 0.0,
-                  transparency: 1.0,
-                  refractiveIndex: 1.3)
-        )
+        material: MaterialMapEnum.cylinder.rawValue
     )
 }
 
@@ -98,11 +86,7 @@ private func makeBumpySphere() -> SphereRaymarchingElement {
             center: .init(x: 70, y: 150, z: 45), 
             radius: 30
         ),
-        material: .diffuse(
-            .init(bumpNoiseFrequency: 1.0,
-                  bumpMagnitude: 1.0 / 40.0,
-                  reflectivity: 0.4)
-        )
+        material: MaterialMapEnum.bumpy.rawValue
     )
 }
 
@@ -129,12 +113,7 @@ private func makeDisk() -> DiskRaymarchingElement {
             normal: .unitY,
             radius: 12
         ),
-        material: .target(
-            center: .init(x: -10, y: 110, z: 20),
-            stripeFrequency: 5.0,
-            color1: .red,
-            color2: .white
-        )
+        material: MaterialMapEnum.disk.rawValue
     )
 }
 
@@ -145,15 +124,12 @@ private func makeFloorPlane() -> PlaneRaymarchingElement {
             point: .zero, 
             normal: .unitZ
         ),
-        material: .checkerboard(
-            size: 50.0, 
-            color1: .white, 
-            color2: .black
-        )
+        material: MaterialMapEnum.floor.rawValue
     )
 }
 
-private enum MaterialId: Int, CaseIterable, MaterialMapType {
+private enum MaterialMapEnum: Int, CaseIterable, MaterialMapEnumType {
+    case `default` = 0
     case floor = 1
     case disk = 2
     case backAABB = 3
@@ -163,6 +139,9 @@ private enum MaterialId: Int, CaseIterable, MaterialMapType {
 
     func makeMaterial() -> Material {
         switch self {
+        case .default:
+            return .default
+
         case .floor:
             return .checkerboard(
                 size: 50.0, 

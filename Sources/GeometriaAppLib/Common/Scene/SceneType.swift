@@ -6,6 +6,9 @@ protocol SceneType {
     /// Returns `nil` if no element with the given ID was found on this scene.
     func queryScene(id: Int) -> Element?
 
-    /// Returns the material associated with a given ID.
+    /// Returns the material associated with a given material ID.
     func material(id: Int) -> Material?
+
+    /// Gets the full material map for this scene type
+    func materialMap() -> MaterialMap
 }

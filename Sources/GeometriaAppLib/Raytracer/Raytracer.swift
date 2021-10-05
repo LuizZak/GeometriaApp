@@ -6,6 +6,7 @@ private var _attemptedDebugInMultithreadedYet = false
 /// Class that performs raytracing on a scene.
 final class Raytracer<SceneType: RaytracingSceneType>: RendererType {
     private var processingPrinter: RaytracerProcessingPrinter?
+    private var materialMapCache: MaterialMap
     
     private let minimumRayToleranceSq: Double = 0.00001
     
@@ -22,6 +23,7 @@ final class Raytracer<SceneType: RaytracingSceneType>: RendererType {
         self.scene = scene
         self.camera = camera
         self.viewportSize = viewportSize
+        self.materialMapCache = scene.materialMap()
     }
     
     // MARK: - Debugging
@@ -79,14 +81,21 @@ final class Raytracer<SceneType: RaytracingSceneType>: RendererType {
             return scene.skyColor
         }
         
-        return computeColor(material: material, ray: ray, hit: hit, bounceCount: bounceCount)
+        return computeColor(materialId: material, ray: ray, hit: hit, bounceCount: bounceCount)
     }
     
-    private func computeColor(material: Material,
+    private func computeColor(materialId: MaterialId,
                               ray: RRay3D,
                               hit: RayHit,
                               ignoring: RayIgnore = .none,
                               bounceCount: Int = 0) -> BLRgba32 {
+        
+        let material = materialMapCache[materialId]
+        /*
+        guard let material = materialMapCache[materialId] else {
+            return .transparentBlack
+        }
+        */
         
         // Detect short distances that should avoid re-bounces
         var canRebounce = true
@@ -280,22 +289,21 @@ final class Raytracer<SceneType: RaytracingSceneType>: RendererType {
         let ray = RRay3D(start: hit.point, direction: -scene.sunDirection)
         
         let intersections = scene.intersectAll(ray: ray, ignoring: .full(id: hit.id))
-        
-        let transparency =
-        intersections
-            .map { 
-                switch $0.material {
-                case .diffuse(let material)?:
-                    return material.transparency
-                
-                case .target, .checkerboard:
-                    return 0.0
 
-                case nil:
-                    return 1.0
-                }
-             }
-            .reduce(1.0, *)
+        var transparency: Double = 1.0
+
+        for intersection in intersections {
+            switch intersection.material.flatMap({ materialMapCache[$0] }) {
+            case .diffuse(let material)?:
+                transparency *= material.transparency
+            
+            case .target, .checkerboard:
+                return 0.0
+
+            case nil:
+                continue
+            }
+        }
         
         return max(0.0, min(1.0, 1 - transparency))
     }

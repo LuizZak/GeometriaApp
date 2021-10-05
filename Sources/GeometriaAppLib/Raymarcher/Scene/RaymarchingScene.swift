@@ -8,7 +8,7 @@ struct RaymarchingScene<T: RaymarchingElement>: RaymarchingSceneType {
     @UnitVector var sunDirection: RVector3D = RVector3D(x: -20, y: 40, z: -30)
 
     /// Mapping of materials and their IDs.
-    var materialIdMap: [Int: Material]
+    var materialIdMap: MaterialMap
 
     func signedDistance(to point: RVector3D, current: RaymarchingResult) -> RaymarchingResult {
         root.signedDistance(to: point, current: current)
@@ -27,12 +27,17 @@ struct RaymarchingScene<T: RaymarchingElement>: RaymarchingSceneType {
 
     /// Returns the material associated with a given element ID.
     func material(id: Int) -> Material? {
-        return nil
+        materialIdMap[id]
+    }
+
+    /// Gets the full material map for this scene type
+    func materialMap() -> MaterialMap {
+        materialIdMap
     }
 }
 
 extension RaymarchingElementBuilder {
-    static func makeScene<T>(skyColor: BLRgba32, materials: [Int: Material], @RaymarchingElementBuilder _ builder: () -> T) -> RaymarchingScene<T> where T: RaymarchingElement {
+    static func makeScene<T>(skyColor: BLRgba32, materials: MaterialMap, @RaymarchingElementBuilder _ builder: () -> T) -> RaymarchingScene<T> where T: RaymarchingElement {
         var scene = RaymarchingScene(
             root: builder(),
             skyColor: .cornflowerBlue,
