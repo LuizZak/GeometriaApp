@@ -74,7 +74,7 @@ final class Raytracer<SceneType: RaytracingSceneType>: RendererType {
         
         processingPrinter?.add(hit: hit, ray: ray)
         //processingPrinter?.add(geometry: sceneGeometry)
-        processingPrinter?.add(intersection: hit.intersection)
+        //processingPrinter?.add(intersection: hit.intersection)
         
         // No material information, potentially a hit against invisible geometry?
         guard let material = hit.material else {

@@ -20,7 +20,7 @@ class RaytracerProcessingPrinter: ProcessingPrinter {
         
         addStrokeColorSet("255, 0, 0")
         addStrokeWeightSet("2 / scale")
-        add(intersection: hit.intersection)
+        //add(intersection: hit.intersection)
         addDrawLine("")
     }
     
