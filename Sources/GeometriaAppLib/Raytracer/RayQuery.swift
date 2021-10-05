@@ -41,17 +41,17 @@ struct RayQuery: Equatable {
 
     @_transparent
     func withHit(magnitudeSquared: Double,
+                 id: Int,
                  point: RVector3D,
                  normal: RVector3D,
                  hitDirection: RayHit.HitDirection,
-                 material: MaterialId,
-                 id: Int) -> RayQuery {
+                 material: MaterialId) -> RayQuery {
         
         let hit = RayHit(
-            pointOfInterest: .init(point: point, normal: normal),
+            id: id,
+            pointNormal: .init(point: point, normal: normal),
             hitDirection: hitDirection,
-            material: material,
-            id: id
+            material: material
         )
         
         return withHit(hit)

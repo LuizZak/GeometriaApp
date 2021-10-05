@@ -101,7 +101,7 @@ final class Raytracer<SceneType: RaytracingSceneType>: RendererType {
         var canRebounce = true
         switch ignoring {
         case .entrance(_, let minimumRayLengthSquared), .exit(_, let minimumRayLengthSquared):
-            let dist = hit.pointOfInterest.point.distanceSquared(to: ray.start)
+            let dist = hit.point.distanceSquared(to: ray.start)
             if dist < minimumRayLengthSquared {
                 canRebounce = false
             }

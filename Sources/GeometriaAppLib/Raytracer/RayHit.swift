@@ -1,35 +1,33 @@
 // import Geometria
 
 struct RayHit: Equatable {
-    /// Convenience for `pointOfInterest.point`
-    @_transparent
-    var point: RVector3D {
-        return pointOfInterest.point
-    }
-    /// Convenience for `pointOfInterest.normal`
-    @_transparent
-    var normal: RVector3D {
-        return pointOfInterest.normal
-    }
-    
-    /// The point-of-interest for the intersection, which is one of the point
-    /// normals in ``intersection``, according to the ``RayIgnore`` that was used
-    /// during the raycasting invocation where this ray hit was created.
-    var pointOfInterest: PointNormal<RVector3D>
+    /// The identifier for the element that was hit.
+    var id: Int
+    var pointNormal: PointNormal<RVector3D>
     var hitDirection: HitDirection
     var material: MaterialId?
-    var id: Int
+    
+    /// Convenience for `pointNormal.point`
+    @_transparent
+    var point: RVector3D {
+        return pointNormal.point
+    }
+    /// Convenience for `pointNormal.normal`
+    @_transparent
+    var normal: RVector3D {
+        return pointNormal.normal
+    }
     
     @_transparent
-    init(pointOfInterest: PointNormal<RVector3D>,
+    init(id: Int,
+         pointNormal: PointNormal<RVector3D>,
          hitDirection: HitDirection,
-         material: MaterialId?,
-         id: Int) {
+         material: MaterialId?) {
         
-        self.pointOfInterest = pointOfInterest
+        self.id = id
+        self.pointNormal = pointNormal
         self.hitDirection = hitDirection
         self.material = material
-        self.id = id
     }
     
     @_transparent
@@ -42,7 +40,7 @@ struct RayHit: Equatable {
             return nil
         }
         
-        self.init(pointOfInterest: poi.point, hitDirection: poi.direction, material: material, id: id)
+        self.init(id: id, pointNormal: poi.point, hitDirection: poi.direction, material: material)
     }
     
     /// Computes a new ``RayHit`` from the parameters of this instance, while
@@ -58,7 +56,7 @@ struct RayHit: Equatable {
             return nil
         }
         
-        return RayHit(pointOfInterest: poi.point, hitDirection: poi.direction, material: material, id: id)
+        return RayHit(id: id, pointNormal: poi.point, hitDirection: poi.direction, material: material)
     }
 
     /// Translates the components of this ray hit, returning a new hit that is 
@@ -67,7 +65,7 @@ struct RayHit: Equatable {
     func translated(by vector: RVector3D) -> RayHit {
         var hit = self
         
-        hit.pointOfInterest.point += vector
+        hit.pointNormal.point += vector
 
         return hit
     }
