@@ -56,11 +56,13 @@ struct TupleElement8<T0: Element, T1: Element, T2: Element, T3: Element, T4: Ele
 
 
 extension TupleElement2: Element {
+    @inlinable
     mutating func attributeIds(_ idFactory: inout ElementIdFactory) {
         t0.attributeIds(&idFactory)
         t1.attributeIds(&idFactory)
     }
 
+    @inlinable
     func queryScene(id: Int) -> Element? {
         if let el = t0.queryScene(id: id) { return el }
         if let el = t1.queryScene(id: id) { return el }
@@ -70,12 +72,14 @@ extension TupleElement2: Element {
 }
 
 extension TupleElement3: Element {
+    @inlinable
     mutating func attributeIds(_ idFactory: inout ElementIdFactory) {
         t0.attributeIds(&idFactory)
         t1.attributeIds(&idFactory)
         t2.attributeIds(&idFactory)
     }
 
+    @inlinable
     func queryScene(id: Int) -> Element? {
         if let el = t0.queryScene(id: id) { return el }
         if let el = t1.queryScene(id: id) { return el }
@@ -86,6 +90,7 @@ extension TupleElement3: Element {
 }
 
 extension TupleElement4: Element {
+    @inlinable
     mutating func attributeIds(_ idFactory: inout ElementIdFactory) {
         t0.attributeIds(&idFactory)
         t1.attributeIds(&idFactory)
@@ -93,6 +98,7 @@ extension TupleElement4: Element {
         t3.attributeIds(&idFactory)
     }
 
+    @inlinable
     func queryScene(id: Int) -> Element? {
         if let el = t0.queryScene(id: id) { return el }
         if let el = t1.queryScene(id: id) { return el }
@@ -104,6 +110,7 @@ extension TupleElement4: Element {
 }
 
 extension TupleElement5: Element {
+    @inlinable
     mutating func attributeIds(_ idFactory: inout ElementIdFactory) {
         t0.attributeIds(&idFactory)
         t1.attributeIds(&idFactory)
@@ -112,6 +119,7 @@ extension TupleElement5: Element {
         t4.attributeIds(&idFactory)
     }
 
+    @inlinable
     func queryScene(id: Int) -> Element? {
         if let el = t0.queryScene(id: id) { return el }
         if let el = t1.queryScene(id: id) { return el }
@@ -124,6 +132,7 @@ extension TupleElement5: Element {
 }
 
 extension TupleElement6: Element {
+    @inlinable
     mutating func attributeIds(_ idFactory: inout ElementIdFactory) {
         t0.attributeIds(&idFactory)
         t1.attributeIds(&idFactory)
@@ -133,6 +142,7 @@ extension TupleElement6: Element {
         t5.attributeIds(&idFactory)
     }
 
+    @inlinable
     func queryScene(id: Int) -> Element? {
         if let el = t0.queryScene(id: id) { return el }
         if let el = t1.queryScene(id: id) { return el }
@@ -146,6 +156,7 @@ extension TupleElement6: Element {
 }
 
 extension TupleElement7: Element {
+    @inlinable
     mutating func attributeIds(_ idFactory: inout ElementIdFactory) {
         t0.attributeIds(&idFactory)
         t1.attributeIds(&idFactory)
@@ -156,6 +167,7 @@ extension TupleElement7: Element {
         t6.attributeIds(&idFactory)
     }
 
+    @inlinable
     func queryScene(id: Int) -> Element? {
         if let el = t0.queryScene(id: id) { return el }
         if let el = t1.queryScene(id: id) { return el }
@@ -170,6 +182,7 @@ extension TupleElement7: Element {
 }
 
 extension TupleElement8: Element {
+    @inlinable
     mutating func attributeIds(_ idFactory: inout ElementIdFactory) {
         t0.attributeIds(&idFactory)
         t1.attributeIds(&idFactory)
@@ -181,6 +194,7 @@ extension TupleElement8: Element {
         t7.attributeIds(&idFactory)
     }
 
+    @inlinable
     func queryScene(id: Int) -> Element? {
         if let el = t0.queryScene(id: id) { return el }
         if let el = t1.queryScene(id: id) { return el }

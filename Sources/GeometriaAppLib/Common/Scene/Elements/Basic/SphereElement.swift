@@ -17,6 +17,7 @@ extension SphereElement: Element {
 }
 
 extension SphereElement: BoundedElement {
+    @_transparent
     func makeBounds() -> ElementBounds {
         .makeBounds(for: geometry)
     }

@@ -23,6 +23,7 @@ struct RaytracingScene<T: RaytracingElement>: RaytracingSceneType {
     }
     
     /// Returns a list of all geometry that intersects a given ray.
+    @inlinable
     func intersectAll(ray: RRay3D, ignoring: RayIgnore = .none) -> [RayHit] {
         var hits: [RayHit] = []
 
@@ -31,6 +32,7 @@ struct RaytracingScene<T: RaytracingElement>: RaytracingSceneType {
         return hits
     }
     
+    @inlinable
     mutating func attributeIds(_ idFactory: inout ElementIdFactory) {
         root.attributeIds(&idFactory)
     }
@@ -38,22 +40,26 @@ struct RaytracingScene<T: RaytracingElement>: RaytracingSceneType {
     /// Returns an item on this scene matching a specified id, across all elements
     /// on the scene.
     /// Returns `nil` if no element with the given ID was found on this scene.
+    @inlinable
     func queryScene(id: Int) -> Element? {
         root.queryScene(id: id)
     }
 
     /// Returns the material associated with a given element ID.
+    @inlinable
     func material(id: Int) -> Material? {
         materialIdMap[id]
     }
 
     /// Gets the full material map for this scene type
+    @inlinable
     func materialMap() -> MaterialMap {
         materialIdMap
     }
 }
 
 extension RaytracingElementBuilder {
+    @inlinable
     static func makeScene<T>(skyColor: BLRgba32, materials: MaterialMap, @RaytracingElementBuilder _ builder: () -> T) -> RaytracingScene<T> where T: RaytracingElement {
         var scene = RaytracingScene<T>(
             root: builder(),

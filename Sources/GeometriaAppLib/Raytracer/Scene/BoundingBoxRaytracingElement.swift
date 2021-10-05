@@ -2,6 +2,7 @@ typealias BoundingBoxRaytracingElement<T: RaytracingElement> =
     BoundingBoxElement<T>
 
 extension BoundingBoxRaytracingElement: RaytracingElement {
+    @inlinable
     func raycast(query: RayQuery) -> RayQuery {
         guard intersects(query: query) else {
             return query
@@ -10,6 +11,7 @@ extension BoundingBoxRaytracingElement: RaytracingElement {
         return element.raycast(query: query)
     }
 
+    @inlinable
     func raycast(query: RayQuery, results: inout [RayHit]) {
         guard intersects(query: query) else {
             return
@@ -18,7 +20,8 @@ extension BoundingBoxRaytracingElement: RaytracingElement {
         element.raycast(query: query, results: &results)
     }
 
-    private func intersects(query: RayQuery) -> Bool {
+    @inlinable
+    func intersects(query: RayQuery) -> Bool {
         if let aabb = query.rayAABB, !boundingBox.intersects(aabb) {
             return false
         }

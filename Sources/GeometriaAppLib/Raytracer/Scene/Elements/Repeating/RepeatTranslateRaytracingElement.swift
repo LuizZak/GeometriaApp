@@ -18,6 +18,7 @@ extension RepeatTranslateRaytracingElement: RaytracingElement {
         return current.translated(by: totalTranslation)
     }
 
+    @inlinable
     func raycast(query: RayQuery, results: inout [RayHit]) {
         var current = query
 

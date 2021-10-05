@@ -2,6 +2,7 @@ struct RaymarchingResult {
     var distance: Double
     var material: Int?
 
+    @_transparent
     init(distance: Double, material: Int?) {
         self.distance = distance
         self.material = material

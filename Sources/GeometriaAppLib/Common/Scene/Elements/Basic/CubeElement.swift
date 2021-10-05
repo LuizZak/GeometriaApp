@@ -1,10 +1,10 @@
-struct CylinderElement {
+struct CubeElement {
     var id: Int = 0
-    var geometry: RCylinder3D
+    var geometry: RCube3D
     var material: MaterialId
 }
 
-extension CylinderElement: Element {
+extension CubeElement: Element {
     @_transparent
     mutating func attributeIds(_ idFactory: inout ElementIdFactory) {
         id = idFactory.makeId()
@@ -16,7 +16,7 @@ extension CylinderElement: Element {
     }
 }
 
-extension CylinderElement: BoundedElement {
+extension CubeElement: BoundedElement {
     @_transparent
     func makeBounds() -> ElementBounds {
         .makeBounds(for: geometry)

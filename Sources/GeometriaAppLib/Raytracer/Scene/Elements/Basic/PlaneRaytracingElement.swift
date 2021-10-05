@@ -1,6 +1,7 @@
 typealias PlaneRaytracingElement = PlaneElement
 
 extension PlaneRaytracingElement: RaytracingElement {
+    @inlinable
     func raycast(query: RayQuery) -> RayQuery {
         guard !query.ignoring.shouldIgnoreFully(id: id) else {
             return query
@@ -17,6 +18,7 @@ extension PlaneRaytracingElement: RaytracingElement {
         return query.withHit(hit)
     }
 
+    @inlinable
     func raycast(query: RayQuery, results: inout [RayHit]) {
         guard !query.ignoring.shouldIgnoreFully(id: id) else {
             return

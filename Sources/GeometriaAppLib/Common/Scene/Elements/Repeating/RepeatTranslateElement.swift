@@ -5,16 +5,19 @@ struct RepeatTranslateElement<T: Element> {
 }
 
 extension RepeatTranslateElement: Element {
+    @_transparent
     mutating func attributeIds(_ idFactory: inout ElementIdFactory) {
         element.attributeIds(&idFactory)
     }
 
+    @_transparent
     func queryScene(id: Int) -> Element? {
         element.queryScene(id: id)
     }
 }
 
 extension RepeatTranslateElement: BoundedElement where T: BoundedElement {
+    @inlinable
     func makeBounds() -> RaymarchingBounds {
         let bounds = element.makeBounds()
         

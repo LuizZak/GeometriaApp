@@ -87,8 +87,8 @@ extension RayQuery {
     func intersect<Convex: Convex3Type>(_ geometry: Convex) -> RConvexLineResult3D where Convex.Vector == RVector3D {
         let intersection = 
             rayMagnitudeSquared.isFinite
-            ? geometry.intersection(with: lineSegment)
-            : geometry.intersection(with: ray)
+                ? geometry.intersection(with: lineSegment)
+                : geometry.intersection(with: ray)
 
         switch intersection {
         case .enter(let pt),

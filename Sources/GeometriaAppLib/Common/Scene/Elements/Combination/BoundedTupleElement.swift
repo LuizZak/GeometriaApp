@@ -20,6 +20,7 @@ typealias BoundedTupleElement8<T0: BoundedElement, T1: BoundedElement, T2: Bound
     TupleElement8<T0, T1, T2, T3, T4, T5, T6, T7>
 
 extension BoundedTupleElement2: BoundedElement {
+    @inlinable
     func makeBounds() -> ElementBounds {
         t0.makeBounds()
         .union(t1.makeBounds())
@@ -27,6 +28,7 @@ extension BoundedTupleElement2: BoundedElement {
 }
 
 extension BoundedTupleElement3: BoundedElement {
+    @inlinable
     func makeBounds() -> ElementBounds {
         t0.makeBounds()
         .union(t1.makeBounds())
@@ -35,6 +37,7 @@ extension BoundedTupleElement3: BoundedElement {
 }
 
 extension BoundedTupleElement4: BoundedElement {
+    @inlinable
     func makeBounds() -> ElementBounds {
         t0.makeBounds()
         .union(t1.makeBounds())
@@ -44,6 +47,7 @@ extension BoundedTupleElement4: BoundedElement {
 }
 
 extension BoundedTupleElement5: BoundedElement {
+    @inlinable
     func makeBounds() -> ElementBounds {
         t0.makeBounds()
         .union(t1.makeBounds())
@@ -54,6 +58,7 @@ extension BoundedTupleElement5: BoundedElement {
 }
 
 extension BoundedTupleElement6: BoundedElement {
+    @inlinable
     func makeBounds() -> ElementBounds {
         t0.makeBounds()
         .union(t1.makeBounds())
@@ -65,6 +70,7 @@ extension BoundedTupleElement6: BoundedElement {
 }
 
 extension BoundedTupleElement7: BoundedElement {
+    @inlinable
     func makeBounds() -> ElementBounds {
         t0.makeBounds()
         .union(t1.makeBounds())
@@ -77,6 +83,7 @@ extension BoundedTupleElement7: BoundedElement {
 }
 
 extension BoundedTupleElement8: BoundedElement {
+    @inlinable
     func makeBounds() -> ElementBounds {
         t0.makeBounds()
         .union(t1.makeBounds())

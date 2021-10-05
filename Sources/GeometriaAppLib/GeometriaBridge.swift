@@ -30,6 +30,9 @@ public typealias RAABB2D = AABB2<RVector2D>
 /// AABB3 for Raytracing operations
 public typealias RAABB3D = AABB3<RVector3D>
 
+/// Cube3 for Raytracing operations
+public typealias RCube3D = Cube3<RVector3D>
+
 /// Line2 for Raytracing operations
 public typealias RLine2D = Line2<RVector2D>
 

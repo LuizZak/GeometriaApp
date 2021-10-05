@@ -1,4 +1,5 @@
 enum RaytracingDemoScene1 {
+    @inlinable
     static func makeScene() -> some RaytracingSceneType {
         let materials: MaterialMap = makeMaterialMap(MaterialMapEnum.self)
         

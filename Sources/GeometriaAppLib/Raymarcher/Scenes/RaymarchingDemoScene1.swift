@@ -10,7 +10,7 @@ enum RaymarchingDemoScene1 {
 
 @RaymarchingElementBuilder
 private func scene() -> some RaymarchingElement {
-    boundingBox {
+    group {
         group {
             makeBackAABB()
             makeTopAABB()

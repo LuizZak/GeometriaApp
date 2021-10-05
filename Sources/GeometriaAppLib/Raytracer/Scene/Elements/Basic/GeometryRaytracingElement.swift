@@ -1,6 +1,7 @@
 typealias GeometryRaytracingElement<T: Convex3Type> = GeometryElement<T> where T.Vector == RVector3D
 
 extension GeometryRaytracingElement: RaytracingElement {
+    @inlinable
     func raycast(query: RayQuery) -> RayQuery {
         guard !query.ignoring.shouldIgnoreFully(id: id) else {
             return query
@@ -17,6 +18,7 @@ extension GeometryRaytracingElement: RaytracingElement {
         return query.withHit(hit)
     }
 
+    @inlinable
     func raycast(query: RayQuery, results: inout [RayHit]) {
         guard !query.ignoring.shouldIgnoreFully(id: id) else {
             return
@@ -31,15 +33,5 @@ extension GeometryRaytracingElement: RaytracingElement {
         }
 
         results.append(hit)
-    }
-    
-    @_transparent
-    mutating func attributeIds(_ idFactory: inout ElementIdFactory) {
-        id = idFactory.makeId()
-    }
-
-    @_transparent
-    func queryScene(id: Int) -> RaytracingElement? {
-        id == self.id ? self : nil
     }
 }

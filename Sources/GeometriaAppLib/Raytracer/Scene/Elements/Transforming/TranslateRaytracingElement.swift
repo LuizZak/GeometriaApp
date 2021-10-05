@@ -1,6 +1,7 @@
 typealias TranslateRaytracingElement<T: RaytracingElement> = TranslateElement<T>
 
 extension TranslateRaytracingElement: RaytracingElement {
+    @inlinable
     func raycast(query: RayQuery) -> RayQuery {
         let offsetQuery = query.translated(by: -translation)
 
@@ -13,6 +14,7 @@ extension TranslateRaytracingElement: RaytracingElement {
         return offsetResult.translated(by: translation)
     }
 
+    @inlinable
     func raycast(query: RayQuery, results: inout [RayHit]) {
         element.raycast(query: query.translated(by: -translation), results: &results)
     }

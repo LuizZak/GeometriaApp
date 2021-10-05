@@ -17,6 +17,7 @@ extension GeometryElement: Element {
 }
 
 extension GeometryElement: BoundedElement where T: BoundableType, T.Vector == RVector3D {
+    @_transparent
     func makeBounds() -> ElementBounds {
         .makeBounds(for: geometry)
     }

@@ -1,6 +1,6 @@
-typealias CylinderRaytracingElement = CylinderElement
+typealias CubeRaytracingElement = CubeElement
 
-extension CylinderRaytracingElement: RaytracingElement {
+extension CubeRaytracingElement: RaytracingElement {
     @inlinable
     func raycast(query: RayQuery) -> RayQuery {
         guard !query.ignoring.shouldIgnoreFully(id: id) else {

@@ -88,7 +88,7 @@ private func makePillar(at point: RVector3D, height: Double, radius: Double) -> 
 private func cylinder(start: RVector3D, end: RVector3D, radius: Double) -> CylinderRaytracingElement {
     CylinderRaytracingElement(
         geometry: .init(start: start, end: end, radius: radius),
-        material: MaterialMapEnum.monument.rawValue
+        material: MaterialMapEnum.reflectivePillar.rawValue
     )
 }
 
@@ -109,6 +109,7 @@ private func makeFloorPlane() -> PlaneRaytracingElement {
 private enum MaterialMapEnum: Int, CaseIterable, MaterialMapEnumType {
     case floor = 1
     case monument = 2
+    case reflectivePillar = 3
 
     func makeMaterial() -> Material {
         switch self {
@@ -121,6 +122,18 @@ private enum MaterialMapEnum: Int, CaseIterable, MaterialMapEnumType {
         
         case .monument:
             return .solid(.white)
+
+        case .reflectivePillar:
+            return .diffuse(
+                .init(
+                    color: .init(r: 128, g: 128, b: 128, a: 255),
+                    bumpNoiseFrequency: 1.0,
+                    bumpMagnitude: 0.0,
+                    reflectivity: 0.0,
+                    transparency: 1.0,
+                    refractiveIndex: 1.3
+                )
+            )
         }
     }
 }

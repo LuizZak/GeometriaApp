@@ -288,10 +288,9 @@ final class Raytracer<SceneType: RaytracingSceneType>: RendererType {
     private func calculateShadow(for hit: RayHit) -> Double {
         let ray = RRay3D(start: hit.point, direction: -scene.sunDirection)
         
-        let intersections = scene.intersectAll(ray: ray, ignoring: .full(id: hit.id))
-
         var transparency: Double = 1.0
 
+        let intersections = scene.intersectAll(ray: ray, ignoring: .full(id: hit.id))
         for intersection in intersections {
             switch intersection.material.flatMap({ materialMapCache[$0] }) {
             case .diffuse(let material)?:

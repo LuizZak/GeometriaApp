@@ -4,10 +4,12 @@ struct TranslateElement<T: Element> {
 }
 
 extension TranslateElement: Element {
+    @_transparent
     mutating func attributeIds(_ idFactory: inout ElementIdFactory) {
         element.attributeIds(&idFactory)
     }
 
+    @_transparent
     func queryScene(id: Int) -> Element? {
         element.queryScene(id: id)
     }

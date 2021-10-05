@@ -17,6 +17,7 @@ extension AABBElement: Element {
 }
 
 extension AABBElement: BoundedElement {
+    @_transparent
     func makeBounds() -> ElementBounds {
         .makeBounds(for: geometry)
     }

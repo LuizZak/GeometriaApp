@@ -41,6 +41,14 @@ IF %CONFIG%=="debug" (
     )
 )
 
+IF %CONFIG%=="release" (
+    SET BUILD_ARGS=%BUILD_ARGS% -Xswiftc -g -Xswiftc -debug-info-format=codeview
+) ELSE (
+    IF %CONFIG%==release (
+        SET BUILD_ARGS=%BUILD_ARGS% -Xswiftc -g -Xswiftc -debug-info-format=codeview
+    )
+)
+
 @ECHO ON
 
 swift build %BUILD_ARGS%

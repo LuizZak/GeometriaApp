@@ -17,6 +17,7 @@ extension DiskElement: Element {
 }
 
 extension DiskElement: BoundedElement {
+    @_transparent
     func makeBounds() -> ElementBounds {
         .makeBounds(for: geometry)
     }

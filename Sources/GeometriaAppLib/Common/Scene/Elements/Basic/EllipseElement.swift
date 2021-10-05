@@ -17,6 +17,7 @@ extension EllipseElement: Element {
 }
 
 extension EllipseElement: BoundedElement {
+    @_transparent
     func makeBounds() -> ElementBounds {
         .makeBounds(for: geometry)
     }

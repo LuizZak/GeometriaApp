@@ -3,48 +3,6 @@ struct RaytracingElementBuilder {
 
     // MARK: Concrete types
 
-    static func buildExpression(_ value: RSphere3D) -> SphereRaytracingElement {
-        .init(geometry: value, material: MaterialId.defaultMaterial)
-    }
-    static func buildExpression(_ value: (RSphere3D, MaterialId)) -> SphereRaytracingElement {
-        .init(geometry: value.0, material: value.1)
-    }
-    
-    static func buildExpression(_ value: REllipse3D) -> EllipseRaytracingElement {
-        .init(geometry: value, material: MaterialId.defaultMaterial)
-    }
-    static func buildExpression(_ value: (REllipse3D, MaterialId)) -> EllipseRaytracingElement {
-        .init(geometry: value.0, material: value.1)
-    }
-
-    static func buildExpression(_ value: RAABB3D) -> AABBRaytracingElement {
-        .init(geometry: value, material: MaterialId.defaultMaterial)
-    }
-    static func buildExpression(_ value: (RAABB3D, MaterialId)) -> AABBRaytracingElement {
-        .init(geometry: value.0, material: value.1)
-    }
-
-    static func buildExpression(_ value: RCylinder3D) -> CylinderRaytracingElement {
-        .init(geometry: value, material: MaterialId.defaultMaterial)
-    }
-    static func buildExpression(_ value: (RCylinder3D, MaterialId)) -> CylinderRaytracingElement {
-        .init(geometry: value.0, material: value.1)
-    }
-
-    static func buildExpression(_ value: RPlane3D) -> PlaneRaytracingElement {
-        .init(geometry: value, material: MaterialId.defaultMaterial)
-    }
-    static func buildExpression(_ value: (RPlane3D, MaterialId)) -> PlaneRaytracingElement {
-        .init(geometry: value.0, material: value.1)
-    }
-    
-    static func buildExpression(_ value: RDisk3D) -> DiskRaytracingElement {
-        .init(geometry: value, material: MaterialId.defaultMaterial)
-    }
-    static func buildExpression(_ value: (RDisk3D, MaterialId)) -> DiskRaytracingElement {
-        .init(geometry: value.0, material: value.1)
-    }
-
     static func buildEither<T>(first component: T) -> T where T: RaytracingElement {
         component
     }

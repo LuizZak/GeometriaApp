@@ -2,6 +2,7 @@ typealias BoundingSphereRaytracingElement<T: RaytracingElement> =
     BoundingSphereElement<T>
 
 extension BoundingSphereRaytracingElement: RaytracingElement {
+    @inlinable
     func raycast(query: RayQuery) -> RayQuery {
         guard intersects(query: query) else {
             return query
@@ -10,6 +11,7 @@ extension BoundingSphereRaytracingElement: RaytracingElement {
         return element.raycast(query: query)
     }
 
+    @inlinable
     func raycast(query: RayQuery, results: inout [RayHit]) {
         guard intersects(query: query) else {
             return
@@ -18,7 +20,8 @@ extension BoundingSphereRaytracingElement: RaytracingElement {
         element.raycast(query: query, results: &results)
     }
 
-    private func intersects(query: RayQuery) -> Bool {
+    @inlinable
+    func intersects(query: RayQuery) -> Bool {
         query.rayMagnitudeSquared.isFinite 
             ? boundingSphere.intersects(line: query.lineSegment)
             : boundingSphere.intersects(line: query.ray)

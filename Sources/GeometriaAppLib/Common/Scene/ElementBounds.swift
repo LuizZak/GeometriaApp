@@ -69,12 +69,14 @@ extension ElementBounds {
 }
 
 extension BoundingBoxElement {
+    @_transparent
     init(element: T) where T: BoundedElement {
         self.init(element: element, boundingBox: element.makeBounds())
     }
 }
 
 extension BoundingSphereElement {
+    @_transparent
     init(element: T) where T: BoundedElement {
         let bounds = element.makeBounds()
         let boundsLength = bounds.maximum.distance(to: bounds.minimum)
