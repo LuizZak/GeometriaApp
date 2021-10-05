@@ -29,6 +29,17 @@ struct RayHit: Equatable {
         self.hitDirection = hitDirection
         self.material = material
     }
+
+    @_transparent
+    init(id: Int,
+         pointOfInterest: (point: RPointNormal3D, hitDirection: RayHit.HitDirection),
+         material: MaterialId?) {
+        
+        self.id = id
+        self.pointNormal = pointOfInterest.point
+        self.hitDirection = pointOfInterest.hitDirection
+        self.material = material
+    }
     
     @_transparent
     init?(findingPointOfInterestOf rayIgnore: RayIgnore,
@@ -40,7 +51,7 @@ struct RayHit: Equatable {
             return nil
         }
         
-        self.init(id: id, pointNormal: poi.point, hitDirection: poi.direction, material: material)
+        self.init(id: id, pointNormal: poi.point, hitDirection: poi.hitDirection, material: material)
     }
     
     /// Computes a new ``RayHit`` from the parameters of this instance, while
@@ -56,7 +67,7 @@ struct RayHit: Equatable {
             return nil
         }
         
-        return RayHit(id: id, pointNormal: poi.point, hitDirection: poi.direction, material: material)
+        return RayHit(id: id, pointNormal: poi.point, hitDirection: poi.hitDirection, material: material)
     }
 
     /// Translates the components of this ray hit, returning a new hit that is 

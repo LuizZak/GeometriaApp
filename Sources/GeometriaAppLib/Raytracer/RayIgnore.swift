@@ -45,7 +45,7 @@ enum RayIgnore: Equatable {
     /// is available, the exit point is returned, and if no exit point is
     /// available `nil` is then ultimately returned.
     func computePointNormalOfInterest(id: Int,
-                                      intersection: RConvexLineResult3D) -> (point: RPointNormal3D, direction: RayHit.HitDirection)? {
+                                      intersection: RConvexLineResult3D) -> (point: RPointNormal3D, hitDirection: RayHit.HitDirection)? {
         
         switch self {
         case .none:
@@ -102,7 +102,7 @@ enum RayIgnore: Equatable {
     /// is of interest, or if this ``RayIgnore`` rule instance ignores the only
     /// available intersection.
     func computePointNormalsOfInterest(id: Int,
-                                       intersection: RConvexLineResult3D) -> [(point: RPointNormal3D, direction: RayHit.HitDirection)]? {
+                                       intersection: RConvexLineResult3D) -> [(point: RPointNormal3D, hitDirection: RayHit.HitDirection)]? {
         
         // Pre-check before looking into each point normal
         switch self {
@@ -119,7 +119,7 @@ enum RayIgnore: Equatable {
         switch (self, intersection.entrancePoint, intersection.exitPoint) {
         case (_, nil, nil):
             return []
-            
+
         case (.entrance(id, _), _?, let exit?),
              (_, nil, let exit?):
             return [(exit, .outside)]
