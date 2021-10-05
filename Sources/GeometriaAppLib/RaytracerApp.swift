@@ -160,6 +160,7 @@ public class RaytracerApp: Blend2DApp {
 //        let batcher = SinglePixelBatcher(pixel: .init(x: 273, y: 150)) // Refractive cylinder
 //        let batcher = SinglePixelBatcher(pixel: .init(x: 172, y: 156)) // Bug in refractive bouncing in left sphere
 //        let batcher = SinglePixelBatcher(pixel: .init(x: 255, y: 224)) // Bug in refractive bouncing in cylinder's base
+//        let batcher = SinglePixelBatcher(pixel: .init(x: 720, y: 439)) // Top of cube-cylinder subtraction demo scene
         let batcher = TiledBatcher(splitting: viewportSize,
                                    estimatedThreadCount: threadCount * 2,
                                    shuffleOrder: true)

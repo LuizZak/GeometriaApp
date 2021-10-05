@@ -1,4 +1,6 @@
 struct SubtractionElement<T0: Element, T1: Element> {
+    var id: Int = 0
+    var materialId: Int? = nil
     var t0: T0
     var t1: T1
 }
@@ -6,12 +8,15 @@ struct SubtractionElement<T0: Element, T1: Element> {
 extension SubtractionElement: Element {
     @inlinable
     mutating func attributeIds(_ idFactory: inout ElementIdFactory) {
+        id = idFactory.makeId()
+        
         t0.attributeIds(&idFactory)
         t1.attributeIds(&idFactory)
     }
 
     @inlinable
     func queryScene(id: Int) -> Element? {
+        if id == self.id { return self }
         if let el = t0.queryScene(id: id) { return el }
         if let el = t1.queryScene(id: id) { return el }
 

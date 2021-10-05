@@ -88,5 +88,18 @@ struct RayHit: Equatable {
         case inside
         /// Ray hit the geometry from the outside in
         case outside
+        
+        /// Returns the opposite hit direction that this value represents.
+        ///
+        /// Returns `HitDirection.inside` if this value is `.outside`, and
+        /// `.outside` if this value is `.inside`.
+        var inverted: Self {
+            switch self {
+            case .inside:
+                return .outside
+            case .outside:
+                return .inside
+            }
+        }
     }
 }

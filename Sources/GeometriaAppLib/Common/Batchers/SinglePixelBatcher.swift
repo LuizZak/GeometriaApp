@@ -1,3 +1,5 @@
+import Geometry
+
 /// Batcher that serves a single pixel to render.
 /// Used for debugging.
 class SinglePixelBatcher: RenderingBatcher {
@@ -22,6 +24,10 @@ class SinglePixelBatcher: RenderingBatcher {
         }
         
         hasBatches = false
+        
+        if pixel < .zero || !(pixel < viewportSize) {
+            return nil
+        }
         
         return SinglePixelBatch(pixel: pixel)
     }

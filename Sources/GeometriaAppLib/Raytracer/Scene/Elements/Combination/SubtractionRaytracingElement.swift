@@ -4,6 +4,10 @@ typealias SubtractionRaytracingElement<T0: RaytracingElement, T1: RaytracingElem
 extension SubtractionRaytracingElement: RaytracingElement {
     @inlinable
     func raycast(query: RayQuery) -> RayQuery {
+        if query.ignoring.shouldIgnoreFully(id: id) {
+            return query
+        }
+        
         // For raytracing subtractions, any ray hit on the subtracted geometry and 
         // overlaps the second geometry is ignored. When this occurs, the hit
         // is moved to the end of the subtracting geometry, unless that intersection
@@ -21,6 +25,10 @@ extension SubtractionRaytracingElement: RaytracingElement {
 
     @inlinable
     func raycast(query: RayQuery, results: inout [RayHit]) {
+        if query.ignoring.shouldIgnoreFully(id: id) {
+            return
+        }
+        
         let noHitQuery = query.withNilHit()
 
         var t0Hits: [RayHit] = []
@@ -48,51 +56,71 @@ extension SubtractionRaytracingElement: RaytracingElement {
             $0.distanceSquared < $1.distanceSquared
         }
 
-        func isExcluded(_ index: Int) -> Bool {
+        func isT0Included(_ index: Int) -> Bool {
+            assert(combined[index].isT0, "isExcluded must be called on t0 hits")
+            
             if index > 0 {
-                for i in (0..<index).reversed() {
-                    if !combined[i].isT0 && combined[i].state == .left {
-                        return true
-                    }
+                for i in (0..<index).reversed() where !combined[i].isT0 {
+                    return combined[i].state == .right
                 }
             }
             if index < combined.count - 1 {
-                for i in (index + 1)..<combined.count {
-                    if !combined[i].isT0 && combined[i].state == .right {
-                        return true
-                    }
+                for i in (index + 1)..<combined.count where !combined[i].isT0 {
+                    return combined[i].state == .left
                 }
             }
-            return false
-        }
-
-        // Sweep the list and exclude t0 hit points that are surrounded by 
-        // opposing t1 points
-        var index = 0
-        while index < combined.count {
-            if combined[index].isT0 && isExcluded(index) {
-                combined.remove(at: index)
-            } else {
-                index += 1
-            }
-        }
-
-        // Now only include in the result any hit point that is followed by a
-        // hit point of opposite direction
-        var included: [RayHit] = []
-        var previous: RayHitInfo?
-        for info in combined {
-            if let previous = previous {
-                if previous.state == .left && info.state == .right || previous.state == .right && info.state == .left {
-                    included.append(previous.asRayHit)
-                    included.append(info.asRayHit)
-                }
-            }
-            
-            previous = info
+            return true
         }
         
-        results.append(contentsOf: included)
+        func isT1Included(_ index: Int) -> Bool {
+            assert(!combined[index].isT0, "isIncluded must be called on t1 hits")
+            
+            if index > 0 {
+                for i in (0..<index).reversed() where combined[i].isT0 {
+                    return combined[i].state == .right
+                }
+            }
+            if index < combined.count - 1 {
+                for i in (index + 1)..<combined.count where combined[i].isT0 {
+                    return combined[i].state == .left
+                }
+            }
+            return true
+        }
+        
+        var included: [RayHit] = []
+        var index = 0
+        
+        // Sweep the list and exclude t0 hit points that are surrounded by 
+        // opposing t1 points
+        index = 0
+        while index < combined.count {
+            defer { index += 1 }
+            let hit = combined[index]
+            if hit.isT0 {
+                if isT0Included(index) {
+                    included.append(hit.asRayHit)
+                }
+            } else {
+                if isT1Included(index) {
+                    // Flip the reported direction of the hit (intersections on
+                    // the subtracting geometry are actually flipped inside out)
+                    var t1Hit = hit.asRayHit
+                    t1Hit.hitDirection = t1Hit.hitDirection.inverted
+                    included.append(t1Hit)
+                }
+            }
+        }
+        
+        // TODO: Figure out better way to express material replacement
+        // TODO: Maybe make SubtractionElement its own class of geometry with
+        // TODO: unique ID and material support?
+        results.append(contentsOf: included.map { hit in
+            var hit = hit
+            hit.id = id
+            hit.material = materialId ?? t0Hits[0].material
+            return hit
+        })
     }
 }
 
@@ -132,7 +160,9 @@ private enum RayHitInfo {
 
     var asRayHit: RayHit {
         switch self {
-        case .t0(let hit, _), .t1(let hit, _):
+        case .t0(let hit, _):
+            return hit
+        case .t1(let hit, _):
             return hit
         }
     }

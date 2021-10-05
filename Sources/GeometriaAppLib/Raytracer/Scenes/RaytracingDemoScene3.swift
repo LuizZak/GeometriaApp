@@ -18,7 +18,7 @@ private func scene() -> some RaytracingElement {
         )
         makeCylinder(
             center: .init(x: 0, y: 100, z: 40),
-            length: 50,
+            length: 40,
             radius: 10
         )
     }.makeBoundingBox()
