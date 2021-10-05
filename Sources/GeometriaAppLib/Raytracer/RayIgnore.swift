@@ -94,6 +94,44 @@ enum RayIgnore: Equatable {
         
         return nil
     }
+
+    /// Using a given geometry intersection result, specified which of the
+    /// points on the intersection are the points-of-interest for the intersection.
+    ///
+    /// Returns an empty array in case none of the available intersection points 
+    /// is of interest, or if this ``RayIgnore`` rule instance ignores the only
+    /// available intersection.
+    func computePointNormalsOfInterest(id: Int,
+                                       intersection: RConvexLineResult3D) -> [(point: RPointNormal3D, direction: RayHit.HitDirection)]? {
+        
+        // Pre-check before looking into each point normal
+        switch self {
+        case let .singleId(geoId, ignore) where geoId == id:
+            return ignore.computePointNormalsOfInterest(id: id, intersection: intersection)
+
+        case .full(let geoId) where geoId == id:
+            return []
+
+        default:
+            break
+        }
+
+        switch (self, intersection.entrancePoint, intersection.exitPoint) {
+        case (_, nil, nil):
+            return []
+            
+        case (.entrance(id, _), _?, let exit?),
+             (_, nil, let exit?):
+            return [(exit, .outside)]
+
+        case (.exit(id, _), let enter?, _?),
+             (_, let enter?, nil):
+            return [(enter, .inside)]
+            
+        case (_, let enter?, let exit?):
+            return [(enter, .outside), (exit, .inside)]
+        }
+    }
 }
 
 private extension RConvexLineResult3D {
