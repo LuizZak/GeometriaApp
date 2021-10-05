@@ -11,7 +11,7 @@ enum RaytracingDemoScene3 {
 
 @RaytracingElementBuilder
 private func scene() -> some RaytracingElement {
-    group {
+    subtraction {
         makeCube(
             center: .init(x: 0, y: 100, z: 40),
             sideLength: 30
@@ -21,7 +21,7 @@ private func scene() -> some RaytracingElement {
             length: 50,
             radius: 10
         )
-    }
+    }.makeBoundingBox()
     
     makeFloorPlane()
 }

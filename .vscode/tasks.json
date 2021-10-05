@@ -15,10 +15,7 @@
             "presentation": {
                 "reveal": "always"
             },
-            "group": {
-                "kind": "build",
-                "isDefault": true
-            },
+            "group": "build",
             "windows": {
                 "options": {
                     "shell": {

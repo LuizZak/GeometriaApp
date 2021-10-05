@@ -49,6 +49,8 @@ IF %CONFIG%=="release" (
     )
 )
 
+CHCP 65001
+
 @ECHO ON
 
 swift build %BUILD_ARGS%

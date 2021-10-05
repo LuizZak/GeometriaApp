@@ -16,7 +16,14 @@ struct RayQuery: Equatable {
     var lastHit: RayHit?
     
     var ignoring: RayIgnore
+
+    /// Returns a copy of this query with no hit information attributed.
+    @_transparent
+    func withNilHit() -> RayQuery {
+        .init(ray: ray, ignoring: ignoring)
+    }
     
+    @inlinable
     func withHit(_ rayHit: RayHit) -> RayQuery {
         let point = rayHit.point
         let magnitudeSquared = point.distanceSquared(to: ray.start)
@@ -83,7 +90,8 @@ extension RayQuery {
             ignoring: ignoring
         )
     }
-
+    
+    @inlinable
     func intersect<Convex: Convex3Type>(_ geometry: Convex) -> RConvexLineResult3D where Convex.Vector == RVector3D {
         let intersection = 
             rayMagnitudeSquared.isFinite
@@ -107,6 +115,7 @@ extension RayQuery {
         }
     }
     
+    @inlinable
     func intersect<Plane: LineIntersectablePlaneType>(_ geometry: Plane) -> RConvexLineResult3D where Plane.Vector == RVector3D {
         guard let inter = intersection(geometry) else {
             return .noIntersection

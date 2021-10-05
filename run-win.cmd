@@ -9,8 +9,6 @@ IF %errorlevel% neq 0 (
 
 ECHO Executing...
 
-CHCP 65001
-
 IF "%~1"=="" (
     SET CONFIG=debug
 ) ELSE (

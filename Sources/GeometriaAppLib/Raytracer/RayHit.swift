@@ -81,11 +81,12 @@ struct RayHit: Equatable {
         return hit
     }
     
-    /// Specifies where the ray hit the geometry.
+    /// Specifies the direction of the ray when it hit the boundaries of 
+    /// a geometry.
     enum HitDirection {
-        /// Ray hit the geometry from the inside
+        /// Ray hit the geometry from the inside out
         case inside
-        /// Ray hit the geometry from the outside
+        /// Ray hit the geometry from the outside in
         case outside
     }
 }
