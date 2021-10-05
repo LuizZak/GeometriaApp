@@ -1,6 +1,8 @@
 enum RaymarchingDemoScene1 {
     static func makeScene() -> some RaymarchingSceneType {
-        RaymarchingElementBuilder.makeScene(skyColor: .cornflowerBlue) {
+        let materials: [Int: Material] = makeMaterialMap(MaterialId.self)
+
+        return RaymarchingElementBuilder.makeScene(skyColor: .cornflowerBlue, materials: materials) {
             scene()
         }
     }
@@ -22,7 +24,7 @@ private func scene() -> some RaymarchingElement {
                 .makeBoundingBox()
         }
         
-        subtraction {
+        intersection {
             makeCylinder()
             makeBumpySphere()
         }
@@ -149,4 +151,68 @@ private func makeFloorPlane() -> PlaneRaymarchingElement {
             color2: .black
         )
     )
+}
+
+private enum MaterialId: Int, CaseIterable, MaterialMapType {
+    case floor = 1
+    case disk = 2
+    case backAABB = 3
+    case bumpy = 4
+    case cylinder = 5
+    case shiny = 6
+
+    func makeMaterial() -> Material {
+        switch self {
+        case .floor:
+            return .checkerboard(
+                size: 50.0, 
+                color1: .white, 
+                color2: .black
+            )
+        
+        case .disk:
+            return .target(
+                center: .init(x: -10, y: 110, z: 20),
+                stripeFrequency: 5.0,
+                color1: .red,
+                color2: .white
+            )
+        
+        case .backAABB:
+            return .diffuse(
+                .init(color: .indianRed)
+            )
+        
+        case .bumpy:
+            return .diffuse(
+                .init(
+                    bumpNoiseFrequency: 1.0,
+                    bumpMagnitude: 1.0 / 40.0,
+                    reflectivity: 0.4
+                )
+            )
+
+        case .cylinder:
+            return .diffuse(
+                .init(
+                    color: .init(r: 128, g: 128, b: 128, a: 255),
+                    bumpNoiseFrequency: 1.0,
+                    bumpMagnitude: 0.0,
+                    reflectivity: 0.0,
+                    transparency: 1.0,
+                    refractiveIndex: 1.3
+                )
+            )
+
+        case .shiny:
+            return .diffuse(
+                .init(
+                    color: .gray,
+                    reflectivity: 0.6,
+                    transparency: 1.0,
+                    refractiveIndex: 1.3
+                )
+            )
+        }
+    }
 }

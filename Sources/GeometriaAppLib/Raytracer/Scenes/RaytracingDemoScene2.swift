@@ -2,7 +2,11 @@ import SwiftBlend2D
 
 enum RaytracingDemoScene2 {
     static func makeScene() -> some RaytracingSceneType {
-        RaytracingElementBuilder.makeScene(skyColor: .cornflowerBlue) {
+        let materials: [Int: Material] = [
+            :
+        ]
+        
+        return RaytracingElementBuilder.makeScene(skyColor: .cornflowerBlue, materials: materials) {
             scene()
         }
     }

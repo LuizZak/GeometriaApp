@@ -28,10 +28,13 @@ extension IntersectionElement: Element {
 }
 
 extension IntersectionElement: BoundedElement where T0: BoundedElement, T1: BoundedElement {
-    // TODO: Not ideal to create a bound out of the union here, but it's better
-    // TODO: than not being bounded at all. Replace with .intersection() later?
+    // TODO: Bounds are guaranteed to be no bigger than the intersection area
+    // TODO: between t0 and t1, but maybe there are better ways to generate a 
+    // TODO: bounding box here.
     func makeBounds() -> ElementBounds {
-        t0.makeBounds().union(t1.makeBounds())
+        let t0Bounds = t0.makeBounds()
+
+        return t0Bounds.intersection(t1.makeBounds()) ?? t0Bounds
     }
 }
 

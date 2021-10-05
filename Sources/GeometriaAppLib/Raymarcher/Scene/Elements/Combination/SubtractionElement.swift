@@ -28,10 +28,10 @@ extension SubtractionElement: Element {
 }
 
 extension SubtractionElement: BoundedElement where T0: BoundedElement, T1: BoundedElement {
-    // TODO: Not ideal to create a bound out of the union here, but it's better
-    // TODO: than not being bounded at all.
+    // TODO: Bounds are guaranteed to be no bigger than t0, but maybe there are
+    // TODO: better ways to generate a bounding box here.
     func makeBounds() -> RaymarchingBounds {
-        t0.makeBounds().union(t1.makeBounds())
+        t0.makeBounds()
     }
 }
 

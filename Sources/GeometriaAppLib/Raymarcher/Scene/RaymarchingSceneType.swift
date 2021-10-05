@@ -1,6 +1,6 @@
 import SwiftBlend2D
 
-protocol RaymarchingSceneType {
+protocol RaymarchingSceneType: SceneType {
     var skyColor: BLRgba32 { get }
     var sunDirection: RVector3D { get }
 

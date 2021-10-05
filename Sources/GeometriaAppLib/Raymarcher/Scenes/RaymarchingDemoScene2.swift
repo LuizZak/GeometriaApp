@@ -2,7 +2,11 @@ import SwiftBlend2D
 
 enum RaymarchingDemoScene2 {
     static func makeScene() -> some RaymarchingSceneType {
-        RaymarchingElementBuilder.makeScene(skyColor: .cornflowerBlue) {
+        let materials: [Int: Material] = [
+            :
+        ]
+        
+        return RaymarchingElementBuilder.makeScene(skyColor: .cornflowerBlue, materials: materials) {
             scene()
         }
     }
