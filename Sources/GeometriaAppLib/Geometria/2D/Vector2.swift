@@ -1,16 +1,5 @@
 import RealModule
 
-/// Represents a 2D point with two double-precision floating-point components
-public typealias Vector2D = Vector2//<Double>
-
-/*
-/// Represents a 2D point with two single-precision floating-point components
-public typealias Vector2F = Vector2<Float>
-
-/// Represents a 2D point with two `Int` components
-public typealias Vector2i = Vector2<Int>
-*/
-
 /// A two-component vector type
 public struct Vector2: Hashable, Codable, Vector2Type {
     public typealias Scalar = Double

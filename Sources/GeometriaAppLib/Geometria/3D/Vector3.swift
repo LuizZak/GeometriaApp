@@ -1,8 +1,5 @@
 import RealModule
 
-/// Represents a 3D point with three double-precision floating-point components
-public typealias Vector3D = Vector3//<Double>
-
 /// A three-component vector type
 public struct Vector3: Hashable, Codable, Vector3Type {
     public typealias Scalar = Double
