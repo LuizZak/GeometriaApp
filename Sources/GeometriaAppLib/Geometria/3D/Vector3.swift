@@ -258,7 +258,12 @@ extension Vector3: VectorFloatingPoint {
     /// - Returns: The product of `lhs` and `rhs`, added to this vector.
     @_transparent
     public func addingProduct(_ a: Self, _ b: Self) -> Self {
+        // TODO: Seeing very small performance degradations with fma on Windows, check causes more thoroughly later
+        #if os(Windows)
+        self + a * b
+        #else
         Self(x: x.addingProduct(a.x, b.x), y: y.addingProduct(a.y, b.y), z: z.addingProduct(a.z, b.z))
+        #endif
     }
     
     /// Returns the result of adding the product of the given scalar and vector
@@ -272,7 +277,11 @@ extension Vector3: VectorFloatingPoint {
     /// - Returns: The product of `lhs` and `rhs`, added to this vector.
     @_transparent
     public func addingProduct(_ a: Scalar, _ b: Self) -> Self {
+        #if os(Windows)
+        self + a * b
+        #else
         Self(x: x.addingProduct(a, b.x), y: y.addingProduct(a, b.y), z: z.addingProduct(a, b.z))
+        #endif
     }
     
     /// Returns the result of adding the product of the given vector and scalar
@@ -286,7 +295,11 @@ extension Vector3: VectorFloatingPoint {
     /// - Returns: The product of `lhs` and `rhs`, added to this vector.
     @_transparent
     public func addingProduct(_ a: Self, _ b: Scalar) -> Self {
+        #if os(Windows)
+        self + a * b
+        #else
         Self(x: x.addingProduct(a.x, b), y: y.addingProduct(a.y, b), z: z.addingProduct(a.z, b))
+        #endif
     }
     
     /// Rounds the components of this `Vector3Type` using a given

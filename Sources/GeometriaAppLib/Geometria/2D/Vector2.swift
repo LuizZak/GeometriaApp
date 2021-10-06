@@ -294,6 +294,7 @@ extension Vector2: VectorFloatingPoint {
     ///   - lhs: One of the vectors to multiply before adding to this vector.
     ///   - rhs: The other vector to multiply.
     /// - Returns: The product of `lhs` and `rhs`, added to this vector.
+    @_transparent
     public func addingProduct(_ a: Self, _ b: Self) -> Self {
         Self(x: x.addingProduct(a.x, b.x), y: y.addingProduct(a.y, b.y))
     }
@@ -307,6 +308,7 @@ extension Vector2: VectorFloatingPoint {
     ///   - lhs: A scalar to multiply before adding to this vector.
     ///   - rhs: A vector to multiply.
     /// - Returns: The product of `lhs` and `rhs`, added to this vector.
+    @_transparent
     public func addingProduct(_ a: Scalar, _ b: Self) -> Self {
         Self(x: x.addingProduct(a, b.x), y: y.addingProduct(a, b.y))
     }
@@ -320,6 +322,7 @@ extension Vector2: VectorFloatingPoint {
     ///   - lhs: A vector to multiply before adding to this vector.
     ///   - rhs: A scalar to multiply.
     /// - Returns: The product of `lhs` and `rhs`, added to this vector.
+    @_transparent
     public func addingProduct(_ a: Self, _ b: Scalar) -> Self {
         Self(x: x.addingProduct(a.x, b), y: y.addingProduct(a.y, b))
     }

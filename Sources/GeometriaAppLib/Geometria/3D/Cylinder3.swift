@@ -157,7 +157,7 @@ extension Cylinder3: PointProjectableType where Vector: Vector3FloatingPoint {
     }
 }
 
-extension Cylinder3: SignedDistanceMeasurableType where Vector: VectorFloatingPoint {
+extension Cylinder3: SignedDistanceMeasurableType where Vector: Vector3FloatingPoint {
     @inlinable
     public func signedDistance(to point: Vector) -> Vector.Scalar {
         // Derived from:
