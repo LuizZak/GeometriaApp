@@ -14,7 +14,7 @@ enum RayIgnore: Equatable {
 
     /// A ray ignore that only affects a single ID, and all other IDs are
     /// ignored.
-    indirect case singleId(id: Int, RayIgnore)
+    indirect case allButSingleId(id: Int, RayIgnore)
     
     /// Returns `true` iff this ``RayIgnore`` instance is `.full` case, with the
     /// given geometry assigned.
@@ -22,13 +22,48 @@ enum RayIgnore: Equatable {
         switch self {
         case .full(let geoId):
             return geoId == id
-        case let .singleId(geoId, ignore):
+
+        case let .allButSingleId(geoId, ignore):
             if geoId != id {
                 return true
             }
 
             return ignore.shouldIgnoreFully(id: geoId)
+
         case .none, .entrance, .exit:
+            return false
+        }
+    }
+
+    /// Returns `true` if this ``RayIgnore`` is configured to ignore a particular
+    /// ray hit configuration based on its id and hit direction.
+    func shouldIgnore(hit: RayHit) -> Bool {
+        switch self {
+        case .full(let geoId):
+            return geoId == hit.id
+        
+        case .entrance(let geoId, _):
+            if geoId != hit.id {
+                return false
+            }
+
+            return hit.hitDirection == .inside
+        
+        case .exit(let geoId, _):
+            if geoId != hit.id {
+                return false
+            }
+
+            return hit.hitDirection == .outside
+
+        case let .allButSingleId(geoId, ignore):
+            if geoId != hit.id {
+                return true
+            }
+
+            return ignore.shouldIgnore(hit: hit)
+
+        case .none:
             return false
         }
     }
@@ -51,7 +86,7 @@ enum RayIgnore: Equatable {
         case .none:
             break
 
-        case let .singleId(geoId, ignore):
+        case let .allButSingleId(geoId, ignore):
             if geoId != id {
                 return nil
             }
@@ -106,7 +141,7 @@ enum RayIgnore: Equatable {
         
         // Pre-check before looking into each point normal
         switch self {
-        case let .singleId(geoId, ignore) where geoId == id:
+        case let .allButSingleId(geoId, ignore) where geoId == id:
             return ignore.computePointNormalsOfInterest(id: id, intersection: intersection)
 
         case .full(let geoId) where geoId == id:

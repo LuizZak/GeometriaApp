@@ -4,7 +4,7 @@ typealias IntersectionRaytracingElement<T0: RaytracingElement, T1: RaytracingEle
 extension IntersectionRaytracingElement: RaytracingElement {
     @inlinable
     func raycast(query: RayQuery) -> RayQuery {
-        if query.ignoring.shouldIgnoreFully(id: id) {
+        guard !query.ignoring.shouldIgnoreFully(id: id) else {
             return query
         }
         
@@ -22,7 +22,7 @@ extension IntersectionRaytracingElement: RaytracingElement {
 
     @inlinable
     func raycast(query: RayQuery, results: inout [RayHit]) {
-        if query.ignoring.shouldIgnoreFully(id: id) {
+        guard !query.ignoring.shouldIgnoreFully(id: id) else {
             return
         }
         
@@ -78,24 +78,25 @@ extension IntersectionRaytracingElement: RaytracingElement {
             }
             return false
         }
-        
+
         var included: [RayHit] = []
         var index = 0
         
-        // Sweep the list and exclude t0 hit points that are surrounded by 
-        // opposing t1 points
         index = 0
         while index < combined.count {
             defer { index += 1 }
             let hit = combined[index]
-            if hit.isT0 {
-                if isT0Included(index) {
-                    included.append(hit.asRayHit)
-                }
-            } else {
-                if isT1Included(index) {
-                    included.append(hit.asRayHit)
-                }
+            var rayHit = hit.asRayHit
+            rayHit.id = id
+
+            if query.ignoring.shouldIgnore(hit: rayHit) {
+                continue
+            }
+
+            if hit.isT0 && isT0Included(index) {
+                included.append(rayHit)
+            } else if !hit.isT0 && isT1Included(index) {
+                included.append(rayHit)
             }
         }
         

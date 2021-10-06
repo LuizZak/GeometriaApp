@@ -22,8 +22,7 @@ private func scene() -> some RaytracingElement {
                 radius: 20
             )
         }
-        .makeBoundingBox()
-
+        
         makeCylinder(
             center: .init(x: 0, y: 100, z: 40),
             direction: .unitZ,
@@ -32,13 +31,13 @@ private func scene() -> some RaytracingElement {
         )
         makeCylinder(
             center: .init(x: 0, y: 100, z: 40),
-            direction: .unitY,
+            direction: .unitX,
             length: 40,
             radius: 10
         )
         makeCylinder(
             center: .init(x: 0, y: 100, z: 40),
-            direction: .unitX,
+            direction: .unitY,
             length: 40,
             radius: 10
         )

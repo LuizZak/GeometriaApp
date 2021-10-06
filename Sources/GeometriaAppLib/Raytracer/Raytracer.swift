@@ -14,7 +14,7 @@ final class Raytracer<SceneType: RaytracingSceneType>: RendererType {
     private let bias: Double = 0.0001
     
     var isMultiThreaded: Bool = false
-    var maxBounces: Int = 5
+    var maxBounces: Int = 15
     var scene: SceneType
     var camera: Camera
     var viewportSize: ViewportSize
@@ -150,14 +150,14 @@ final class Raytracer<SceneType: RaytracingSceneType>: RendererType {
                     // Allow bouncing out of the geometry, but not in
                     let minDist = 0.01
                     let minDistSq = minDist * minDist
-                    rayIgnore = .entrance(id: hit.id, minimumRayLengthSquared: minDist * minDist)
+                    rayIgnore = .entrance(id: hit.id, minimumRayLengthSquared: minDistSq)
                     // Do a sanitity check that the ray isn't going to collide
                     // immediately with the same geometry - if it does, skip the
                     // geometry fully in the subsequent raycast
                     let innerHit = 
                     scene.intersect(
                         ray: innerRay, 
-                        ignoring: .singleId(id: hit.id, rayIgnore)
+                        ignoring: .allButSingleId(id: hit.id, rayIgnore)
                     )
 
                     if let innerHit = innerHit, innerHit.point.distanceSquared(to: hit.point) <= minDistSq {

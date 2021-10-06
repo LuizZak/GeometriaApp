@@ -4,7 +4,7 @@ typealias SubtractionRaytracingElement<T0: RaytracingElement, T1: RaytracingElem
 extension SubtractionRaytracingElement: RaytracingElement {
     @inlinable
     func raycast(query: RayQuery) -> RayQuery {
-        if query.ignoring.shouldIgnoreFully(id: id) {
+        guard !query.ignoring.shouldIgnoreFully(id: id) else {
             return query
         }
         
@@ -22,7 +22,7 @@ extension SubtractionRaytracingElement: RaytracingElement {
 
     @inlinable
     func raycast(query: RayQuery, results: inout [RayHit]) {
-        if query.ignoring.shouldIgnoreFully(id: id) {
+        guard !query.ignoring.shouldIgnoreFully(id: id) else {
             return
         }
         
@@ -94,24 +94,27 @@ extension SubtractionRaytracingElement: RaytracingElement {
         var included: [RayHit] = []
         var index = 0
         
-        // Sweep the list and exclude t0 hit points that are surrounded by 
-        // opposing t1 points
         index = 0
         while index < combined.count {
             defer { index += 1 }
             let hit = combined[index]
-            if hit.isT0 {
-                if isT0Included(index) {
-                    included.append(hit.asRayHit)
-                }
-            } else {
-                if isT1Included(index) {
-                    // Flip the reported direction of the hit (intersections on
-                    // the subtracting geometry are actually flipped inside out)
-                    var t1Hit = hit.asRayHit
-                    t1Hit.hitDirection = t1Hit.hitDirection.inverted
-                    included.append(t1Hit)
-                }
+            var rayHit = hit.asRayHit
+            rayHit.id = id
+
+            // Flip the reported direction of t1 hits (intersections on the 
+            // subtracting geometry are actually flipped inside out)
+            if !hit.isT0 {
+                rayHit.hitDirection = rayHit.hitDirection.inverted
+            }
+
+            if query.ignoring.shouldIgnore(hit: rayHit) {
+                continue
+            }
+
+            if hit.isT0 && isT0Included(index) {
+                included.append(rayHit)
+            } else if !hit.isT0 && isT1Included(index) {
+                included.append(rayHit)
             }
         }
         
