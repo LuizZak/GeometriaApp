@@ -26,7 +26,8 @@ extension IntersectionRaytracingElement: RaytracingElement {
             return
         }
         
-        let noHitQuery = query.withNilHit()
+        var noHitQuery = query.withNilHit()
+        noHitQuery.ignoring = .none
 
         // TODO: Fix RayQuery.ignoring for intersection queries
         var t0Hits: [RayHit] = []
