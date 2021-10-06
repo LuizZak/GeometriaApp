@@ -20,6 +20,15 @@
         }
       },
       {
+        "package": "ImagineUI-Win",
+        "repositoryURL": "https://github.com/LuizZak/ImagineUI-Win.git",
+        "state": {
+          "branch": "main",
+          "revision": "12fc0c0a29c6c615ccd4d34f45d062b0e90a2743",
+          "version": null
+        }
+      },
+      {
         "package": "SwiftBlend2D",
         "repositoryURL": "https://github.com/LuizZak/swift-blend2d.git",
         "state": {
@@ -29,11 +38,20 @@
         }
       },
       {
-        "package": "LibPNG",
-        "repositoryURL": "https://github.com/LuizZak/swift-libpng.git",
+        "package": "SwiftCOM",
+        "repositoryURL": "https://github.com/compnerd/swift-com.git",
         "state": {
-          "branch": "master",
-          "revision": "1d5b94c822dde80c4c2d7d742cd50d1d83c5abb1",
+          "branch": "main",
+          "revision": "ca762e3af3fca67ed7374e20e11ba719d9f691c6",
+          "version": null
+        }
+      },
+      {
+        "package": "swift-log",
+        "repositoryURL": "https://github.com/apple/swift-log.git",
+        "state": {
+          "branch": "main",
+          "revision": "a7e6d7fef58b8909ec9463a492e257ab00d89a4b",
           "version": null
         }
       },

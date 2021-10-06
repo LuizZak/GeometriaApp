@@ -1,25 +1,22 @@
-// Reference for distance function modifiers:
-// https://www.iquilezles.org/www/articles/distfunctions/distfunctions.htm
-struct IntersectionElement<T0: RaymarchingElement, T1: RaymarchingElement>: RaymarchingElement {
+struct IntersectionElement<T0: Element, T1: Element> {
+    var id: Int = 0
+    var materialId: Int? = nil
     var t0: T0
     var t1: T1
-
-    @inlinable
-    func signedDistance(to point: RVector3D, current: RaymarchingResult) -> RaymarchingResult {
-        let v0 = t0.signedDistance(to: point, current: current)
-        let v1 = t1.signedDistance(to: point, current: current)
-        
-        return min(current, max(v0, v1))
-    }
 }
 
 extension IntersectionElement: Element {
+    @inlinable
     mutating func attributeIds(_ idFactory: inout ElementIdFactory) {
+        id = idFactory.makeId()
+        
         t0.attributeIds(&idFactory)
         t1.attributeIds(&idFactory)
     }
 
+    @inlinable
     func queryScene(id: Int) -> Element? {
+        if id == self.id { return self }
         if let el = t0.queryScene(id: id) { return el }
         if let el = t1.queryScene(id: id) { return el }
 
@@ -39,7 +36,7 @@ extension IntersectionElement: BoundedElement where T0: BoundedElement, T1: Boun
 }
 
 @_transparent
-func intersection<T0, T1>(@RaymarchingElementBuilder _ builder: () -> TupleRaymarchingElement2<T0, T1>) -> IntersectionElement<T0, T1> {
+func intersection<T0, T1>(@ElementBuilder _ builder: () -> TupleElement2<T0, T1>) -> IntersectionElement<T0, T1> {
     let value = builder()
 
     return .init(t0: value.t0, t1: value.t1)

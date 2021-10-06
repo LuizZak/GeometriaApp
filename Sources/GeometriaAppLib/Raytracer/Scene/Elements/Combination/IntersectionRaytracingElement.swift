@@ -1,7 +1,7 @@
-typealias SubtractionRaytracingElement<T0: RaytracingElement, T1: RaytracingElement> =
-    SubtractionElement<T0, T1>
+typealias IntersectionRaytracingElement<T0: RaytracingElement, T1: RaytracingElement> =
+    IntersectionElement<T0, T1>
 
-extension SubtractionRaytracingElement: RaytracingElement {
+extension IntersectionRaytracingElement: RaytracingElement {
     @inlinable
     func raycast(query: RayQuery) -> RayQuery {
         if query.ignoring.shouldIgnoreFully(id: id) {
@@ -25,23 +25,11 @@ extension SubtractionRaytracingElement: RaytracingElement {
             return
         }
         
-        // For raytracing subtractions, any ray hit on the subtracted geometry 
-        // that  overlaps the second geometry is ignored. When this occurs, the 
-        // hit is moved to the end of the subtracting geometry, unless that 
-        // intersection itself is not contained within the subtracted geometry.
-
         let noHitQuery = query.withNilHit()
 
         var t0Hits: [RayHit] = []
-        t0.raycast(query: noHitQuery, results: &t0Hits)
-
-        // If t0 is not intersected by the ray, it means we are no longer within
-        // its bounds and thus there's no geometry left to subtract.
-        if t0Hits.isEmpty {
-            return
-        }
-
         var t1Hits: [RayHit] = []
+        t0.raycast(query: noHitQuery, results: &t0Hits)
         t1.raycast(query: noHitQuery, results: &t1Hits)
 
         var combined: [RayHitInfo] = []
@@ -62,15 +50,15 @@ extension SubtractionRaytracingElement: RaytracingElement {
             
             if index > 0 {
                 for i in (0..<index).reversed() where !combined[i].isT0 {
-                    return combined[i].state == .right
+                    return combined[i].state == .left
                 }
             }
             if index < combined.count - 1 {
                 for i in (index + 1)..<combined.count where !combined[i].isT0 {
-                    return combined[i].state == .left
+                    return combined[i].state == .right
                 }
             }
-            return true
+            return false
         }
         
         func isT1Included(_ index: Int) -> Bool {
@@ -78,15 +66,15 @@ extension SubtractionRaytracingElement: RaytracingElement {
             
             if index > 0 {
                 for i in (0..<index).reversed() where combined[i].isT0 {
-                    return combined[i].state == .right
+                    return combined[i].state == .left
                 }
             }
             if index < combined.count - 1 {
                 for i in (index + 1)..<combined.count where combined[i].isT0 {
-                    return combined[i].state == .left
+                    return combined[i].state == .right
                 }
             }
-            return true
+            return false
         }
         
         var included: [RayHit] = []
@@ -114,12 +102,12 @@ extension SubtractionRaytracingElement: RaytracingElement {
         }
         
         // TODO: Figure out better way to express material replacement
-        // TODO: Maybe make SubtractionElement its own class of geometry with
+        // TODO: Maybe make IntersectionElement its own class of geometry with
         // TODO: unique ID and material support?
         results.append(contentsOf: included.map { hit in
             var hit = hit
             hit.id = id
-            hit.material = materialId ?? t0Hits[0].material
+            hit.material = materialId ?? t0Hits.first?.material ?? t1Hits.first?.material
             return hit
         })
     }
@@ -153,7 +141,7 @@ private enum RayHitInfo {
     var state: State {
         switch self {
         case .t0(let hit, _):
-            return hit.hitDirection == .outside ? .right : .left
+            return hit.hitDirection == .outside ? .left : .right
         case .t1(let hit, _):
             return hit.hitDirection == .outside ? .left : .right
         }

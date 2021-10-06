@@ -37,3 +37,17 @@ func subtraction<T0, T1>(@ElementBuilder _ builder: () -> TupleElement2<T0, T1>)
 
     return .init(t0: value.t0, t1: value.t1)
 }
+
+@_transparent
+func subtraction<T0, T1, T2>(@ElementBuilder _ builder: () -> TupleElement3<T0, T1, T2>) -> SubtractionElement<SubtractionElement<T0, T1>, T2> {
+    let value = builder()
+
+    return .init(t0: .init(t0: value.t0, t1: value.t1), t1: value.t2)
+}
+
+@_transparent
+func subtraction<T0, T1, T2, T3>(@ElementBuilder _ builder: () -> TupleElement4<T0, T1, T2, T3>) -> SubtractionElement<SubtractionElement<SubtractionElement<T0, T1>, T2>, T3> {
+    let value = builder()
+
+    return .init(t0: .init(t0: .init(t0: value.t0, t1: value.t1), t1: value.t2), t1: value.t3)
+}

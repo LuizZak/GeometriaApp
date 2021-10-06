@@ -12,16 +12,36 @@ enum RaymarchingDemoScene3 {
 @RaymarchingElementBuilder
 private func scene() -> some RaymarchingElement {
     subtraction {
-        makeCube(
+        intersection {
+            makeCube(
+                center: .init(x: 0, y: 100, z: 40),
+                sideLength: 30
+            )
+            makeSphere(
+                center: .init(x: 0, y: 100, z: 40),
+                radius: 20
+            )
+        }
+        makeCylinder(
             center: .init(x: 0, y: 100, z: 40),
-            sideLength: 30
+            direction: .unitZ,
+            length: 40,
+            radius: 10
         )
         makeCylinder(
             center: .init(x: 0, y: 100, z: 40),
-            length: 50,
+            direction: .unitY,
+            length: 40,
+            radius: 10
+        )
+        makeCylinder(
+            center: .init(x: 0, y: 100, z: 40),
+            direction: .unitX,
+            length: 40,
             radius: 10
         )
     }
+    .makeBoundingBox()
     
     makeFloorPlane()
 }
@@ -40,9 +60,7 @@ private func makeCube(center: RVector3D, sideLength: Double) -> CubeElement {
 }
 
 @_transparent
-private func makeCylinder(center: RVector3D, length: Double, radius: Double) -> CylinderElement {
-    let direction = RVector3D.unitZ
-
+private func makeCylinder(center: RVector3D, direction: RVector3D, length: Double, radius: Double) -> CylinderElement {
     let start = center - direction * length / 2
     let end = center + direction * length / 2
 
@@ -50,6 +68,17 @@ private func makeCylinder(center: RVector3D, length: Double, radius: Double) -> 
         geometry: .init(
             start: start,
             end: end,
+            radius: radius
+        ),
+        material: MaterialMapEnum.default.rawValue
+    )
+}
+
+@_transparent
+private func makeSphere(center: RVector3D, radius: Double) -> SphereRaytracingElement {
+    .init(
+        geometry: .init(
+            center: center,
             radius: radius
         ),
         material: MaterialMapEnum.default.rawValue
