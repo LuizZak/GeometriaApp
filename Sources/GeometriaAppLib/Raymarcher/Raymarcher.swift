@@ -19,7 +19,13 @@ final class Raymarcher<SceneType: RaymarchingSceneType>: RendererType {
         self.camera = camera
         self.viewportSize = viewportSize
         self.materialMapCache = scene.materialMap()
-        self.globalMarchParameters = MarchingParameters()
+
+        self.globalMarchParameters = 
+        MarchingParameters(
+            maxMarchIterationCount: 250,
+            minimumMarchTolerance: 0.01,
+            maxDistance: 1000
+        )
     }
     
     // MARK: - Debugging
@@ -272,12 +278,12 @@ final class Raymarcher<SceneType: RaymarchingSceneType>: RendererType {
     /// Global parameters used for all raymarching operations.
     private struct MarchingParameters {
         /// Maximum number of raymarching steps to perform.
-        var maxMarchIterationCount = 250
+        var maxMarchIterationCount: Int
 
         /// The minimum marching distance before a hit is considered.
-        var minimumMarchTolerance: Double = 0.01
+        var minimumMarchTolerance: Double
 
         /// The maximum global (world) coordinates to march.
-        var maxDistance: Double = 1000
+        var maxDistance: Double
     }
 }

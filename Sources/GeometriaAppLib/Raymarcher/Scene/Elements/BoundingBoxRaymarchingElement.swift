@@ -4,7 +4,8 @@ typealias BoundingBoxRaymarchingElement<T: RaymarchingElement> =
 extension BoundingBoxRaymarchingElement: RaymarchingElement {
     @inlinable
     func signedDistance(to point: RVector3D, current: RaymarchingResult) -> RaymarchingResult {
-        guard boundingBox.clamp(point).distanceSquared(to: point) < current.distance * current.distance else {
+        let clamped = boundingBox.clamp(point)
+        guard clamped == point || clamped.distanceSquared(to: point) < current.distance * current.distance else {
             return current
         }
         
