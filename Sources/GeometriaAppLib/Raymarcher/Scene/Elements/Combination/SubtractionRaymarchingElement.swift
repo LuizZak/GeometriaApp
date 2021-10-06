@@ -8,7 +8,12 @@ extension SubtractionRaymarchingElement: RaymarchingElement {
     func signedDistance(to point: RVector3D, current: RaymarchingResult) -> RaymarchingResult {
         let v0 = t0.signedDistance(to: point, current: current)
         let v1 = t1.signedDistance(to: point, current: current)
+
+        let result = max(v0, -v1)
+        if result < current {
+            return result.withMaterial(material ?? result.material)
+        }
         
-        return min(current, max(v0, -v1))
+        return current
     }
 }

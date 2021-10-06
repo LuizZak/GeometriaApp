@@ -1,16 +1,21 @@
 struct RaymarchingResult: Hashable {
     var distance: Double
-    var material: Int?
+    var material: MaterialId?
 
     @_transparent
-    init(distance: Double, material: Int?) {
+    init(distance: Double, material: MaterialId?) {
         self.distance = distance
         self.material = material
     }
 
     @_transparent
     func addingDistance(_ distance: Double) -> Self {
-        .init(distance: self.distance + distance, material: material)
+        .init(distance: self.distance + distance, material: self.material)
+    }
+
+    @_transparent
+    func withMaterial(_ material: MaterialId?) -> Self {
+        .init(distance: self.distance, material: material)
     }
 
     @_transparent
@@ -34,6 +39,18 @@ struct RaymarchingResult: Hashable {
         
         return r1
     }
+
+    /// Returns whether `lhs` has a smaller `distance` property than `rhs`.
+    @_transparent
+    static func < (lhs: Self, rhs: Self) -> Bool {
+        lhs.distance < rhs.distance
+    }
+
+    /// Returns whether `lhs` has a greater `distance` property than `rhs`.
+    @_transparent
+    static func > (lhs: Self, rhs: Self) -> Bool {
+        lhs.distance > rhs.distance
+    }
 }
 
 extension RaymarchingResult {
@@ -54,7 +71,7 @@ func max(_ lhs: RaymarchingResult, _ rhs: RaymarchingResult) -> RaymarchingResul
 }
 
 @_transparent
-func mixMaterial(_ lhs: Int?, _ rhs: Int?, factor: Double) -> Int? {
+func mixMaterial(_ lhs: MaterialId?, _ rhs: MaterialId?, factor: Double) -> Int? {
     // TODO: Do proper material mixing?
     lhs ?? rhs
 }

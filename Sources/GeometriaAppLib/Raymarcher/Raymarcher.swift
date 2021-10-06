@@ -7,6 +7,7 @@ private var _attemptedDebugInMultithreadedYet = false
 final class Raymarcher<SceneType: RaymarchingSceneType>: RendererType {
     private var processingPrinter: RaytracerProcessingPrinter?
     private var materialMapCache: MaterialMap
+    private var globalMarchParameters: MarchingParameters
     
     let scene: SceneType
     let camera: Camera
@@ -18,6 +19,7 @@ final class Raymarcher<SceneType: RaymarchingSceneType>: RendererType {
         self.camera = camera
         self.viewportSize = viewportSize
         self.materialMapCache = scene.materialMap()
+        self.globalMarchParameters = MarchingParameters()
     }
     
     // MARK: - Debugging
@@ -62,9 +64,9 @@ final class Raymarcher<SceneType: RaymarchingSceneType>: RendererType {
     private func raymarch(ray: RRay3D, bounceCount: Int = 0) -> BLRgba32 {
         var ray = ray
         
-        let maxMarchIterationCount = 1000
-        let minimumMarchTolerance: Double = 0.001
-        let maxDistance: Double = 100000
+        let maxMarchIterationCount = globalMarchParameters.maxMarchIterationCount
+        let minimumMarchTolerance = globalMarchParameters.minimumMarchTolerance
+        let maxDistance = globalMarchParameters.maxDistance
 
         var result: RaymarchingResult = .emptyResult()
         var traveled: Double = 0.0
@@ -94,7 +96,7 @@ final class Raymarcher<SceneType: RaymarchingSceneType>: RendererType {
                 hit = true
                 break
             }
-            if signedDistance >= maxDistance {
+            if traveled >= maxDistance {
                 escaped = true
                 break
             }
@@ -102,47 +104,53 @@ final class Raymarcher<SceneType: RaymarchingSceneType>: RendererType {
             ray.start = ray.projectedMagnitude(signedDistance)
         }
 
-        escaped = escaped || iteration == maxMarchIterationCount
-
-        let materialColor = result.material.map { computeColor(at: ray.start, materialId: $0) }
-
-        var resultColor: BLRgba32
         if escaped {
-            resultColor = scene.skyColor
-        } else {
-            resultColor = materialColor ?? scene.skyColor
+            return scene.skyColor
         }
         
+        let materialColor = result.material.map { computeColor(at: ray.start, materialId: $0) }
+        var resultColor = materialColor ?? scene.skyColor
+
         // Compute color based on normal
         if hit, let materialColor = materialColor {
             let norm = calcNormal(ray.start)
 
+            assert(!norm.x.isNaN && !norm.y.isNaN && !norm.z.isNaN, "!norm.x.isNaN && !norm.y.isNaN && !norm.z.isNaN")
+
             // TODO: Reflections?
             //let reflected = reflect(direction: ray.direction, normal: norm)
+
+            // TODO: Transparency?
+            //let invTransparency = 1.0
+            //resultColor = mergeColors(scene.skyColor, materialColor, factor: invTransparency)
+
+            resultColor = materialColor
             
             // Shading
-            let invTransparency = 1.0
             let minimumShade: Double = 0.0
-
-            resultColor = mergeColors(scene.skyColor, materialColor, factor: invTransparency)
-            
             let shade = max(0.0, min(1 - minimumShade, norm.dot(-ray.direction)))
-            resultColor = mergeColors(resultColor, .black, factor: (1 - shade) * invTransparency)
+            resultColor = mergeColors(resultColor, .black, factor: 1 - shade)
         }
 
         // Compute shadow
         let shadowFactor = computeShadowFactor(at: ray.start, startDist: result.distance)
         resultColor = mergeColors(resultColor, .black, factor: (1 - shadowFactor) * 0.7)
 
+        // Fade distant pixels to skyColor
+        let far = maxDistance
+        let dist = traveled
+        let distFactor = max(0, min(1, dist / far))
+        resultColor = mergeColors(resultColor, scene.skyColor, factor: distFactor * distFactor)
+        
         return resultColor
     }
 
     private func computeShadowFactor(at point: RVector3D, startDist: Double, softShadowSizeFactor: Double = 8.0) -> Double {
         var ray = RRay3D(start: point - scene.sunDirection * startDist, direction: -scene.sunDirection)
         
-        let maxMarchIterationCount = 500
-        let minimumMarchTolerance: Double = min(startDist, 0.001)
-        let maxDistance: Double = 10000
+        let maxMarchIterationCount = globalMarchParameters.maxMarchIterationCount
+        let minimumMarchTolerance = min(globalMarchParameters.minimumMarchTolerance, startDist)
+        let maxDistance = globalMarchParameters.maxDistance
 
         var result: RaymarchingResult = .emptyResult()
         var iteration = 0
@@ -176,14 +184,14 @@ final class Raymarcher<SceneType: RaymarchingSceneType>: RendererType {
             ph = signedDistance
             traveled += signedDistance
 
-            if signedDistance >= maxDistance {
+            if traveled >= maxDistance {
                 break
             }
             
             ray.start = ray.projectedMagnitude(signedDistance)
         }
 
-        return res
+        return max(0.0, min(1.0, res))
     }
 
     private func computeColor(at point: RVector3D, materialId: MaterialId) -> BLRgba32 {
@@ -234,7 +242,7 @@ final class Raymarcher<SceneType: RaymarchingSceneType>: RendererType {
 
     // Normal derivation from: https://www.iquilezles.org/www/articles/normalsSDF/normalsSDF.htm
     private func calcNormal(_ p: RVector3D) -> RVector3D {
-        let signedDistance = 0.0001 // replace by an appropriate value
+        let signedDistance = 0.001 // TODO: Consider replacing by an appropriate value later
         let k = RVector2D(x: 1, y: -1)
         
         // Tetrahedron points
@@ -259,5 +267,17 @@ final class Raymarcher<SceneType: RaymarchingSceneType>: RendererType {
     private func reflect(direction: RVector3D, normal: RVector3D) -> RVector3D {
         // R = D - 2(D • N)N
         return direction - 2 * direction.dot(normal) * normal
+    }
+
+    /// Global parameters used for all raymarching operations.
+    private struct MarchingParameters {
+        /// Maximum number of raymarching steps to perform.
+        var maxMarchIterationCount = 250
+
+        /// The minimum marching distance before a hit is considered.
+        var minimumMarchTolerance: Double = 0.01
+
+        /// The maximum global (world) coordinates to march.
+        var maxDistance: Double = 1000
     }
 }
