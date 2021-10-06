@@ -8,8 +8,9 @@ extension IntersectionRaytracingElement: RaytracingElement {
             return query
         }
         
+        // TODO: Optimize this step as we don't need to compute all intersections
+        // TODO: to do this operation
         var local: [RayHit] = []
-
         raycast(query: query, results: &local)
 
         if let hit = local.first {
@@ -27,6 +28,7 @@ extension IntersectionRaytracingElement: RaytracingElement {
         
         let noHitQuery = query.withNilHit()
 
+        // TODO: Fix RayQuery.ignoring for intersection queries
         var t0Hits: [RayHit] = []
         var t1Hits: [RayHit] = []
         t0.raycast(query: noHitQuery, results: &t0Hits)
@@ -92,11 +94,7 @@ extension IntersectionRaytracingElement: RaytracingElement {
                 }
             } else {
                 if isT1Included(index) {
-                    // Flip the reported direction of the hit (intersections on
-                    // the subtracting geometry are actually flipped inside out)
-                    var t1Hit = hit.asRayHit
-                    t1Hit.hitDirection = t1Hit.hitDirection.inverted
-                    included.append(t1Hit)
+                    included.append(hit.asRayHit)
                 }
             }
         }
@@ -107,7 +105,7 @@ extension IntersectionRaytracingElement: RaytracingElement {
         results.append(contentsOf: included.map { hit in
             var hit = hit
             hit.id = id
-            hit.material = materialId ?? t0Hits.first?.material ?? t1Hits.first?.material
+            hit.material = material ?? t0Hits.first?.material ?? t1Hits.first?.material
             return hit
         })
     }

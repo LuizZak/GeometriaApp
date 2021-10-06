@@ -23,7 +23,7 @@ private func scene() -> some RaytracingElement {
             )
         }
         .makeBoundingBox()
-        
+
         makeCylinder(
             center: .init(x: 0, y: 100, z: 40),
             direction: .unitZ,
@@ -57,7 +57,7 @@ private func makeCube(center: RVector3D, sideLength: Double) -> CubeElement {
             location: location,
             sideLength: sideLength
         ),
-        material: MaterialMapEnum.default.rawValue
+        material: MaterialMapEnum.shiny.rawValue
     )
 }
 
@@ -97,6 +97,7 @@ private func makeFloorPlane() -> PlaneElement {
 private enum MaterialMapEnum: Int, CaseIterable, MaterialMapEnumType {
     case `default` = 0
     case floor = 1
+    case shiny = 2
 
     func makeMaterial() -> Material {
         switch self {
@@ -108,6 +109,16 @@ private enum MaterialMapEnum: Int, CaseIterable, MaterialMapEnumType {
                 size: 50.0, 
                 color1: .white, 
                 color2: .black
+            )
+
+        case .shiny:
+            return .diffuse(
+                .init(
+                    color: .gray,
+                    reflectivity: 0.8
+                    //transparency: 1.0,
+                    //refractiveIndex: 1.3
+                )
             )
         }
     }

@@ -8,8 +8,9 @@ extension SubtractionRaytracingElement: RaytracingElement {
             return query
         }
         
+        // TODO: Optimize this step as we don't need to compute all intersections
+        // TODO: to do this operation
         var local: [RayHit] = []
-
         raycast(query: query, results: &local)
 
         if let hit = local.first {
@@ -32,6 +33,7 @@ extension SubtractionRaytracingElement: RaytracingElement {
 
         let noHitQuery = query.withNilHit()
 
+        // TODO: Fix RayQuery.ignoring for subtraction queries
         var t0Hits: [RayHit] = []
         t0.raycast(query: noHitQuery, results: &t0Hits)
 
@@ -119,7 +121,7 @@ extension SubtractionRaytracingElement: RaytracingElement {
         results.append(contentsOf: included.map { hit in
             var hit = hit
             hit.id = id
-            hit.material = materialId ?? t0Hits[0].material
+            hit.material = material ?? t0Hits[0].material
             return hit
         })
     }

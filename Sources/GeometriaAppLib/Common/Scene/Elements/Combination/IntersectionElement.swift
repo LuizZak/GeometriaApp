@@ -1,6 +1,6 @@
 struct IntersectionElement<T0: Element, T1: Element> {
     var id: Int = 0
-    var materialId: Int? = nil
+    var material: Int? = nil // TODO: Add support for this property in Raymarcher too
     var t0: T0
     var t1: T1
 }
