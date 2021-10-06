@@ -80,6 +80,20 @@ struct RayHit: Equatable {
 
         return hit
     }
+
+    /// Scales the components of this ray hit, returning a new hit that is 
+    /// scaled in space around a given center point by an ammout specified by 
+    /// `factor`.
+    @_transparent
+    func scaledBy(_ factor: Double, around center: RVector3D) -> Self {
+        var hit = self
+
+        // Since scaling is uniform, we don't need to scale the normal of the
+        // hit information.
+        hit.pointNormal.point = (pointNormal.point - center) * factor + center
+
+        return hit
+    }
     
     /// Specifies the direction of the ray when it hit the boundaries of 
     /// a geometry.

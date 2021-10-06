@@ -41,6 +41,7 @@ private func scene() -> some RaymarchingElement {
             radius: 10
         )
     }
+    .scaledAroundCenter(by: 0.5)
     .makeBoundingBox()
     
     makeFloorPlane()

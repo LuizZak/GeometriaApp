@@ -83,6 +83,14 @@ extension LineSegment: LineMultiplicative where Vector: VectorMultiplicative {
     public func withPointsScaledBy(_ factor: Vector) -> Self {
         Self(start: start * factor, end: end * factor)
     }
+    
+    @_transparent
+    public func withPointsScaledBy(_ factor: Vector, around center: Vector) -> Self {
+        let newStart: Vector = (start - center) * factor + center
+        let newEnd: Vector = (end - center) * factor + center
+        
+        return Self(start: newStart, end: newEnd)
+    }
 }
 
 extension LineSegment: LineDivisible where Vector: VectorDivisible {

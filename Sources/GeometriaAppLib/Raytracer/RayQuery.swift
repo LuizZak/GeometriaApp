@@ -77,6 +77,23 @@ struct RayQuery: Equatable {
         
         return query
     }
+
+    /// Uniformely scales the components of this ray query, returning a new ray 
+    /// query that is scaled in space around the given center point by an ammout 
+    /// specified by `factor`.
+    @_transparent
+    func scaled(by factor: Double, around center: RVector3D) -> Self {
+        var query = self
+        let vector = RVector3D(repeating: factor)
+
+        query.ray = self.ray.withPointsScaledBy(vector, around: center)
+        query.rayMagnitudeSquared = self.rayMagnitudeSquared * factor
+        query.rayAABB = self.rayAABB?.scaledBy(factor, around: center)
+        query.lineSegment = self.lineSegment.withPointsScaledBy(vector, around: center)
+        query.lastHit = self.lastHit?.scaledBy(factor, around: center)
+        
+        return query
+    }
 }
 
 extension RayQuery {

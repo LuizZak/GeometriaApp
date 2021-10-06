@@ -104,11 +104,11 @@ extension TranslateElement {
 }
 
 @_transparent
-func translated<T: Element>(translation: RVector3D, @ElementBuilder _ builder: () -> T) -> TranslateElement<T> {
+func translated<T: Element>(by translation: RVector3D, @ElementBuilder _ builder: () -> T) -> TranslateElement<T> {
     builder().translated(by: translation)
 }
 
 @_transparent
-func translated<T: Element>(translation: RVector3D, @ElementBuilder _ builder: () -> TranslateElement<T>) -> TranslateElement<T> {
+func translated<T: Element>(by translation: RVector3D, @ElementBuilder _ builder: () -> TranslateElement<T>) -> TranslateElement<T> {
     builder().translated(by: translation)
 }

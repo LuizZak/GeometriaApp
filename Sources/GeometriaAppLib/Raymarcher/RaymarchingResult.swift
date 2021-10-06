@@ -1,4 +1,4 @@
-struct RaymarchingResult {
+struct RaymarchingResult: Hashable {
     var distance: Double
     var material: Int?
 
