@@ -326,12 +326,12 @@ class ProcessingPrinter {
         
         indentedBlock("void setup() {") {
             if is3D {
-                printLine("size(\(vec2String(size)), P3D);")
+                printLine("size(\(vec2String_int(size)), P3D);")
                 printLine("perspective(PI / 3, 1, 0.3, 8000); // Corrects default zNear plane being too far for unit measurements")
                 printLine("cam = new PeasyCam(this, 250);")
                 printLine("cam.setWheelScale(0.3);")
             } else {
-                printLine("size(\(vec2String(size)));")
+                printLine("size(\(vec2String_int(size)));")
             }
             
             if hasCylinders {
@@ -529,6 +529,10 @@ class ProcessingPrinter {
     
     func vec2String<V: Vector2Type>(_ vec: V) -> String {
         "\(vec.x), \(vec.y)"
+    }
+    
+    func vec2String_int<V: Vector2Type>(_ vec: V) -> String {
+        "\(Int(vec.x)), \(Int(vec.y))"
     }
     
     func printLine(_ line: String) {

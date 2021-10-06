@@ -47,14 +47,14 @@ enum RayIgnore: Equatable {
                 return false
             }
 
-            return hit.hitDirection == .inside
+            return hit.hitDirection == .outside
         
         case .exit(let geoId, _):
             if geoId != hit.id {
                 return false
             }
 
-            return hit.hitDirection == .outside
+            return hit.hitDirection == .inside
 
         case let .allButSingleId(geoId, ignore):
             if geoId != hit.id {
@@ -141,8 +141,11 @@ enum RayIgnore: Equatable {
         
         // Pre-check before looking into each point normal
         switch self {
-        case let .allButSingleId(geoId, ignore) where geoId == id:
-            return ignore.computePointNormalsOfInterest(id: id, intersection: intersection)
+        case let .allButSingleId(geoId, ignore):
+            if geoId == id {
+                return ignore.computePointNormalsOfInterest(id: id, intersection: intersection)
+            }
+            return []
 
         case .full(let geoId) where geoId == id:
             return []
@@ -157,11 +160,11 @@ enum RayIgnore: Equatable {
 
         case (.entrance(id, _), _?, let exit?),
              (_, nil, let exit?):
-            return [(exit, .outside)]
+            return [(exit, .inside)]
 
         case (.exit(id, _), let enter?, _?),
              (_, let enter?, nil):
-            return [(enter, .inside)]
+            return [(enter, .outside)]
             
         case (_, let enter?, let exit?):
             return [(enter, .outside), (exit, .inside)]
