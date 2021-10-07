@@ -12,7 +12,11 @@ extension SIMD2: VectorType where Scalar == Double {
 }
 
 extension SIMD2: Vector2Type where Scalar == Double {
-    
+    /// Initializes this ``Vector2Type`` with the values from a given tuple.
+    @_transparent
+    public init(_ tuple: (Scalar, Scalar)) {
+        self.init(tuple.0, tuple.1)
+    }
 }
 
 extension SIMD2: VectorComparable where Scalar == Double {

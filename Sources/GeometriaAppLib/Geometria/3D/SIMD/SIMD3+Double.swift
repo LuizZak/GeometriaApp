@@ -13,6 +13,12 @@ extension SIMD3: VectorType where Scalar == Double {
 
 extension SIMD3: Vector3Type where Scalar == Double {
     public typealias SubVector2 = SIMD2<Scalar>
+    
+    /// Initializes this ``Vector3Type`` with the values from a given tuple.
+    @_transparent
+    public init(_ tuple: (Scalar, Scalar, Scalar)) {
+        self.init(tuple.0, tuple.1, tuple.2)
+    }
 }
 
 extension SIMD3: VectorComparable where Scalar == Double {

@@ -76,19 +76,19 @@ public struct Matrix2x2: MatrixType, CustomStringConvertible {
     /// Gets the second row of this matrix in a Vector2.
     public var r1Vec: Vector2D {
         @_transparent
-        get { Vector2(r1) }
+        get { Vector2D(r1) }
     }
     
     /// Gets the first column of this matrix in a Vector2.
     public var c0Vec: Vector2D {
         @_transparent
-        get { Vector2(c0) }
+        get { Vector2D(c0) }
     }
     
     /// Gets the second column of this matrix in a Vector2.
     public var c1Vec: Vector2D {
         @_transparent
-        get { Vector2(c1) }
+        get { Vector2D(c1) }
     }
     
     /// Returns the number of rows in this matrix.

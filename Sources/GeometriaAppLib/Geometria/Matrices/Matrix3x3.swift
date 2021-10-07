@@ -91,37 +91,37 @@ public struct Matrix3x3: MatrixType, CustomStringConvertible {
     /// Gets the first row of this matrix in a Vector3.
     public var r0Vec: Vector3D {
         @_transparent
-        get { Vector3(r0) }
+        get { Vector3D(r0) }
     }
     
     /// Gets the second row of this matrix in a Vector3.
     public var r1Vec: Vector3D {
         @_transparent
-        get { Vector3(r1) }
+        get { Vector3D(r1) }
     }
     
     /// Gets the third row of this matrix in a Vector3.
     public var r2Vec: Vector3D {
         @_transparent
-        get { Vector3(r2) }
+        get { Vector3D(r2) }
     }
     
     /// Gets the first column of this matrix in a Vector3.
     public var c0Vec: Vector3D {
         @_transparent
-        get { Vector3(c0) }
+        get { Vector3D(c0) }
     }
     
     /// Gets the second column of this matrix in a Vector3.
     public var c1Vec: Vector3D {
         @_transparent
-        get { Vector3(c1) }
+        get { Vector3D(c1) }
     }
     
     /// Gets the third column of this matrix in a Vector3.
     public var c2Vec: Vector3D {
         @_transparent
-        get { Vector3(c2) }
+        get { Vector3D(c2) }
     }
     
     /// Returns the number of rows in this matrix.

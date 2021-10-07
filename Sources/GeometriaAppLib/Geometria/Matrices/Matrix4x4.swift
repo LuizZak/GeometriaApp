@@ -138,49 +138,49 @@ public struct Matrix4x4: MatrixType, CustomStringConvertible {
     /// Gets the first row of this matrix in a Vector4.
     public var r0Vec: Vector4D {
         @_transparent
-        get { Vector4(r0) }
+        get { Vector4D(r0) }
     }
     
     /// Gets the second row of this matrix in a Vector4.
     public var r1Vec: Vector4D {
         @_transparent
-        get { Vector4(r1) }
+        get { Vector4D(r1) }
     }
     
     /// Gets the third row of this matrix in a Vector4.
     public var r2Vec: Vector4D {
         @_transparent
-        get { Vector4(r2) }
+        get { Vector4D(r2) }
     }
     
     /// Gets the fourth row of this matrix in a Vector4.
     public var r3Vec: Vector4D {
         @_transparent
-        get { Vector4(r3) }
+        get { Vector4D(r3) }
     }
     
     /// Gets the first column of this matrix in a Vector4.
     public var c0Vec: Vector4D {
         @_transparent
-        get { Vector4(c0) }
+        get { Vector4D(c0) }
     }
     
     /// Gets the second column of this matrix in a Vector4.
     public var c1Vec: Vector4D {
         @_transparent
-        get { Vector4(c1) }
+        get { Vector4D(c1) }
     }
     
     /// Gets the third column of this matrix in a Vector4.
     public var c2Vec: Vector4D {
         @_transparent
-        get { Vector4(c2) }
+        get { Vector4D(c2) }
     }
     
     /// Gets the fourth column of this matrix in a Vector4.
     public var c3Vec: Vector4D {
         @_transparent
-        get { Vector4(c3) }
+        get { Vector4D(c3) }
     }
     
     /// Returns the number of rows in this matrix.

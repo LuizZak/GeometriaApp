@@ -4,6 +4,12 @@ import simd
 
 extension SIMD4: GeometricType, VectorType, Vector4Type where Scalar == Double {
     public typealias SubVector3 = SIMD3<Scalar>
+    
+    /// Initializes this ``Vector4Type`` with the values from a given tuple.
+    @_transparent
+    public init(_ tuple: (Scalar, Scalar, Scalar, Scalar)) {
+        self.init(tuple.0, tuple.1, tuple.2, tuple.3)
+    }
 }
 
 extension SIMD4: AdditiveArithmetic, VectorAdditive where Scalar == Double {

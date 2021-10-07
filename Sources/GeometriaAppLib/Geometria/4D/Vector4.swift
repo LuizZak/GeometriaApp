@@ -1,8 +1,5 @@
 import RealModule
 
-/// Represents a 4D point with three double-precision floating-point components
-public typealias Vector4D = Vector4//<Double>
-
 /// A four-component vector type
 public struct Vector4: Hashable, Codable, Vector4Type {
     public typealias Scalar = Double
