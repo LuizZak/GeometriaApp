@@ -73,7 +73,7 @@ private func makeCylinder(center: RVector3D, direction: RVector3D, length: Doubl
             end: end,
             radius: radius
         ),
-        material: MaterialMapEnum.default.rawValue
+        material: MaterialMapEnum.transparent.rawValue
     )
 }
 
