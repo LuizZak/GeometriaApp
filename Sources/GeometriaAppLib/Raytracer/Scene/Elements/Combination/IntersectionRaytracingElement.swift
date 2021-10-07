@@ -53,8 +53,8 @@ extension IntersectionRaytracingElement: RaytracingElement {
             $0.distanceSquared < $1.distanceSquared
         }
 
-        var isInsideT0 = t0Hits.isEmpty ? false : t0Hits[0].hitDirection == .inside
-        var isInsideT1 = t1Hits.isEmpty ? false : t1Hits[0].hitDirection == .inside
+        var isInsideT0 = t0Hits[0].hitDirection == .inside
+        var isInsideT1 = t1Hits[0].hitDirection == .inside
 
         @_transparent
         func processT0(_ hit: RayHit) {
@@ -103,22 +103,6 @@ extension IntersectionRaytracingElement: RaytracingElement {
 private enum RayHitInfo {
     case t0(RayHit, Double)
     case t1(RayHit, Double)
-
-    @_transparent
-    var isT0: Bool {
-        switch self {
-        case .t0: return true
-        case .t1: return false
-        }
-    }
-
-    @_transparent
-    var isT1: Bool {
-        switch self {
-        case .t0: return false
-        case .t1: return true
-        }
-    }
 
     @_transparent
     var distanceSquared: Double {

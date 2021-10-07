@@ -99,30 +99,6 @@ private enum RayHitInfo {
     case t1(RayHit, Double)
 
     @_transparent
-    var isT0: Bool {
-        switch self {
-        case .t0: return true
-        case .t1: return false
-        }
-    }
-
-    @_transparent
-    var isT1: Bool {
-        switch self {
-        case .t0: return false
-        case .t1: return true
-        }
-    }
-
-    @_transparent
-    var hitDirection: RayHit.HitDirection {
-        switch self {
-        case .t0(let hit, _), .t1(let hit, _):
-            return hit.hitDirection
-        }
-    }
-
-    @_transparent
     var distanceSquared: Double {
         switch self {
         case .t0(_, let dist), .t1(_, let dist):
