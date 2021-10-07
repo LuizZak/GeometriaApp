@@ -23,24 +23,26 @@ private func scene() -> some RaytracingElement {
             )
         }
         
-        makeCylinder(
-            center: .init(x: 0, y: 100, z: 40),
-            direction: .unitZ,
-            length: 40,
-            radius: 10
-        )
-        makeCylinder(
-            center: .init(x: 0, y: 100, z: 40),
-            direction: .unitX,
-            length: 40,
-            radius: 10
-        )
-        makeCylinder(
-            center: .init(x: 0, y: 100, z: 40),
-            direction: .unitY,
-            length: 40,
-            radius: 10
-        )
+        union {
+            makeCylinder(
+                center: .init(x: 0, y: 100, z: 40),
+                direction: .unitZ,
+                length: 40,
+                radius: 10
+            )
+            makeCylinder(
+                center: .init(x: 0, y: 100, z: 40),
+                direction: .unitX,
+                length: 40,
+                radius: 10
+            )
+            makeCylinder(
+                center: .init(x: 0, y: 100, z: 40),
+                direction: .unitY,
+                length: 40,
+                radius: 10
+            )
+        }
     }
     .makeBoundingBox()
     
@@ -94,9 +96,10 @@ private func makeFloorPlane() -> PlaneElement {
 }
 
 private enum MaterialMapEnum: Int, CaseIterable, MaterialMapEnumType {
-    case `default` = 0
-    case floor = 1
-    case shiny = 2
+    case `default`
+    case floor
+    case shiny
+    case transparent
 
     func makeMaterial() -> Material {
         switch self {
@@ -117,6 +120,14 @@ private enum MaterialMapEnum: Int, CaseIterable, MaterialMapEnumType {
                     reflectivity: 0.8,
                     transparency: 0.9,
                     refractiveIndex: 1.3
+                )
+            )
+
+        case .transparent:
+            return .diffuse(
+                .init(
+                    color: .gray,
+                    transparency: 0.2
                 )
             )
         }

@@ -29,7 +29,6 @@ extension IntersectionRaytracingElement: RaytracingElement {
         var noHitQuery = query.withNilHit()
         noHitQuery.ignoring = .none
 
-        // TODO: Fix RayQuery.ignoring for intersection queries
         var t0Hits: [RayHit] = []
         var t1Hits: [RayHit] = []
         t0.raycast(query: noHitQuery, results: &t0Hits)
@@ -48,33 +47,45 @@ extension IntersectionRaytracingElement: RaytracingElement {
             $0.distanceSquared < $1.distanceSquared
         }
 
+        @_transparent
+        func state(_ info: RayHitInfo) -> State {
+            switch info {
+            case .t0(let hit, _):
+                return hit.hitDirection == .outside ? .left : .right
+            case .t1(let hit, _):
+                return hit.hitDirection == .outside ? .left : .right
+            }
+        }
+
+        @_transparent
         func isT0Included(_ index: Int) -> Bool {
-            assert(combined[index].isT0, "isExcluded must be called on t0 hits")
+            assert(combined[index].isT0, "isT0Included must be called on t0 hits")
             
             if index > 0 {
                 for i in (0..<index).reversed() where !combined[i].isT0 {
-                    return combined[i].state == .left
+                    return state(combined[i]) == .left
                 }
             }
             if index < combined.count - 1 {
                 for i in (index + 1)..<combined.count where !combined[i].isT0 {
-                    return combined[i].state == .right
+                    return state(combined[i]) == .right
                 }
             }
             return false
         }
         
+        @_transparent
         func isT1Included(_ index: Int) -> Bool {
-            assert(!combined[index].isT0, "isIncluded must be called on t1 hits")
+            assert(combined[index].isT1, "isT1Included must be called on t1 hits")
             
             if index > 0 {
-                for i in (0..<index).reversed() where combined[i].isT0 {
-                    return combined[i].state == .left
+                for i in (0..<index).reversed() where !combined[i].isT1 {
+                    return state(combined[i]) == .left
                 }
             }
             if index < combined.count - 1 {
-                for i in (index + 1)..<combined.count where combined[i].isT0 {
-                    return combined[i].state == .right
+                for i in (index + 1)..<combined.count where !combined[i].isT1 {
+                    return state(combined[i]) == .right
                 }
             }
             return false
@@ -86,19 +97,16 @@ extension IntersectionRaytracingElement: RaytracingElement {
             let hit = combined[index]
             var rayHit = hit.asRayHit
             rayHit.id = id
+            rayHit.material = material ?? t0Hits.first?.material ?? t1Hits.first?.material
 
             if query.ignoring.shouldIgnore(hit: rayHit) {
                 continue
             }
 
-            // TODO: Figure out better way to express material replacement
-            // TODO: Maybe make IntersectionElement its own class of geometry with
-            // TODO: unique ID and material support?
-            rayHit.material = material ?? t0Hits.first?.material ?? t1Hits.first?.material
-
             if hit.isT0 && isT0Included(index) {
                 results.append(rayHit)
-            } else if !hit.isT0 && isT1Included(index) {
+            }
+            if hit.isT1 && isT1Included(index) {
                 results.append(rayHit)
             }
         }
@@ -109,6 +117,7 @@ private enum RayHitInfo {
     case t0(RayHit, Double)
     case t1(RayHit, Double)
 
+    @_transparent
     var isT0: Bool {
         switch self {
         case .t0: return true
@@ -116,6 +125,15 @@ private enum RayHitInfo {
         }
     }
 
+    @_transparent
+    var isT1: Bool {
+        switch self {
+        case .t0: return false
+        case .t1: return true
+        }
+    }
+
+    @_transparent
     var hitDirection: RayHit.HitDirection {
         switch self {
         case .t0(let hit, _), .t1(let hit, _):
@@ -123,6 +141,7 @@ private enum RayHitInfo {
         }
     }
 
+    @_transparent
     var distanceSquared: Double {
         switch self {
         case .t0(_, let dist), .t1(_, let dist):
@@ -130,15 +149,7 @@ private enum RayHitInfo {
         }
     }
 
-    var state: State {
-        switch self {
-        case .t0(let hit, _):
-            return hit.hitDirection == .outside ? .left : .right
-        case .t1(let hit, _):
-            return hit.hitDirection == .outside ? .left : .right
-        }
-    }
-
+    @_transparent
     var asRayHit: RayHit {
         switch self {
         case .t0(let hit, _):
@@ -152,12 +163,4 @@ private enum RayHitInfo {
 private enum State {
     case left
     case right
-}
-
-private enum RayHitInfoFlag {
-    /// Ray hit is set to be included in the result
-    case included
-
-    /// Ray hit is set to be excluded from the result
-    case excluded
 }

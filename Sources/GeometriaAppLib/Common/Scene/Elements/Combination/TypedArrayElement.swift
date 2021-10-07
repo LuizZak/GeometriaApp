@@ -3,7 +3,7 @@ struct TypedArrayElement<T: Element> {
 }
 
 extension TypedArrayElement: Element {
-    @_transparent
+    @inlinable
     mutating func attributeIds(_ idFactory: inout ElementIdFactory) {
         elements = elements.map {
             var el = $0
@@ -12,7 +12,7 @@ extension TypedArrayElement: Element {
         }
     }
 
-    @_transparent
+    @inlinable
     func queryScene(id: Int) -> Element? {
         for element in elements {
             if let result = element.queryScene(id: id) {

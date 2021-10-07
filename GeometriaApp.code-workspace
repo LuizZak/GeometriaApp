@@ -162,6 +162,7 @@
 	],
 	"settings": {
 		"files.eol": "\n",
+		"files.insertFinalNewline": true,
 		"commentAnchors.workspace.excludeFiles": "**/{node_modules,.git,.idea,target,out,build,vendor,.build,.swiftpm}/**/*",
 		"commentAnchors.tags.list": [
 			{

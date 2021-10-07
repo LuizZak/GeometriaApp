@@ -1,11 +1,11 @@
-struct SubtractionElement<T0: Element, T1: Element> {
+struct UnionElement<T0: Element, T1: Element> {
     var id: Int = 0
     var material: Int? = nil
     var t0: T0
     var t1: T1
 }
 
-extension SubtractionElement: Element {
+extension UnionElement: Element {
     @inlinable
     mutating func attributeIds(_ idFactory: inout ElementIdFactory) {
         id = idFactory.makeId()
@@ -24,31 +24,29 @@ extension SubtractionElement: Element {
     }
 }
 
-extension SubtractionElement: BoundedElement where T0: BoundedElement {
-    // TODO: Bounds are guaranteed to be no bigger than t0's area but maybe there 
-    // TODO: are better ways to generate a bounding box here.
+extension UnionElement: BoundedElement where T0: BoundedElement, T1: BoundedElement {
     @inlinable
     func makeBounds() -> ElementBounds {
-        t0.makeBounds()
+        t0.makeBounds().union(t1.makeBounds())
     }
 }
 
 @_transparent
-func subtraction<T0, T1>(@ElementBuilder _ builder: () -> TupleElement2<T0, T1>) -> SubtractionElement<T0, T1> {
+func union<T0, T1>(@ElementBuilder _ builder: () -> TupleElement2<T0, T1>) -> UnionElement<T0, T1> {
     let value = builder()
 
     return .init(t0: value.t0, t1: value.t1)
 }
 
 @_transparent
-func subtraction<T0, T1, T2>(@ElementBuilder _ builder: () -> TupleElement3<T0, T1, T2>) -> SubtractionElement<SubtractionElement<T0, T1>, T2> {
+func union<T0, T1, T2>(@ElementBuilder _ builder: () -> TupleElement3<T0, T1, T2>) -> UnionElement<UnionElement<T0, T1>, T2> {
     let value = builder()
 
     return .init(t0: .init(t0: value.t0, t1: value.t1), t1: value.t2)
 }
 
 @_transparent
-func subtraction<T0, T1, T2, T3>(@ElementBuilder _ builder: () -> TupleElement4<T0, T1, T2, T3>) -> SubtractionElement<SubtractionElement<SubtractionElement<T0, T1>, T2>, T3> {
+func union<T0, T1, T2, T3>(@ElementBuilder _ builder: () -> TupleElement4<T0, T1, T2, T3>) -> UnionElement<UnionElement<UnionElement<T0, T1>, T2>, T3> {
     let value = builder()
 
     return .init(t0: .init(t0: .init(t0: value.t0, t1: value.t1), t1: value.t2), t1: value.t3)

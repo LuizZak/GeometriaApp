@@ -1,6 +1,6 @@
 struct IntersectionElement<T0: Element, T1: Element> {
     var id: Int = 0
-    var material: Int? = nil // TODO: Add support for this property in Raymarcher too
+    var material: Int? = nil
     var t0: T0
     var t1: T1
 }
@@ -25,9 +25,6 @@ extension IntersectionElement: Element {
 }
 
 extension IntersectionElement: BoundedElement where T0: BoundedElement, T1: BoundedElement {
-    // TODO: Bounds are guaranteed to be no bigger than the intersection area
-    // TODO: between t0 and t1, but maybe there are better ways to generate a 
-    // TODO: bounding box here.
     func makeBounds() -> ElementBounds {
         let t0Bounds = t0.makeBounds()
 
