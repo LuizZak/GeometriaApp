@@ -80,10 +80,7 @@ extension IntersectionRaytracingElement: RaytracingElement {
             return false
         }
 
-        var included: [RayHit] = []
         var index = 0
-        
-        index = 0
         while index < combined.count {
             defer { index += 1 }
             let hit = combined[index]
@@ -94,22 +91,17 @@ extension IntersectionRaytracingElement: RaytracingElement {
                 continue
             }
 
+            // TODO: Figure out better way to express material replacement
+            // TODO: Maybe make IntersectionElement its own class of geometry with
+            // TODO: unique ID and material support?
+            rayHit.material = material ?? t0Hits.first?.material ?? t1Hits.first?.material
+
             if hit.isT0 && isT0Included(index) {
-                included.append(rayHit)
+                results.append(rayHit)
             } else if !hit.isT0 && isT1Included(index) {
-                included.append(rayHit)
+                results.append(rayHit)
             }
         }
-        
-        // TODO: Figure out better way to express material replacement
-        // TODO: Maybe make IntersectionElement its own class of geometry with
-        // TODO: unique ID and material support?
-        results.append(contentsOf: included.map { hit in
-            var hit = hit
-            hit.id = id
-            hit.material = material ?? t0Hits.first?.material ?? t1Hits.first?.material
-            return hit
-        })
     }
 }
 

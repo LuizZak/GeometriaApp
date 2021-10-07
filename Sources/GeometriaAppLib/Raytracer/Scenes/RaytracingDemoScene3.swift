@@ -114,9 +114,9 @@ private enum MaterialMapEnum: Int, CaseIterable, MaterialMapEnumType {
             return .diffuse(
                 .init(
                     color: .gray,
-                    reflectivity: 0.8
-                    //transparency: 1.0,
-                    //refractiveIndex: 1.3
+                    reflectivity: 0.8,
+                    transparency: 0.9,
+                    refractiveIndex: 1.3
                 )
             )
         }
