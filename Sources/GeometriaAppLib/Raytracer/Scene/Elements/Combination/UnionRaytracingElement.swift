@@ -13,7 +13,7 @@ extension UnionRaytracingElement: RaytracingElement {
         var local: [RayHit] = []
         raycast(query: query, results: &local)
 
-        if let hit = local.first {
+        if let hit = local.first, hit.point.distanceSquared(to: query.ray.start) < query.rayMagnitudeSquared {
             return query.withHit(hit)
         }
 
