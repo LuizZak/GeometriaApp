@@ -1,4 +1,4 @@
-enum RaymarchingDemoScene3 {
+enum RaymarchingDemoScene4 {
     @inlinable
     static func makeScene() -> some RaymarchingSceneType {
         let materials: MaterialMap = makeMaterialMap(MaterialMapEnum.self)
@@ -11,34 +11,17 @@ enum RaymarchingDemoScene3 {
 
 @RaymarchingElementBuilder
 private func scene() -> some RaymarchingElement {
-    subtraction {
-        intersection {
-            makeCube(
-                center: .init(x: 0, y: 100, z: 40),
-                sideLength: 30
-            )
-            makeSphere(
-                center: .init(x: 0, y: 100, z: 40),
-                radius: 20
-            )
-        }
-        makeCylinder(
-            center: .init(x: 0, y: 100, z: 40),
-            direction: .unitZ,
-            length: 40,
-            radius: 10
+    intersection {
+        makeCube(
+            center: .init(x: 0, y: 100, z: 40), 
+            sideLength: 45
         )
-        makeCylinder(
+
+        makeTorus(
             center: .init(x: 0, y: 100, z: 40),
-            direction: .unitY,
-            length: 40,
-            radius: 10
-        )
-        makeCylinder(
-            center: .init(x: 0, y: 100, z: 40),
-            direction: .unitX,
-            length: 40,
-            radius: 10
+            axis: .unitZ,
+            major: 27,
+            minor: 7
         )
     }
     .makeBoundingBox()
@@ -85,6 +68,20 @@ private func makeSphere(center: RVector3D, radius: Double) -> SphereRaytracingEl
     )
 }
 
+@_transparent
+private func makeTorus(center: RVector3D, axis: RVector3D, major: Double, minor: Double) -> TorusRaymarchingElement {
+    .init(
+        geometry: .init(
+            center: center,
+            axis: axis,
+            majorRadius: major,
+            minorRadius: minor
+        ),
+        material: MaterialMapEnum.default.rawValue
+    )
+}
+
+@_transparent
 private func makeFloorPlane() -> PlaneElement {
     PlaneRaytracingElement(
         geometry: .init(point: .zero, normal: .unitZ),

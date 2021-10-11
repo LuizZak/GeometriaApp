@@ -63,6 +63,9 @@ public typealias RPlane3D = PointNormalPlane3<RVector3D>
 /// Line3 for Raytracing operations
 public typealias RLine3D = Line3<RVector3D>
 
+/// Torus3 for Raytracing operations
+public typealias RTorus3D = Torus3<RVector3D>
+
 /// LineSegment3 for Raytracing operations
 public typealias RLineSegment3D = LineSegment3<RVector3D>
 

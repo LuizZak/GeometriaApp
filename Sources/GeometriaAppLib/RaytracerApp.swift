@@ -168,7 +168,7 @@ public class RaytracerApp: Blend2DApp {
 //        let batcher = SieveBatcher()
 //        let batcher = LinearBatcher()
         
-        #if true
+        #if false
         
         let scene = RaytracingDemoScene1.makeScene()
         
@@ -180,7 +180,7 @@ public class RaytracerApp: Blend2DApp {
         
         #else
 
-        let scene = RaymarchingDemoScene3.makeScene()
+        let scene = RaymarchingDemoScene4.makeScene()
         
         let renderer = Raymarcher(
             scene: scene,

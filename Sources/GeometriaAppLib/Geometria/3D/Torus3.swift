@@ -147,8 +147,10 @@ extension Torus3: SignedDistanceMeasurableType {
         // If the torus' axis is pointing up or down the Z axis, skip the rotation
         // step.
         var transformed = point - center
-        if axis != .unitZ && axis != -.unitZ {
-            let m = RotationMatrix3.make3DRotationBetween(.unitZ, axis)
+        let origin = axis
+        let target = Vector.unitY
+        if origin != target && origin != -origin {
+            let m = RotationMatrix3.make3DRotationBetween(origin, target)
 
             transformed = m.transformPoint(transformed)
         }
