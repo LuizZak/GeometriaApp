@@ -1,7 +1,7 @@
 import RealModule
 
 /// Plain 3-row 3-column Matrix with real components.
-public struct Matrix3x3: MatrixType, CustomStringConvertible {
+public struct Matrix3x3: SquareMatrixType, CustomStringConvertible {
     public typealias Scalar = Double
 
     /// Returns a 3x3 [identity matrix].
@@ -89,39 +89,39 @@ public struct Matrix3x3: MatrixType, CustomStringConvertible {
     }
     
     /// Gets the first row of this matrix in a Vector3.
-    public var r0Vec: Vector3D {
+    public var r0Vec: Vector3 {
         @_transparent
-        get { Vector3D(r0) }
+        get { Vector3(r0) }
     }
     
     /// Gets the second row of this matrix in a Vector3.
-    public var r1Vec: Vector3D {
+    public var r1Vec: Vector3 {
         @_transparent
-        get { Vector3D(r1) }
+        get { Vector3(r1) }
     }
     
     /// Gets the third row of this matrix in a Vector3.
-    public var r2Vec: Vector3D {
+    public var r2Vec: Vector3 {
         @_transparent
-        get { Vector3D(r2) }
+        get { Vector3(r2) }
     }
     
     /// Gets the first column of this matrix in a Vector3.
-    public var c0Vec: Vector3D {
+    public var c0Vec: Vector3 {
         @_transparent
-        get { Vector3D(c0) }
+        get { Vector3(c0) }
     }
     
     /// Gets the second column of this matrix in a Vector3.
-    public var c1Vec: Vector3D {
+    public var c1Vec: Vector3 {
         @_transparent
-        get { Vector3D(c1) }
+        get { Vector3(c1) }
     }
     
     /// Gets the third column of this matrix in a Vector3.
-    public var c2Vec: Vector3D {
+    public var c2Vec: Vector3 {
         @_transparent
-        get { Vector3D(c2) }
+        get { Vector3(c2) }
     }
     
     /// Returns the number of rows in this matrix.
@@ -355,7 +355,7 @@ public struct Matrix3x3: MatrixType, CustomStringConvertible {
     /// Creates a matrix that when applied to a vector, scales each coordinate
     /// by the given amount.
     @_transparent
-    public static func makeScale(x: Scalar, y: Scalar) -> Self {
+    public static func make2DScale(x: Scalar, y: Scalar) -> Self {
         Self(rows: (
             (x, 0, 0),
             (0, y, 0),
@@ -366,14 +366,14 @@ public struct Matrix3x3: MatrixType, CustomStringConvertible {
     /// Creates a matrix that when applied to a vector, scales each coordinate
     /// by the corresponding coordinate on a supplied vector.
     @_transparent
-    public static func makeScale<Vector: Vector2Type>(_ vec: Vector) -> Self {
-        makeScale(x: vec.x, y: vec.y)
+    public static func make2DScale<Vector: Vector2Type>(_ vec: Vector) -> Self {
+        make2DScale(x: vec.x, y: vec.y)
     }
     
-    /// Creates a rotation matrix that when applied to a vector, rotates it
-    /// around the origin by a specified radian amount.
+    /// Creates a rotation matrix that when applied to a 2-dimensional vector, 
+    /// rotates it around the origin (Z-axis) by a specified radian amount.
     @_transparent
-    public static func makeRotation(_ angleInRadians: Scalar) -> Self {
+    public static func make2DRotation(_ angleInRadians: Scalar) -> Self {
         let c = Scalar.cos(angleInRadians)
         let s = Scalar.sin(angleInRadians)
         
@@ -387,7 +387,7 @@ public struct Matrix3x3: MatrixType, CustomStringConvertible {
     /// Creates a translation matrix that when applied to a vector, moves it
     /// according to the specified amounts.
     @_transparent
-    public static func makeTranslation(x: Scalar, y: Scalar) -> Self {
+    public static func make2DTranslation(x: Scalar, y: Scalar) -> Self {
         Self(rows: (
             (1, 0, x),
             (0, 1, y),
@@ -398,8 +398,35 @@ public struct Matrix3x3: MatrixType, CustomStringConvertible {
     /// Creates a translation matrix that when applied to a vector, moves it
     /// according to the specified amounts.
     @_transparent
-    public static func makeTranslation<Vector: Vector2Type>(_ vec: Vector) -> Self {
-        makeTranslation(x: vec.x, y: vec.y)
+    public static func make2DTranslation<Vector: Vector2Type>(_ vec: Vector) -> Self {
+        make2DTranslation(x: vec.x, y: vec.y)
+    }
+
+    /// Creates a [skew-symmetric cross product] matrix for a given vector.
+    ///
+    /// When a skew-symmetric matrix `m` is created using this method with a 
+    /// vector `a`, a vector `b` multiplied by the matrix is equivalent to the 
+    /// result of `a × b`.
+    ///
+    /// Changing the [orientation] parameter results in a matrix that flips the
+    /// sign of the resulting cross product.
+    ///
+    /// [skew-symmetric cross product]: https://en.wikipedia.org/wiki/Skew-symmetric_matrix#Cross_product
+    /// [orientation]: https://en.wikipedia.org/wiki/Orientation_(vector_space)
+    @_transparent
+    public static func make3DSkewSymmetricCrossProduct<Vector: Vector3Type>(_ vector: Vector, 
+                                                                            orientation: Orientation3 = .rightHanded) -> Self {
+        let x = vector.x
+        let y = vector.y
+        let z = vector.z
+
+        let m = Self(rows: (
+            ( 0, -z,  y),
+            ( z,  0, -x),
+            (-y,  x,  0)
+        ))
+
+        return orientation == .rightHanded ? m : m.transposed()
     }
     
     /// Performs a [matrix addition] between `lhs` and `rhs` and returns the

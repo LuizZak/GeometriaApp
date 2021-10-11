@@ -26,11 +26,6 @@ extension SubtractionRaytracingElement: RaytracingElement {
             return
         }
         
-        // For raytracing subtractions, any ray hit on the subtracted geometry 
-        // that overlaps the second geometry is ignored. When this occurs, the 
-        // hit is moved to the end of the subtracting geometry, unless that 
-        // intersection itself is not contained within the subtracted geometry.
-
         var noHitQuery = query.withNilHit()
         noHitQuery.ignoring = .none
 

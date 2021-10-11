@@ -57,17 +57,17 @@ final class Raytracer<SceneType: RaytracingSceneType>: RendererType {
         assert(coord >= .zero && coord < viewportSize, "\(coord) is not within \(PixelCoord.zero) x \(viewportSize) limits")
         
         let ray = camera.rayFromCamera(at: coord)
-        return raytrace(ray: ray)
+        return raytrace(ray: ray).color
     }
     
-    private func raytrace(ray: RRay3D, ignoring: RayIgnore = .none, bounceCount: Int = 0) -> BLRgba32 {
+    private func raytrace(ray: RRay3D, ignoring: RayIgnore = .none, bounceCount: Int = 0) -> RaytraceResult {
         if bounceCount > maxBounces {
-            return BLRgba32.transparentBlack
+            return RaytraceResult(color: BLRgba32.transparentBlack, dotSunDirection: 0.0)
         }
         
         guard let hit = scene.intersect(ray: ray, ignoring: ignoring) else {
             processingPrinter?.add(ray: ray)
-            return scene.skyColor
+            return RaytraceResult(color: scene.skyColor, dotSunDirection: 0.0)
         }
         
         //let sceneGeometry = scene.geometries[hit.id]
@@ -78,7 +78,7 @@ final class Raytracer<SceneType: RaytracingSceneType>: RendererType {
         
         // No material information, potentially a hit against invisible geometry?
         guard let material = hit.material else {
-            return scene.skyColor
+            return RaytraceResult(color: scene.skyColor, dotSunDirection: 0.0)
         }
         
         return computeColor(materialId: material, ray: ray, hit: hit, bounceCount: bounceCount)
@@ -88,7 +88,7 @@ final class Raytracer<SceneType: RaytracingSceneType>: RendererType {
                               ray: RRay3D,
                               hit: RayHit,
                               ignoring: RayIgnore = .none,
-                              bounceCount: Int = 0) -> BLRgba32 {
+                              bounceCount: Int = 0) -> RaytraceResult {
         
         let material = materialMapCache[materialId]
         /*
@@ -167,10 +167,10 @@ final class Raytracer<SceneType: RaytracingSceneType>: RendererType {
                     rayThroughObject = innerRay
                 }
                 
-                let backColor = raytrace(ray: rayThroughObject,
-                                         ignoring: rayIgnore,
-                                         bounceCount: bounceCount + 1)
-                color = mergeColors(color, backColor, factor: material.transparency * trans)
+                let backHit = raytrace(ray: rayThroughObject,
+                                       ignoring: rayIgnore,
+                                       bounceCount: bounceCount + 1)
+                color = mergeColors(color, backHit.color, factor: material.transparency * trans)
             }
             
             // Reflectivity
@@ -197,7 +197,7 @@ final class Raytracer<SceneType: RaytracingSceneType>: RendererType {
                 
                 factor = max(0, min(1, factor))
                 
-                color = mergeColors(color, secondHit, factor: factor)
+                color = mergeColors(color, secondHit.color, factor: factor)
             }
 
             // TODO: Figure out how to handle refraction in shadow computation
@@ -251,13 +251,16 @@ final class Raytracer<SceneType: RaytracingSceneType>: RendererType {
         // TODO: Improve handling of shadow and direct light in refractive materials
         
         // Shadow or sunlight
+        let normalSunDirection: Double
         let shadow = calculateShadow(for: hit)
         if shadow > 0 {
             // Shadow
             color = mergeColors(color, .black, factor: 0.5 * shadow)
+            normalSunDirection = 0.0
         } else {
             // Sunlight direction
-            let sunDirDot = max(0.0, min(1, pow(hit.normal.dot(-scene.sunDirection), 5)))
+            normalSunDirection = hit.normal.dot(-scene.sunDirection)
+            let sunDirDot = max(0.0, min(1, pow(normalSunDirection, 5)))
             
             color = mergeColors(color, .white, factor: sunDirDot * refl)
         }
@@ -268,7 +271,7 @@ final class Raytracer<SceneType: RaytracingSceneType>: RendererType {
         let distFactor = max(0, min(1, dist / (far * far)))
         color = mergeColors(color, scene.skyColor, factor: distFactor)
         
-        return color
+        return RaytraceResult(color: color, dotSunDirection: normalSunDirection)
     }
     
     /// Reflects an incoming direction across a normal, returning a new direction
@@ -305,6 +308,15 @@ final class Raytracer<SceneType: RaytracingSceneType>: RendererType {
         }
         
         return max(0.0, min(1.0, 1 - transparency))
+    }
+
+    private struct RaytraceResult {
+        var color: BLRgba32
+        var dotSunDirection: Double
+
+        func merge(_ other: Self) -> Self {
+            other
+        }
     }
 }
 
