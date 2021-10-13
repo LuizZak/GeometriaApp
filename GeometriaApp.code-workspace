@@ -201,10 +201,18 @@
 		"ShortcutMenuBar.userButton03Command": "workbench.action.tasks.runTask|Run Win32 (release)",
 		"cSpell.words": [
 			"AABB",
+			"blit",
+			"DXGI",
+			"IDXGI",
 			"msvc",
+			"prgb",
 			"RAABB",
+			"Raymarcher",
 			"Raymarching",
+			"Raytracer",
 			"Raytracing",
+			"Rgba",
+			"Subview",
 			"swiftpm"
 		],
 	},

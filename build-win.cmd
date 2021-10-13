@@ -33,19 +33,21 @@ REM TODO: Enable -cross-module-optimization once Swift compiler properly support
 REM if %CONFIG%==release SET BUILD_ARGS=%BUILD_ARGS% -Xswiftc -cross-module-optimization
 
 REM Emit debug symbols
+SET DEBUG_ARGS=-Xswiftc -g -Xswiftc -debug-info-format=codeview -Xlinker -debug
+
 IF %CONFIG%=="debug" (
-    SET BUILD_ARGS=%BUILD_ARGS% -Xswiftc -g -Xswiftc -debug-info-format=codeview
+    SET BUILD_ARGS=%BUILD_ARGS% %DEBUG_ARGS%
 ) ELSE (
     IF %CONFIG%==debug (
-        SET BUILD_ARGS=%BUILD_ARGS% -Xswiftc -g -Xswiftc -debug-info-format=codeview
+        SET BUILD_ARGS=%BUILD_ARGS% %DEBUG_ARGS%
     )
 )
 
 IF %CONFIG%=="release" (
-    SET BUILD_ARGS=%BUILD_ARGS% -Xswiftc -g -Xswiftc -debug-info-format=codeview
+    SET BUILD_ARGS=%BUILD_ARGS% %DEBUG_ARGS%
 ) ELSE (
     IF %CONFIG%==release (
-        SET BUILD_ARGS=%BUILD_ARGS% -Xswiftc -g -Xswiftc -debug-info-format=codeview
+        SET BUILD_ARGS=%BUILD_ARGS% %DEBUG_ARGS%
     )
 )
 

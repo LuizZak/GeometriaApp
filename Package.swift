@@ -32,9 +32,10 @@ var osTargets: [Target] = []
 
 #if os(Windows)
 
-packageDependencies.append(
-    .package(url: "https://github.com/LuizZak/ImagineUI-Win.git", .branch("main"))
-)
+packageDependencies.append(contentsOf:[
+    .package(url: "https://github.com/LuizZak/ImagineUI-Win.git", .branch("main")),
+    .package(url: "https://github.com/compnerd/swift-com.git", .branch("main"))
+])
 
 geometriaAppTarget.dependencies.append(
     "GeometriaWindows"
@@ -46,6 +47,7 @@ osTargets.append(
         dependencies: [
             "SwiftBlend2D",
             "ImagineUI-Win",
+            .product(name: "SwiftCOM", package: "swift-com"),
             .product(name: "Blend2DRenderer", package: "ImagineUI"),
             "GeometriaAppLib"
         ],
