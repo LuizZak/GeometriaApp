@@ -22,4 +22,8 @@ extension TypedArrayElement: Element {
 
         return nil
     }
+
+    func accept<Visitor: ElementVisitor>(_ visitor: Visitor) -> Visitor.ResultType {
+        visitor.visit(self)
+    }
 }

@@ -203,6 +203,7 @@
 			"AABB",
 			"msvc",
 			"RAABB",
+			"Raymarching",
 			"Raytracing",
 			"swiftpm"
 		],

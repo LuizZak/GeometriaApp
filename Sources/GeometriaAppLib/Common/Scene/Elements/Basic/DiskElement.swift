@@ -14,6 +14,10 @@ extension DiskElement: Element {
     func queryScene(id: Int) -> Element? {
         id == self.id ? self : nil
     }
+
+    func accept<Visitor: ElementVisitor>(_ visitor: Visitor) -> Visitor.ResultType {
+        visitor.visit(self)
+    }
 }
 
 extension DiskElement: BoundedElement {

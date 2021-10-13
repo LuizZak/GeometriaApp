@@ -22,6 +22,10 @@ extension SubtractionElement: Element {
 
         return nil
     }
+
+    func accept<Visitor: ElementVisitor>(_ visitor: Visitor) -> Visitor.ResultType {
+        visitor.visit(self)
+    }
 }
 
 extension SubtractionElement: BoundedElement where T0: BoundedElement {

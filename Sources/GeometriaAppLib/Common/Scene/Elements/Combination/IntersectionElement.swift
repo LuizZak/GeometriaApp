@@ -22,6 +22,10 @@ extension IntersectionElement: Element {
 
         return nil
     }
+
+    func accept<Visitor: ElementVisitor>(_ visitor: Visitor) -> Visitor.ResultType {
+        visitor.visit(self)
+    }
 }
 
 extension IntersectionElement: BoundedElement where T0: BoundedElement, T1: BoundedElement {

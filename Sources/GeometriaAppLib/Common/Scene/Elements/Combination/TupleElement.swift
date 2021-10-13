@@ -90,6 +90,10 @@ extension TupleElement2: Element {
 
         return nil
     }
+
+    func accept<Visitor: ElementVisitor>(_ visitor: Visitor) -> Visitor.ResultType {
+        visitor.visit(self)
+    }
 }
 
 extension TupleElement3: Element {
@@ -107,6 +111,10 @@ extension TupleElement3: Element {
         if let el = t2.queryScene(id: id) { return el }
 
         return nil
+    }
+
+    func accept<Visitor: ElementVisitor>(_ visitor: Visitor) -> Visitor.ResultType {
+        visitor.visit(self)
     }
 }
 
@@ -127,6 +135,10 @@ extension TupleElement4: Element {
         if let el = t3.queryScene(id: id) { return el }
 
         return nil
+    }
+
+    func accept<Visitor: ElementVisitor>(_ visitor: Visitor) -> Visitor.ResultType {
+        visitor.visit(self)
     }
 }
 
@@ -149,6 +161,10 @@ extension TupleElement5: Element {
         if let el = t4.queryScene(id: id) { return el }
 
         return nil
+    }
+
+    func accept<Visitor: ElementVisitor>(_ visitor: Visitor) -> Visitor.ResultType {
+        visitor.visit(self)
     }
 }
 
@@ -173,6 +189,10 @@ extension TupleElement6: Element {
         if let el = t5.queryScene(id: id) { return el }
 
         return nil
+    }
+
+    func accept<Visitor: ElementVisitor>(_ visitor: Visitor) -> Visitor.ResultType {
+        visitor.visit(self)
     }
 }
 
@@ -199,6 +219,10 @@ extension TupleElement7: Element {
         if let el = t6.queryScene(id: id) { return el }
 
         return nil
+    }
+
+    func accept<Visitor: ElementVisitor>(_ visitor: Visitor) -> Visitor.ResultType {
+        visitor.visit(self)
     }
 }
 
@@ -227,5 +251,9 @@ extension TupleElement8: Element {
         if let el = t7.queryScene(id: id) { return el }
 
         return nil
+    }
+
+    func accept<Visitor: ElementVisitor>(_ visitor: Visitor) -> Visitor.ResultType {
+        visitor.visit(self)
     }
 }

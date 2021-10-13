@@ -13,6 +13,10 @@ extension TranslateElement: Element {
     func queryScene(id: Int) -> Element? {
         element.queryScene(id: id)
     }
+
+    func accept<Visitor: ElementVisitor>(_ visitor: Visitor) -> Visitor.ResultType {
+        visitor.visit(self)
+    }
 }
 
 extension TranslateElement: BoundedElement where T: BoundedElement {

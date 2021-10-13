@@ -16,4 +16,8 @@ extension ModuloRaymarchingElement: Element {
     func queryScene(id: Int) -> Element? {
         element.queryScene(id: id)
     }
+
+    func accept<Visitor: ElementVisitor>(_ visitor: Visitor) -> Visitor.ResultType {
+        visitor.visit(self)
+    }
 }
