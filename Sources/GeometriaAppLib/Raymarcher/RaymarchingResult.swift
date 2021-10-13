@@ -61,6 +61,11 @@ extension RaymarchingResult {
 }
 
 @_transparent
+func abs(_ value: RaymarchingResult) -> RaymarchingResult {
+    .init(distance: abs(value.distance), material: value.material)
+}
+
+@_transparent
 func min(_ lhs: RaymarchingResult, _ rhs: RaymarchingResult) -> RaymarchingResult {
     RaymarchingResult.min(lhs, rhs)
 }

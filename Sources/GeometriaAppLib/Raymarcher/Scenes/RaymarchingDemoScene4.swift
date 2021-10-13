@@ -12,21 +12,43 @@ enum RaymarchingDemoScene4 {
 @RaymarchingElementBuilder
 private func scene() -> some RaymarchingElement {
     intersection {
-        makeCube(
-            center: .init(x: 0, y: 100, z: 40), 
-            sideLength: 45
-        )
-
         makeTorus(
             center: .init(x: 0, y: 100, z: 40),
             axis: .unitZ,
             major: 27,
             minor: 7
         )
+
+        makePlane(
+            point: .init(x: 0, y: 100, z: 40),
+            normal: .unitZ + .one / 10
+        ).absolute()
     }
-    .makeBoundingBox()
+    //.makeBoundingBox()
     
     makeFloorPlane()
+}
+
+@_transparent
+private func makeLineSegment(start: RVector3D, end: RVector3D) -> LineSegmentRaymarchingElement {
+    .init(
+        geometry: .init(
+            start: start,
+            end: end
+        ),
+        material: MaterialMapEnum.default.rawValue
+    )
+}
+
+@_transparent
+private func makePlane(point: RVector3D, normal: RVector3D) -> PlaneRaymarchingElement {
+    .init(
+        geometry: .init(
+            point: point,
+            normal: normal
+        ),
+        material: MaterialMapEnum.default.rawValue
+    )
 }
 
 @_transparent
