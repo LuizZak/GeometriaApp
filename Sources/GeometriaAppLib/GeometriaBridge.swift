@@ -48,7 +48,7 @@ public typealias RSphere3D = Sphere3<RVector3D>
 /// Ellipse3 for Raytracing operations
 public typealias REllipse3D = Ellipse3<RVector3D>
 
-/// Cylinder3 for Raytracing operatons
+/// Cylinder3 for Raytracing operations
 public typealias RCylinder3D = Cylinder3<RVector3D>
 
 /// Disk3 for Raytracing operations

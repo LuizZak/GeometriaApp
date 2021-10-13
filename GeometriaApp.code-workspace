@@ -199,6 +199,13 @@
 		"ShortcutMenuBar.userButton01Command": "workbench.action.tasks.runTask|Build Win32 (debug)",
 		"ShortcutMenuBar.userButton02Command": "workbench.action.tasks.runTask|Run Win32 (debug)",
 		"ShortcutMenuBar.userButton03Command": "workbench.action.tasks.runTask|Run Win32 (release)",
+		"cSpell.words": [
+			"AABB",
+			"msvc",
+			"RAABB",
+			"Raytracing",
+			"swiftpm"
+		],
 	},
 	"extensions": {
 		"recommendations": [

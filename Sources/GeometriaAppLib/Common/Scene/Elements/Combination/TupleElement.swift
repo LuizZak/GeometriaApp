@@ -1,3 +1,24 @@
+/* TODO: Ideally this would be implemented as:
+struct TupleElement<T...> {
+    var t: T...
+}
+
+or, with non-variadic generics:
+
+struct TupleElement<T> {
+    var t: T
+}
+
+extension<T0: Element, T1: Element> TupleElement<(T0, T1)>: Element {
+    ...
+}
+extension<T0: Element, T1: Element, T2: Element> TupleElement<(T0, T1, T2: Element)>: Element {
+    ...
+}
+
+but do it with multiple tuples for now for performance reasons.
+*/
+
 struct TupleElement2<T0: Element, T1: Element> {
     var t0: T0
     var t1: T1
