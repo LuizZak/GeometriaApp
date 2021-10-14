@@ -13,7 +13,7 @@ class DirectXWindow: Win32Window {
     override func initialize() {
         super.initialize()
 
-        try! dxManager.initialize()
+        try! dxManager.initialize(window: self)
     }
 
     override func onClose(_ message: WindowMessage) {

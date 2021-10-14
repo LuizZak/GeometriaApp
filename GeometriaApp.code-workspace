@@ -202,7 +202,9 @@
 		"cSpell.words": [
 			"AABB",
 			"blit",
+			"DWORD",
 			"DXGI",
+			"HWND",
 			"IDXGI",
 			"msvc",
 			"prgb",
@@ -213,7 +215,8 @@
 			"Raytracing",
 			"Rgba",
 			"Subview",
-			"swiftpm"
+			"swiftpm",
+			"UNORM"
 		],
 	},
 	"extensions": {
