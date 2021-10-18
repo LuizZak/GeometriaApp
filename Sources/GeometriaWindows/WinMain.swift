@@ -1,5 +1,6 @@
 import Foundation
 import WinSDK
+import WinSDK.WinBase
 import SwiftCOM
 import MinWin32
 import ImagineUI_Win

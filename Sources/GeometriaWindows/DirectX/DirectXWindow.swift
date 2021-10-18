@@ -4,10 +4,10 @@ import MinWin32
 class DirectXWindow: Win32Window {
     let dxManager: DirectXManager
 
-    override init(size: Size) {
+    override init(settings: CreationSettings) {
         dxManager = DirectXManager()
 
-        super.init(size: size)
+        super.init(settings: settings)
     }
 
     override func initialize() {
@@ -18,8 +18,16 @@ class DirectXWindow: Win32Window {
 
     override func onClose(_ message: WindowMessage) {
         super.onClose(message)
-
+        
         WinLogger.info("\(self): Closed")
         app.requestQuit()
+    }
+
+    override func onPaint(_ message: WindowMessage) {
+        do {
+            try dxManager.render()
+        } catch {
+            WinLogger.error("Error while rendering: \(error)")
+        }
     }
 }

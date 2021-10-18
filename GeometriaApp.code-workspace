@@ -204,6 +204,7 @@
 			"blit",
 			"DWORD",
 			"DXGI",
+			"HRESULT",
 			"HWND",
 			"IDXGI",
 			"msvc",
@@ -214,6 +215,8 @@
 			"Raytracer",
 			"Raytracing",
 			"Rgba",
+			"Subresource",
+			"SUBRESOURCES",
 			"Subview",
 			"swiftpm",
 			"UNORM"

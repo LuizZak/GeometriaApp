@@ -53,7 +53,15 @@ osTargets.append(
         ],
         exclude: [
             "GeometriaApp.exe.manifest"
-        ])
+        ],
+        linkerSettings: [
+            .unsafeFlags([
+                "-Xlinker", 
+                "/DEBUG"
+            ],
+            .when(configuration: .debug))
+        ]
+    )
 )
 
 #elseif os(macOS)

@@ -1,14 +1,18 @@
 import WinSDK
 
-struct CD3DX12_CPU_DESCRIPTOR_HANDLE: Hashable {
-    var handle: D3D12_CPU_DESCRIPTOR_HANDLE
+typealias CD3DX12_CPU_DESCRIPTOR_HANDLE = D3D12_CPU_DESCRIPTOR_HANDLE
+
+extension CD3DX12_CPU_DESCRIPTOR_HANDLE {
+    init(_ other: D3D12_CPU_DESCRIPTOR_HANDLE, _ offsetInDescriptors: Int, _ descriptorIncrementSize: Int) {
+        self.init(ptr: SIZE_T(INT64(other.ptr) + INT64(offsetInDescriptors) * INT64(descriptorIncrementSize)))
+    }
 
     mutating func offset(_ offsetInDescriptors: Int, _ descriptorIncrementSize: Int) {
-        handle.ptr += UINT64(offsetInDescriptors) + UINT64(descriptorIncrementSize)
+        ptr += UINT64(offsetInDescriptors) + UINT64(descriptorIncrementSize)
     }
 
     mutating func offset(_ offsetScaledByIncrementSize: Int) {
-        handle.ptr += UInt64(offsetScaledByIncrementSize)
+        ptr += UInt64(offsetScaledByIncrementSize)
     }
 }
 
