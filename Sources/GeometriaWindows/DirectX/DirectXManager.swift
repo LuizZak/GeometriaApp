@@ -104,43 +104,41 @@ class DirectXManager {
         }
         defer { self.state = state }
 
-        let commandQueue = state.commandQueue
-        
         let backBufferState = try state.makeBackBufferStateForFrame()
-        
         let commandList = try backBufferState.resetCommandList()
 
-        // Clear the render target.
-        do {
-            let barrier = CD3DX12_RESOURCE_BARRIER.transition(backBufferState.backBuffer, D3D12_RESOURCE_STATE_PRESENT, D3D12_RESOURCE_STATE_RENDER_TARGET)
-            try commandList.ResourceBarrier(1, barrier)
+        try clearRenderTarget(state: state, commandList: commandList, backBufferState: backBufferState)
+        try present(state: &state, commandList: commandList, backBufferState: backBufferState)
+    }
 
-            let clearColor: (FLOAT, FLOAT, FLOAT, FLOAT) = (0.4, 0.6, 0.9, 1.0)
+    private func clearRenderTarget(state: DirectXState, commandList: GraphicsCommandList, backBufferState: DirectXState.BackBufferState) throws {
+        let barrier = CD3DX12_RESOURCE_BARRIER.transition(backBufferState.backBuffer, D3D12_RESOURCE_STATE_PRESENT, D3D12_RESOURCE_STATE_RENDER_TARGET)
+        try commandList.ResourceBarrier(1, barrier)
 
-            let rtv = try CD3DX12_CPU_DESCRIPTOR_HANDLE(state.rtvDescriptorHeap.GetCPUDescriptorHandleForHeapStart(), state.backBufferIndex, state.rtvDescriptorSize)
+        let clearColor: (FLOAT, FLOAT, FLOAT, FLOAT) = (0.4, 0.6, 0.9, 1.0)
 
-            try commandList.ClearRenderTargetView(rtv, clearColor, 0, nil)
-        }
+        let rtv = try CD3DX12_CPU_DESCRIPTOR_HANDLE(state.rtvDescriptorHeap.GetCPUDescriptorHandleForHeapStart(), state.backBufferIndex, state.rtvDescriptorSize)
 
-        // Present
-        do {
-            let barrier = CD3DX12_RESOURCE_BARRIER.transition(backBufferState.backBuffer, D3D12_RESOURCE_STATE_RENDER_TARGET, D3D12_RESOURCE_STATE_PRESENT)
-            try commandList.ResourceBarrier(1, barrier)
+        try commandList.ClearRenderTargetView(rtv, clearColor, 0, nil)
+    }
 
-            try commandList.Close()
-            try commandQueue.ExecuteCommandLists([commandList])
+    private func present(state: inout DirectXState, commandList: GraphicsCommandList, backBufferState: DirectXState.BackBufferState) throws {
+        let barrier = CD3DX12_RESOURCE_BARRIER.transition(backBufferState.backBuffer, D3D12_RESOURCE_STATE_RENDER_TARGET, D3D12_RESOURCE_STATE_PRESENT)
+        try commandList.ResourceBarrier(1, barrier)
 
-            state.fenceStructure.frameFenceValues[state.backBufferIndex] = try state.fenceStructure.signal(state.backBufferIndex, commandQueue: state.commandQueue)
+        try commandList.Close()
+        try state.commandQueue.ExecuteCommandLists([commandList])
 
-            let syncInterval: UINT = state.isVSyncOn ? 1 : 0
-            let presentFlags: UINT = state.tearingSupported && !state.isVSyncOn ? DXGI_PRESENT_ALLOW_TEARING : 0
+        state.fenceStructure.frameFenceValues[state.backBufferIndex] = try state.fenceStructure.signal(state.backBufferIndex, commandQueue: state.commandQueue)
 
-            try state.swapChain.Present(syncInterval, presentFlags)
+        let syncInterval: UINT = state.isVSyncOn ? 1 : 0
+        let presentFlags: UINT = state.tearingSupported && !state.isVSyncOn ? DXGI_PRESENT_ALLOW_TEARING : 0
 
-            state.backBufferIndex = Int(try state.swapChain.GetCurrentBackBufferIndex())
+        try state.swapChain.Present(syncInterval, presentFlags)
 
-            try state.fenceStructure.waitForFenceValue(fenceValue: state.fenceStructure.frameFenceValues[state.backBufferIndex])
-        }
+        state.backBufferIndex = Int(try state.swapChain.GetCurrentBackBufferIndex())
+
+        try state.fenceStructure.waitForFenceValue(fenceValue: state.fenceStructure.frameFenceValues[state.backBufferIndex])
     }
 
     private func enableDebugInterface() throws {
