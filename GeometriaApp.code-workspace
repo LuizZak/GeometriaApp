@@ -29,122 +29,32 @@
 			}
 		],
 		"tasks": [
-			{
+            {
 				"label": "Build Win32 (debug)",
 				"type": "shell",
-				"command": "build-win.cmd",
-				"presentation": {
-					"reveal": "always"
-				},
-				"group": {
-					"kind": "build",
-					"isDefault": true
-				},
-				"windows": {
-					"options": {
-						"shell": {
-							"executable": "C:\\WINDOWS\\System32\\cmd.exe",
-							"args": [
-								"/d",
-								"/c",
-							]
-						}
-					}
-				}
-			},
-			{
-				"label": "Run Win32 (debug)",
-				"type": "shell",
-				"command": "run-win.cmd",
+				"command": "python utils\\build.py",
 				"args": [
-					"debug"
-				],
-				"presentation": {
-					"reveal": "always"
-				},
-				"group": "build",
-				"windows": {
-					"options": {
-						"shell": {
-							"executable": "C:\\WINDOWS\\System32\\cmd.exe",
-							"args": [
-								"/d",
-								"/c",
-							]
-						}
-					}
-				}
+					"-c", "debug"
+				]
 			},
-			{
+            {
 				"label": "Run Win32 (release)",
 				"type": "shell",
-				"command": "run-win.cmd",
+				"command": "python utils\\build.py",
 				"args": [
-					"release"
-				],
-				"presentation": {
-					"reveal": "always"
-				},
-				"group": "build",
-				"windows": {
-					"options": {
-						"shell": {
-							"executable": "C:\\WINDOWS\\System32\\cmd.exe",
-							"args": [
-								"/d",
-								"/c",
-							]
-						}
-					}
-				}
+					"run",
+					"-c", "release"
+				]
 			},
-			{
-				"label": "Build (debug)",
+            {
+				"label": "Run Win32 (debug)",
 				"type": "shell",
-				"command": "swift",
+				"command": "python utils\\build.py",
 				"args": [
-					"build",
-					"--configuration",
-					"debug"
-				],
-				"presentation": {
-					"reveal": "always"
-				},
-				"group": "build",
-				"windows": {
-					"options": {
-						"shell": {
-							"executable": "C:\\WINDOWS\\System32\\cmd.exe",
-							"args": [
-								"/d",
-								"/c",
-							]
-						}
-					}
-				}
+					"run",
+					"-c", "debug"
+				]
 			},
-			{
-				"label": "Build (Release)",
-				"type": "shell",
-				"command": "swift",
-				"args": [
-					"build",
-					"-c",
-					"release",
-				],
-				"group": "build",
-				"windows": {
-					"options": {
-						"shell": {
-							"executable": "C:\\WINDOWS\\System32\\cmd.exe",
-							"args": [
-								"/d",
-								"/c",
-							]
-						}
-					}
-				}
-			}
 		]
 	},
 	"folders": [
@@ -203,8 +113,11 @@
 			"AABB",
 			"msvc",
 			"RAABB",
-			"Raymarching",
-			"Raytracing",
+			"raymarcher",
+			"raymarching",
+			"raytracer",
+			"raytracing",
+			"subview",
 			"swiftpm"
 		],
 	},

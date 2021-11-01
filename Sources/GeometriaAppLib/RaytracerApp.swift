@@ -18,18 +18,7 @@ public class RaytracerApp: Blend2DApp {
     
     private var threadCount: Int = 12
     
-    private var ui: ImagineUIWrapper
-    
-    private let topLeftLabels: StackView = StackView(orientation: .vertical)
-    private let batcherLabel: LabelControl = LabelControl()
-    private let stateLabel: LabelControl = LabelControl()
-    private let progressLabel: LabelControl = LabelControl()
-    private let totalTimeLabel: LabelControl = LabelControl()
-    
-    private let bottomLeftLabels: StackView = StackView(orientation: .vertical)
-    private let instructionsLabel: LabelControl = LabelControl(text: instructions)
-    
-    private let mouseLocationLabel: LabelControl = LabelControl()
+    private var ui: RaytracerUI
     
     var rendererCoordinator: RendererCoordinator?
     var buffer: Blend2DBufferWriter?
@@ -50,8 +39,11 @@ public class RaytracerApp: Blend2DApp {
         self.height = height
         time = 0
         _font = Fonts.defaultFont(size: 12)
-        ui = ImagineUIWrapper(size: BLSizeI(w: Int32(width), h: Int32(height)))
-        ui.sampleRenderScale = appRenderScale
+        
+        let uiWrapper = ImagineUIWrapper(size: BLSizeI(w: Int32(width), h: Int32(height)))
+        uiWrapper.sampleRenderScale = appRenderScale
+        ui = RaytracerUI(uiWrapper: uiWrapper)
+
         restartRendering()
         createUI()
     }
@@ -61,48 +53,8 @@ public class RaytracerApp: Blend2DApp {
     }
     
     func createUI() {
-        topLeftLabels.location = .init(x: 5, y: 5)
-        topLeftLabels.spacing = 5
-        topLeftLabels.areaIntoConstraintsMask = [.location]
-        bottomLeftLabels.areaIntoConstraintsMask = []
-        bottomLeftLabels.spacing = 5
-        ui.rootView.addSubview(bottomLeftLabels)
-        ui.rootView.addSubview(topLeftLabels)
-        
-        topLeftLabels.addArrangedSubview(stateLabel)
-        topLeftLabels.addArrangedSubview(batcherLabel)
-        topLeftLabels.addArrangedSubview(progressLabel)
-        topLeftLabels.addArrangedSubview(totalTimeLabel)
-        
-        bottomLeftLabels.addArrangedSubview(instructionsLabel)
-        bottomLeftLabels.addArrangedSubview(mouseLocationLabel)
-        
-        bottomLeftLabels.layout.makeConstraints { make in
-            make.left == 5
-            make.bottom == ui.rootView - 5
-        }
-        
-        updateLabels()
-    }
-    
-    func updateLabels() {
-        if let coordinator = rendererCoordinator {
-            stateLabel.text = "State: \(coordinator.state.description)"
-            batcherLabel.text = "Pixel order mode: \(coordinator.batcher.displayName)"
-            progressLabel.text = "Progress of pixel batches served: \(String(format: "%.2lf", coordinator.progress * 100))%"
-        }
-        
-        if _timeStarted != 0.0 {
-            if _timeEnded != 0.0 {
-                let timeString = String(format: "%.3lf", _timeEnded - _timeStarted)
-                
-                totalTimeLabel.text = "Total time (s): \(timeString)"
-            } else {
-                totalTimeLabel.text = "Total time (s): Running..."
-            }
-        } else {
-            totalTimeLabel.text = "Total time (s): No run"
-        }
+        let statusLabels = StatusLabelsComponent()
+        ui.addComponent(statusLabels)
     }
     
     public func willStartLiveResize() {
@@ -197,16 +149,17 @@ public class RaytracerApp: Blend2DApp {
             threadCount: threadCount,
             batcher: batcher
         )
+
+        ui.rendererCoordinatorChanged(rendererCoordinator)
         
-        rendererCoordinator?.stateDidChange.addListener(owner: self) { [weak self] state in
+        rendererCoordinator?.stateDidChange.addListener(owner: self) { [weak self] (_, change) in
             DispatchQueue.main.async {
                 guard let self = self else { return }
                 
-                if state == .finished {
+                if change.newValue == .finished {
                     self._timeEnded = UISettings.timeInSeconds()
                     self.invalidateAll()
                 }
-                self.updateLabels()
             }
         }
         rendererCoordinator?.initialize()
@@ -275,8 +228,6 @@ public class RaytracerApp: Blend2DApp {
     public func mouseMoved(event: MouseEventArgs) {
         ui.mouseMoved(event: event)
         
-        _mouseLocation = BLPointI(x: Int32(event.location.x), y: Int32(event.location.y))
-        mouseLocationLabel.text = "Mouse location: (x: \(_mouseLocation.x), y: \(_mouseLocation.y))"
         invalidateAll()
     }
     
@@ -294,13 +245,8 @@ public class RaytracerApp: Blend2DApp {
         self.time = time
         
         if let renderer = rendererCoordinator, renderer.state == .running {
-            updateLabels()
             invalidateAll()
         }
-        
-        stateLabel.isVisible = rendererCoordinator != nil
-        batcherLabel.isVisible = rendererCoordinator != nil
-        progressLabel.isVisible = rendererCoordinator != nil
         
         ui.update(time)
     }
