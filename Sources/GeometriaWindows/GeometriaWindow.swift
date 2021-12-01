@@ -96,4 +96,8 @@ extension GeometriaWindow: Blend2DAppDelegate {
     func setMouseHiddenUntilMouseMoves() {
         delegate?.setMouseHiddenUntilMouseMoves()
     }
+
+    func firstResponderChanged(_ newFirstResponder: KeyboardEventHandler?) {
+        delegate?.firstResponderChanged(newFirstResponder)
+    }
 }

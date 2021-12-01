@@ -4,7 +4,7 @@ import ImagineUI
 private var _attemptedDebugInMultithreadedYet = false
 
 /// Class that performs raytracing on a scene.
-final class Raytracer<SceneType: RaytracingSceneType>: RendererType {
+final class Raytracer<Scene: RaytracingSceneType>: RendererType {
     private var processingPrinter: RaytracerProcessingPrinter?
     private var materialMapCache: MaterialMap
     
@@ -15,15 +15,20 @@ final class Raytracer<SceneType: RaytracingSceneType>: RendererType {
     
     var isMultiThreaded: Bool = false
     var maxBounces: Int = 15
-    var scene: SceneType
+    var scene: Scene
     var camera: Camera
     var viewportSize: ViewportSize
     
-    init(scene: SceneType, camera: Camera, viewportSize: ViewportSize) {
+    init(scene: Scene, camera: Camera, viewportSize: ViewportSize) {
         self.scene = scene
         self.camera = camera
         self.viewportSize = viewportSize
         self.materialMapCache = scene.materialMap()
+    }
+
+    /// Gets the scene configured on this renderer.
+    func currentScene() -> SceneType {
+        return scene
     }
     
     // MARK: - Debugging

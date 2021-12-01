@@ -12,7 +12,7 @@ protocol RendererType: AnyObject {
     /// Should not be set on multi-threaded contexts with potential for data
     /// races.
     var isMultiThreaded: Bool { get set }
-    
+
     /// Requests rendering for a pixel at a given coordinate.
     ///
     /// It is safe to call in multi-threaded contexts.
@@ -20,4 +20,7 @@ protocol RendererType: AnyObject {
     
     func beginDebug()
     func endDebug()
+
+    /// Gets the scene configured on this renderer.
+    func currentScene() -> SceneType
 }

@@ -56,6 +56,11 @@ struct RaytracingScene<T: RaytracingElement>: RaytracingSceneType {
     func materialMap() -> MaterialMap {
         materialIdMap
     }
+
+    /// Walks a visitor through this scene's elements.
+    func walk<Visitor: ElementVisitor>(_ visitor: Visitor) -> Visitor.ResultType {
+        root.accept(visitor)
+    }
 }
 
 extension RaytracingElementBuilder {

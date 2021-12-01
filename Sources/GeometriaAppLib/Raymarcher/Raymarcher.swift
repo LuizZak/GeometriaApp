@@ -4,17 +4,17 @@ import ImagineUI
 private var _attemptedDebugInMultithreadedYet = false
 
 /// Class that performs raymarching on a scene.
-final class Raymarcher<SceneType: RaymarchingSceneType>: RendererType {
+final class Raymarcher<Scene: RaymarchingSceneType>: RendererType {
     private var processingPrinter: RaytracerProcessingPrinter?
     private var materialMapCache: MaterialMap
     private var globalMarchParameters: MarchingParameters
     
-    let scene: SceneType
+    let scene: Scene
     let camera: Camera
     let viewportSize: ViewportSize
     var isMultiThreaded: Bool = false
     
-    init(scene: SceneType, camera: Camera, viewportSize: ViewportSize) {
+    init(scene: Scene, camera: Camera, viewportSize: ViewportSize) {
         self.scene = scene
         self.camera = camera
         self.viewportSize = viewportSize
@@ -26,6 +26,11 @@ final class Raymarcher<SceneType: RaymarchingSceneType>: RendererType {
             minimumMarchTolerance: 0.01,
             maxDistance: 1000
         )
+    }
+
+    /// Gets the scene configured on this renderer.
+    func currentScene() -> SceneType {
+        return scene
     }
     
     // MARK: - Debugging

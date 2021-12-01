@@ -5,8 +5,8 @@
         "package": "CassowarySwift",
         "repositoryURL": "https://github.com/LuizZak/CassowarySwift.git",
         "state": {
-          "branch": "cassowary-swift",
-          "revision": "8cd38ef939d15b1bde1a31105142eb8cfb290c3b",
+          "branch": "cassowary-swift-optimizations",
+          "revision": "c1e6e8a7d00d22ac686845e1652d2245b097c16e",
           "version": null
         }
       },
@@ -15,7 +15,7 @@
         "repositoryURL": "https://github.com/LuizZak/ImagineUI.git",
         "state": {
           "branch": "master",
-          "revision": "c37ee9975b8c2c6d563807ec6ff516eeab97025b",
+          "revision": "4eff9e0c8846445a535d1fc6d4fdd594d554e670",
           "version": null
         }
       },
@@ -24,7 +24,7 @@
         "repositoryURL": "https://github.com/LuizZak/ImagineUI-Win.git",
         "state": {
           "branch": "main",
-          "revision": "0a274d95391b9cbe63f33d04cbb37791436b7666",
+          "revision": "44dcd7b5f1310116cf3298a372dba10ad0672bd7",
           "version": null
         }
       },
@@ -33,7 +33,7 @@
         "repositoryURL": "https://github.com/LuizZak/swift-blend2d.git",
         "state": {
           "branch": "master",
-          "revision": "56ff77ada985fe9dabf64f8b6e850066a2188960",
+          "revision": "b053f1a559d1d8864e91ca75e9a5fa3e0bc6ce07",
           "version": null
         }
       },
@@ -60,8 +60,8 @@
         "repositoryURL": "https://github.com/apple/swift-numerics.git",
         "state": {
           "branch": null,
-          "revision": "0a23770641f65a4de61daf5425a37ae32a3fd00d",
-          "version": "1.0.1"
+          "revision": "0a5bc04095a675662cf24757cc0640aa2204253b",
+          "version": "1.0.2"
         }
       }
     ]

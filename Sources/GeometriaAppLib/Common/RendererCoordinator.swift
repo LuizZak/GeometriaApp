@@ -20,14 +20,14 @@ final class RendererCoordinator: RendererWorkerContext {
     private(set) var state: State = .unstarted {
         didSet {
             if state != oldValue {
-                _stateDidChange.publishChangeEvent(sender: self, old: oldValue, new: state)
+                _stateDidChange(sender: self, old: oldValue, new: state)
             }
         }
     }
     
     @ConcurrentValue private var currentPixels: Int64 = 0
     
-    @Event var stateDidChange: ValueChangeEvent<RendererCoordinator, State>
+    @ValueChangeEvent<RendererCoordinator, State> var stateDidChange
     
     var viewportSize: ViewportSize
     var buffer: RendererBufferWriter

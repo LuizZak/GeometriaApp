@@ -34,6 +34,11 @@ struct RaymarchingScene<T: RaymarchingElement>: RaymarchingSceneType {
     func materialMap() -> MaterialMap {
         materialIdMap
     }
+
+    /// Walks a visitor through this scene's elements.
+    func walk<Visitor: ElementVisitor>(_ visitor: Visitor) -> Visitor.ResultType {
+        root.accept(visitor)
+    }
 }
 
 extension RaymarchingElementBuilder {

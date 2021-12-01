@@ -59,7 +59,7 @@ def make_argparser() -> argparse.ArgumentParser:
 
     def add_manifest_arg(parser: argparse.ArgumentParser):
         parser.add_argument('-m', '--manifest-path',
-                            type=Optional[Path],
+                            type=Path,
                             dest='manifest_path',
                             default=None,
                             help="Path to a .manifest file to use when building .exe targets. If not provided, a path of the form "
@@ -72,7 +72,13 @@ def make_argparser() -> argparse.ArgumentParser:
                             default='debug',
                             help="Build configuration to use. Can either be 'debug' or 'release'. Defaults to 'debug'.")
 
-    argparser = DefaultSubcommandArgParse(description='Builds GeometriaApp and/or sample project.')
+        parser.add_argument('-d',
+                            action='append',
+                            type=str,
+                            dest='definitions',
+                            help="A list of -D parameters to pass to -Xswiftc during compilation. Used to enable/disable '#if <DEFINITION_NAME>' in Swift code.")
+
+    argparser = DefaultSubcommandArgParse(description='Builds ImagineUI-Win and/or sample project.')
     argparser.set_default_subparser('build')
 
     subparsers = argparser.add_subparsers(dest='command')
@@ -86,11 +92,21 @@ def make_argparser() -> argparse.ArgumentParser:
     add_common_args(run_parser)
 
     add_target_arg(build_parser)
+    add_target_arg(run_parser)
     add_manifest_arg(build_parser)
+    add_manifest_arg(run_parser)
     add_executable_arg(run_parser)
 
     return argparser
 
+
+def toSwiftCDefList(definitions: list[str] | None) -> list[str]:
+    if definitions is None:
+        return []
+
+    for d in definitions:
+        yield "-Xswiftc"
+        yield f"-D{d}"
 
 # Arguments for a build command.
 @dataclass
@@ -98,6 +114,7 @@ class BuildCommandArgs:
     target_name: str | None
     config: str
     manifest_path: Path | None
+    definitions: list[str] | None
 
     def swift_build_args(self) -> List[str]:
         args = []
@@ -105,7 +122,7 @@ class BuildCommandArgs:
         if self.target_name is not None:
             args.extend(['--target', self.target_name])
 
-        args.extend(['--configuration', self.config, *win32_debug_args])
+        args.extend(['--configuration', self.config, *win32_debug_args, *toSwiftCDefList(self.definitions)])
 
         return args
 
@@ -113,8 +130,21 @@ class BuildCommandArgs:
 # Arguments for a run command.
 @dataclass
 class RunCommandArgs:
+    target_name: str | None
     executable_name: str | None
     config: str
+    manifest_path: Path | None
+    definitions: list[str] | None
+
+    def swift_build_args(self) -> List[str]:
+        args = []
+
+        if self.target_name is not None:
+            args.extend(['--target', self.target_name])
+
+        args.extend(['--configuration', self.config, *win32_debug_args, *toSwiftCDefList(self.definitions)])
+
+        return args
 
     def swift_run_args(self) -> List[str]:
         args = []
@@ -122,7 +152,7 @@ class RunCommandArgs:
         if self.executable_name is not None:
             args.append(self.executable_name)
 
-        args.extend(['--configuration', self.config, *win32_debug_args])
+        args.extend(['--configuration', self.config, *win32_debug_args, *toSwiftCDefList(self.definitions)])
 
         return args
 
@@ -131,9 +161,10 @@ class RunCommandArgs:
 @dataclass
 class TestCommandArgs:
     config: str
+    definitions: list[str] | None
 
     def swift_test_args(self) -> List[str]:
-        return ['--configuration', self.config, *win32_debug_args]
+        return ['--configuration', self.config, *win32_debug_args, *toSwiftCDefList(self.definitions)]
 
 
 # Settings for post-build process.
@@ -209,13 +240,21 @@ def get_package_description() -> Any:
     return json.loads(j)
 
 
-def default_manifest_path(target: SwiftTarget) -> Path:
-    return Path.cwd().joinpath('Sources').joinpath(target.name).joinpath(f'{target.name}.exe.manifest')
+def default_manifest_path(target_name: str) -> Path:
+    return Path.cwd().joinpath('Sources').joinpath(target_name).joinpath(f'{target_name}.exe.manifest')
 
 
 def run_post_build(settings: PostBuildSettings):
     run('mt', '-nologo', '-manifest', settings.manifest_path, f'-outputresource:{settings.exe_path}')
 
+def run_manifest_patch(build_dir: Path, target_name: str, manifest_path: str):
+    exe_path = build_dir.joinpath(target_name).with_suffix('.exe')
+
+    manifest_path = manifest_path
+    if manifest_path is None:
+        manifest_path = default_manifest_path(target_name)
+
+    run_post_build(PostBuildSettings(exe_path, manifest_path))
 
 def run_build(settings: BuildCommandArgs):
     run('swift', '--version', silent=False)
@@ -237,16 +276,14 @@ def run_build(settings: BuildCommandArgs):
 
     if target.type == SwiftTargetType.EXECUTABLE:
         build_dir = Path(run_output('swift', 'build', "--show-bin-path", *args).decode('UTF8').strip())
-        exe_path = build_dir.joinpath(target.name).with_suffix('.exe')
 
         manifest_path = settings.manifest_path
         if manifest_path is None:
-            manifest_path = default_manifest_path(target)
+            manifest_path = default_manifest_path(target.name)
 
-        run_post_build(PostBuildSettings(exe_path, manifest_path))
+        run_manifest_patch(build_dir, target.name, manifest_path)
 
     return
-
 
 def run_test(settings: TestCommandArgs):
     args = settings.swift_test_args()
@@ -256,14 +293,26 @@ def run_test(settings: TestCommandArgs):
 
 
 def run_target(settings: RunCommandArgs):
-    args = settings.swift_run_args()
-    run('swift', 'run', *args)
+    args = settings.swift_build_args()
+
+    run('swift', 'build', *args)
+
+    if settings.target_name is not None:
+        build_dir = Path(run_output('swift', 'build', "--show-bin-path", *args).decode('UTF8').strip())
+
+        manifest_path = settings.manifest_path
+        if manifest_path is None:
+            manifest_path = default_manifest_path(settings.target_name)
+
+        run_manifest_patch(build_dir, settings.target_name, manifest_path)
+
+    run('swift', 'run', '--skip-build', *settings.swift_run_args())
 
     return
 
 
 def do_build_command(args: Any):
-    settings = BuildCommandArgs(args.target, args.configuration, args.manifest_path)
+    settings = BuildCommandArgs(args.target, args.configuration, args.manifest_path, args.definitions)
     run_build(settings)
 
     print('Success!')
@@ -272,7 +321,7 @@ def do_build_command(args: Any):
 
 
 def do_test_command(args: Any):
-    settings = TestCommandArgs(args.configuration)
+    settings = TestCommandArgs(args.configuration, args.definitions)
     run_test(settings)
 
     print('Success!')
@@ -281,7 +330,7 @@ def do_test_command(args: Any):
 
 
 def do_run_command(args: Any):
-    settings = RunCommandArgs(args.executable, args.configuration)
+    settings = RunCommandArgs(args.target, args.executable, args.configuration, args.manifest_path, args.definitions)
     run_target(settings)
     return
 

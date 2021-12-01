@@ -7,6 +7,7 @@ public protocol Blend2DAppDelegate: AnyObject {
     func invalidate(bounds: UIRectangle)
     func setMouseCursor(_ cursor: MouseCursorKind)
     func setMouseHiddenUntilMouseMoves()
+    func firstResponderChanged(_ newFirstResponder: KeyboardEventHandler?)
 }
 
 public protocol Blend2DApp: AnyObject {

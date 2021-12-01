@@ -43,7 +43,8 @@
 				"command": "python utils\\build.py",
 				"args": [
 					"run",
-					"-c", "release"
+					"-c", "release",
+					"-t", "GeometriaApp"
 				]
 			},
             {
@@ -52,7 +53,9 @@
 				"command": "python utils\\build.py",
 				"args": [
 					"run",
-					"-c", "debug"
+					"-c", "debug",
+					"-t", "GeometriaApp",
+					"-m", "Sources\\GeometriaWindows\\GeometriaApp.exe.manifest"
 				]
 			},
 		]

@@ -1,13 +1,25 @@
 #if os(Windows)
 
+import WinSDK
 import GeometriaWindows
 
-_=try start()
+@_silgen_name("wWinMain")
+func wWinMain(_ hInstance: HINSTANCE,
+              _ hPrevInstance: HINSTANCE,
+              _ pCmdLine: PWSTR,
+              _ nCmdShow: CInt) -> CInt {
+
+    return try! start()
+}
 
 #elseif os(macOS)
 
 import GeometriaMacOS
-startApp()
+
+@main
+func main() {
+    startApp()
+}
 
 #else
 

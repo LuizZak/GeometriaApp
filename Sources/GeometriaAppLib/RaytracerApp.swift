@@ -53,8 +53,10 @@ public class RaytracerApp: Blend2DApp {
     }
     
     func createUI() {
-        let statusLabels = StatusLabelsComponent()
-        ui.addComponent(statusLabels)
+        let sceneGraphWidth = 200.0
+
+        ui.addComponent(StatusLabelsComponent(leftPadding: sceneGraphWidth))
+        ui.addComponent(SceneGraphUIComponent(width: sceneGraphWidth))
     }
     
     public func willStartLiveResize() {
@@ -151,6 +153,7 @@ public class RaytracerApp: Blend2DApp {
         )
 
         ui.rendererCoordinatorChanged(rendererCoordinator)
+        ui.rendererChanged(renderer)
         
         rendererCoordinator?.stateDidChange.addListener(owner: self) { [weak self] (_, change) in
             DispatchQueue.main.async {
@@ -414,7 +417,7 @@ class LabelControl: ControlView {
     }
     
     init(font: Font) {
-        label = Label(font: font)
+        label = Label(textColor: .white, font: font)
         
         super.init()
         

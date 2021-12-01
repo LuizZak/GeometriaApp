@@ -1,4 +1,4 @@
-// swift-tools-version:5.4
+// swift-tools-version:5.5
 import PackageDescription
 
 var packageDependencies: [Package.Dependency] =  [
@@ -32,12 +32,31 @@ var osTargets: [Target] = []
 
 #if os(Windows)
 
+// Append settings required to run the executable on Windows
+#if true
+
+geometriaAppTarget.swiftSettings = [
+    .unsafeFlags([
+        "-parse-as-library",
+    ])
+]
+geometriaAppTarget.linkerSettings = [
+    .linkedLibrary("User32"),
+    .linkedLibrary("ComCtl32"),
+    .unsafeFlags([
+        "-Xlinker",
+        "/DEBUG",
+    ], .when(configuration: .debug)),
+    .unsafeFlags([
+        "-Xlinker",
+        "/SUBSYSTEM:WINDOWS",
+    ])
+]
+
+#endif
+
 packageDependencies.append(
     .package(url: "https://github.com/LuizZak/ImagineUI-Win.git", .branch("main"))
-)
-
-geometriaAppTarget.dependencies.append(
-    "GeometriaWindows"
 )
 
 osTargets.append(
@@ -52,6 +71,10 @@ osTargets.append(
         exclude: [
             "GeometriaApp.exe.manifest"
         ])
+)
+
+geometriaAppTarget.dependencies.append(
+    "GeometriaWindows"
 )
 
 #elseif os(macOS)
