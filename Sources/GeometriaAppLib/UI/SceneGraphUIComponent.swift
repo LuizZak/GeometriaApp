@@ -154,14 +154,14 @@ private class SceneGraphVisitor: ElementVisitor {
     // MARK: Bounding
 
     func visit<T>(_ element: BoundingBoxElement<T>) -> ResultType {
-        let node = SceneGraphNode(title: "\(type(of: element))")
+        let node = SceneGraphNode(title: "Bounding Box (\(element.boundingBox))")
 
         node.addSubNode(element.element.accept(self))
 
         return node
     }
     func visit<T>(_ element: BoundingSphereElement<T>) -> ResultType {
-        let node = SceneGraphNode(title: "\(type(of: element))")
+        let node = SceneGraphNode(title: "Bounding Sphere (\(element.boundingSphere))")
 
         node.addSubNode(element.element.accept(self))
 
@@ -171,14 +171,14 @@ private class SceneGraphVisitor: ElementVisitor {
     // MARK: Combination
 
     func visit<T>(_ element: BoundedTypedArrayElement<T>) -> ResultType {
-        let node = SceneGraphNode(title: "\(type(of: element))")
+        let node = SceneGraphNode(title: "Bounded typed array (\(element.elements.count) element(s), typed \(T.self))")
 
         node.addSubNodes(element.elements.map { $0.accept(self) })
 
         return node
     }
     func visit<T0, T1>(_ element: IntersectionElement<T0, T1>) -> ResultType {
-        let node = SceneGraphNode(title: "\(type(of: element))")
+        let node = SceneGraphNode(title: "Intersection")
 
         node.addSubNode(element.t0.accept(self))
         node.addSubNode(element.t1.accept(self))
@@ -186,7 +186,7 @@ private class SceneGraphVisitor: ElementVisitor {
         return node
     }
     func visit<T0, T1>(_ element: SubtractionElement<T0, T1>) -> ResultType {
-        let node = SceneGraphNode(title: "\(type(of: element))")
+        let node = SceneGraphNode(title: "Subtraction")
 
         node.addSubNode(element.t0.accept(self))
         node.addSubNode(element.t1.accept(self))
@@ -194,14 +194,14 @@ private class SceneGraphVisitor: ElementVisitor {
         return node
     }
     func visit<T>(_ element: TypedArrayElement<T>) -> ResultType {
-        let node = SceneGraphNode(title: "\(type(of: element))")
+        let node = SceneGraphNode(title: "Typed array (\(element.elements.count) element(s), typed \(T.self))")
 
         node.addSubNodes(element.elements.map { $0.accept(self) })
 
         return node
     }
     func visit<T0, T1>(_ element: UnionElement<T0, T1>) -> ResultType {
-        let node = SceneGraphNode(title: "\(type(of: element))")
+        let node = SceneGraphNode(title: "Union")
 
         node.addSubNode(element.t0.accept(self))
         node.addSubNode(element.t1.accept(self))
@@ -212,7 +212,7 @@ private class SceneGraphVisitor: ElementVisitor {
     // MARK: Repeating
 
     func visit<T>(_ element: RepeatTranslateElement<T>) -> ResultType {
-        let node = SceneGraphNode(title: "\(type(of: element))")
+        let node = SceneGraphNode(title: "Repeat Translating (\(element.translation), \(element.count) times)")
 
         node.addSubNode(element.element.accept(self))
 
@@ -222,14 +222,14 @@ private class SceneGraphVisitor: ElementVisitor {
     // MARK: Transforming
 
     func visit<T>(_ element: ScaleElement<T>) -> ResultType {
-        let node = SceneGraphNode(title: "\(type(of: element))")
+        let node = SceneGraphNode(title: "Scale (\(element.scaling)x, @\(element.scalingCenter))")
 
         node.addSubNode(element.element.accept(self))
 
         return node
     }
     func visit<T>(_ element: TranslateElement<T>) -> ResultType {
-        let node = SceneGraphNode(title: "\(type(of: element))")
+        let node = SceneGraphNode(title: "Translate (\(element.translation))")
 
         node.addSubNode(element.element.accept(self))
 
@@ -239,7 +239,7 @@ private class SceneGraphVisitor: ElementVisitor {
     // MARK: Tuple Elements
     
     func visit<T0, T1>(_ element: TupleElement2<T0, T1>) -> ResultType {
-        let node = SceneGraphNode(title: "\(type(of: element))")
+        let node = SceneGraphNode(title: "2 Elements Tuple")
 
         node.addSubNode(element.t0.accept(self))
         node.addSubNode(element.t1.accept(self))
@@ -247,7 +247,7 @@ private class SceneGraphVisitor: ElementVisitor {
         return node
     }
     func visit<T0, T1>(_ element: BoundedTupleElement2<T0, T1>) -> ResultType {
-        let node = SceneGraphNode(title: "\(type(of: element))")
+        let node = SceneGraphNode(title: "2 Elements Bounded Tuple")
 
         node.addSubNode(element.t0.accept(self))
         node.addSubNode(element.t1.accept(self))
@@ -256,7 +256,7 @@ private class SceneGraphVisitor: ElementVisitor {
     }
     
     func visit<T0, T1, T2>(_ element: TupleElement3<T0, T1, T2>) -> ResultType {
-        let node = SceneGraphNode(title: "\(type(of: element))")
+        let node = SceneGraphNode(title: "3 Elements Tuple")
 
         node.addSubNode(element.t0.accept(self))
         node.addSubNode(element.t1.accept(self))
@@ -265,7 +265,7 @@ private class SceneGraphVisitor: ElementVisitor {
         return node
     }
     func visit<T0, T1, T2>(_ element: BoundedTupleElement3<T0, T1, T2>) -> ResultType {
-        let node = SceneGraphNode(title: "\(type(of: element))")
+        let node = SceneGraphNode(title: "3 Elements Bounded Tuple")
 
         node.addSubNode(element.t0.accept(self))
         node.addSubNode(element.t1.accept(self))
@@ -275,7 +275,7 @@ private class SceneGraphVisitor: ElementVisitor {
     }
     
     func visit<T0, T1, T2, T3>(_ element: TupleElement4<T0, T1, T2, T3>) -> ResultType {
-        let node = SceneGraphNode(title: "\(type(of: element))")
+        let node = SceneGraphNode(title: "4 Elements Tuple")
 
         node.addSubNode(element.t0.accept(self))
         node.addSubNode(element.t1.accept(self))
@@ -285,7 +285,7 @@ private class SceneGraphVisitor: ElementVisitor {
         return node
     }
     func visit<T0, T1, T2, T3>(_ element: BoundedTupleElement4<T0, T1, T2, T3>) -> ResultType {
-        let node = SceneGraphNode(title: "\(type(of: element))")
+        let node = SceneGraphNode(title: "4 Elements Bounded Tuple")
 
         node.addSubNode(element.t0.accept(self))
         node.addSubNode(element.t1.accept(self))
@@ -296,7 +296,7 @@ private class SceneGraphVisitor: ElementVisitor {
     }
 
     func visit<T0, T1, T2, T3, T4>(_ element: TupleElement5<T0, T1, T2, T3, T4>) -> ResultType {
-        let node = SceneGraphNode(title: "\(type(of: element))")
+        let node = SceneGraphNode(title: "5 Elements Tuple")
 
         node.addSubNode(element.t0.accept(self))
         node.addSubNode(element.t1.accept(self))
@@ -307,7 +307,7 @@ private class SceneGraphVisitor: ElementVisitor {
         return node
     }
     func visit<T0, T1, T2, T3, T4>(_ element: BoundedTupleElement5<T0, T1, T2, T3, T4>) -> ResultType {
-        let node = SceneGraphNode(title: "\(type(of: element))")
+        let node = SceneGraphNode(title: "5 Elements Bounded Tuple")
 
         node.addSubNode(element.t0.accept(self))
         node.addSubNode(element.t1.accept(self))
@@ -319,7 +319,7 @@ private class SceneGraphVisitor: ElementVisitor {
     }
     
     func visit<T0, T1, T2, T3, T4, T5>(_ element: TupleElement6<T0, T1, T2, T3, T4, T5>) -> ResultType {
-        let node = SceneGraphNode(title: "\(type(of: element))")
+        let node = SceneGraphNode(title: "6 Elements Tuple")
 
         node.addSubNode(element.t0.accept(self))
         node.addSubNode(element.t1.accept(self))
@@ -331,7 +331,7 @@ private class SceneGraphVisitor: ElementVisitor {
         return node
     }
     func visit<T0, T1, T2, T3, T4, T5>(_ element: BoundedTupleElement6<T0, T1, T2, T3, T4, T5>) -> ResultType {
-        let node = SceneGraphNode(title: "\(type(of: element))")
+        let node = SceneGraphNode(title: "6 Elements Bounded Tuple")
 
         node.addSubNode(element.t0.accept(self))
         node.addSubNode(element.t1.accept(self))
@@ -344,7 +344,7 @@ private class SceneGraphVisitor: ElementVisitor {
     }
     
     func visit<T0, T1, T2, T3, T4, T5, T6>(_ element: TupleElement7<T0, T1, T2, T3, T4, T5, T6>) -> ResultType {
-        let node = SceneGraphNode(title: "\(type(of: element))")
+        let node = SceneGraphNode(title: "7 Elements Tuple")
 
         node.addSubNode(element.t0.accept(self))
         node.addSubNode(element.t1.accept(self))
@@ -357,7 +357,7 @@ private class SceneGraphVisitor: ElementVisitor {
         return node
     }
     func visit<T0, T1, T2, T3, T4, T5, T6>(_ element: BoundedTupleElement7<T0, T1, T2, T3, T4, T5, T6>) -> ResultType {
-        let node = SceneGraphNode(title: "\(type(of: element))")
+        let node = SceneGraphNode(title: "7 Elements Bounded Tuple")
 
         node.addSubNode(element.t0.accept(self))
         node.addSubNode(element.t1.accept(self))
@@ -371,7 +371,7 @@ private class SceneGraphVisitor: ElementVisitor {
     }
     
     func visit<T0, T1, T2, T3, T4, T5, T6, T7>(_ element: TupleElement8<T0, T1, T2, T3, T4, T5, T6, T7>) -> ResultType {
-        let node = SceneGraphNode(title: "\(type(of: element))")
+        let node = SceneGraphNode(title: "8 Elements Tuple")
 
         node.addSubNode(element.t0.accept(self))
         node.addSubNode(element.t1.accept(self))
@@ -385,7 +385,7 @@ private class SceneGraphVisitor: ElementVisitor {
         return node
     }
     func visit<T0, T1, T2, T3, T4, T5, T6, T7>(_ element: BoundedTupleElement8<T0, T1, T2, T3, T4, T5, T6, T7>) -> ResultType {
-        let node = SceneGraphNode(title: "\(type(of: element))")
+        let node = SceneGraphNode(title: "8 Elements Bounded Tuple")
 
         node.addSubNode(element.t0.accept(self))
         node.addSubNode(element.t1.accept(self))

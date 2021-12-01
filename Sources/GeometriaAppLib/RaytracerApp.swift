@@ -53,7 +53,7 @@ public class RaytracerApp: Blend2DApp {
     }
     
     func createUI() {
-        let sceneGraphWidth = 200.0
+        let sceneGraphWidth = 250.0
 
         ui.addComponent(StatusLabelsComponent(leftPadding: sceneGraphWidth))
         ui.addComponent(SceneGraphUIComponent(width: sceneGraphWidth))
