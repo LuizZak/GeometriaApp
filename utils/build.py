@@ -139,9 +139,6 @@ class RunCommandArgs:
     def swift_build_args(self) -> List[str]:
         args = []
 
-        if self.target_name is not None:
-            args.extend(['--target', self.target_name])
-
         args.extend(['--configuration', self.config, *win32_debug_args, *toSwiftCDefList(self.definitions)])
 
         return args

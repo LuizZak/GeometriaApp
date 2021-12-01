@@ -118,37 +118,37 @@ private class SceneGraphVisitor: ElementVisitor {
     // MARK: Basic
 
     func visit(_ element: AABBElement) -> ResultType {
-        SceneGraphNode(title: "\(type(of: element))")
+        SceneGraphNode(title: "AABB (\(element.geometry))")
     }
     func visit(_ element: CubeElement) -> ResultType {
-        SceneGraphNode(title: "\(type(of: element))")
+        SceneGraphNode(title: "Cube (\(element.geometry))")
     }
     func visit(_ element: CylinderElement) -> ResultType {
-        SceneGraphNode(title: "\(type(of: element))")
+        SceneGraphNode(title: "Cylinder (\(element.geometry))")
     }
     func visit(_ element: DiskElement) -> ResultType {
-        SceneGraphNode(title: "\(type(of: element))")
+        SceneGraphNode(title: "Disk (\(element.geometry))")
     }
     func visit(_ element: EllipseElement) -> ResultType {
-        SceneGraphNode(title: "\(type(of: element))")
+        SceneGraphNode(title: "Ellipse (\(element.geometry))")
     }
     func visit(_ element: EmptyElement) -> ResultType {
-        SceneGraphNode(title: "\(type(of: element))")
+        SceneGraphNode(title: "Empty element")
     }
     func visit<T>(_ element: GeometryElement<T>) -> ResultType {
-        SceneGraphNode(title: "\(type(of: element))")
+        SceneGraphNode(title: "Generic geometry (\(element.geometry))")
     }
     func visit(_ element: LineSegmentElement) -> ResultType {
-        SceneGraphNode(title: "\(type(of: element))")
+        SceneGraphNode(title: "Line segment (\(element.geometry))")
     }
     func visit(_ element: PlaneElement) -> ResultType {
-        SceneGraphNode(title: "\(type(of: element))")
+        SceneGraphNode(title: "Plane (\(element.geometry))")
     }
     func visit(_ element: SphereElement) -> ResultType {
-        SceneGraphNode(title: "\(type(of: element))")
+        SceneGraphNode(title: "Sphere (\(element.geometry))")
     }
     func visit(_ element: TorusElement) -> ResultType {
-        SceneGraphNode(title: "\(type(of: element))")
+        SceneGraphNode(title: "Torus (\(element.geometry))")
     }
 
     // MARK: Bounding
