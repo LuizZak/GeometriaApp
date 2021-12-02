@@ -1,4 +1,4 @@
-struct TorusElement {
+struct TorusElement: GeometryElementType {
     var id: Int = 0
     var geometry: RTorus3D
     var material: MaterialId

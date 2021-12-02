@@ -59,30 +59,90 @@ class SceneGraphUIComponent: RaytracerUIComponent {
             self.root = root
         }
 
-        func nodeAt(hierarchyIndex: TreeView.HierarchyIndex) -> SceneGraphNode {
-            var node = root
+        func itemAt(hierarchyIndex: TreeView.HierarchyIndex) -> ItemType {
+            var item = ItemType.node(root)
 
             for index in hierarchyIndex.indices {
-                node = node.subnodes[index]
+                item = item.indexInto(index)
             }
 
-            return node
+            return item
         }
 
         func hasSubItems(at index: TreeView.ItemIndex) -> Bool {
-            !nodeAt(hierarchyIndex: index.asHierarchyIndex).subnodes.isEmpty
+            itemAt(hierarchyIndex: index.asHierarchyIndex).hasElements()
         }
 
         func numberOfItems(at hierarchyIndex: TreeView.HierarchyIndex) -> Int {
-            nodeAt(hierarchyIndex: hierarchyIndex).subnodes.count
+            itemAt(hierarchyIndex: hierarchyIndex).elementCount()
         }
 
         func titleForItem(at index: TreeView.ItemIndex) -> String {
-            nodeAt(hierarchyIndex: index.asHierarchyIndex).title
+            let item: ItemType = itemAt(hierarchyIndex: index.asHierarchyIndex)
+
+            switch item {
+            case .node(let node):
+                return node.title
+            case .property(let property):
+                return "\(property.name): \(property.value)"
+            case .subnodes:
+                return "Children"
+            }
         }
 
         func iconForItem(at index: TreeView.ItemIndex) -> Image? {
             return nil
+        }
+
+        enum ItemType {
+            case node(SceneGraphNode)
+            case property(SceneGraphNode.PropertyEntry)
+            case subnodes(SceneGraphNode)
+
+            func hasElements() -> Bool {
+                elementCount() > 0
+            }
+
+            func elementCount() -> Int {
+                switch self {
+                case .node(let node):
+                    if node.properties.isEmpty {
+                        return node.subnodes.count
+                    }
+                    if node.subnodes.isEmpty {
+                        return node.properties.count
+                    }
+
+                    return node.properties.count + 1
+                
+                case .property:
+                    return 0
+                
+                case .subnodes(let node):
+                    return node.subnodes.count
+                }
+            }
+
+            func indexInto(_ index: Int) -> ItemType {
+                switch self {
+                case .node(let node):
+                    if node.properties.isEmpty {
+                        return .node(node.subnodes[index])
+                    }
+
+                    if index < node.properties.count {
+                        return .property(node.properties[index])
+                    }
+
+                    return .subnodes(node)
+                
+                case .property:
+                    fatalError("Cannot index into a property")
+                
+                case .subnodes(let node):
+                    return .node(node.subnodes[index])
+                }
+            }
         }
     }
 }
@@ -150,13 +210,76 @@ private class SceneGraphNode {
     }
 }
 
+// MARK: - Property derivation
+
 extension SceneGraphNode {
+    func addingProperty(name: String, value: RVector3D) -> SceneGraphNode {
+        addingProperty(name: name, value: "(\(value.x), \(value.y), \(value.z))")
+    }
+
     func addingProperties<T: Element>(for element: T) -> SceneGraphNode {
         return self
     }
 
-    func addingProperties<T>(for element: GeometryElement<T>) -> SceneGraphNode {
-        addingProperty(name: "geometry", value: element.geometry)
+    func addingProperties<T: GeometryElementType>(for element: T) -> SceneGraphNode where T.GeometryType == RSphere3D {
+        self.addingProperty(name: "Center", value: element.geometry.center)
+            .addingProperty(name: "Radius", value: element.geometry.radius)
+    }
+
+    func addingProperties<T: GeometryElementType>(for element: T) -> SceneGraphNode where T.GeometryType == RCube3D {
+        self.addingProperty(name: "Origin", value: element.geometry.location)
+            .addingProperty(name: "Length", value: element.geometry.sideLength)
+    }
+
+    func addingProperties<T: GeometryElementType>(for element: T) -> SceneGraphNode where T.GeometryType == RTorus3D {
+        self.addingProperty(name: "Major", value: element.geometry.majorRadius)
+            .addingProperty(name: "Minor", value: element.geometry.minorRadius)
+            .addingProperty(name: "Axis", value: element.geometry.axis)
+    }
+
+    func addingProperties<T: GeometryElementType>(for element: T) -> SceneGraphNode where T.GeometryType == RAABB3D {
+        self.addingProperty(name: "Minimum", value: element.geometry.minimum)
+            .addingProperty(name: "Maximum", value: element.geometry.maximum)
+    }
+
+    func addingProperties<T: GeometryElementType>(for element: T) -> SceneGraphNode where T.GeometryType == RPlane3D {
+        self.addingProperty(name: "Origin", value: element.geometry.point)
+            .addingProperty(name: "Normal", value: element.geometry.normal)
+    }
+
+    func addingProperties<T: GeometryElementType>(for element: T) -> SceneGraphNode where T.GeometryType == RDisk3D {
+        self.addingProperty(name: "Center", value: element.geometry.center)
+            .addingProperty(name: "Radius", value: element.geometry.radius)
+            .addingProperty(name: "Normal", value: element.geometry.normal)
+    }
+
+    func addingProperties<T: GeometryElementType>(for element: T) -> SceneGraphNode where T.GeometryType == RCylinder3D {
+        self.addingProperty(name: "Start", value: element.geometry.start)
+            .addingProperty(name: "End", value: element.geometry.end)
+            .addingProperty(name: "Radius", value: element.geometry.radius)
+    }
+
+    
+    func addingProperties<T>(for element: BoundingBoxElement<T>) -> SceneGraphNode {
+        self.addingProperty(name: "Bounds", value: element.boundingBox)
+    }
+
+    func addingProperties<T>(for element: BoundingSphereElement<T>) -> SceneGraphNode {
+        self.addingProperty(name: "Bounds", value: element.boundingSphere)
+    }
+
+    func addingProperties<T>(for element: RepeatTranslateElement<T>) -> SceneGraphNode {
+        self.addingProperty(name: "Translation", value: element.translation)
+            .addingProperty(name: "Count", value: element.count)
+    }
+
+    func addingProperties<T>(for element: ScaleElement<T>) -> SceneGraphNode {
+        self.addingProperty(name: "Factor", value: element.scaling)
+            .addingProperty(name: "Center", value: element.scalingCenter)
+    }
+
+    func addingProperties<T>(for element: TranslateElement<T>) -> SceneGraphNode {
+        self.addingProperty(name: "Translation", value: element.translation)
     }
 }
 

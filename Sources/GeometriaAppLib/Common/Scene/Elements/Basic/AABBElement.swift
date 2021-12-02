@@ -1,4 +1,4 @@
-struct AABBElement {
+struct AABBElement: GeometryElementType {
     var id: Int = 0
     var geometry: RAABB3D
     var material: MaterialId

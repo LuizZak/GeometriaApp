@@ -1,4 +1,4 @@
-struct CylinderElement {
+struct CylinderElement: GeometryElementType {
     var id: Int = 0
     var geometry: RCylinder3D
     var material: MaterialId

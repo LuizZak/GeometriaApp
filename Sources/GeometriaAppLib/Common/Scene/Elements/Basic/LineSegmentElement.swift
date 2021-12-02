@@ -1,4 +1,4 @@
-struct LineSegmentElement {
+struct LineSegmentElement: GeometryElementType {
     var id: Int = 0
     var geometry: RLineSegment3D
     var material: MaterialId

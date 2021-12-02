@@ -1,4 +1,4 @@
-struct CubeElement {
+struct CubeElement: GeometryElementType {
     var id: Int = 0
     var geometry: RCube3D
     var material: MaterialId

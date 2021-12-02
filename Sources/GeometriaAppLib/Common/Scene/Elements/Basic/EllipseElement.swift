@@ -1,4 +1,4 @@
-struct EllipseElement {
+struct EllipseElement: GeometryElementType {
     var id: Int = 0
     var geometry: REllipse3D
     var material: MaterialId

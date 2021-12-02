@@ -1,4 +1,4 @@
-struct GeometryElement<T> {
+struct GeometryElement<T>: GeometryElementType {
     var id: Int = 0
     var geometry: T
     var material: MaterialId

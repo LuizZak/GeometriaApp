@@ -1,4 +1,4 @@
-struct PlaneElement {
+struct PlaneElement: GeometryElementType {
     var id: Int = 0
     var geometry: RPlane3D
     var material: MaterialId

@@ -1,4 +1,4 @@
-struct SphereElement {
+struct SphereElement: GeometryElementType {
     var id: Int = 0
     var geometry: RSphere3D
     var material: MaterialId

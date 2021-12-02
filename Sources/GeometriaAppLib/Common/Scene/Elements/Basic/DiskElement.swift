@@ -1,4 +1,4 @@
-struct DiskElement {
+struct DiskElement: GeometryElementType {
     var id: Int = 0
     var geometry: RDisk3D
     var material: MaterialId
