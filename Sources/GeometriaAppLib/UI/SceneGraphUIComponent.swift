@@ -89,10 +89,19 @@ class SceneGraphUIComponent: RaytracerUIComponent {
 
 private class SceneGraphNode {
     var title: String
+    var properties: [PropertyEntry] = []
     var subnodes: [SceneGraphNode] = []
 
     init(title: String) {
         self.title = title
+    }
+
+    func addProperty(name: String, value: String) {
+        properties.append(.init(name: name, value: value))
+    }
+
+    func addProperty<Value>(name: String, value: Value) {
+        properties.append(.init(name: name, value: String(describing: value)))
     }
 
     func addSubNode(_ node: SceneGraphNode) {
@@ -106,7 +115,52 @@ private class SceneGraphNode {
             addSubNode(node)
         }
     }
+
+    func addingProperty(name: String, value: String) -> SceneGraphNode {
+        properties.append(.init(name: name, value: value))
+
+        return self
+    }
+
+    func addingProperty<Value>(name: String, value: Value) -> SceneGraphNode {
+        properties.append(.init(name: name, value: String(describing: value)))
+
+        return self
+    }
+
+    func addingSubNode(_ node: SceneGraphNode) -> SceneGraphNode {
+        assert(node !== self)
+
+        subnodes.append(node)
+
+        return self
+    }
+
+    func addingSubNodes<S: Sequence>(_ nodes: S) -> SceneGraphNode where S.Element == SceneGraphNode {
+        for node in nodes {
+            addSubNode(node)
+        }
+
+        return self
+    }
+
+    struct PropertyEntry {
+        var name: String
+        var value: String
+    }
 }
+
+extension SceneGraphNode {
+    func addingProperties<T: Element>(for element: T) -> SceneGraphNode {
+        return self
+    }
+
+    func addingProperties<T>(for element: GeometryElement<T>) -> SceneGraphNode {
+        addingProperty(name: "geometry", value: element.geometry)
+    }
+}
+
+// MARK: - SceneGraphVisitor
 
 private class SceneGraphVisitor: ElementVisitor {
     typealias ResultType = SceneGraphNode
@@ -115,293 +169,258 @@ private class SceneGraphVisitor: ElementVisitor {
 
     func visit<T>(_ element: T) -> ResultType where T: BoundedElement {
         SceneGraphNode(title: "\(type(of: element))")
+            .addingProperties(for: element)
     }
     func visit<T>(_ element: T) -> ResultType where T: Element {
         SceneGraphNode(title: "\(type(of: element))")
+            .addingProperties(for: element)
     }
 
     // MARK: Basic
 
     func visit(_ element: AABBElement) -> ResultType {
-        SceneGraphNode(title: "AABB (\(element.geometry))")
+        SceneGraphNode(title: "AABB")
+            .addingProperties(for: element)
     }
     func visit(_ element: CubeElement) -> ResultType {
-        SceneGraphNode(title: "Cube (\(element.geometry))")
+        SceneGraphNode(title: "Cube")
+            .addingProperties(for: element)
     }
     func visit(_ element: CylinderElement) -> ResultType {
-        SceneGraphNode(title: "Cylinder (\(element.geometry))")
+        SceneGraphNode(title: "Cylinder")
+            .addingProperties(for: element)
     }
     func visit(_ element: DiskElement) -> ResultType {
-        SceneGraphNode(title: "Disk (\(element.geometry))")
+        SceneGraphNode(title: "Disk")
+            .addingProperties(for: element)
     }
     func visit(_ element: EllipseElement) -> ResultType {
-        SceneGraphNode(title: "Ellipse (\(element.geometry))")
+        SceneGraphNode(title: "Ellipse")
+            .addingProperties(for: element)
     }
     func visit(_ element: EmptyElement) -> ResultType {
         SceneGraphNode(title: "Empty element")
+            .addingProperties(for: element)
     }
     func visit<T>(_ element: GeometryElement<T>) -> ResultType {
-        SceneGraphNode(title: "Generic geometry (\(element.geometry))")
+        SceneGraphNode(title: "Generic geometry")
+            .addingProperties(for: element)
     }
     func visit(_ element: LineSegmentElement) -> ResultType {
-        SceneGraphNode(title: "Line segment (\(element.geometry))")
+        SceneGraphNode(title: "Line segment")
+            .addingProperties(for: element)
     }
     func visit(_ element: PlaneElement) -> ResultType {
-        SceneGraphNode(title: "Plane (\(element.geometry))")
+        SceneGraphNode(title: "Plane")
+            .addingProperties(for: element)
     }
     func visit(_ element: SphereElement) -> ResultType {
-        SceneGraphNode(title: "Sphere (\(element.geometry))")
+        SceneGraphNode(title: "Sphere")
+            .addingProperties(for: element)
     }
     func visit(_ element: TorusElement) -> ResultType {
-        SceneGraphNode(title: "Torus (\(element.geometry))")
+        SceneGraphNode(title: "Torus")
+            .addingProperties(for: element)
     }
 
     // MARK: Bounding
 
     func visit<T>(_ element: BoundingBoxElement<T>) -> ResultType {
-        let node = SceneGraphNode(title: "Bounding Box (\(element.boundingBox))")
-
-        node.addSubNode(element.element.accept(self))
-
-        return node
+        SceneGraphNode(title: "Bounding Box")
+            .addingProperties(for: element)
+            .addingSubNode(element.element.accept(self))
     }
     func visit<T>(_ element: BoundingSphereElement<T>) -> ResultType {
-        let node = SceneGraphNode(title: "Bounding Sphere (\(element.boundingSphere))")
-
-        node.addSubNode(element.element.accept(self))
-
-        return node
+        SceneGraphNode(title: "Bounding Sphere")
+            .addingProperties(for: element)
+            .addingSubNode(element.element.accept(self))
     }
 
     // MARK: Combination
 
     func visit<T>(_ element: BoundedTypedArrayElement<T>) -> ResultType {
-        let node = SceneGraphNode(title: "Bounded typed array (\(element.elements.count) element(s), typed \(T.self))")
-
-        node.addSubNodes(element.elements.map { $0.accept(self) })
-
-        return node
+        SceneGraphNode(title: "Bounded typed array")
+            .addingProperties(for: element)
+            .addingSubNodes(element.elements.map { $0.accept(self) })
     }
     func visit<T0, T1>(_ element: IntersectionElement<T0, T1>) -> ResultType {
-        let node = SceneGraphNode(title: "Intersection")
-
-        node.addSubNode(element.t0.accept(self))
-        node.addSubNode(element.t1.accept(self))
-
-        return node
+        SceneGraphNode(title: "Intersection")
+            .addingProperties(for: element)
+            .addingSubNode(element.t0.accept(self))
+            .addingSubNode(element.t1.accept(self))
     }
     func visit<T0, T1>(_ element: SubtractionElement<T0, T1>) -> ResultType {
-        let node = SceneGraphNode(title: "Subtraction")
-
-        node.addSubNode(element.t0.accept(self))
-        node.addSubNode(element.t1.accept(self))
-
-        return node
+        SceneGraphNode(title: "Subtraction")
+            .addingProperties(for: element)
+            .addingSubNode(element.t0.accept(self))
+            .addingSubNode(element.t1.accept(self))
     }
     func visit<T>(_ element: TypedArrayElement<T>) -> ResultType {
-        let node = SceneGraphNode(title: "Typed array (\(element.elements.count) element(s), typed \(T.self))")
-
-        node.addSubNodes(element.elements.map { $0.accept(self) })
-
-        return node
+        SceneGraphNode(title: "Typed array")
+            .addingProperties(for: element)
+            .addingSubNodes(element.elements.map { $0.accept(self) })
     }
     func visit<T0, T1>(_ element: UnionElement<T0, T1>) -> ResultType {
-        let node = SceneGraphNode(title: "Union")
-
-        node.addSubNode(element.t0.accept(self))
-        node.addSubNode(element.t1.accept(self))
-
-        return node
+        SceneGraphNode(title: "Union")
+            .addingProperties(for: element)
+            .addingSubNode(element.t0.accept(self))
+            .addingSubNode(element.t1.accept(self))
     }
 
     // MARK: Repeating
 
     func visit<T>(_ element: RepeatTranslateElement<T>) -> ResultType {
-        let node = SceneGraphNode(title: "Repeat Translating (\(element.translation), \(element.count) times)")
-
-        node.addSubNode(element.element.accept(self))
-
-        return node
+        SceneGraphNode(title: "Repeat Translating")
+            .addingProperties(for: element)
+            .addingSubNode(element.element.accept(self))
     }
 
     // MARK: Transforming
 
     func visit<T>(_ element: ScaleElement<T>) -> ResultType {
-        let node = SceneGraphNode(title: "Scale (\(element.scaling)x, @\(element.scalingCenter))")
-
-        node.addSubNode(element.element.accept(self))
-
-        return node
+        SceneGraphNode(title: "Scale")
+            .addingProperties(for: element)
+            .addingSubNode(element.element.accept(self))
     }
     func visit<T>(_ element: TranslateElement<T>) -> ResultType {
-        let node = SceneGraphNode(title: "Translate (\(element.translation))")
-
-        node.addSubNode(element.element.accept(self))
-
-        return node
+        SceneGraphNode(title: "Translate")
+            .addingProperties(for: element)
+            .addingSubNode(element.element.accept(self))
     }
 
     // MARK: Tuple Elements
     
     func visit<T0, T1>(_ element: TupleElement2<T0, T1>) -> ResultType {
-        let node = SceneGraphNode(title: "2 Elements Tuple")
-
-        node.addSubNode(element.t0.accept(self))
-        node.addSubNode(element.t1.accept(self))
-
-        return node
+        SceneGraphNode(title: "2 Elements Tuple")
+            .addingProperties(for: element)
+            .addingSubNode(element.t0.accept(self))
+            .addingSubNode(element.t1.accept(self))
     }
     func visit<T0, T1>(_ element: BoundedTupleElement2<T0, T1>) -> ResultType {
-        let node = SceneGraphNode(title: "2 Elements Bounded Tuple")
-
-        node.addSubNode(element.t0.accept(self))
-        node.addSubNode(element.t1.accept(self))
-
-        return node
+        SceneGraphNode(title: "2 Elements Bounded Tuple")
+            .addingProperties(for: element)
+            .addingSubNode(element.t0.accept(self))
+            .addingSubNode(element.t1.accept(self))
     }
     
     func visit<T0, T1, T2>(_ element: TupleElement3<T0, T1, T2>) -> ResultType {
-        let node = SceneGraphNode(title: "3 Elements Tuple")
-
-        node.addSubNode(element.t0.accept(self))
-        node.addSubNode(element.t1.accept(self))
-        node.addSubNode(element.t2.accept(self))
-
-        return node
+        SceneGraphNode(title: "3 Elements Tuple")
+            .addingProperties(for: element)
+            .addingSubNode(element.t0.accept(self))
+            .addingSubNode(element.t1.accept(self))
+            .addingSubNode(element.t2.accept(self))
     }
     func visit<T0, T1, T2>(_ element: BoundedTupleElement3<T0, T1, T2>) -> ResultType {
-        let node = SceneGraphNode(title: "3 Elements Bounded Tuple")
-
-        node.addSubNode(element.t0.accept(self))
-        node.addSubNode(element.t1.accept(self))
-        node.addSubNode(element.t2.accept(self))
-
-        return node
+        SceneGraphNode(title: "3 Elements Bounded Tuple")
+            .addingProperties(for: element)
+            .addingSubNode(element.t0.accept(self))
+            .addingSubNode(element.t1.accept(self))
+            .addingSubNode(element.t2.accept(self))
     }
     
     func visit<T0, T1, T2, T3>(_ element: TupleElement4<T0, T1, T2, T3>) -> ResultType {
-        let node = SceneGraphNode(title: "4 Elements Tuple")
-
-        node.addSubNode(element.t0.accept(self))
-        node.addSubNode(element.t1.accept(self))
-        node.addSubNode(element.t2.accept(self))
-        node.addSubNode(element.t3.accept(self))
-
-        return node
+        SceneGraphNode(title: "4 Elements Tuple")
+            .addingProperties(for: element)
+            .addingSubNode(element.t0.accept(self))
+            .addingSubNode(element.t1.accept(self))
+            .addingSubNode(element.t2.accept(self))
+            .addingSubNode(element.t3.accept(self))
     }
     func visit<T0, T1, T2, T3>(_ element: BoundedTupleElement4<T0, T1, T2, T3>) -> ResultType {
-        let node = SceneGraphNode(title: "4 Elements Bounded Tuple")
-
-        node.addSubNode(element.t0.accept(self))
-        node.addSubNode(element.t1.accept(self))
-        node.addSubNode(element.t2.accept(self))
-        node.addSubNode(element.t3.accept(self))
-
-        return node
+        SceneGraphNode(title: "4 Elements Bounded Tuple")
+            .addingProperties(for: element)
+            .addingSubNode(element.t0.accept(self))
+            .addingSubNode(element.t1.accept(self))
+            .addingSubNode(element.t2.accept(self))
+            .addingSubNode(element.t3.accept(self))
     }
 
     func visit<T0, T1, T2, T3, T4>(_ element: TupleElement5<T0, T1, T2, T3, T4>) -> ResultType {
-        let node = SceneGraphNode(title: "5 Elements Tuple")
-
-        node.addSubNode(element.t0.accept(self))
-        node.addSubNode(element.t1.accept(self))
-        node.addSubNode(element.t2.accept(self))
-        node.addSubNode(element.t3.accept(self))
-        node.addSubNode(element.t4.accept(self))
-
-        return node
+        SceneGraphNode(title: "5 Elements Tuple")
+            .addingProperties(for: element)
+            .addingSubNode(element.t0.accept(self))
+            .addingSubNode(element.t1.accept(self))
+            .addingSubNode(element.t2.accept(self))
+            .addingSubNode(element.t3.accept(self))
+            .addingSubNode(element.t4.accept(self))
     }
     func visit<T0, T1, T2, T3, T4>(_ element: BoundedTupleElement5<T0, T1, T2, T3, T4>) -> ResultType {
-        let node = SceneGraphNode(title: "5 Elements Bounded Tuple")
-
-        node.addSubNode(element.t0.accept(self))
-        node.addSubNode(element.t1.accept(self))
-        node.addSubNode(element.t2.accept(self))
-        node.addSubNode(element.t3.accept(self))
-        node.addSubNode(element.t4.accept(self))
-
-        return node
+        SceneGraphNode(title: "5 Elements Bounded Tuple")
+            .addingProperties(for: element)
+            .addingSubNode(element.t0.accept(self))
+            .addingSubNode(element.t1.accept(self))
+            .addingSubNode(element.t2.accept(self))
+            .addingSubNode(element.t3.accept(self))
+            .addingSubNode(element.t4.accept(self))
     }
     
     func visit<T0, T1, T2, T3, T4, T5>(_ element: TupleElement6<T0, T1, T2, T3, T4, T5>) -> ResultType {
-        let node = SceneGraphNode(title: "6 Elements Tuple")
-
-        node.addSubNode(element.t0.accept(self))
-        node.addSubNode(element.t1.accept(self))
-        node.addSubNode(element.t2.accept(self))
-        node.addSubNode(element.t3.accept(self))
-        node.addSubNode(element.t4.accept(self))
-        node.addSubNode(element.t5.accept(self))
-
-        return node
+        SceneGraphNode(title: "6 Elements Tuple")
+            .addingProperties(for: element)
+            .addingSubNode(element.t0.accept(self))
+            .addingSubNode(element.t1.accept(self))
+            .addingSubNode(element.t2.accept(self))
+            .addingSubNode(element.t3.accept(self))
+            .addingSubNode(element.t4.accept(self))
+            .addingSubNode(element.t5.accept(self))
     }
     func visit<T0, T1, T2, T3, T4, T5>(_ element: BoundedTupleElement6<T0, T1, T2, T3, T4, T5>) -> ResultType {
-        let node = SceneGraphNode(title: "6 Elements Bounded Tuple")
-
-        node.addSubNode(element.t0.accept(self))
-        node.addSubNode(element.t1.accept(self))
-        node.addSubNode(element.t2.accept(self))
-        node.addSubNode(element.t3.accept(self))
-        node.addSubNode(element.t4.accept(self))
-        node.addSubNode(element.t5.accept(self))
-
-        return node
+        SceneGraphNode(title: "6 Elements Bounded Tuple")
+            .addingProperties(for: element)
+            .addingSubNode(element.t0.accept(self))
+            .addingSubNode(element.t1.accept(self))
+            .addingSubNode(element.t2.accept(self))
+            .addingSubNode(element.t3.accept(self))
+            .addingSubNode(element.t4.accept(self))
+            .addingSubNode(element.t5.accept(self))
     }
     
     func visit<T0, T1, T2, T3, T4, T5, T6>(_ element: TupleElement7<T0, T1, T2, T3, T4, T5, T6>) -> ResultType {
-        let node = SceneGraphNode(title: "7 Elements Tuple")
-
-        node.addSubNode(element.t0.accept(self))
-        node.addSubNode(element.t1.accept(self))
-        node.addSubNode(element.t2.accept(self))
-        node.addSubNode(element.t3.accept(self))
-        node.addSubNode(element.t4.accept(self))
-        node.addSubNode(element.t5.accept(self))
-        node.addSubNode(element.t6.accept(self))
-
-        return node
+        SceneGraphNode(title: "7 Elements Tuple")
+            .addingProperties(for: element)
+            .addingSubNode(element.t0.accept(self))
+            .addingSubNode(element.t1.accept(self))
+            .addingSubNode(element.t2.accept(self))
+            .addingSubNode(element.t3.accept(self))
+            .addingSubNode(element.t4.accept(self))
+            .addingSubNode(element.t5.accept(self))
+            .addingSubNode(element.t6.accept(self))
     }
     func visit<T0, T1, T2, T3, T4, T5, T6>(_ element: BoundedTupleElement7<T0, T1, T2, T3, T4, T5, T6>) -> ResultType {
-        let node = SceneGraphNode(title: "7 Elements Bounded Tuple")
-
-        node.addSubNode(element.t0.accept(self))
-        node.addSubNode(element.t1.accept(self))
-        node.addSubNode(element.t2.accept(self))
-        node.addSubNode(element.t3.accept(self))
-        node.addSubNode(element.t4.accept(self))
-        node.addSubNode(element.t5.accept(self))
-        node.addSubNode(element.t6.accept(self))
-
-        return node
+        SceneGraphNode(title: "7 Elements Bounded Tuple")
+            .addingProperties(for: element)
+            .addingSubNode(element.t0.accept(self))
+            .addingSubNode(element.t1.accept(self))
+            .addingSubNode(element.t2.accept(self))
+            .addingSubNode(element.t3.accept(self))
+            .addingSubNode(element.t4.accept(self))
+            .addingSubNode(element.t5.accept(self))
+            .addingSubNode(element.t6.accept(self))
     }
     
     func visit<T0, T1, T2, T3, T4, T5, T6, T7>(_ element: TupleElement8<T0, T1, T2, T3, T4, T5, T6, T7>) -> ResultType {
-        let node = SceneGraphNode(title: "8 Elements Tuple")
-
-        node.addSubNode(element.t0.accept(self))
-        node.addSubNode(element.t1.accept(self))
-        node.addSubNode(element.t2.accept(self))
-        node.addSubNode(element.t3.accept(self))
-        node.addSubNode(element.t4.accept(self))
-        node.addSubNode(element.t5.accept(self))
-        node.addSubNode(element.t6.accept(self))
-        node.addSubNode(element.t7.accept(self))
-
-        return node
+        SceneGraphNode(title: "8 Elements Tuple")
+            .addingProperties(for: element)
+            .addingSubNode(element.t0.accept(self))
+            .addingSubNode(element.t1.accept(self))
+            .addingSubNode(element.t2.accept(self))
+            .addingSubNode(element.t3.accept(self))
+            .addingSubNode(element.t4.accept(self))
+            .addingSubNode(element.t5.accept(self))
+            .addingSubNode(element.t6.accept(self))
+            .addingSubNode(element.t7.accept(self))
     }
     func visit<T0, T1, T2, T3, T4, T5, T6, T7>(_ element: BoundedTupleElement8<T0, T1, T2, T3, T4, T5, T6, T7>) -> ResultType {
-        let node = SceneGraphNode(title: "8 Elements Bounded Tuple")
-
-        node.addSubNode(element.t0.accept(self))
-        node.addSubNode(element.t1.accept(self))
-        node.addSubNode(element.t2.accept(self))
-        node.addSubNode(element.t3.accept(self))
-        node.addSubNode(element.t4.accept(self))
-        node.addSubNode(element.t5.accept(self))
-        node.addSubNode(element.t6.accept(self))
-        node.addSubNode(element.t7.accept(self))
-
-        return node
+        SceneGraphNode(title: "8 Elements Bounded Tuple")
+            .addingProperties(for: element)
+            .addingSubNode(element.t0.accept(self))
+            .addingSubNode(element.t1.accept(self))
+            .addingSubNode(element.t2.accept(self))
+            .addingSubNode(element.t3.accept(self))
+            .addingSubNode(element.t4.accept(self))
+            .addingSubNode(element.t5.accept(self))
+            .addingSubNode(element.t6.accept(self))
+            .addingSubNode(element.t7.accept(self))
     }
 }
 
@@ -409,321 +428,257 @@ extension SceneGraphVisitor: RaymarchingElementVisitor {
     // MARK: Bounding
 
     func visit<T: RaymarchingElement>(_ element: BoundingBoxElement<T>) -> ResultType {
-        let node = SceneGraphNode(title: "Bounding Box (\(element.boundingBox))")
-
-        node.addSubNode(element.element.accept(self))
-
-        return node
+        SceneGraphNode(title: "Bounding Box")
+            .addingProperties(for: element)
+            .addingSubNode(element.element.accept(self))
     }
     func visit<T: RaymarchingElement>(_ element: BoundingSphereElement<T>) -> ResultType {
-        let node = SceneGraphNode(title: "Bounding Sphere (\(element.boundingSphere))")
-
-        node.addSubNode(element.element.accept(self))
-
-        return node
+        SceneGraphNode(title: "Bounding Sphere")
+            .addingProperties(for: element)
+            .addingSubNode(element.element.accept(self))
     }
 
     // MARK: Combination
 
     func visit<T: RaymarchingElement>(_ element: BoundedTypedArrayElement<T>) -> ResultType {
-        let node = SceneGraphNode(title: "Bounded typed array (\(element.elements.count) element(s), typed \(T.self))")
-
-        node.addSubNodes(element.elements.map { $0.accept(self) })
-
-        return node
+        SceneGraphNode(title: "Bounded typed array")
+            .addingProperties(for: element)
+            .addingSubNodes(element.elements.map { $0.accept(self) })
     }
     func visit<T0: RaymarchingElement, T1: RaymarchingElement>(_ element: IntersectionElement<T0, T1>) -> ResultType {
-        let node = SceneGraphNode(title: "Intersection")
-
-        node.addSubNode(element.t0.accept(self))
-        node.addSubNode(element.t1.accept(self))
-
-        return node
+        SceneGraphNode(title: "Intersection")
+            .addingProperties(for: element)
+            .addingSubNode(element.t0.accept(self))
+            .addingSubNode(element.t1.accept(self))
     }
     func visit<T0: RaymarchingElement, T1: RaymarchingElement>(_ element: SubtractionElement<T0, T1>) -> ResultType {
-        let node = SceneGraphNode(title: "Subtraction")
-
-        node.addSubNode(element.t0.accept(self))
-        node.addSubNode(element.t1.accept(self))
-
-        return node
+        SceneGraphNode(title: "Subtraction")
+            .addingProperties(for: element)
+            .addingSubNode(element.t0.accept(self))
+            .addingSubNode(element.t1.accept(self))
     }
     func visit<T: RaymarchingElement>(_ element: TypedArrayElement<T>) -> ResultType {
-        let node = SceneGraphNode(title: "Typed array (\(element.elements.count) element(s), typed \(T.self))")
-
-        node.addSubNodes(element.elements.map { $0.accept(self) })
-
-        return node
+        SceneGraphNode(title: "Typed array")
+            .addingProperties(for: element)
+            .addingSubNodes(element.elements.map { $0.accept(self) })
     }
     func visit<T0: RaymarchingElement, T1: RaymarchingElement>(_ element: UnionElement<T0, T1>) -> ResultType {
-        let node = SceneGraphNode(title: "Union")
-
-        node.addSubNode(element.t0.accept(self))
-        node.addSubNode(element.t1.accept(self))
-
-        return node
+        SceneGraphNode(title: "Union")
+            .addingProperties(for: element)
+            .addingSubNode(element.t0.accept(self))
+            .addingSubNode(element.t1.accept(self))
     }
 
     // MARK: Repeating
 
     func visit<T: RaymarchingElement>(_ element: RepeatTranslateElement<T>) -> ResultType {
-        let node = SceneGraphNode(title: "Repeat Translating (\(element.translation), \(element.count) times)")
-
-        node.addSubNode(element.element.accept(self))
-
-        return node
+        SceneGraphNode(title: "Repeat Translating")
+            .addingProperties(for: element)
+            .addingSubNode(element.element.accept(self))
     }
 
     // MARK: Transforming
 
     func visit<T: RaymarchingElement>(_ element: ScaleElement<T>) -> ResultType {
-        let node = SceneGraphNode(title: "Scale (\(element.scaling)x, @\(element.scalingCenter))")
-
-        node.addSubNode(element.element.accept(self))
-
-        return node
+        SceneGraphNode(title: "Scale")
+            .addingProperties(for: element)
+            .addingSubNode(element.element.accept(self))
     }
     func visit<T: RaymarchingElement>(_ element: TranslateElement<T>) -> ResultType {
-        let node = SceneGraphNode(title: "Translate (\(element.translation))")
-
-        node.addSubNode(element.element.accept(self))
-
-        return node
+        SceneGraphNode(title: "Translate")
+            .addingProperties(for: element)
+            .addingSubNode(element.element.accept(self))
     }
 
     // MARK: Tuple Elements
     
     func visit<T0, T1>(_ element: TupleRaymarchingElement2<T0, T1>) -> ResultType {
-        let node = SceneGraphNode(title: "2 Elements Tuple")
-
-        node.addSubNode(element.t0.accept(self))
-        node.addSubNode(element.t1.accept(self))
-
-        return node
+        SceneGraphNode(title: "2 Elements Tuple")
+            .addingProperties(for: element)
+            .addingSubNode(element.t0.accept(self))
+            .addingSubNode(element.t1.accept(self))
     }
     func visit<T0, T1>(_ element: BoundedTupleElement2<T0, T1>) -> ResultType where T0: RaymarchingElement, T1: RaymarchingElement {
-        let node = SceneGraphNode(title: "2 Elements Bounded Tuple")
-
-        node.addSubNode(element.t0.accept(self))
-        node.addSubNode(element.t1.accept(self))
-
-        return node
+        SceneGraphNode(title: "2 Elements Bounded Tuple")
+            .addingProperties(for: element)
+            .addingSubNode(element.t0.accept(self))
+            .addingSubNode(element.t1.accept(self))
     }
     
     func visit<T0, T1, T2>(_ element: TupleRaymarchingElement3<T0, T1, T2>) -> ResultType {
-        let node = SceneGraphNode(title: "3 Elements Tuple")
-
-        node.addSubNode(element.t0.accept(self))
-        node.addSubNode(element.t1.accept(self))
-        node.addSubNode(element.t2.accept(self))
-
-        return node
+        SceneGraphNode(title: "3 Elements Tuple")
+            .addingProperties(for: element)
+            .addingSubNode(element.t0.accept(self))
+            .addingSubNode(element.t1.accept(self))
+            .addingSubNode(element.t2.accept(self))
     }
     func visit<T0, T1, T2>(_ element: BoundedTupleElement3<T0, T1, T2>) -> ResultType where T0: RaymarchingElement, T1: RaymarchingElement, T2: RaymarchingElement {
-        let node = SceneGraphNode(title: "3 Elements Bounded Tuple")
-
-        node.addSubNode(element.t0.accept(self))
-        node.addSubNode(element.t1.accept(self))
-        node.addSubNode(element.t2.accept(self))
-
-        return node
+        SceneGraphNode(title: "3 Elements Bounded Tuple")
+            .addingProperties(for: element)
+            .addingSubNode(element.t0.accept(self))
+            .addingSubNode(element.t1.accept(self))
+            .addingSubNode(element.t2.accept(self))
     }
     
     func visit<T0, T1, T2, T3>(_ element: TupleRaymarchingElement4<T0, T1, T2, T3>) -> ResultType {
-        let node = SceneGraphNode(title: "4 Elements Tuple")
-
-        node.addSubNode(element.t0.accept(self))
-        node.addSubNode(element.t1.accept(self))
-        node.addSubNode(element.t2.accept(self))
-        node.addSubNode(element.t3.accept(self))
-
-        return node
+        SceneGraphNode(title: "4 Elements Tuple")
+            .addingProperties(for: element)
+            .addingSubNode(element.t0.accept(self))
+            .addingSubNode(element.t1.accept(self))
+            .addingSubNode(element.t2.accept(self))
+            .addingSubNode(element.t3.accept(self))
     }
     func visit<T0, T1, T2, T3>(_ element: BoundedTupleElement4<T0, T1, T2, T3>) -> ResultType where T0: RaymarchingElement, T1: RaymarchingElement, T2: RaymarchingElement, T3: RaymarchingElement {
-        let node = SceneGraphNode(title: "4 Elements Bounded Tuple")
-
-        node.addSubNode(element.t0.accept(self))
-        node.addSubNode(element.t1.accept(self))
-        node.addSubNode(element.t2.accept(self))
-        node.addSubNode(element.t3.accept(self))
-
-        return node
+        SceneGraphNode(title: "4 Elements Bounded Tuple")
+            .addingProperties(for: element)
+            .addingSubNode(element.t0.accept(self))
+            .addingSubNode(element.t1.accept(self))
+            .addingSubNode(element.t2.accept(self))
+            .addingSubNode(element.t3.accept(self))
     }
 
     func visit<T0, T1, T2, T3, T4>(_ element: TupleRaymarchingElement5<T0, T1, T2, T3, T4>) -> ResultType {
-        let node = SceneGraphNode(title: "5 Elements Tuple")
-
-        node.addSubNode(element.t0.accept(self))
-        node.addSubNode(element.t1.accept(self))
-        node.addSubNode(element.t2.accept(self))
-        node.addSubNode(element.t3.accept(self))
-        node.addSubNode(element.t4.accept(self))
-
-        return node
+        SceneGraphNode(title: "5 Elements Tuple")
+            .addingProperties(for: element)
+            .addingSubNode(element.t0.accept(self))
+            .addingSubNode(element.t1.accept(self))
+            .addingSubNode(element.t2.accept(self))
+            .addingSubNode(element.t3.accept(self))
+            .addingSubNode(element.t4.accept(self))
     }
     func visit<T0, T1, T2, T3, T4>(_ element: BoundedTupleElement5<T0, T1, T2, T3, T4>) -> ResultType where T0: RaymarchingElement, T1: RaymarchingElement, T2: RaymarchingElement, T3: RaymarchingElement, T4: RaymarchingElement {
-        let node = SceneGraphNode(title: "5 Elements Bounded Tuple")
-
-        node.addSubNode(element.t0.accept(self))
-        node.addSubNode(element.t1.accept(self))
-        node.addSubNode(element.t2.accept(self))
-        node.addSubNode(element.t3.accept(self))
-        node.addSubNode(element.t4.accept(self))
-
-        return node
+        SceneGraphNode(title: "5 Elements Bounded Tuple")
+            .addingProperties(for: element)
+            .addingSubNode(element.t0.accept(self))
+            .addingSubNode(element.t1.accept(self))
+            .addingSubNode(element.t2.accept(self))
+            .addingSubNode(element.t3.accept(self))
+            .addingSubNode(element.t4.accept(self))
     }
     
     func visit<T0, T1, T2, T3, T4, T5>(_ element: TupleRaymarchingElement6<T0, T1, T2, T3, T4, T5>) -> ResultType {
-        let node = SceneGraphNode(title: "6 Elements Tuple")
-
-        node.addSubNode(element.t0.accept(self))
-        node.addSubNode(element.t1.accept(self))
-        node.addSubNode(element.t2.accept(self))
-        node.addSubNode(element.t3.accept(self))
-        node.addSubNode(element.t4.accept(self))
-        node.addSubNode(element.t5.accept(self))
-
-        return node
+        SceneGraphNode(title: "6 Elements Tuple")
+            .addingProperties(for: element)
+            .addingSubNode(element.t0.accept(self))
+            .addingSubNode(element.t1.accept(self))
+            .addingSubNode(element.t2.accept(self))
+            .addingSubNode(element.t3.accept(self))
+            .addingSubNode(element.t4.accept(self))
+            .addingSubNode(element.t5.accept(self))
     }
     func visit<T0, T1, T2, T3, T4, T5>(_ element: BoundedTupleElement6<T0, T1, T2, T3, T4, T5>) -> ResultType where T0: RaymarchingElement, T1: RaymarchingElement, T2: RaymarchingElement, T3: RaymarchingElement, T4: RaymarchingElement, T5: RaymarchingElement {
-        let node = SceneGraphNode(title: "6 Elements Bounded Tuple")
-
-        node.addSubNode(element.t0.accept(self))
-        node.addSubNode(element.t1.accept(self))
-        node.addSubNode(element.t2.accept(self))
-        node.addSubNode(element.t3.accept(self))
-        node.addSubNode(element.t4.accept(self))
-        node.addSubNode(element.t5.accept(self))
-
-        return node
+        SceneGraphNode(title: "6 Elements Bounded Tuple")
+            .addingProperties(for: element)
+            .addingSubNode(element.t0.accept(self))
+            .addingSubNode(element.t1.accept(self))
+            .addingSubNode(element.t2.accept(self))
+            .addingSubNode(element.t3.accept(self))
+            .addingSubNode(element.t4.accept(self))
+            .addingSubNode(element.t5.accept(self))
     }
     
     func visit<T0, T1, T2, T3, T4, T5, T6>(_ element: TupleRaymarchingElement7<T0, T1, T2, T3, T4, T5, T6>) -> ResultType {
-        let node = SceneGraphNode(title: "7 Elements Tuple")
-
-        node.addSubNode(element.t0.accept(self))
-        node.addSubNode(element.t1.accept(self))
-        node.addSubNode(element.t2.accept(self))
-        node.addSubNode(element.t3.accept(self))
-        node.addSubNode(element.t4.accept(self))
-        node.addSubNode(element.t5.accept(self))
-        node.addSubNode(element.t6.accept(self))
-
-        return node
+        SceneGraphNode(title: "7 Elements Tuple")
+            .addingProperties(for: element)
+            .addingSubNode(element.t0.accept(self))
+            .addingSubNode(element.t1.accept(self))
+            .addingSubNode(element.t2.accept(self))
+            .addingSubNode(element.t3.accept(self))
+            .addingSubNode(element.t4.accept(self))
+            .addingSubNode(element.t5.accept(self))
+            .addingSubNode(element.t6.accept(self))
     }
     func visit<T0, T1, T2, T3, T4, T5, T6>(_ element: BoundedTupleElement7<T0, T1, T2, T3, T4, T5, T6>) -> ResultType where T0: RaymarchingElement, T1: RaymarchingElement, T2: RaymarchingElement, T3: RaymarchingElement, T4: RaymarchingElement, T5: RaymarchingElement, T6: RaymarchingElement {
-        let node = SceneGraphNode(title: "7 Elements Bounded Tuple")
-
-        node.addSubNode(element.t0.accept(self))
-        node.addSubNode(element.t1.accept(self))
-        node.addSubNode(element.t2.accept(self))
-        node.addSubNode(element.t3.accept(self))
-        node.addSubNode(element.t4.accept(self))
-        node.addSubNode(element.t5.accept(self))
-        node.addSubNode(element.t6.accept(self))
-
-        return node
+        SceneGraphNode(title: "7 Elements Bounded Tuple")
+            .addingProperties(for: element)
+            .addingSubNode(element.t0.accept(self))
+            .addingSubNode(element.t1.accept(self))
+            .addingSubNode(element.t2.accept(self))
+            .addingSubNode(element.t3.accept(self))
+            .addingSubNode(element.t4.accept(self))
+            .addingSubNode(element.t5.accept(self))
+            .addingSubNode(element.t6.accept(self))
     }
     
     func visit<T0, T1, T2, T3, T4, T5, T6, T7>(_ element: TupleRaymarchingElement8<T0, T1, T2, T3, T4, T5, T6, T7>) -> ResultType {
-        let node = SceneGraphNode(title: "8 Elements Tuple")
-
-        node.addSubNode(element.t0.accept(self))
-        node.addSubNode(element.t1.accept(self))
-        node.addSubNode(element.t2.accept(self))
-        node.addSubNode(element.t3.accept(self))
-        node.addSubNode(element.t4.accept(self))
-        node.addSubNode(element.t5.accept(self))
-        node.addSubNode(element.t6.accept(self))
-        node.addSubNode(element.t7.accept(self))
-
-        return node
+        SceneGraphNode(title: "8 Elements Tuple")
+            .addingProperties(for: element)
+            .addingSubNode(element.t0.accept(self))
+            .addingSubNode(element.t1.accept(self))
+            .addingSubNode(element.t2.accept(self))
+            .addingSubNode(element.t3.accept(self))
+            .addingSubNode(element.t4.accept(self))
+            .addingSubNode(element.t5.accept(self))
+            .addingSubNode(element.t6.accept(self))
+            .addingSubNode(element.t7.accept(self))
     }
     func visit<T0, T1, T2, T3, T4, T5, T6, T7>(_ element: BoundedTupleElement8<T0, T1, T2, T3, T4, T5, T6, T7>) -> ResultType where T0: RaymarchingElement, T1: RaymarchingElement, T2: RaymarchingElement, T3: RaymarchingElement, T4: RaymarchingElement, T5: RaymarchingElement, T7: RaymarchingElement {
-        let node = SceneGraphNode(title: "8 Elements Bounded Tuple")
-
-        node.addSubNode(element.t0.accept(self))
-        node.addSubNode(element.t1.accept(self))
-        node.addSubNode(element.t2.accept(self))
-        node.addSubNode(element.t3.accept(self))
-        node.addSubNode(element.t4.accept(self))
-        node.addSubNode(element.t5.accept(self))
-        node.addSubNode(element.t6.accept(self))
-        node.addSubNode(element.t7.accept(self))
-
-        return node
+        SceneGraphNode(title: "8 Elements Bounded Tuple")
+            .addingProperties(for: element)
+            .addingSubNode(element.t0.accept(self))
+            .addingSubNode(element.t1.accept(self))
+            .addingSubNode(element.t2.accept(self))
+            .addingSubNode(element.t3.accept(self))
+            .addingSubNode(element.t4.accept(self))
+            .addingSubNode(element.t5.accept(self))
+            .addingSubNode(element.t6.accept(self))
+            .addingSubNode(element.t7.accept(self))
     }
 
     // MARK: Combination
     func visit(_ element: ArrayRaymarchingElement) -> ResultType {
-        let node = SceneGraphNode(title: "Array (\(element.elements.count) element(s))")
-
-        node.addSubNodes(element.elements.map { $0.accept(self) })
-
-        return node
+        SceneGraphNode(title: "Array")
+            .addingProperties(for: element)
+            .addingSubNodes(element.elements.map { $0.accept(self) })
     }
 
     func visit(_ element: BoundedArrayRaymarchingElement) -> ResultType {
-        let node = SceneGraphNode(title: "Bounded array (\(element.elements.count) element(s))")
-
-        node.addSubNodes(element.elements.map { $0.accept(self) })
-
-        return node
+        SceneGraphNode(title: "Bounded array")
+            .addingProperties(for: element)
+            .addingSubNodes(element.elements.map { $0.accept(self) })
     }
 
     func visit<T>(_ element: AbsoluteRaymarchingElement<T>) -> ResultType {
-        let node = SceneGraphNode(title: "Absolute distance")
-
-        node.addSubNode(element.element.accept(self))
-
-        return node
+        SceneGraphNode(title: "Absolute distance")
+            .addingProperties(for: element)
+            .addingSubNode(element.element.accept(self))
     }
 
     func visit<T0, T1>(_ element: OperationRaymarchingElement<T0, T1>) -> ResultType {
-        let node = SceneGraphNode(title: "Custom operation")
-
-        node.addSubNode(element.t0.accept(self))
-        node.addSubNode(element.t1.accept(self))
-
-        return node
+        SceneGraphNode(title: "Custom operation")
+            .addingProperties(for: element)
+            .addingSubNode(element.t0.accept(self))
+            .addingSubNode(element.t1.accept(self))
     }
 
     // MARK: Repeating
 
     func visit<T>(_ element: ModuloRaymarchingElement<T>) -> ResultType {
-        let node = SceneGraphNode(title: "Modulo (phase: \(element.phase))")
-
-        node.addSubNode(element.element.accept(self))
-
-        return node
+        SceneGraphNode(title: "Modulo")
+            .addingProperties(for: element)
+            .addingSubNode(element.element.accept(self))
     }
 
     // MARK: Smoothing
 
     func visit<T0, T1>(_ element: SmoothIntersectionElement<T0, T1>) -> ResultType {
-        let node = SceneGraphNode(title: "Smooth intersection")
-
-        node.addSubNode(element.t0.accept(self))
-        node.addSubNode(element.t1.accept(self))
-
-        return node
+        SceneGraphNode(title: "Smooth intersection")
+            .addingProperties(for: element)
+            .addingSubNode(element.t0.accept(self))
+            .addingSubNode(element.t1.accept(self))
     }
 
     func visit<T0, T1>(_ element: SmoothUnionElement<T0, T1>) -> ResultType {
-        let node = SceneGraphNode(title: "Smooth union")
-
-        node.addSubNode(element.t0.accept(self))
-        node.addSubNode(element.t1.accept(self))
-
-        return node
+        SceneGraphNode(title: "Smooth union")
+            .addingProperties(for: element)
+            .addingSubNode(element.t0.accept(self))
+            .addingSubNode(element.t1.accept(self))
     }
 
     func visit<T0, T1>(_ element: SmoothSubtractionElement<T0, T1>) -> ResultType {
-        let node = SceneGraphNode(title: "Smooth subtraction")
-
-        node.addSubNode(element.t0.accept(self))
-        node.addSubNode(element.t1.accept(self))
-
-        return node
+        SceneGraphNode(title: "Smooth subtraction")
+            .addingProperties(for: element)
+            .addingSubNode(element.t0.accept(self))
+            .addingSubNode(element.t1.accept(self))
     }
 }

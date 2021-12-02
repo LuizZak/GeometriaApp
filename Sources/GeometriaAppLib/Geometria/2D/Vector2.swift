@@ -1,7 +1,7 @@
 import RealModule
 
 /// A two-component vector type
-public struct Vector2: Hashable, Codable, Vector2Type {
+public struct Vector2: Hashable, Codable, Vector2Type, CustomStringConvertible {
     public typealias Scalar = Double
 
     /// X coordinate of this vector

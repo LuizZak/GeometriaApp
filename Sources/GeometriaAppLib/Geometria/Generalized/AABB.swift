@@ -1,6 +1,6 @@
 /// Represents an axis-aligned bounding box with two N-dimensional vectors that
 /// describe the minimal and maximal coordinates of the box's opposite corners.
-public struct AABB<Vector: VectorType>: GeometricType {
+public struct AABB<Vector: VectorType>: GeometricType, CustomStringConvertible {
     /// Convenience for `Vector.Scalar`.
     public typealias Scalar = Vector.Scalar
     
@@ -16,6 +16,10 @@ public struct AABB<Vector: VectorType>: GeometricType {
     /// Alias for `minimum`.
     @_transparent
     public var location: Vector { minimum }
+
+    public var description: String {
+        "\(type(of: self))(minimum: \(minimum), maximum: \(maximum))"
+    }
     
     /// Initializes a `NBox` with the given minimum and maximum boundary
     /// vectors.

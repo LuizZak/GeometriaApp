@@ -1,7 +1,7 @@
 import RealModule
 
 /// A three-component vector type
-public struct Vector3: Hashable, Codable, Vector3Type {
+public struct Vector3: Hashable, Codable, Vector3Type, CustomStringConvertible {
     public typealias Scalar = Double
     public typealias SubVector2 = Vector2D
     
