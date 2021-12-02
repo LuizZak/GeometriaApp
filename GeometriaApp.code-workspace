@@ -38,22 +38,23 @@
 				]
 			},
             {
-				"label": "Run Win32 (release)",
-				"type": "shell",
-				"command": "python utils\\build.py",
-				"args": [
-					"run",
-					"-c", "release",
-					"-t", "GeometriaApp"
-				]
-			},
-            {
 				"label": "Run Win32 (debug)",
 				"type": "shell",
 				"command": "python utils\\build.py",
 				"args": [
 					"run",
 					"-c", "debug",
+					"-t", "GeometriaApp",
+					"-m", "Sources\\GeometriaWindows\\GeometriaApp.exe.manifest"
+				]
+			},
+            {
+				"label": "Run Win32 (release)",
+				"type": "shell",
+				"command": "python utils\\build.py",
+				"args": [
+					"run",
+					"-c", "release",
 					"-t", "GeometriaApp",
 					"-m", "Sources\\GeometriaWindows\\GeometriaApp.exe.manifest"
 				]

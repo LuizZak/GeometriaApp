@@ -23,7 +23,7 @@ class SceneGraphUIComponent: RaytracerUIComponent {
         }
 
         treeView.layout.makeConstraints { make in
-            make.edges.equalTo(sidePanel, inset: UIEdgeInsets(left: 0, top: 0, right: 8, bottom: 0))
+            make.edges.equalTo(sidePanel, inset: UIEdgeInsets(left: 0, top: 0, right: 4, bottom: 0))
         }
     }
 
