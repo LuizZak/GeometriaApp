@@ -11,4 +11,8 @@ extension DiskRaymarchingElement: RaymarchingElement {
 
         return .init(distance: distance, material: material)
     }
+
+    func accept<Visitor: RaymarchingElementVisitor>(_ visitor: Visitor) -> Visitor.ResultType {
+        visitor.visit(self)
+    }
 }

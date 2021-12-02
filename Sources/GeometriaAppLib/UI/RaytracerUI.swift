@@ -29,7 +29,19 @@ class RaytracerUI {
         }
     }
     
-    func rendererChanged(_ renderer: RendererType) {
+    func rendererChanged<T: RendererType>(anyRenderer: T) {
+        for component in components {
+            component.rendererChanged(anyRenderer: anyRenderer)
+        }
+    }
+
+    func rendererChanged<T>(_ renderer: Raytracer<T>) {
+        for component in components {
+            component.rendererChanged(renderer)
+        }
+    }
+
+    func rendererChanged<T>(_ renderer: Raymarcher<T>) {
         for component in components {
             component.rendererChanged(renderer)
         }

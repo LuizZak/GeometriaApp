@@ -112,7 +112,7 @@ class StatusLabelsComponent: RaytracerUIComponent {
         progressLabel.isVisible = coordinator != nil
     }
 
-    func rendererChanged(_ renderer: RendererType) {
+    func rendererChanged<T: RendererType>(anyRenderer: T) {
         updateLabels()
     }
 

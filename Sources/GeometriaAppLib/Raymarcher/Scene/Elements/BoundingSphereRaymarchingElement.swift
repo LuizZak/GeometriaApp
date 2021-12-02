@@ -10,4 +10,8 @@ extension BoundingSphereRaymarchingElement: RaymarchingElement {
         
         return element.signedDistance(to: point, current: current)
     }
+
+    func accept<Visitor: RaymarchingElementVisitor>(_ visitor: Visitor) -> Visitor.ResultType {
+        visitor.visit(self)
+    }
 }

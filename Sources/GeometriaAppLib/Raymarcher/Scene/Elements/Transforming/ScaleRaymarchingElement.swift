@@ -14,4 +14,8 @@ extension ScaleRaymarchingElement: RaymarchingElement {
         
         return min(result, current)
     }
+
+    func accept<Visitor: RaymarchingElementVisitor>(_ visitor: Visitor) -> Visitor.ResultType {
+        visitor.visit(self)
+    }
 }

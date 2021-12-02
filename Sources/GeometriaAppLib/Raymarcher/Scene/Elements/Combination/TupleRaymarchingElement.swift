@@ -29,6 +29,10 @@ extension TupleRaymarchingElement2: RaymarchingElement {
 
         return current
     }
+
+    func accept<Visitor: RaymarchingElementVisitor>(_ visitor: Visitor) -> Visitor.ResultType {
+        visitor.visit(self)
+    }
 }
 
 extension TupleRaymarchingElement3: RaymarchingElement {
@@ -41,6 +45,10 @@ extension TupleRaymarchingElement3: RaymarchingElement {
         current = t2.signedDistance(to: point, current: current)
 
         return current
+    }
+
+    func accept<Visitor: RaymarchingElementVisitor>(_ visitor: Visitor) -> Visitor.ResultType {
+        visitor.visit(self)
     }
 }
 
@@ -55,6 +63,10 @@ extension TupleRaymarchingElement4: RaymarchingElement {
         current = t3.signedDistance(to: point, current: current)
 
         return current
+    }
+
+    func accept<Visitor: RaymarchingElementVisitor>(_ visitor: Visitor) -> Visitor.ResultType {
+        visitor.visit(self)
     }
 }
 
@@ -71,6 +83,10 @@ extension TupleRaymarchingElement5: RaymarchingElement {
 
         return current
     }
+
+    func accept<Visitor: RaymarchingElementVisitor>(_ visitor: Visitor) -> Visitor.ResultType {
+        visitor.visit(self)
+    }
 }
 
 extension TupleRaymarchingElement6: RaymarchingElement {
@@ -86,6 +102,10 @@ extension TupleRaymarchingElement6: RaymarchingElement {
         current = t5.signedDistance(to: point, current: current)
 
         return current
+    }
+
+    func accept<Visitor: RaymarchingElementVisitor>(_ visitor: Visitor) -> Visitor.ResultType {
+        visitor.visit(self)
     }
 }
 
@@ -104,6 +124,10 @@ extension TupleRaymarchingElement7: RaymarchingElement {
 
         return current
     }
+
+    func accept<Visitor: RaymarchingElementVisitor>(_ visitor: Visitor) -> Visitor.ResultType {
+        visitor.visit(self)
+    }
 }
 
 extension TupleRaymarchingElement8: RaymarchingElement {
@@ -121,5 +145,9 @@ extension TupleRaymarchingElement8: RaymarchingElement {
         current = t7.signedDistance(to: point, current: current)
 
         return current
+    }
+
+    func accept<Visitor: RaymarchingElementVisitor>(_ visitor: Visitor) -> Visitor.ResultType {
+        visitor.visit(self)
     }
 }
