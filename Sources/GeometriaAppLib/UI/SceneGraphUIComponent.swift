@@ -399,3 +399,78 @@ private class SceneGraphVisitor: ElementVisitor {
         return node
     }
 }
+
+extension SceneGraphVisitor: RaymarchingElementVisitor {
+    // MARK: Combination
+    func visit(_ element: ArrayRaymarchingElement) -> ResultType {
+        let node = SceneGraphNode(title: "Array (\(element.elements.count) element(s))")
+
+        node.addSubNodes(element.elements.map { $0.accept(self) })
+
+        return node
+    }
+
+    func visit(_ element: BoundedArrayRaymarchingElement) -> ResultType {
+        let node = SceneGraphNode(title: "Bounded array (\(element.elements.count) element(s))")
+
+        node.addSubNodes(element.elements.map { $0.accept(self) })
+
+        return node
+    }
+
+    func visit<T>(_ element: AbsoluteRaymarchingElement<T>) -> ResultType {
+        let node = SceneGraphNode(title: "Absolute distance")
+
+        node.addSubNode(element.element.accept(self))
+
+        return node
+    }
+
+    func visit<T0, T1>(_ element: OperationRaymarchingElement<T0, T1>) -> ResultType {
+        let node = SceneGraphNode(title: "Custom operation")
+
+        node.addSubNode(element.t0.accept(self))
+        node.addSubNode(element.t1.accept(self))
+
+        return node
+    }
+
+    // MARK: Repeating
+
+    func visit<T>(_ element: ModuloRaymarchingElement<T>) -> ResultType {
+        let node = SceneGraphNode(title: "Modulo (phase: \(element.phase))")
+
+        node.addSubNode(element.element.accept(self))
+
+        return node
+    }
+
+    // MARK: Smoothing
+
+    func visit<T0, T1>(_ element: SmoothIntersectionElement<T0, T1>) -> ResultType {
+        let node = SceneGraphNode(title: "Smooth intersection")
+
+        node.addSubNode(element.t0.accept(self))
+        node.addSubNode(element.t1.accept(self))
+
+        return node
+    }
+
+    func visit<T0, T1>(_ element: SmoothUnionElement<T0, T1>) -> ResultType {
+        let node = SceneGraphNode(title: "Smooth union")
+
+        node.addSubNode(element.t0.accept(self))
+        node.addSubNode(element.t1.accept(self))
+
+        return node
+    }
+
+    func visit<T0, T1>(_ element: SmoothSubtractionElement<T0, T1>) -> ResultType {
+        let node = SceneGraphNode(title: "Smooth subtraction")
+
+        node.addSubNode(element.t0.accept(self))
+        node.addSubNode(element.t1.accept(self))
+
+        return node
+    }
+}

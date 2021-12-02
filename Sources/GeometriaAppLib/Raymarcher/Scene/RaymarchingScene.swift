@@ -39,6 +39,11 @@ struct RaymarchingScene<T: RaymarchingElement>: RaymarchingSceneType {
     func walk<Visitor: ElementVisitor>(_ visitor: Visitor) -> Visitor.ResultType {
         root.accept(visitor)
     }
+
+    /// Walks a visitor through this scene's elements.
+    func walk<Visitor: RaymarchingElementVisitor>(_ visitor: Visitor) -> Visitor.ResultType {
+        root.accept(visitor)
+    }
 }
 
 extension RaymarchingElementBuilder {
