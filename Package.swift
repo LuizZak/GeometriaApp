@@ -35,6 +35,7 @@ var osTargets: [Target] = []
 // Append settings required to run the executable on Windows
 #if true
 
+geometriaAppTarget.exclude.append("main+macOS.swift")
 geometriaAppTarget.swiftSettings = [
     .unsafeFlags([
         "-parse-as-library",
@@ -79,6 +80,7 @@ geometriaAppTarget.dependencies.append(
 
 #elseif os(macOS)
 
+geometriaAppTarget.exclude.append("main+win.swift")
 geometriaAppTarget.dependencies.append(
     "GeometriaMacOS"
 )

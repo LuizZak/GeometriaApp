@@ -19,6 +19,7 @@ class CanvasView: NSView {
     var app: Blend2DApp!
     var blImage: BLImage!
     var redrawBounds: [NSRect] = []
+    var viewsToLayout: [ImagineUI.View] = []
     
     override var bounds: NSRect {
         get {
@@ -291,6 +292,12 @@ class CanvasView: NSView {
         guard let context = NSGraphicsContext.current else {
             return
         }
+        
+        for view in viewsToLayout {
+            view.performLayout()
+        }
+        viewsToLayout.removeAll()
+        
         context.imageInterpolation = .none
         context.shouldAntialias = false
         context.compositingOperation = .copy
@@ -312,8 +319,12 @@ class CanvasView: NSView {
 }
 
 extension CanvasView: Blend2DAppDelegate {
+    func firstResponderChanged(_ newFirstResponder: KeyboardEventHandler?) {
+        
+    }
+    
     func needsLayout(_ view: ImagineUI.View) {
-        view.performLayout()
+        viewsToLayout.append(view)
     }
     
     func invalidate(bounds: UIRectangle) {

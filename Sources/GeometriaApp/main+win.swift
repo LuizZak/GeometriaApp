@@ -12,15 +12,6 @@ func wWinMain(_ hInstance: HINSTANCE,
     return try! start()
 }
 
-#elseif os(macOS)
-
-import GeometriaMacOS
-
-@main
-func main() {
-    startApp()
-}
-
 #else
 
 #error("Unsupported target platform. Supported platforms: macOS, Windows")
