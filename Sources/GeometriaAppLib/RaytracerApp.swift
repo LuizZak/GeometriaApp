@@ -130,7 +130,7 @@ public class RaytracerApp: Blend2DApp {
         
         #if false
         
-        let scene = RaytracingDemoScene1.makeScene()
+        let scene = RaytracingDemoScene2.makeScene()
         
         let renderer = Raytracer(
             scene: scene,

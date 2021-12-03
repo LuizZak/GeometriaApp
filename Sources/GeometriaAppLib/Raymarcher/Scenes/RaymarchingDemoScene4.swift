@@ -11,6 +11,8 @@ enum RaymarchingDemoScene4 {
 
 @RaymarchingElementBuilder
 private func scene() -> some RaymarchingElement {
+    makeFloorPlane()
+    
     intersection {
         makeTorus(
             center: .init(x: 0, y: 100, z: 40),
@@ -25,8 +27,6 @@ private func scene() -> some RaymarchingElement {
         ).absolute()
     }
     //.makeBoundingBox()
-    
-    makeFloorPlane()
 }
 
 @_transparent

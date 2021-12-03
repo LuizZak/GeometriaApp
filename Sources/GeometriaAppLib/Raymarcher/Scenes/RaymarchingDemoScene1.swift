@@ -10,6 +10,8 @@ enum RaymarchingDemoScene1 {
 
 @RaymarchingElementBuilder
 private func scene() -> some RaymarchingElement {
+    makeFloorPlane()
+    
     group {
         group {
             makeBackAABB()
@@ -29,8 +31,6 @@ private func scene() -> some RaymarchingElement {
             makeBumpySphere()
         }
     }
-    
-    makeFloorPlane()
 }
 
 @_transparent

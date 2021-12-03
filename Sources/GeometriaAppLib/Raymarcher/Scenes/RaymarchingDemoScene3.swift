@@ -11,6 +11,8 @@ enum RaymarchingDemoScene3 {
 
 @RaymarchingElementBuilder
 private func scene() -> some RaymarchingElement {
+    makeFloorPlane()
+    
     subtraction {
         intersection {
             makeCube(
@@ -42,8 +44,6 @@ private func scene() -> some RaymarchingElement {
         )
     }
     .makeBoundingBox()
-    
-    makeFloorPlane()
 }
 
 @_transparent
