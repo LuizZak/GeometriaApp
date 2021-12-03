@@ -10,7 +10,7 @@ var app: ImagineUIApp!
 public func start() throws -> CInt {
     try? setupLogging()
 
-    let delegate = GeometriaWindowsDelegate()
+    let delegate = GeometriaAppDelegate()
     let fontPath = Resources.bundle.path(forResource: "NotoSans-Regular", ofType: "ttf")!
 
     if !FileManager.default.fileExists(atPath: fontPath) {

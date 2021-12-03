@@ -12,7 +12,7 @@ class ImagineUIWrapper {
     private var controlSystem = DefaultControlSystem()
     private var rootViews: [RootView]
     private var currentRedrawRegion: UIRectangle? = nil
-    private var debugDrawFlags: Set<DebugDraw.DebugDrawFlags> = []
+    private var debugDrawFlags: Set<DebugDraw.DebugDrawFlags> = [] // '.viewBounds', '.layoutGuideBounds', and/or '.constraints'.
     
     var sampleRenderScale: BLPoint = .one
     

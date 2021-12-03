@@ -1,6 +1,6 @@
 import ImagineUI_Win
 
-class GeometriaWindowsDelegate: ImagineUIAppDelegate {
+class GeometriaAppDelegate: ImagineUIAppDelegate {
     var main: Blend2DWindowContentType?
 
     func appDidLaunch() {
