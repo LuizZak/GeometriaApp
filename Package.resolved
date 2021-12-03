@@ -11,20 +11,11 @@
         }
       },
       {
-        "package": "ImagineUI",
-        "repositoryURL": "https://github.com/LuizZak/ImagineUI.git",
-        "state": {
-          "branch": "master",
-          "revision": "c54459823bac3a694cb0119d1c895fd0ccfc5463",
-          "version": null
-        }
-      },
-      {
         "package": "ImagineUI-Win",
         "repositoryURL": "https://github.com/LuizZak/ImagineUI-Win.git",
         "state": {
           "branch": "main",
-          "revision": "4cb7f75a889b6588d2aa5e7fa25629de4495a501",
+          "revision": "34a528528a6bdb40da307f38fc29dbe867d4903f",
           "version": null
         }
       },

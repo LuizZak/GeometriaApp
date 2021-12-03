@@ -139,18 +139,19 @@ class SidePanel: ControlView {
     override func onMouseMove(_ event: MouseEventArgs) {
         super.onMouseMove(event)
 
-        if _mouseDown {
-            let mousePoint = convert(point: event.location, to: nil)
+        if _mouseDown, let superview = superview {
+            let mousePoint = convert(point: event.location, to: superview)
 
             switch pinSide {
             case .left:
-                length = mousePoint.x - _mouseOffset
+                length = min(superview.size.width, mousePoint.x - _mouseOffset)
             case .top:
-                length = mousePoint.y - _mouseOffset
+                length = min(superview.size.height, mousePoint.y - _mouseOffset)
+
             case .right:
-                length = mousePoint.x - _mouseOffset
+                length = min(superview.size.width, superview.size.width - (mousePoint.x - _mouseOffset))
             case .bottom:
-                length = mousePoint.y - _mouseOffset
+                length = min(superview.size.height, superview.size.height - (mousePoint.y - _mouseOffset))
             }
         }
     }
