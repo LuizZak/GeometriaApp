@@ -123,6 +123,7 @@
 			"raytracer",
 			"raytracing",
 			"subview",
+			"superview",
 			"swiftpm"
 		],
 	},

@@ -9,21 +9,15 @@ class SceneGraphUIComponent: RaytracerUIComponent {
     weak var delegate: RaytracerUIComponentDelegate?
 
     init(width: Double) {
-        self.sidePanel = SidePanel(width: width)
+        self.sidePanel = SidePanel(pinSide: .left, length: width)
     }
 
     func setup(container: View) {
         container.addSubview(sidePanel)
         sidePanel.addSubview(treeView)
-        
-        sidePanel.layout.makeConstraints { make in
-            make.left == container.layout.left
-            make.top == container.layout.top
-            make.bottom == container.layout.bottom
-        }
 
         treeView.layout.makeConstraints { make in
-            make.edges.equalTo(sidePanel, inset: UIEdgeInsets(left: 0, top: 0, right: 4, bottom: 0))
+            make.edges == sidePanel.contentBounds
         }
     }
 
@@ -145,58 +139,6 @@ class SceneGraphUIComponent: RaytracerUIComponent {
                     return .node(node.subnodes[index])
                 }
             }
-        }
-    }
-
-    private class SidePanel: ControlView {
-        private var _mouseDown: Bool = false
-        private var _width: Double
-
-        override var intrinsicSize: UISize? {
-            UISize(width: _width, height: 0)
-        }
-
-        init(width: Double) {
-            _width = width
-
-            super.init()
-
-            backColor = .lightGray
-        }
-
-        override func onMouseEnter() {
-            super.onMouseEnter()
-
-            controlSystem?.setMouseCursor(.resizeLeftRight)
-        }
-
-        override func onMouseLeave() {
-            super.onMouseLeave()
-
-            controlSystem?.setMouseCursor(.arrow)
-        }
-
-        override func onMouseDown(_ event: MouseEventArgs) {
-            super.onMouseDown(event)
-
-            _mouseDown = true
-        }
-
-        override func onMouseMove(_ event: MouseEventArgs) {
-            super.onMouseMove(event)
-
-            if _mouseDown {
-                let mousePoint = convert(point: event.location, to: nil)
-
-                _width = mousePoint.x
-                setNeedsLayout()
-            }
-        }
-
-        override func onMouseUp(_ event: MouseEventArgs) {
-            super.onMouseUp(event)
-
-            _mouseDown = false
         }
     }
 }
