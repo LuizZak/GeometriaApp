@@ -55,8 +55,14 @@ public class RaytracerApp: Blend2DApp {
     func createUI() {
         let sceneGraphWidth = 250.0
 
-        ui.addComponent(StatusLabelsComponent(leftPadding: sceneGraphWidth))
-        ui.addComponent(SceneGraphUIComponent(width: sceneGraphWidth))
+        let sceneGraphUI = SceneGraphUIComponent(width: sceneGraphWidth)
+        ui.addComponent(sceneGraphUI)
+        let labelsContainer = ui.addComponentInReservedView(StatusLabelsComponent())
+
+        labelsContainer.layout.makeConstraints { make in
+            (make.top, make.right, make.bottom) == ui.rootContainer
+            make.right(of: sceneGraphUI.sidePanel)
+        }
     }
     
     public func willStartLiveResize() {

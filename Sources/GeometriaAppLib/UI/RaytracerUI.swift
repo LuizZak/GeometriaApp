@@ -6,6 +6,10 @@ class RaytracerUI {
     private let ui: ImagineUIWrapper
     private var components: [RaytracerUIComponent] = []
 
+    var rootContainer: RootView {
+        return ui.rootView
+    }
+
     weak var delegate: Blend2DAppDelegate? {
         didSet {
             ui.delegate = delegate
@@ -17,8 +21,21 @@ class RaytracerUI {
     }
 
     func addComponent(_ component: RaytracerUIComponent) {
+        _addComponent(component, container: ui.rootView)
+    }
+
+    func addComponentInReservedView(_ component: RaytracerUIComponent) -> View {
+        let container = View()
+        ui.rootView.addSubview(container)
+
+        _addComponent(component, container: container)
+
+        return container
+    }
+
+    private func _addComponent(_ component: RaytracerUIComponent, container: View) {
         component.delegate = self
-        component.setup(container: ui.rootView)
+        component.setup(container: container)
 
         components.append(component)
     }

@@ -2,9 +2,10 @@ import Foundation
 import ImagineUI
 
 class SceneGraphUIComponent: RaytracerUIComponent {
-    private let sidePanel: SidePanel
     private let treeView = TreeView()
     private var sceneDataSource: SceneDataSource?
+
+    let sidePanel: SidePanel
 
     weak var delegate: RaytracerUIComponentDelegate?
 

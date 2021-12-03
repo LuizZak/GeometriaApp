@@ -7,8 +7,6 @@ class StatusLabelsComponent: RaytracerUIComponent {
     private var _timeEnded: TimeInterval = 0.0
     private var _mouseLocation: BLPointI = .zero
 
-    private var leftPadding: Double
-
     private let topLeftLabels: StackView = StackView(orientation: .vertical)
     private let batcherLabel: LabelControl = LabelControl()
     private let stateLabel: LabelControl = LabelControl()
@@ -24,29 +22,28 @@ class StatusLabelsComponent: RaytracerUIComponent {
 
     weak var delegate: RaytracerUIComponentDelegate?
 
-    init(leftPadding: Double) {
-        self.leftPadding = leftPadding
-    }
-
     func setup(container: View) {
-        topLeftLabels.location = .init(x: leftPadding + 5, y: 5)
-        topLeftLabels.spacing = 5
-        topLeftLabels.areaIntoConstraintsMask = [.location]
-        bottomLeftLabels.areaIntoConstraintsMask = []
-        bottomLeftLabels.spacing = 5
-        container.addSubview(bottomLeftLabels)
         container.addSubview(topLeftLabels)
+        container.addSubview(bottomLeftLabels)
+
+        topLeftLabels.spacing = 5
         
         topLeftLabels.addArrangedSubview(stateLabel)
         topLeftLabels.addArrangedSubview(batcherLabel)
         topLeftLabels.addArrangedSubview(progressLabel)
         topLeftLabels.addArrangedSubview(totalTimeLabel)
         
+        bottomLeftLabels.spacing = 5
         bottomLeftLabels.addArrangedSubview(instructionsLabel)
         bottomLeftLabels.addArrangedSubview(mouseLocationLabel)
         
+        topLeftLabels.layout.makeConstraints { make in
+            make.left == container + 5
+            make.top == container + 5
+        }
+
         bottomLeftLabels.layout.makeConstraints { make in
-            make.left == leftPadding + 5
+            make.left == container + 5
             make.bottom == container - 5
         }
         
