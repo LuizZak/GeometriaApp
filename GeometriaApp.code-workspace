@@ -118,6 +118,7 @@
 			"Boundable",
 			"msvc",
 			"RAABB",
+			"raycast",
 			"raymarcher",
 			"raymarching",
 			"raytracer",

@@ -11,6 +11,8 @@ enum RaytracingDemoScene3 {
 
 @RaytracingElementBuilder
 private func scene() -> some RaytracingElement {
+    makeFloorPlane()
+
     subtraction {
         intersection {
             makeCube(
@@ -45,8 +47,6 @@ private func scene() -> some RaytracingElement {
         }
     }
     .makeBoundingBox()
-    
-    makeFloorPlane()
 }
 
 @_transparent

@@ -19,37 +19,45 @@ extension<T0: Element, T1: Element, T2: Element> TupleElement<(T0, T1, T2: Eleme
 but do it with multiple tuples for now for performance reasons.
 */
 
-struct TupleElement2<T0: Element, T1: Element> {
+struct TupleElement2<T0: Element, T1: Element>: TupleElementType {
     var id: Int = 0
     var t0: T0
     var t1: T1
+
+    var elements: [Element] { [t0, t1] }
 }
 
-struct TupleElement3<T0: Element, T1: Element, T2: Element> {
+struct TupleElement3<T0: Element, T1: Element, T2: Element>: TupleElementType {
     var id: Int = 0
     var t0: T0
     var t1: T1
     var t2: T2
+
+    var elements: [Element] { [t0, t1, t2] }
 }
 
-struct TupleElement4<T0: Element, T1: Element, T2: Element, T3: Element> {
+struct TupleElement4<T0: Element, T1: Element, T2: Element, T3: Element>: TupleElementType {
     var id: Int = 0
     var t0: T0
     var t1: T1
     var t2: T2
     var t3: T3
+
+    var elements: [Element] { [t0, t1, t2, t3] }
 }
 
-struct TupleElement5<T0: Element, T1: Element, T2: Element, T3: Element, T4: Element> {
+struct TupleElement5<T0: Element, T1: Element, T2: Element, T3: Element, T4: Element>: TupleElementType {
     var id: Int = 0
     var t0: T0
     var t1: T1
     var t2: T2
     var t3: T3
     var t4: T4
+
+    var elements: [Element] { [t0, t1, t2, t3, t4] }
 }
 
-struct TupleElement6<T0: Element, T1: Element, T2: Element, T3: Element, T4: Element, T5: Element> {
+struct TupleElement6<T0: Element, T1: Element, T2: Element, T3: Element, T4: Element, T5: Element>: TupleElementType {
     var id: Int = 0
     var t0: T0
     var t1: T1
@@ -57,9 +65,11 @@ struct TupleElement6<T0: Element, T1: Element, T2: Element, T3: Element, T4: Ele
     var t3: T3
     var t4: T4
     var t5: T5
+
+    var elements: [Element] { [t0, t1, t2, t3, t4, t5] }
 }
 
-struct TupleElement7<T0: Element, T1: Element, T2: Element, T3: Element, T4: Element, T5: Element, T6: Element> {
+struct TupleElement7<T0: Element, T1: Element, T2: Element, T3: Element, T4: Element, T5: Element, T6: Element>: TupleElementType {
     var id: Int = 0
     var t0: T0
     var t1: T1
@@ -68,9 +78,11 @@ struct TupleElement7<T0: Element, T1: Element, T2: Element, T3: Element, T4: Ele
     var t4: T4
     var t5: T5
     var t6: T6
+
+    var elements: [Element] { [t0, t1, t2, t3, t4, t5, t6] }
 }
 
-struct TupleElement8<T0: Element, T1: Element, T2: Element, T3: Element, T4: Element, T5: Element, T6: Element, T7: Element> {
+struct TupleElement8<T0: Element, T1: Element, T2: Element, T3: Element, T4: Element, T5: Element, T6: Element, T7: Element>: TupleElementType {
     var id: Int = 0
     var t0: T0
     var t1: T1
@@ -80,6 +92,8 @@ struct TupleElement8<T0: Element, T1: Element, T2: Element, T3: Element, T4: Ele
     var t5: T5
     var t6: T6
     var t7: T7
+
+    var elements: [Element] { [t0, t1, t2, t3, t4, t5, t6, t7] }
 }
 
 

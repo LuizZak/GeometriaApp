@@ -11,6 +11,8 @@ enum RaytracingDemoScene1 {
 
 @RaytracingElementBuilder
 private func scene() -> some RaytracingElement {
+    makeFloorPlane()
+    
     boundingBox {
         boundingBox {
             makeBackAABB()
@@ -28,8 +30,6 @@ private func scene() -> some RaytracingElement {
             makeBumpySphere()
         }
     }
-    
-    makeFloorPlane()
 }
 
 @_transparent
