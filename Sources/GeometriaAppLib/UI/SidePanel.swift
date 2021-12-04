@@ -24,7 +24,7 @@ class SidePanel: ControlView {
         }
     }
 
-    /// The side of the superview this side panel will pin into.
+    /// The side of the superview this side panel will pin to.
     var pinSide: PinSide {
         didSet {
             guard pinSide != oldValue else { return }
