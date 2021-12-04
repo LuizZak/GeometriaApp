@@ -1,4 +1,5 @@
 struct ScaleElement<T: Element> {
+    var id: Int = 0
     var element: T
     var scaling: Double
     var scalingCenter: RVector3D
@@ -7,6 +8,8 @@ struct ScaleElement<T: Element> {
 extension ScaleElement: Element {
     @_transparent
     mutating func attributeIds(_ idFactory: inout ElementIdFactory) {
+        id = idFactory.makeId()
+
         element.attributeIds(&idFactory)
     }
 

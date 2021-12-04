@@ -20,17 +20,20 @@ but do it with multiple tuples for now for performance reasons.
 */
 
 struct TupleElement2<T0: Element, T1: Element> {
+    var id: Int = 0
     var t0: T0
     var t1: T1
 }
 
 struct TupleElement3<T0: Element, T1: Element, T2: Element> {
+    var id: Int = 0
     var t0: T0
     var t1: T1
     var t2: T2
 }
 
 struct TupleElement4<T0: Element, T1: Element, T2: Element, T3: Element> {
+    var id: Int = 0
     var t0: T0
     var t1: T1
     var t2: T2
@@ -38,6 +41,7 @@ struct TupleElement4<T0: Element, T1: Element, T2: Element, T3: Element> {
 }
 
 struct TupleElement5<T0: Element, T1: Element, T2: Element, T3: Element, T4: Element> {
+    var id: Int = 0
     var t0: T0
     var t1: T1
     var t2: T2
@@ -46,6 +50,7 @@ struct TupleElement5<T0: Element, T1: Element, T2: Element, T3: Element, T4: Ele
 }
 
 struct TupleElement6<T0: Element, T1: Element, T2: Element, T3: Element, T4: Element, T5: Element> {
+    var id: Int = 0
     var t0: T0
     var t1: T1
     var t2: T2
@@ -55,6 +60,7 @@ struct TupleElement6<T0: Element, T1: Element, T2: Element, T3: Element, T4: Ele
 }
 
 struct TupleElement7<T0: Element, T1: Element, T2: Element, T3: Element, T4: Element, T5: Element, T6: Element> {
+    var id: Int = 0
     var t0: T0
     var t1: T1
     var t2: T2
@@ -65,6 +71,7 @@ struct TupleElement7<T0: Element, T1: Element, T2: Element, T3: Element, T4: Ele
 }
 
 struct TupleElement8<T0: Element, T1: Element, T2: Element, T3: Element, T4: Element, T5: Element, T6: Element, T7: Element> {
+    var id: Int = 0
     var t0: T0
     var t1: T1
     var t2: T2
@@ -79,6 +86,8 @@ struct TupleElement8<T0: Element, T1: Element, T2: Element, T3: Element, T4: Ele
 extension TupleElement2: Element {
     @inlinable
     mutating func attributeIds(_ idFactory: inout ElementIdFactory) {
+        id = idFactory.makeId()
+
         t0.attributeIds(&idFactory)
         t1.attributeIds(&idFactory)
     }
@@ -99,6 +108,8 @@ extension TupleElement2: Element {
 extension TupleElement3: Element {
     @inlinable
     mutating func attributeIds(_ idFactory: inout ElementIdFactory) {
+        id = idFactory.makeId()
+
         t0.attributeIds(&idFactory)
         t1.attributeIds(&idFactory)
         t2.attributeIds(&idFactory)
@@ -121,6 +132,8 @@ extension TupleElement3: Element {
 extension TupleElement4: Element {
     @inlinable
     mutating func attributeIds(_ idFactory: inout ElementIdFactory) {
+        id = idFactory.makeId()
+
         t0.attributeIds(&idFactory)
         t1.attributeIds(&idFactory)
         t2.attributeIds(&idFactory)
@@ -145,6 +158,8 @@ extension TupleElement4: Element {
 extension TupleElement5: Element {
     @inlinable
     mutating func attributeIds(_ idFactory: inout ElementIdFactory) {
+        id = idFactory.makeId()
+
         t0.attributeIds(&idFactory)
         t1.attributeIds(&idFactory)
         t2.attributeIds(&idFactory)
@@ -171,6 +186,8 @@ extension TupleElement5: Element {
 extension TupleElement6: Element {
     @inlinable
     mutating func attributeIds(_ idFactory: inout ElementIdFactory) {
+        id = idFactory.makeId()
+
         t0.attributeIds(&idFactory)
         t1.attributeIds(&idFactory)
         t2.attributeIds(&idFactory)
@@ -199,6 +216,8 @@ extension TupleElement6: Element {
 extension TupleElement7: Element {
     @inlinable
     mutating func attributeIds(_ idFactory: inout ElementIdFactory) {
+        id = idFactory.makeId()
+
         t0.attributeIds(&idFactory)
         t1.attributeIds(&idFactory)
         t2.attributeIds(&idFactory)
@@ -229,6 +248,8 @@ extension TupleElement7: Element {
 extension TupleElement8: Element {
     @inlinable
     mutating func attributeIds(_ idFactory: inout ElementIdFactory) {
+        id = idFactory.makeId()
+
         t0.attributeIds(&idFactory)
         t1.attributeIds(&idFactory)
         t2.attributeIds(&idFactory)

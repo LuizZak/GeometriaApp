@@ -1,11 +1,11 @@
 struct EmptyElement {
-
+    var id: Int = 0
 }
 
 extension EmptyElement: Element {
     @_transparent
     mutating func attributeIds(_ idFactory: inout ElementIdFactory) {
-        
+        id = idFactory.makeId()
     }
 
     @_transparent

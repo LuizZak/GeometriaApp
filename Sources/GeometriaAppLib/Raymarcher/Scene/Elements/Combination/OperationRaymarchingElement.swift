@@ -1,4 +1,5 @@
 struct OperationRaymarchingElement<T0: RaymarchingElement, T1: RaymarchingElement>: RaymarchingElement {
+    var id: Int = 0
     var t0: T0
     var t1: T1
     var operation: (RaymarchingResult, RaymarchingResult) -> RaymarchingResult
@@ -14,6 +15,8 @@ struct OperationRaymarchingElement<T0: RaymarchingElement, T1: RaymarchingElemen
 
 extension OperationRaymarchingElement: Element {
     mutating func attributeIds(_ idFactory: inout ElementIdFactory) {
+        id = idFactory.makeId()
+
         t0.attributeIds(&idFactory)
         t1.attributeIds(&idFactory)
     }

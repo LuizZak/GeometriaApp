@@ -1,4 +1,9 @@
+import SwiftBlend2D
+
 protocol SceneType {
+    var skyColor: BLRgba32 { get }
+    var sunDirection: RVector3D { get }
+
     mutating func attributeIds(_ idFactory: inout ElementIdFactory)
 
     /// Returns an item on this scene matching a specified id, across all elements

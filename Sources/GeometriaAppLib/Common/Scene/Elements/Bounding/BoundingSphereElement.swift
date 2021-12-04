@@ -1,4 +1,5 @@
 struct BoundingSphereElement<T: Element> {
+    var id: Int = 0
     var element: T
     var boundingSphere: RSphere3D
     
@@ -30,6 +31,8 @@ extension BoundingSphereElement {
 
 extension BoundingSphereElement: Element {
     mutating func attributeIds(_ idFactory: inout ElementIdFactory) {
+        id = idFactory.makeId()
+
         element.attributeIds(&idFactory)
     }
 

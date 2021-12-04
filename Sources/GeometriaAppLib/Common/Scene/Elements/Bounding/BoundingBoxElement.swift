@@ -1,4 +1,5 @@
 struct BoundingBoxElement<T: Element> {
+    var id: Int = 0
     var element: T
     var boundingBox: RAABB3D
     
@@ -23,6 +24,8 @@ extension BoundingBoxElement {
 
 extension BoundingBoxElement: Element {
     mutating func attributeIds(_ idFactory: inout ElementIdFactory) {
+        id = idFactory.makeId()
+
         element.attributeIds(&idFactory)
     }
 

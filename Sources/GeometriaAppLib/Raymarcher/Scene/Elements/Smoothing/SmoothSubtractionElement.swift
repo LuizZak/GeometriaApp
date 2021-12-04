@@ -1,6 +1,7 @@
 // Reference for distance function modifiers:
 // https://www.iquilezles.org/www/articles/distfunctions/distfunctions.htm
 struct SmoothSubtractionElement<T0: RaymarchingElement, T1: RaymarchingElement>: RaymarchingElement {
+    var id: Int = 0
     var t0: T0
     var t1: T1
     var smoothSize: Double
@@ -19,6 +20,8 @@ struct SmoothSubtractionElement<T0: RaymarchingElement, T1: RaymarchingElement>:
 
 extension SmoothSubtractionElement: Element {
     mutating func attributeIds(_ idFactory: inout ElementIdFactory) {
+        id = idFactory.makeId()
+
         t0.attributeIds(&idFactory)
         t1.attributeIds(&idFactory)
     }

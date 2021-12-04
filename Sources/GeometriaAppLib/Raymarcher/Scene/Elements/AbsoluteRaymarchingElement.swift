@@ -1,5 +1,6 @@
 /// Returns the absolute of the distance of the underlying geometry
 struct AbsoluteRaymarchingElement<T: RaymarchingElement>: RaymarchingElement {
+    var id: Int = 0
     var element: T
 
     @inlinable
@@ -11,6 +12,8 @@ struct AbsoluteRaymarchingElement<T: RaymarchingElement>: RaymarchingElement {
 
     @inlinable
     mutating func attributeIds(_ idFactory: inout ElementIdFactory) {
+        id = idFactory.makeId()
+
         element.attributeIds(&idFactory)
     }
 

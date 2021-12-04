@@ -1,5 +1,19 @@
 import SwiftBlend2D
 
+typealias RaymarchingScene<T: RaymarchingElement> = Scene<T>
+
+extension RaymarchingScene: RaymarchingSceneType {
+    func signedDistance(to point: RVector3D, current: RaymarchingResult) -> RaymarchingResult {
+        root.signedDistance(to: point, current: current)
+    }
+
+    /// Walks a visitor through this scene's elements.
+    func walk<Visitor: RaymarchingElementVisitor>(_ visitor: Visitor) -> Visitor.ResultType {
+        root.accept(visitor)
+    }
+}
+
+/*
 struct RaymarchingScene<T: RaymarchingElement>: RaymarchingSceneType {
     var root: T
     var skyColor: BLRgba32
@@ -45,6 +59,7 @@ struct RaymarchingScene<T: RaymarchingElement>: RaymarchingSceneType {
         root.accept(visitor)
     }
 }
+*/
 
 extension RaymarchingElementBuilder {
     static func makeScene<T>(skyColor: BLRgba32, materials: MaterialMap, @RaymarchingElementBuilder _ builder: () -> T) -> RaymarchingScene<T> where T: RaymarchingElement {

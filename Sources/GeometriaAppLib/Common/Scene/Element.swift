@@ -1,5 +1,8 @@
-/// Base protocol for scene graph elements
+/// Base protocol for scene graph elements.
 protocol Element {
+    /// Gets a unique identifier for this node.
+    var id: Int { get set }
+
     mutating func attributeIds(_ idFactory: inout ElementIdFactory)
 
     /// Returns an item on this raytracing element matching a specified id.

@@ -1,10 +1,13 @@
 struct TypedArrayElement<T: Element> {
+    var id: Int = 0
     var elements: [T]
 }
 
 extension TypedArrayElement: Element {
     @inlinable
     mutating func attributeIds(_ idFactory: inout ElementIdFactory) {
+        id = idFactory.makeId()
+
         elements = elements.map {
             var el = $0
             el.attributeIds(&idFactory)

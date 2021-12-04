@@ -1,4 +1,5 @@
 struct TranslateElement<T: Element> {
+    var id: Int = 0
     var element: T
     var translation: RVector3D
 }
@@ -6,6 +7,8 @@ struct TranslateElement<T: Element> {
 extension TranslateElement: Element {
     @_transparent
     mutating func attributeIds(_ idFactory: inout ElementIdFactory) {
+        id = idFactory.makeId()
+
         element.attributeIds(&idFactory)
     }
 

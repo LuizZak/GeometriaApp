@@ -1,10 +1,13 @@
 struct ArrayRaymarchingElement {
+    var id: Int = 0
     var elements: [RaymarchingElement]
 }
 
 extension ArrayRaymarchingElement: Element {
     @_transparent
     mutating func attributeIds(_ idFactory: inout ElementIdFactory) {
+        id = idFactory.makeId()
+
         elements = elements.map {
             var el = $0
             el.attributeIds(&idFactory)

@@ -1,4 +1,5 @@
 struct ModuloRaymarchingElement<T: RaymarchingElement>: RaymarchingElement {
+    var id: Int = 0
     var element: T
     var phase: RVector3D
 
@@ -10,6 +11,8 @@ struct ModuloRaymarchingElement<T: RaymarchingElement>: RaymarchingElement {
 
 extension ModuloRaymarchingElement: Element {
     mutating func attributeIds(_ idFactory: inout ElementIdFactory) {
+        id = idFactory.makeId()
+
         element.attributeIds(&idFactory)
     }
 

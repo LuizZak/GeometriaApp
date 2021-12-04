@@ -1,4 +1,5 @@
 struct RepeatTranslateElement<T: Element> {
+    var id: Int = 0
     var element: T
     var translation: RVector3D
     var count: Int
@@ -7,6 +8,8 @@ struct RepeatTranslateElement<T: Element> {
 extension RepeatTranslateElement: Element {
     @_transparent
     mutating func attributeIds(_ idFactory: inout ElementIdFactory) {
+        id = idFactory.makeId()
+
         element.attributeIds(&idFactory)
     }
 
