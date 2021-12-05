@@ -25,5 +25,9 @@ extension RaytracerUIComponent {
 }
 
 protocol RaytracerUIComponentDelegate: AnyObject {
-    
+    /// Request that the UI open a view as a dialog, obscuring the underlying
+    /// views while the view is displayed.
+    ///
+    /// Returns a boolean value indicating whether the view was successfully opened.
+    func openDialog(_ view: UIDialog, location: UIDialogInitialLocation) -> Bool
 }

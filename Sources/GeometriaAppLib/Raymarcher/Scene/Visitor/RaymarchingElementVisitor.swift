@@ -47,8 +47,6 @@ protocol RaymarchingElementVisitor: ElementVisitor {
     
     // MARK: Combination
 
-    func visit(_ element: ArrayRaymarchingElement) -> ResultType
-    func visit(_ element: BoundedArrayRaymarchingElement) -> ResultType
     func visit<T>(_ element: AbsoluteRaymarchingElement<T>) -> ResultType
     func visit<T0, T1>(_ element: OperationRaymarchingElement<T0, T1>) -> ResultType
 

@@ -6,6 +6,15 @@ class RaytracerUI {
     private let ui: ImagineUIWrapper
     private var components: [RaytracerUIComponent] = []
 
+    /// Indicates a currently opened dialog.
+    private var dialogState: DialogState?
+
+    /// View that dialogs should be added as subviews to.
+    private var dialogsTargetView: View {
+        ui.rootView
+    }
+
+    /// The root view container for the UI.
     var rootContainer: RootView {
         return ui.rootView
     }
@@ -117,8 +126,64 @@ class RaytracerUI {
     func keyUp(event: KeyEventArgs) {
         ui.keyUp(event: event)
     }
+
+    private func _openDialog(_ view: UIDialog, location: UIDialogInitialLocation) -> Bool {
+        if dialogState != nil {
+            return false
+        }
+
+        let background = ControlView()
+        background.backColor = .black.withTransparency(20)
+
+        let state = DialogState(dialog: view, background: background)
+
+        dialogState = state
+
+        dialogsTargetView.addSubview(background)
+        dialogsTargetView.addSubview(view)
+
+        background.layout.makeConstraints { make in
+            make.edges == dialogsTargetView
+        }
+
+        switch location {
+        case .unspecified:
+            break
+        
+        case .topLeft(let location, nil):
+            view.location = location
+
+        case .topLeft(let location, let reference?):
+            view.location = reference.convert(point: location, to: nil)
+
+        case .centered:
+            // Refresh layout to acquire the proper view size
+            view.performLayout()
+
+            view.location = (dialogsTargetView.size / 2 - view.size / 2).asUIPoint
+        }
+
+        return true
+    }
+
+    /// Wraps the state of a displayed dialog.
+    private struct DialogState {
+        /// The dialog window currently opened.
+        var dialog: UIDialog
+
+        /// Background that obscures the underlying views
+        var background: ControlView
+    }
 }
 
 extension RaytracerUI: RaytracerUIComponentDelegate {
+    func openDialog(_ view: UIDialog, location: UIDialogInitialLocation) -> Bool {
+        return _openDialog(view, location: location)
+    }
+}
 
+extension RaytracerUI: UIDialogDelegate {
+    func dialogClosed(_ dialog: UIDialog) {
+
+    }
 }

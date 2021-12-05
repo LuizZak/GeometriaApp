@@ -3,10 +3,6 @@ struct RaymarchingElementBuilder {
 
     // MARK: Concrete types
 
-    static func buildArray(_ components: [RaymarchingElement]) -> ArrayRaymarchingElement {
-        .init(elements: components)
-    }
-
     static func buildEither<T>(first component: T) -> T where T: RaymarchingElement {
         component
     }

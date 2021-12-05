@@ -16,6 +16,7 @@ class ImagineUIWrapper {
     
     var sampleRenderScale: BLPoint = .one
     
+    /// The main root view hierarchy where all other UI views are added to.
     let rootView = RootView()
     
     weak var delegate: Blend2DAppDelegate?
