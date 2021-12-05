@@ -55,12 +55,6 @@ final class SceneGraphUINode {
         return self
     }
 
-    func addingSubNode(_ node: SceneGraphUINode) -> SceneGraphUINode {
-        addSubNode(node)
-
-        return self
-    }
-
     func addingSubNode<Base: Element, Value: Element>(_ visitor: SceneGraphVisitor, mutating element: Base, _ keyPath: WritableKeyPath<Base, Value>) -> SceneGraphUINode {
         addSubNode(element[keyPath: keyPath].accept(visitor), mutating: keyPath)
 
@@ -69,14 +63,6 @@ final class SceneGraphUINode {
 
     func addingSubNode<Base: Element, Value: RaymarchingElement>(_ visitor: SceneGraphVisitor, mutating element: Base, _ keyPath: WritableKeyPath<Base, Value>) -> SceneGraphUINode {
         addSubNode(element[keyPath: keyPath].accept(visitor), mutating: keyPath)
-
-        return self
-    }
-
-    func addingSubNodes<S: Sequence>(_ nodes: S) -> SceneGraphUINode where S.Element == SceneGraphUINode {
-        for node in nodes {
-            addSubNode(node)
-        }
 
         return self
     }
@@ -214,6 +200,14 @@ extension SceneGraphUINode {
         self.addingIcon(IconLibrary.tupleIcon)
     }
 
+    func addingIcon<T0, T1>(for element: IntersectionElement<T0, T1>) -> SceneGraphUINode {
+        self.addingIcon(IconLibrary.intersectionIcon)
+    }
+
+    func addingIcon<T0, T1>(for element: SubtractionElement<T0, T1>) -> SceneGraphUINode {
+        self.addingIcon(IconLibrary.subtractionIcon)
+    }
+
     private class IconLibrary {
         // MARK: - Red icons (geometry primitives)
 
@@ -286,6 +280,38 @@ extension SceneGraphUINode {
 
             renderer.stroke(circleLeft)
             renderer.stroke(circleRight)
+        }
+
+        static let intersectionIcon: Image = makeIcon(.blue) { (renderer, size) in
+            let sizePoint = size.asUIPoint
+            
+            let square = UIRectangle(location: sizePoint * 0.2, size: size * 0.6)
+            let circle = UICircle(center: square.bottomRight, radius: square.width * 0.65)
+            let pie = circle.arc(start: -.pi / 2, sweep: -.pi / 2)
+        
+            renderer.withTemporaryState {
+                renderer.setStroke(.lightGray)
+                renderer.stroke(square)
+                renderer.stroke(circle)
+            }
+
+            renderer.stroke(pie: pie)
+        }
+
+        static let subtractionIcon: Image = makeIcon(.blue) { (renderer, size) in
+            let sizePoint = size.asUIPoint
+
+            var poly = UIPolygon(vertices: [
+                sizePoint * 0.2,
+                sizePoint * UIVector(x: 0.8, y: 0.2),
+                sizePoint * UIVector(x: 0.8, y: 0.5),
+                sizePoint * UIVector(x: 0.5, y: 0.5),
+                sizePoint * UIVector(x: 0.5, y: 0.8),
+                sizePoint * UIVector(x: 0.2, y: 0.8),
+            ])
+            poly.close()
+
+            renderer.stroke(poly)
         }
 
         // MARK: -
