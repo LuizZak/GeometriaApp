@@ -128,6 +128,8 @@ public class RaytracerApp: Blend2DApp {
 //        let batcher = SieveBatcher()
 //        let batcher = LinearBatcher()
         
+        // TODO: Derive camera configuration from the demo scene builders.
+
         #if false
         
         let scene = RaytracingDemoScene3.makeScene()

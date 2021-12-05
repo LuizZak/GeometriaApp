@@ -172,6 +172,10 @@ extension SceneGraphUINode {
         return self
     }
 
+    func addingIcon(for element: CubeElement) -> SceneGraphUINode {
+        self.addingIcon(IconLibrary.cubeIcon)
+    }
+
     func addingIcon(for element: AABBElement) -> SceneGraphUINode {
         self.addingIcon(IconLibrary.aabbIcon)
     }
@@ -212,6 +216,8 @@ extension SceneGraphUINode {
         // MARK: - Red icons (geometry primitives)
 
         static let aabbIcon: Image = makeAABBIcon(.red)
+
+        static let cubeIcon: Image = makeAABBIcon(.red, aabbSizeScale: .init(x: 0.6, y: 0.6))
 
         static let sphereIcon: Image = makeIcon(.red) { (renderer, size) in
             let circle = UICircle(center: size.asUIPoint / 2, radius: size.width * 0.45)
@@ -316,9 +322,9 @@ extension SceneGraphUINode {
 
         // MARK: -
 
-        private static func makeAABBIcon(_ color: Color) -> Image {
+        private static func makeAABBIcon(_ color: Color, aabbSizeScale: UIVector = UIVector(x: 0.6, y: 0.4)) -> Image {
             makeIcon(color) { (renderer, size) in
-                let aabb = UIRectangle(x: size.width * 0.1, y: size.height * 0.4, width: size.width * 0.6, height: size.height * 0.4)
+                let aabb = UIRectangle(x: size.width * 0.1, y: size.height * 0.4, width: size.width * aabbSizeScale.x, height: size.height * aabbSizeScale.y)
                 var polygon = UIPolygon()
                 polygon.addVertex(aabb.topLeft)
                 polygon.addVertex(aabb.topRight)
