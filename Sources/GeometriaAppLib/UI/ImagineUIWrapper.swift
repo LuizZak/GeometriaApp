@@ -14,8 +14,6 @@ class ImagineUIWrapper {
     private var currentRedrawRegion: UIRectangle? = nil
     private var debugDrawFlags: Set<DebugDraw.DebugDrawFlags> = [] // '.viewBounds', '.layoutGuideBounds', and/or '.constraints'.
     
-    var sampleRenderScale: BLPoint = .one
-    
     /// The main root view hierarchy where all other UI views are added to.
     let rootView = RootView()
     
@@ -85,12 +83,12 @@ class ImagineUIWrapper {
         }
     }
     
-    func render(context ctx: BLContext) {
+    func render(context ctx: BLContext, scale: BLPoint) {
         guard let rect = currentRedrawRegion else {
             return
         }
         
-        ctx.scale(by: sampleRenderScale)
+        ctx.scale(by: scale)
 //        ctx.setFillStyle(BLRgba32.cornflowerBlue)
         
         let redrawRegion = BLRegion(rectangle: BLRectI(rounding: rect.asBLRect))

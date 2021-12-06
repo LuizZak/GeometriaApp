@@ -41,7 +41,6 @@ public class RaytracerApp: Blend2DApp {
         _font = Fonts.defaultFont(size: 12)
         
         let uiWrapper = ImagineUIWrapper(size: BLSizeI(w: Int32(width), h: Int32(height)))
-        uiWrapper.sampleRenderScale = appRenderScale
         ui = RaytracerUI(uiWrapper: uiWrapper)
 
         restartRendering()
@@ -82,8 +81,10 @@ public class RaytracerApp: Blend2DApp {
     public func resize(width: Int, height: Int) {
         self.width = width
         self.height = height
-        restartRendering()
+
         ui.resize(width: width, height: height)
+
+        restartRendering()
     }
     
     func restartRendering() {
@@ -266,26 +267,33 @@ public class RaytracerApp: Blend2DApp {
         delegate?.invalidate(bounds: .init(x: 0, y: 0, width: Double(width), height: Double(height)))
     }
     
-    public func render(context ctx: BLContext) {
+    public func render(context ctx: BLContext, scale: BLPoint, clipRegion: ClipRegion) {
         if let buffer = buffer {
             buffer.usingImage { img in
-                if appRenderScale == .one {
+                ctx.save()
+                ctx.clipToRect(clipRegion.bounds().scaled(by: scale).asBLRect)
+
+                if scale == .one {
                     ctx.blitImage(img, at: BLPointI.zero)
                 } else {
-                    let rect = BLRect(x: 0,
-                                      y: 0,
-                                      w: Double(width) * appRenderScale.x,
-                                      h: Double(height) * appRenderScale.y)
+                    let rect = BLRect(
+                        x: 0,
+                        y: 0,
+                        w: Double(width) * scale.x,
+                        h: Double(height) * scale.y
+                    )
                     
                     ctx.blitScaledImage(img, rectangle: rect, imageArea: nil)
                 }
+
+                ctx.restore()
             }
         } else {
             ctx.setFillStyle(BLRgba32.white)
             ctx.fillAll()
         }
         
-        ui.render(context: ctx)
+        ui.render(context: ctx, scale: scale)
         
 //        ctx.setFillStyle(BLRgba32.red)
 //        ctx.setStrokeStyle(BLRgba32.red)

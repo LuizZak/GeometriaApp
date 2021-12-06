@@ -38,8 +38,7 @@ class GeometriaWindow: Blend2DWindowContentType {
     }
 
     func render(context ctx: BLContext, renderScale: UIVector, clipRegion: ClipRegion) {
-        ctx.scale(by: renderScale.asBLPoint)
-        raytracer.render(context: ctx)
+        raytracer.render(context: ctx, scale: renderScale.asBLPoint, clipRegion: clipRegion)
     }
 
     func resize(_ newSize: UIIntSize) {
@@ -48,10 +47,6 @@ class GeometriaWindow: Blend2DWindowContentType {
 
     func performLayout() {
         raytracer.performLayout()
-    }
-
-    func render(context ctx: BLContext) {
-        raytracer.render(context: ctx)
     }
     
     func mouseDown(event: MouseEventArgs) {

@@ -8,6 +8,8 @@ final class SceneGraphUINode {
     var properties: [PropertyEntry] = []
     var subnodes: [SceneGraphUINode] = []
 
+    var mutator: ((Element) -> Element)?
+
     weak var parent: SceneGraphUINode?
 
     init(element: Element, title: String) {
@@ -30,11 +32,42 @@ final class SceneGraphUINode {
         subnodes.append(node)
     }
 
-    func addSubNode<Base: Element, Value: Element>(_ node: SceneGraphUINode, mutating keyPath: WritableKeyPath<Base, Value>) {
-        assert(node !== self)
+    /*
+    func addSubNode<Base: Element, Value: Element>(_ node: SceneGraphUINode, keyPath: WritableKeyPath<Base, Value>, mutator: (Value) -> Base) {
+        addSubNode(node)
 
-        node.parent = self
-        subnodes.append(node)
+        self.mutator = { [weak self] newValue in
+            guard let self = self else { return newValue }
+
+            guard var castObject = self.element as? Base else {
+                return newValue
+            }
+            guard let value = newValue as? Value else {
+                return newValue
+            }
+
+            castObject[keyPath: keyPath] = value
+            return castObject
+        }
+    }
+    */
+
+    func addSubNode<Base: Element, Value: Element>(_ node: SceneGraphUINode, mutating keyPath: WritableKeyPath<Base, Value>) {
+        addSubNode(node)
+
+        self.mutator = { [weak self] newValue in
+            guard let self = self else { return newValue }
+
+            guard var castObject = self.element as? Base else {
+                return newValue
+            }
+            guard let value = newValue as? Value else {
+                return newValue
+            }
+
+            castObject[keyPath: keyPath] = value
+            return castObject
+        }
     }
 
     func addSubNodes<S: Sequence>(_ nodes: S) where S.Element == SceneGraphUINode {
@@ -215,11 +248,11 @@ extension SceneGraphUINode {
     private class IconLibrary {
         // MARK: - Red icons (geometry primitives)
 
-        static let aabbIcon: Image = makeAABBIcon(.red)
+        static let aabbIcon: Image = makeAABBIcon(.lightCoral)
 
-        static let cubeIcon: Image = makeAABBIcon(.red, aabbSizeScale: .init(x: 0.6, y: 0.6))
+        static let cubeIcon: Image = makeAABBIcon(.lightCoral, aabbSizeScale: .init(x: 0.6, y: 0.6))
 
-        static let sphereIcon: Image = makeIcon(.red) { (renderer, size) in
+        static let sphereIcon: Image = makeIcon(.lightCoral) { (renderer, size) in
             let circle = UICircle(center: size.asUIPoint / 2, radius: size.width * 0.45)
             let horizon = circle.asUIEllipse.scaledBy(x: 1.0, y: 0.3).arc(start: .zero, sweep: .pi)
             let meridian = circle.asUIEllipse.scaledBy(x: 0.3, y: 1.0).arc(start: -.pi / 2, sweep: .pi)
@@ -229,7 +262,7 @@ extension SceneGraphUINode {
             renderer.stroke(meridian)
         }
 
-        static let cylinderIcon: Image = makeIcon(.red) { (renderer, size) in
+        static let cylinderIcon: Image = makeIcon(.lightCoral) { (renderer, size) in
             let top = UIEllipse(
                 center: .init(x: size.width / 2, y: size.height * 0.25),
                 radius: .init(x: size.width / 2, y: size.height * 0.2)
@@ -244,7 +277,7 @@ extension SceneGraphUINode {
             renderer.stroke(UILine(x1: top.bounds.right, y1: top.center.y, x2: top.bounds.right, y2: size.height * 0.75))
         }
 
-        static let diskIcon: Image = makeIcon(.red) { (renderer, size) in
+        static let diskIcon: Image = makeIcon(.lightCoral) { (renderer, size) in
             let disk = UICircle(center: size.asUIPoint / 2, radius: size.width * 0.45)
                 .asUIEllipse
                 .scaledBy(x: 0.6, y: 1.0)
@@ -270,11 +303,9 @@ extension SceneGraphUINode {
             renderer.stroke(circle3)
         }
 
-        static let boundingBoxIcon: Image = makeAABBIcon(.blue)
+        static let boundingBoxIcon: Image = makeAABBIcon(.cornflowerBlue)
 
-        static let tupleIcon: Image = makeIcon(.blue) { (renderer, size) in
-            renderer.setStroke(.blue)
-
+        static let tupleIcon: Image = makeIcon(.cornflowerBlue) { (renderer, size) in
             let circleLeft = UICircle(
                 center: .init(x: size.width, y: size.height / 2),
                 radius: size.width - 2
@@ -288,7 +319,7 @@ extension SceneGraphUINode {
             renderer.stroke(circleRight)
         }
 
-        static let intersectionIcon: Image = makeIcon(.blue) { (renderer, size) in
+        static let intersectionIcon: Image = makeIcon(.cornflowerBlue) { (renderer, size) in
             let sizePoint = size.asUIPoint
             
             let square = UIRectangle(location: sizePoint * 0.2, size: size * 0.6)
@@ -296,7 +327,7 @@ extension SceneGraphUINode {
             let pie = circle.arc(start: -.pi / 2, sweep: -.pi / 2)
         
             renderer.withTemporaryState {
-                renderer.setStroke(.lightGray)
+                renderer.setStroke(.lightGray.withTransparency(30))
                 renderer.stroke(square)
                 renderer.stroke(circle)
             }
@@ -304,7 +335,7 @@ extension SceneGraphUINode {
             renderer.stroke(pie: pie)
         }
 
-        static let subtractionIcon: Image = makeIcon(.blue) { (renderer, size) in
+        static let subtractionIcon: Image = makeIcon(.cornflowerBlue) { (renderer, size) in
             let sizePoint = size.asUIPoint
 
             var poly = UIPolygon(vertices: [

@@ -95,8 +95,8 @@ class RaytracerUI {
         ui.update(time)
     }
 
-    func render(context ctx: BLContext) {
-        ui.render(context: ctx)
+    func render(context ctx: BLContext, scale: BLPoint) {
+        ui.render(context: ctx, scale: scale)
     }
     
     func mouseDown(event: MouseEventArgs) {

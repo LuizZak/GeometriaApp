@@ -20,7 +20,7 @@ public protocol Blend2DApp: AnyObject {
     func resize(width: Int, height: Int)
     
     func performLayout()
-    func render(context ctx: BLContext)
+    func render(context ctx: BLContext, scale: BLPoint, clipRegion: ClipRegion)
     
     func mouseDown(event: MouseEventArgs)
     func mouseMoved(event: MouseEventArgs)
