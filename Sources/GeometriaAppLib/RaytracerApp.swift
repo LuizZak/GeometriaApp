@@ -52,15 +52,13 @@ public class RaytracerApp: Blend2DApp {
     }
     
     func createUI() {
-        let sceneGraphWidth = 250.0
-
-        let sceneGraphUI = SceneGraphUIComponent(width: sceneGraphWidth)
-        ui.addComponent(sceneGraphUI)
+        let sceneGraph = SceneGraphTreeComponent(width: 250.0)
+        ui.addComponent(sceneGraph)
         let labelsContainer = ui.addComponentInReservedView(StatusLabelsComponent())
 
         labelsContainer.layout.makeConstraints { make in
             (make.top, make.right, make.bottom) == ui.rootContainer
-            make.right(of: sceneGraphUI.sidePanel)
+            make.right(of: sceneGraph.sidePanel)
         }
     }
     
@@ -294,160 +292,5 @@ public class RaytracerApp: Blend2DApp {
         }
         
         ui.render(context: ctx, scale: scale)
-        
-//        ctx.setFillStyle(BLRgba32.red)
-//        ctx.setStrokeStyle(BLRgba32.red)
-//
-//        let px = BLRectI(location: _mouseLocation, size: .init(x: 1, y: 1))
-//        ctx.fillRect(px)
-//        ctx.setStrokeWidth(1)
-//        let crosshairLength: Int32 = 10
-//        ctx.strokeLine(p0: _mouseLocation - .init(x: crosshairLength, y: 0), p1: _mouseLocation + .init(x: crosshairLength, y: 0))
-//        ctx.strokeLine(p0: _mouseLocation - .init(x: 0, y: crosshairLength), p1: _mouseLocation + .init(x: 0, y: crosshairLength))
-    }
-    
-    func drawLabel(_ ctx: BLContext, text: String, topLeft: BLPoint) {
-        let textInset = UIVector(x: 10, y: 5)
-        let renderer = Blend2DRenderer(context: ctx)
-        let layout = TextLayout(font: _font, text: text)
-        let textBox = UIRectangle(location: topLeft.asUIVector, size: layout.size + textInset)
-        
-        renderer.setFill(.black.withTransparency(60))
-        renderer.fill(textBox)
-        renderer.setFill(.white)
-        renderer.drawTextLayout(layout, at: topLeft.asUIVector + textInset / 2)
-    }
-    
-    func drawLabel(_ ctx: BLContext, text: String, bottomLeft: BLPoint) {
-        let textInset = UIVector(x: 10, y: 5)
-        let renderer = Blend2DRenderer(context: ctx)
-        let layout = TextLayout(font: _font, text: text)
-        
-        let textPoint = bottomLeft.asUIVector - UIVector(x: -textInset.x / 2, y: layout.size.width + textInset.y / 2)
-        let boxPoint = bottomLeft.asUIVector - UIVector(x: 0, y: layout.size.height + textInset.y)
-        
-        let textBox = UIRectangle(location: boxPoint, size: layout.size + textInset)
-        
-        renderer.setFill(.black.withTransparency(60))
-        renderer.fill(textBox)
-        renderer.setFill(.white)
-        renderer.drawTextLayout(layout, at: textPoint)
-    }
-    
-    func drawPoint(_ ctx: BLContext, _ p: RVector2D) {
-        ctx.setFillStyle(BLRgba32.white)
-        ctx.fillCircle(x: p.x, y: p.y, radius: 3)
-    }
-    
-    func strokeRect<R: RectangleType>(_ ctx: BLContext, _ rect: R) where R.Vector == RVector2D {
-        ctx.setStrokeWidth(0.5)
-        ctx.setStrokeStyle(BLRgba32.white)
-        ctx.strokeRect(rect.asBLRect)
-    }
-    
-    func strokeCircle(_ ctx: BLContext, _ circle: RCircle2D) {
-        ctx.setStrokeWidth(0.5)
-        ctx.setStrokeStyle(BLRgba32.white)
-        ctx.strokeCircle(circle.asBLCircle)
-    }
-    
-    func strokePolyLine(_ ctx: BLContext, _ polyLine: RPolyLine2D) {
-        ctx.setStrokeWidth(0.5)
-        ctx.setStrokeStyle(BLRgba32.white)
-        ctx.strokePath(polyLine.asBLPath)
-    }
-    
-    func drawLine(_ ctx: BLContext, _ line: RLineSegment2D, color: BLRgba32 = .lightGray) {
-        ctx.setStrokeWidth(0.5)
-        ctx.setStrokeStyle(color)
-        ctx.strokeLine(line.asBLLine)
-    }
-    
-    func drawPointNormal(_ ctx: BLContext, _ pointNormal: PointNormal<RVector2D>) {
-        let color: BLRgba32
-        switch (pointNormal.normal.x, pointNormal.normal.y) {
-        case (1, 0), (-1, 0):
-            color = .red
-        case (0, 1), (0, 1):
-            color = .blue
-        default:
-            color = .red
-        }
-        
-        let length: Double = 15
-        let line = RLineSegment2D(start: pointNormal.point,
-                                  end: pointNormal.point + pointNormal.normal * length)
-        
-        drawLine(ctx, line, color: color)
-        drawPoint(ctx, pointNormal.point)
-    }
-    
-    func drawIntersection(_ ctx: BLContext, _ intersect: ConvexLineIntersection<RVector2D>) {
-        switch intersect {
-        case .singlePoint(let pt), .enter(let pt), .exit(let pt):
-            drawPointNormal(ctx, pt)
-            
-        case let .enterExit(pt1, pt2):
-            drawPointNormal(ctx, pt1)
-            drawPointNormal(ctx, pt2)
-            
-        case .contained:
-            break
-        case .noIntersection:
-            break
-        }
-    }
-}
-
-class LabelControl: ControlView {
-    private let textInset = UIEdgeInsets(left: 5, top: 2.5, right: 5, bottom: 2.5)
-    private var label: Label
-    
-    var text: String {
-        get { label.text }
-        set { label.text = newValue }
-    }
-    
-    var textColor: Color {
-        get { label.textColor }
-        set { label.textColor = newValue }
-    }
-    
-    var attributedText: AttributedText {
-        get { label.attributedText }
-        set { label.attributedText = newValue }
-    }
-    
-    convenience override init() {
-        let font = Fonts.defaultFont(size: 12)
-        
-        self.init(font: font)
-    }
-    
-    convenience init(text: String) {
-        let font = Fonts.defaultFont(size: 12)
-        
-        self.init(font: font)
-        
-        self.text = text
-    }
-    
-    init(font: Font) {
-        label = Label(textColor: .white, font: font)
-        
-        super.init()
-        
-        textColor = .white
-        backColor = .black.withTransparency(60)
-    }
-    
-    override func setupHierarchy() {
-        addSubview(label)
-    }
-    
-    override func setupConstraints() {
-        label.layout.makeConstraints { make in
-            make.edges.equalTo(self, inset: textInset)
-        }
     }
 }

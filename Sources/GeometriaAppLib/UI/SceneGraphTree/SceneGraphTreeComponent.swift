@@ -2,7 +2,7 @@ import Foundation
 import ImagineUI
 import Blend2DRenderer
 
-class SceneGraphUIComponent: RaytracerUIComponent {
+class SceneGraphTreeComponent: RaytracerUIComponent {
     private let treeView = TreeView()
     private var sceneDataSource: SceneDataSource?
 
@@ -63,9 +63,9 @@ class SceneGraphUIComponent: RaytracerUIComponent {
     }
 
     private class SceneDataSource: TreeViewDataSource {
-        var root: SceneGraphUINode
+        var root: SceneGraphTreeNode
 
-        init(root: SceneGraphUINode) {
+        init(root: SceneGraphTreeNode) {
             self.root = root
         }
 
@@ -111,9 +111,9 @@ class SceneGraphUIComponent: RaytracerUIComponent {
         }
 
         enum ItemType {
-            case node(SceneGraphUINode)
-            case property(SceneGraphUINode.PropertyEntry)
-            case subnodes(SceneGraphUINode)
+            case node(SceneGraphTreeNode)
+            case property(SceneGraphTreeNode.PropertyEntry)
+            case subnodes(SceneGraphTreeNode)
 
             func hasElements() -> Bool {
                 elementCount() > 0

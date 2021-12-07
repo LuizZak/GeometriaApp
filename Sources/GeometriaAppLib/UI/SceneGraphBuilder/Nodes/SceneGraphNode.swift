@@ -53,12 +53,17 @@ class SceneGraphNode {
     }
 
     enum DataType: Hashable {
+        case geometry
         case anyElement
 
         static func areAssignable(source: DataType, target: DataType) -> Bool {
             switch (source, target) {
+            case (.geometry, .anyElement):
+                return true
             case (.anyElement, .anyElement):
                 return true
+            default:
+                return false
             }
         }
     }
