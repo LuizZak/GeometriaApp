@@ -26,14 +26,17 @@ public class RaytracerGraphApp: Blend2DApp {
         self.height = height
         time = 0
         _font = Fonts.defaultFont(size: 12)
-        
+
         let uiWrapper = ImagineUIWrapper(size: BLSizeI(w: Int32(width), h: Int32(height)))
+        uiWrapper.clearRendererOnRedraw = true
         ui = RaytracerUI(uiWrapper: uiWrapper)
 
         createUI()
     }
     
     func createUI() {
+        ControlView.globallyCacheAsBitmap = false
+
         let sceneGraph = SceneGraphBuilderComponent()
         ui.addComponent(sceneGraph)
     }
@@ -100,6 +103,10 @@ public class RaytracerGraphApp: Blend2DApp {
     }
     
     public func render(context ctx: BLContext, scale: BLPoint, clipRegion: ClipRegion) {
+        let bounds = clipRegion.bounds()
+        ctx.setFillStyle(BLRgba32.black)
+        ctx.fillRect(bounds.asBLRect)
+
         ui.render(context: ctx, scale: scale)
     }
 }

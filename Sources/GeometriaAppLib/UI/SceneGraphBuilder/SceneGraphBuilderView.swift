@@ -7,10 +7,13 @@ class SceneGraphBuilderView: RootView {
 
     override init() {
         super.init()
+
         initialize()
     }
 
     private func initialize() {
+        cacheAsBitmap = false
+
         backColor = Color(red: 37, green: 37, blue: 38)
 
         let node = AABBGraphNode(aabb: .init(minimum: .zero, maximum: .one), material: .defaultMaterial)
@@ -26,23 +29,52 @@ class SceneGraphBuilderView: RootView {
         _setupEvents(view)
     }
 
+    private func _removeNodeView(_ view: SceneGraphNodeView) {
+        guard let index = nodeViews.firstIndex(of: view) else { return }
+
+        view.removeFromSuperview()
+        nodeViews.remove(at: index)
+    }
+
     private func _setupEvents(_ view: SceneGraphNodeView) {
-        view.mouseDown.addListener(owner: self) { (view, _) in 
+        view.mouseDown.addListener(owner: self) { (view, event) in
             view.bringToFrontOfSuperview()
         }
+        view.mouseClicked.addListener(owner: self) { [weak self] (sender, event) in
+            guard let self = self else { return }
+            guard let view = sender as? SceneGraphNodeView else { return }
+            guard event.buttons == .right else { return }
+
+            self._openContextMenu(for: view, location: view.convert(point: event.location, to: nil))
+        }
+    }
+
+    private func _openContextMenu(for view: SceneGraphNodeView, location: UIPoint) {
+        delegate?.openDialog(
+            ContextMenuView.create {
+                ContextMenuItem(title: "Delete") {
+                    self._removeNodeView(view)
+                }
+            },
+            location: .topLeft(location)
+        )
     }
 }
 
 protocol SceneGraphBuilderViewDelegate: AnyObject {
-
+    /// Request that the UI open a view as a dialog, obscuring the underlying
+    /// views while the view is displayed.
+    ///
+    /// Returns a boolean value indicating whether the view was successfully opened.
+    @discardableResult
+    func openDialog(_ view: UIDialog, location: UIDialogInitialLocation) -> Bool
 }
 
 private class SceneGraphNodeView: RootView {
     private var _mouseDown = false
     private var _mouseDownPoint: UIVector = .zero
 
-    private let _label: Label = Label(textColor: .white)
-    private let _titleSeparator: ControlView = ControlView()
+    private let _headerView: HeaderView = HeaderView()
     private let _contentsLayoutGuide: LayoutGuide = LayoutGuide()
 
     private let _inputsStackView: StackView = StackView(orientation: .vertical)
@@ -65,12 +97,13 @@ private class SceneGraphNodeView: RootView {
     }
 
     private func initialize() {
+        cacheAsBitmap = false
+        
+        backColor = Color(red: 37, green: 37, blue: 38)
+
         strokeColor = Color(red: 9, green: 71, blue: 113)
         strokeWidth = 2
         cornerRadius = 4
-
-        _titleSeparator.isInteractiveEnabled = false
-        _titleSeparator.backColor = .lightGray
 
         _inputsLabel.text = "inputs:"
         _outputsLabel.text = "outputs:"
@@ -82,8 +115,7 @@ private class SceneGraphNodeView: RootView {
     override func setupHierarchy() {
         super.setupHierarchy()
 
-        addSubview(_label)
-        addSubview(_titleSeparator)
+        addSubview(_headerView)
         addLayoutGuide(_contentsLayoutGuide)
         addSubview(_inputsStackView)
         addSubview(_outputsStackView)
@@ -94,19 +126,13 @@ private class SceneGraphNodeView: RootView {
 
         areaIntoConstraintsMask = [.location]
 
-        _label.layout.makeConstraints { make in
+        _headerView.layout.makeConstraints { make in
             make.left == self + 4
             make.top == self + 4
-            make.right <= self - 4
-        }
-        _titleSeparator.layout.makeConstraints { make in
-            make.top == _label.layout.bottom + 2
-            make.left == self + 4
             make.right == self - 4
-            make.height == 1
         }
         _contentsLayoutGuide.layout.makeConstraints { make in
-            make.top == _titleSeparator.layout.bottom + 4
+            make.top == _headerView.layout.bottom + 4
             make.left == self + 4
             make.right == self - 4
             make.bottom == self - 4
@@ -151,7 +177,8 @@ private class SceneGraphNodeView: RootView {
     }
 
     private func reloadDisplay() {
-        _label.text = node.displayInformation.title
+        _headerView.icon = node.displayInformation.icon
+        _headerView.title = node.displayInformation.title
 
         reloadInputs()
         reloadOutputs()
@@ -198,6 +225,72 @@ private class SceneGraphNodeView: RootView {
             let view = OutputView(output: output)
             _outputsStackView.addArrangedSubview(view)
             _outputViews.append(view)
+        }
+    }
+
+    private class HeaderView: View {
+        private let _iconView: ImageView = ImageView(image: nil)
+        private let _label: Label = Label(textColor: .white)
+        private let _titleSeparator: ControlView = ControlView()
+        private let _stackView: StackView = StackView(orientation: .horizontal)
+
+        var title: String {
+            get {
+                return _label.text
+            }
+            set {
+                _label.text = newValue
+            }
+        }
+
+        var icon: Image? {
+            get {
+                return _iconView.image
+            }
+            set {
+                _iconView.image = newValue
+                _updateStackView()
+            }
+        }
+
+        override init() {
+            super.init()
+
+            _titleSeparator.isInteractiveEnabled = false
+            _titleSeparator.backColor = .lightGray
+
+            _updateStackView()
+        }
+
+        override func setupHierarchy() {
+            super.setupHierarchy()
+            
+            _iconView.areaIntoConstraintsMask = []
+
+            addSubview(_stackView)
+            addSubview(_titleSeparator)
+            _stackView.addArrangedSubview(_label)
+        }
+
+        override func setupConstraints() {
+            super.setupConstraints()
+
+            _stackView.layout.makeConstraints { make in
+                (make.left, make.top, make.right) == self
+            }
+            _titleSeparator.layout.makeConstraints { make in
+                make.top == _stackView.layout.bottom + 2
+                make.height == 1
+                (make.left, make.bottom, make.right) == self
+            }
+        }
+
+        private func _updateStackView() {
+            _iconView.removeFromSuperview()
+
+            if _iconView.image != nil {
+                _stackView.insertArrangedSubview(_iconView, at: 0)
+            }
         }
     }
 
@@ -287,7 +380,7 @@ private class SceneGraphNodeView: RootView {
 
     private class ConnectionView: ControlView {
         private let _circleRadius: Double = 6.0
-        
+
         override var intrinsicSize: UISize? {
             return .init(repeating: _circleRadius) * 2
         }

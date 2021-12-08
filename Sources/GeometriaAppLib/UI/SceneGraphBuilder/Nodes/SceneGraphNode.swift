@@ -1,3 +1,5 @@
+import ImagineUI
+
 /// Base class for scene graph nodes.
 class SceneGraphNode {
     var displayInformation: DisplayInformation {
@@ -39,6 +41,7 @@ class SceneGraphNode {
     }
 
     struct DisplayInformation {
+        var icon: Image?
         var title: String
     }
 

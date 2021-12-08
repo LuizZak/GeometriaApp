@@ -1,6 +1,7 @@
 class AABBGraphNode: GeometryGraphNode {
     override var displayInformation: DisplayInformation {
         .init(
+            icon: IconLibrary.aabbIcon,
             title: "AABB"
         )
     }

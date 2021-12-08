@@ -29,5 +29,6 @@ protocol RaytracerUIComponentDelegate: AnyObject {
     /// views while the view is displayed.
     ///
     /// Returns a boolean value indicating whether the view was successfully opened.
+    @discardableResult
     func openDialog(_ view: UIDialog, location: UIDialogInitialLocation) -> Bool
 }

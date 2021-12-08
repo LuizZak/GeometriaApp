@@ -14,18 +14,23 @@ class ImagineUIWrapper {
     private var currentRedrawRegion: UIRectangle? = nil
     private var debugDrawFlags: Set<DebugDraw.DebugDrawFlags> = [] // '.viewBounds', '.layoutGuideBounds', and/or '.constraints'.
     
-    /// The main root view hierarchy where all other UI views are added to.
-    let rootView = RootView()
-    
     weak var delegate: Blend2DAppDelegate?
+    
+    /// The main root view hierarchy where all other UI views are added to.
+    let rootView: RootView
+
+    /// If `true`, calls to `render(context:scale:)` can erase the background
+    /// of the redraw region prior to rendering.
+    var clearRendererOnRedraw: Bool = false
     
     init(size: BLSizeI) {
         width = Int(size.w)
         height = Int(size.h)
         bounds = BLRect(location: .zero, size: BLSize(w: Double(size.w), h: Double(size.h)))
         rootViews = []
-        controlSystem.delegate = self
+        rootView = RootView()
         
+        controlSystem.delegate = self
         addRootView(rootView)
     }
     
@@ -89,12 +94,14 @@ class ImagineUIWrapper {
         }
         
         ctx.scale(by: scale)
-//        ctx.setFillStyle(BLRgba32.cornflowerBlue)
-        
+
         let redrawRegion = BLRegion(rectangle: BLRectI(rounding: rect.asBLRect))
-        
-//        ctx.fillRect(rect.asBLRect)
-        
+
+        if clearRendererOnRedraw {
+            ctx.setFillStyle(BLRgba32.cornflowerBlue)
+            ctx.fillRect(rect.asBLRect)
+        }
+
         let renderer = Blend2DRenderer(context: ctx)
         
         // Redraw loop
@@ -139,6 +146,10 @@ extension ImagineUIWrapper: DefaultControlSystemDelegate {
     }
 
     func bringRootViewToFront(_ rootView: RootView) {
+        if !(rootView is Window) {
+            return
+        }
+
         rootViews.removeAll(where: { $0 == rootView })
         rootViews.append(rootView)
         
@@ -146,9 +157,9 @@ extension ImagineUIWrapper: DefaultControlSystemDelegate {
     }
     
     func controlViewUnder(point: UIVector, enabledOnly: Bool) -> ControlView? {
-        for window in rootViews.reversed() {
-            let converted = window.convertFromScreen(point)
-            if let view = window.hitTestControl(converted, enabledOnly: enabledOnly) {
+        for rootView in rootViews.reversed() {
+            let converted = rootView.convertFromScreen(point)
+            if let view = rootView.hitTestControl(converted, enabledOnly: enabledOnly) {
                 return view
             }
         }

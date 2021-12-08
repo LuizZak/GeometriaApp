@@ -8,7 +8,7 @@ class SceneGraphBuilderComponent: RaytracerUIComponent {
     weak var delegate: RaytracerUIComponentDelegate?
 
     init() {
-
+        builderView.delegate = self
     }
 
     func setup(container: View) {
@@ -23,10 +23,17 @@ class SceneGraphBuilderComponent: RaytracerUIComponent {
     }
 
     func rendererChanged<T: RendererType>(anyRenderer: T) {
-        
+
     }
 
     func mouseMoved(event: MouseEventArgs) {
 
+    }
+}
+
+extension SceneGraphBuilderComponent: SceneGraphBuilderViewDelegate {
+    @discardableResult
+    func openDialog(_ view: UIDialog, location: UIDialogInitialLocation) -> Bool {
+        return delegate?.openDialog(view, location: location) ?? false
     }
 }

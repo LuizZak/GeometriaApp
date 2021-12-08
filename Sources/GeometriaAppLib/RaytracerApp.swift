@@ -57,7 +57,7 @@ public class RaytracerApp: Blend2DApp {
         let labelsContainer = ui.addComponentInReservedView(StatusLabelsComponent())
 
         labelsContainer.layout.makeConstraints { make in
-            (make.top, make.right, make.bottom) == ui.rootContainer
+            (make.top, make.right, make.bottom) == ui.componentsContainer
             make.right(of: sceneGraph.sidePanel)
         }
     }
