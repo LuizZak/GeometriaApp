@@ -9,23 +9,27 @@ final class Raymarcher<Scene: RaymarchingSceneType>: RendererType {
     private var materialMapCache: MaterialMap
     private var globalMarchParameters: MarchingParameters
     
-    let scene: Scene
-    let camera: Camera
-    let viewportSize: ViewportSize
     var isMultiThreaded: Bool = false
     
-    init(scene: Scene, camera: Camera, viewportSize: ViewportSize) {
+    let scene: Scene
+    let camera: Camera
+    var viewportSize: ViewportSize = .zero
+    
+    init(scene: Scene, camera: Camera) {
         self.scene = scene
         self.camera = camera
-        self.viewportSize = viewportSize
         self.materialMapCache = scene.materialMap()
 
         self.globalMarchParameters = 
-        MarchingParameters(
-            maxMarchIterationCount: 250,
-            minimumMarchTolerance: 0.01,
-            maxDistance: 1000
-        )
+            MarchingParameters(
+                maxMarchIterationCount: 250,
+                minimumMarchTolerance: 0.01,
+                maxDistance: 1000
+            )
+    }
+
+    func setupViewportSize(_ viewportSize: ViewportSize) {
+        self.viewportSize = viewportSize
     }
 
     /// Gets the scene configured on this renderer.

@@ -1,48 +1,72 @@
 struct AnyBoundedRaymarchingElement {
-    private var _element: BoundedRaymarchingElement
+    var element: BoundedRaymarchingElement
     
     init<T: BoundedRaymarchingElement>(_ element: T) {
-        _element = element
+        self.element = element
+    }
+    
+    init?(_ anyElement: AnyRaymarchingElement) {
+        guard let element = anyElement.element as? BoundedRaymarchingElement else {
+            return nil
+        }
+
+        self.element = element
+    }
+    
+    init?(_ anyElement: AnyBoundedElement) {
+        guard let element = anyElement.element as? BoundedRaymarchingElement else {
+            return nil
+        }
+
+        self.element = element
+    }
+    
+    init?(_ anyElement: AnyElement) {
+        guard let element = anyElement.element as? BoundedRaymarchingElement else {
+            return nil
+        }
+
+        self.element = element
     }
 }
 
 extension AnyBoundedRaymarchingElement: Element {
     var id: Int {
         get {
-            _element.id
+            element.id
         }
         set {
-            _element.id = newValue
+            element.id = newValue
         }
     }
 
     @_transparent
     mutating func attributeIds(_ idFactory: inout ElementIdFactory) {
-        _element.attributeIds(&idFactory)
+        element.attributeIds(&idFactory)
     }
 
     @_transparent
     func queryScene(id: Int) -> Element? {
-        _element.queryScene(id: id)
+        element.queryScene(id: id)
     }
 
     func accept<Visitor: ElementVisitor>(_ visitor: Visitor) -> Visitor.ResultType {
-        _element.accept(visitor)
+        element.accept(visitor)
     }
 }
 
 extension AnyBoundedRaymarchingElement: BoundedElement {
     func makeBounds() -> ElementBounds {
-        return _element.makeBounds()
+        return element.makeBounds()
     }
 }
 
 extension AnyBoundedRaymarchingElement: RaymarchingElement {
     func signedDistance(to point: RVector3D, current: RaymarchingResult) -> RaymarchingResult {
-        _element.signedDistance(to: point, current: current)
+        element.signedDistance(to: point, current: current)
     }
 
     func accept<Visitor: RaymarchingElementVisitor>(_ visitor: Visitor) -> Visitor.ResultType {
-        _element.accept(visitor)
+        element.accept(visitor)
     }
 }

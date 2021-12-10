@@ -15,15 +15,18 @@ final class Raytracer<Scene: RaytracingSceneType>: RendererType {
     
     var isMultiThreaded: Bool = false
     var maxBounces: Int = 15
-    var scene: Scene
-    var camera: Camera
-    var viewportSize: ViewportSize
+    let scene: Scene
+    let camera: Camera
+    var viewportSize: ViewportSize = .zero
     
-    init(scene: Scene, camera: Camera, viewportSize: ViewportSize) {
+    init(scene: Scene, camera: Camera) {
         self.scene = scene
         self.camera = camera
-        self.viewportSize = viewportSize
         self.materialMapCache = scene.materialMap()
+    }
+
+    func setupViewportSize(_ viewportSize: ViewportSize) {
+        self.viewportSize = viewportSize
     }
 
     /// Gets the scene configured on this renderer.
@@ -57,7 +60,7 @@ final class Raytracer<Scene: RaytracingSceneType>: RendererType {
     
     // MARK: - Ray Casting
     
-    /// Does raycasting for a single pixel, returning the resulting color.
+    /// Perform raycasting for a single pixel, returning the resulting color.
     func render(pixelAt coord: PixelCoord) -> BLRgba32 {
         assert(coord >= .zero && coord < viewportSize, "\(coord) is not within \(PixelCoord.zero) x \(viewportSize) limits")
         
@@ -75,11 +78,7 @@ final class Raytracer<Scene: RaytracingSceneType>: RendererType {
             return RaytraceResult(color: scene.skyColor, dotSunDirection: 0.0)
         }
         
-        //let sceneGeometry = scene.geometries[hit.id]
-        
         processingPrinter?.add(hit: hit, ray: ray)
-        //processingPrinter?.add(geometry: sceneGeometry)
-        //processingPrinter?.add(intersection: hit.intersection)
         
         // No material information, potentially a hit against invisible geometry?
         guard let material = hit.material else {
@@ -96,19 +95,14 @@ final class Raytracer<Scene: RaytracingSceneType>: RendererType {
                               bounceCount: Int = 0) -> RaytraceResult {
         
         let material = materialMapCache[materialId]
-        /*
-        guard let material = materialMapCache[materialId] else {
-            return .transparentBlack
-        }
-        */
         
         // Detect short distances that should avoid re-bounces
-        var canRebounce = true
+        var canRebound = true
         switch ignoring {
         case .entrance(_, let minimumRayLengthSquared), .exit(_, let minimumRayLengthSquared):
             let dist = hit.point.distanceSquared(to: ray.start)
             if dist < minimumRayLengthSquared {
-                canRebounce = false
+                canRebound = false
             }
             
         default:
@@ -142,7 +136,7 @@ final class Raytracer<Scene: RaytracingSceneType>: RendererType {
                 // point of the refracted ray that was generated inside the object's
                 // geometry.
             refraction:
-                if trans > 0 && canRebounce {
+                if trans > 0 && canRebound {
                     guard let refractIn = refract(ray.direction, hit.normal, material.refractiveIndex) else {
                         break refraction
                     }
@@ -156,7 +150,7 @@ final class Raytracer<Scene: RaytracingSceneType>: RendererType {
                     let minDist = 0.01
                     let minDistSq = minDist * minDist
                     rayIgnore = .entrance(id: hit.id, minimumRayLengthSquared: minDistSq)
-                    // Do a sanitity check that the ray isn't going to collide
+                    // Do a sanity check that the ray isn't going to collide
                     // immediately with the same geometry - if it does, skip the
                     // geometry fully in the subsequent raycast
                     let innerHit = 
@@ -179,7 +173,7 @@ final class Raytracer<Scene: RaytracingSceneType>: RendererType {
             }
             
             // Reflectivity
-            if material.reflectivity > 0.0 && bounceCount < maxBounces && canRebounce {
+            if material.reflectivity > 0.0 && bounceCount < maxBounces && canRebound {
                 // Raycast from normal and fade in the reflected color
                 let ignoring: RayIgnore
                 if hit.hitDirection == .inside {
@@ -375,7 +369,7 @@ func fresnel(_ I: RVector3D, _ N: RVector3D, _ ior: Double) -> (reflection: Doub
         swap(&etai, &etat)
     }
     
-    // Compute sini using Snell's law
+    // Compute sint using Snell's law
     let sint: Double = etai / etat * sqrt(max(0.0, 1 - cosi * cosi))
     
     // Total internal reflection

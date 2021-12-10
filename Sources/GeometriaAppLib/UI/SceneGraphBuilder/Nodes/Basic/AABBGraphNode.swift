@@ -6,9 +6,9 @@ class AABBGraphNode: GeometryGraphNode {
         )
     }
 
-    override var outputs: [Output] {
+    override var outputs: [SceneGraphNodeOutput] {
         [
-            .init(name: "AABB", type: .geometry)
+            Output<AABBElement>(name: "AABB", index: 0, type: .geometry)
         ]
     }
 
@@ -22,7 +22,13 @@ class AABBGraphNode: GeometryGraphNode {
         super.init()
     }
 
-    override func makeElement() throws -> AnyElement {
+    override func makeElement(_ delegate: SceneGraphDelegate) throws -> Any {
         AnyElement(AABBElement(geometry: aabb, material: material))
+    }
+}
+
+extension AABBElement: SceneNodeDataTypeRepresentable {
+    static var staticDataType: SceneNodeDataType {
+        .geometry
     }
 }

@@ -135,8 +135,7 @@ public class RaytracerApp: Blend2DApp {
         
         let renderer = Raytracer(
             scene: scene,
-            camera: Camera(viewportSize: viewportSize),
-            viewportSize: viewportSize
+            camera: Camera(viewportSize: viewportSize)
         )
         
         #else
@@ -145,11 +144,12 @@ public class RaytracerApp: Blend2DApp {
         
         let renderer = Raymarcher(
             scene: scene,
-            camera: Camera(viewportSize: viewportSize),
-            viewportSize: viewportSize
+            camera: Camera(viewportSize: viewportSize)
         )
         
         #endif
+
+        renderer.setupViewportSize(viewportSize)
         
         rendererCoordinator = RendererCoordinator(
             renderer: renderer,

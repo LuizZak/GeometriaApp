@@ -1,7 +1,10 @@
 import ImagineUI
 
 class SceneGraphBuilderView: RootView {
-    private var nodeViews: [SceneGraphNodeView] = []
+    private var _sidePanel: SidePanel = SidePanel(pinSide: .left, length: 250)
+    private var _nodesContainer: NodesContainer = NodesContainer()
+    private var _mouseState: MouseState = .none
+    private var _nodeViews: [SceneGraphNodeView] = []
 
     weak var delegate: SceneGraphBuilderViewDelegate?
 
@@ -16,24 +19,98 @@ class SceneGraphBuilderView: RootView {
 
         backColor = Color(red: 37, green: 37, blue: 38)
 
-        let node = AABBGraphNode(aabb: .init(minimum: .zero, maximum: .one), material: .defaultMaterial)
-        _addNode(node)
+        let node1 = AABBGraphNode(aabb: .init(minimum: .zero, maximum: .one), material: .defaultMaterial)
+        _addNode(node1).location = .init(x: 300, y: 100)
+        let node2 = RaymarchingSceneNode()
+        _addNode(node2).location = .init(x: 350, y: 200)
     }
 
-    private func _addNode(_ node: SceneGraphNode) {
+    override func setupHierarchy() {
+        super.setupHierarchy()
+
+        addSubview(_nodesContainer)
+        addSubview(_sidePanel)
+    }
+
+    override func setupConstraints() {
+        super.setupConstraints()
+
+        _nodesContainer.layout.makeConstraints { layout in
+            layout.edges == self
+        }
+    }
+
+    override func canHandle(_ eventRequest: EventRequest) -> Bool {
+        if let mouseEvent = eventRequest as? MouseEventRequest, mouseEvent.eventType == MouseEventType.mouseWheel {
+            return true
+        }
+
+        return super.canHandle(eventRequest)
+    }
+
+    override func onMouseDown(_ event: MouseEventArgs) {
+        super.onMouseDown(event)
+
+        if let node = _nodeUnder(point: event.location) {
+            _mouseState = .draggingNode(
+                ViewDragOperation(
+                    view: node,
+                    container: _nodesContainer,
+                    offset: node.convert(point: event.location, from: self)
+                )
+            )
+        } else {
+            _mouseState = .draggingViewport(initialOffset: event.location - _nodesContainer.translation)
+        }
+    }
+
+    override func onMouseMove(_ event: MouseEventArgs) {
+        super.onMouseMove(event)
+
+        switch _mouseState {
+        case .none:
+            break
+        case .draggingViewport(let offset):
+            _nodesContainer.translation = event.location - offset
+        case .draggingNode(let operation):
+            let point = operation.container.convert(point: event.location, from: self)
+            operation.view.location = point - operation.offset
+        }
+    }
+
+    override func onMouseUp(_ event: MouseEventArgs) {
+        super.onMouseUp(event)
+
+        _mouseState = .none
+    }
+
+    override func onMouseWheel(_ event: MouseEventArgs) {
+        super.onMouseWheel(event)
+
+        if event.delta.y > 0 {
+            _nodesContainer.zoom = min(2.0, _nodesContainer.zoom + 0.1)
+        } else {
+            _nodesContainer.zoom = max(0.25, _nodesContainer.zoom - 0.1)
+        }
+    }
+
+    @discardableResult
+    private func _addNode(_ node: SceneGraphNode) -> SceneGraphNodeView {
         let view = SceneGraphNodeView(node: node)
 
-        addSubview(view)
-        nodeViews.append(view)
+        _nodesContainer.addSubview(view)
+        _nodeViews.append(view)
 
         _setupEvents(view)
+
+        return view
     }
 
     private func _removeNodeView(_ view: SceneGraphNodeView) {
-        guard let index = nodeViews.firstIndex(of: view) else { return }
+        guard let index = _nodeViews.firstIndex(of: view) else { return }
 
         view.removeFromSuperview()
-        nodeViews.remove(at: index)
+        _nodeViews.remove(at: index)
     }
 
     private func _setupEvents(_ view: SceneGraphNodeView) {
@@ -59,6 +136,85 @@ class SceneGraphBuilderView: RootView {
             location: .topLeft(location)
         )
     }
+
+    private func _nodeUnder(point: UIPoint) -> SceneGraphNodeView? {
+        for node in _nodeViews {
+            let converted = node.convert(point: point, from: self)
+            if node.contains(point: converted) {
+                return node
+            }
+        }
+
+        return nil
+    }
+
+    /// A view that acts as an infinitely-bounded view for node containment,
+    /// with dedicated.
+    private class NodesContainer: View {
+        var translation: UIVector = .zero {
+            willSet {
+                invalidate()
+            }
+            didSet {
+                invalidate()
+            }
+        }
+
+        var zoom: Double {
+            get {
+                return min(scale.x, scale.y)
+            }
+            set {
+                scale = .init(repeating: newValue)
+            }
+        }
+
+        override var transform: UIMatrix {
+            return UIMatrix.transformation(
+                xScale: scale.x,
+                yScale: scale.y,
+                angle: rotation,
+                xOffset: (location.x + translation.x),
+                yOffset: (location.y + translation.y)
+            )
+        }
+
+        override init() {
+            super.init()
+
+            clipToBounds = false
+        }
+
+        override func contains(point: UIVector, inflatingArea: UIVector = .zero) -> Bool {
+            return true
+        }
+
+        override func intersects(area: UIRectangle, inflatingArea: UIVector = .zero) -> Bool {
+            return true
+        }
+
+        override func boundsForRedraw() -> UIRectangle {
+            UIRectangle.union(subviews.map(\.area))
+        }
+    }
+
+    private enum MouseState {
+        case none
+        case draggingViewport(initialOffset: UIVector)
+        case draggingNode(ViewDragOperation)
+    }
+
+    private struct ViewDragOperation {
+        /// View being dragged.
+        var view: View
+
+        /// The container for the view being dragged, aka its `superview` at the
+        /// time of drag operation creation.
+        var container: View
+
+        /// Offset from view's `location` that the drag occurs.
+        var offset: UIVector
+    }
 }
 
 protocol SceneGraphBuilderViewDelegate: AnyObject {
@@ -71,9 +227,6 @@ protocol SceneGraphBuilderViewDelegate: AnyObject {
 }
 
 private class SceneGraphNodeView: RootView {
-    private var _mouseDown = false
-    private var _mouseDownPoint: UIVector = .zero
-
     private let _headerView: HeaderView = HeaderView()
     private let _contentsLayoutGuide: LayoutGuide = LayoutGuide()
 
@@ -149,31 +302,12 @@ private class SceneGraphNodeView: RootView {
         }
     }
 
-    public override func onMouseDown(_ event: MouseEventArgs) {
-        super.onMouseDown(event)
-
-        _mouseDownPoint = event.location
-        _mouseDown = true
-    }
-
-    public override func onMouseMove(_ event: MouseEventArgs) {
-        super.onMouseMove(event)
-
-        if _mouseDown {
-            performDrag(event)
+    override func canHandle(_ eventRequest: EventRequest) -> Bool {
+        if eventRequest is MouseEventRequest {
+            return false
         }
-    }
 
-    public override func onMouseUp(_ event: MouseEventArgs) {
-        super.onMouseUp(event)
-
-        _mouseDown = false
-    }
-
-    private func performDrag(_ event: MouseEventArgs) {
-        let mouseLocation = convert(point: event.location, to: nil)
-
-        location = mouseLocation - _mouseDownPoint
+        return super.canHandle(eventRequest)
     }
 
     private func reloadDisplay() {
@@ -298,9 +432,9 @@ private class SceneGraphNodeView: RootView {
         private let _label: Label = Label(textColor: .white)
         private let _connection: ConnectionView = ConnectionView()
 
-        var input: SceneGraphNode.Input
+        var input: SceneGraphNodeInput
 
-        init(input: SceneGraphNode.Input) {
+        init(input: SceneGraphNodeInput) {
             self.input = input
 
             super.init()
@@ -340,9 +474,9 @@ private class SceneGraphNodeView: RootView {
         private let _label: Label = Label(textColor: .white)
         private let _connection: ConnectionView = ConnectionView()
 
-        var output: SceneGraphNode.Output
+        var output: SceneGraphNodeOutput
 
-        init(output: SceneGraphNode.Output) {
+        init(output: SceneGraphNodeOutput) {
             self.output = output
 
             super.init()
@@ -385,6 +519,12 @@ private class SceneGraphNodeView: RootView {
             return .init(repeating: _circleRadius) * 2
         }
 
+        var connectionState: ConnectionState = .none {
+            didSet {
+                invalidateControlGraphics()
+            }
+        }
+
         override init() {
             super.init()
 
@@ -420,6 +560,11 @@ private class SceneGraphNodeView: RootView {
             default:
                 break
             }
+        }
+
+        enum ConnectionState {
+            case none
+            case connected(SceneGraphNode.Connection)
         }
     }
 }
