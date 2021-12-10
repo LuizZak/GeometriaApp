@@ -52,6 +52,8 @@ class SceneGraphBuilderView: RootView {
         super.onMouseDown(event)
 
         if let node = _nodeUnder(point: event.location) {
+            node.bringToFrontOfSuperview()
+            
             _mouseState = .draggingNode(
                 ViewDragOperation(
                     view: node,
@@ -194,7 +196,9 @@ class SceneGraphBuilderView: RootView {
         }
 
         override func boundsForRedraw() -> UIRectangle {
-            UIRectangle.union(subviews.map(\.area))
+            UIRectangle.union(subviews.map { view in
+                convert(bounds: view.boundsForRedraw(), from: view)
+            })
         }
     }
 
