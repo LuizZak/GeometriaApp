@@ -120,7 +120,7 @@ class ContextMenuView: ControlView {
         override func onStateChanged(_ event: ValueChangedEventArgs<ControlViewState>) {
             super.onStateChanged(event)
 
-            switch currentState {
+            switch controlState {
             case .highlighted, .selected:
                 backColor = Color(red: 9, green: 71, blue: 113)
             default:

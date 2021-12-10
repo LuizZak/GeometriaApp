@@ -164,7 +164,7 @@ class SceneGraphBuilderView: RootView {
 
         var zoom: Double {
             get {
-                return min(scale.x, scale.y)
+                min(scale.x, scale.y)
             }
             set {
                 scale = .init(repeating: newValue)
@@ -172,7 +172,7 @@ class SceneGraphBuilderView: RootView {
         }
 
         override var transform: UIMatrix {
-            return UIMatrix.transformation(
+            UIMatrix.transformation(
                 xScale: scale.x,
                 yScale: scale.y,
                 angle: rotation,
@@ -556,7 +556,7 @@ private class SceneGraphNodeView: RootView {
         }
 
         private func updateColors() {
-            switch currentState {
+            switch controlState {
             case .normal:
                 strokeWidth = 1
             case .highlighted:
