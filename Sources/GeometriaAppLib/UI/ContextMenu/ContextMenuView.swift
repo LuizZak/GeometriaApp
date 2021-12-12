@@ -63,7 +63,7 @@ class ContextMenuView: ControlView {
             switch entry {
             case .item(let item):
                 let view = ContextMenuItemView(item: item)
-                view.mouseClicked.addListener(owner: self) { [weak self] (_, _) in
+                view.mouseClicked.addListener(weakOwner: self) { [weak self] (_, _) in
                     guard let self = self else { return }
 
                     self.dialogDelegate?.dialogWantsToClose(self)
@@ -174,7 +174,7 @@ class ContextMenuView: ControlView {
 extension ContextMenuView: UIDialog {
     func customBackdrop() -> View? {
         let view = ControlView()
-        view.mouseDown.addListener(owner: self) { [weak self] (_, _) in
+        view.mouseDown.addListener(weakOwner: self) { [weak self] (_, _) in
             guard let self = self else { return }
 
             self.dialogDelegate?.dialogWantsToClose(self)

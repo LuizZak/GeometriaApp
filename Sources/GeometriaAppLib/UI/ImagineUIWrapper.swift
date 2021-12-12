@@ -13,6 +13,8 @@ class ImagineUIWrapper {
     private var rootViews: [RootView]
     private var currentRedrawRegion: UIRectangle? = nil
     private var debugDrawFlags: Set<DebugDraw.DebugDrawFlags> = [] // '.viewBounds', '.layoutGuideBounds', and/or '.constraints'.
+    private let _tooltipContainer: RootView = RootView()
+    private let _tooltipsManager: TooltipsManager
     
     weak var delegate: Blend2DAppDelegate?
     
@@ -29,15 +31,29 @@ class ImagineUIWrapper {
         bounds = BLRect(location: .zero, size: BLSize(w: Double(size.w), h: Double(size.h)))
         rootViews = []
         rootView = RootView()
+        _tooltipsManager = TooltipsManager(container: _tooltipContainer)
         
         controlSystem.delegate = self
+
+        initialize()
+    }
+
+    private func initialize() {
         addRootView(rootView)
+        addRootView(_tooltipContainer)
+        
+        _tooltipContainer.passthroughMouseCapture = true
     }
     
     func addRootView(_ view: RootView) {
         view.invalidationDelegate = self
         view.rootControlSystem = controlSystem
         rootViews.append(view)
+
+        if view !== _tooltipContainer && rootViews.contains(_tooltipContainer) {
+            // Keep the tooltip container above all other views
+            bringRootViewToFront(_tooltipContainer)
+        }
     }
     
     func removeRootView(_ view: RootView) {
@@ -60,6 +76,8 @@ class ImagineUIWrapper {
         
         rootView.location = .zero
         rootView.size = .init(width: Double(width), height: Double(height))
+
+        _tooltipContainer.area = .init(x: 0, y: 0, width: Double(width), height: Double(height))
         
         bounds = BLRect(location: .zero, size: BLSize(w: Double(width), h: Double(height)))
         currentRedrawRegion = bounds.asRectangle
@@ -151,8 +169,14 @@ extension ImagineUIWrapper: DefaultControlSystemDelegate {
         }
 
         rootViews.removeAll(where: { $0 == rootView })
-        rootViews.append(rootView)
-        
+
+        // Keep the tooltip container above all other views
+        if rootView !== _tooltipContainer, let index = rootViews.firstIndex(of: _tooltipContainer) {
+            rootViews.insert(rootView, at: index)
+        } else {
+            rootViews.append(rootView)
+        }
+
         rootView.invalidate()
     }
     
@@ -173,6 +197,22 @@ extension ImagineUIWrapper: DefaultControlSystemDelegate {
     
     func setMouseHiddenUntilMouseMoves() {
         delegate?.setMouseHiddenUntilMouseMoves()
+    }
+
+    func showTooltip(_ tooltip: Tooltip, view: View, location: PreferredTooltipLocation) {
+        _tooltipsManager.showTooltip(tooltip, view: view, location: location)
+    }
+
+    func updateTooltip(_ tooltip: Tooltip) {
+        _tooltipsManager.updateTooltip(tooltip)
+    }
+
+    func hideTooltip() {
+        _tooltipsManager.hideTooltip()
+    }
+
+    func updateTooltipCursorLocation(_ location: UIPoint) {
+        _tooltipsManager.updateTooltipCursorLocation(location)
     }
 }
 

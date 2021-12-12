@@ -3,17 +3,18 @@ import ImagineUI
 import Blend2DRenderer
 
 class SceneGraphBuilderComponent: RaytracerUIComponent {
-    private let builderView: SceneGraphBuilderView = SceneGraphBuilderView()
+    private let _builderView: SceneGraphBuilderView = SceneGraphBuilderView()
 
     weak var delegate: RaytracerUIComponentDelegate?
 
     init() {
-        builderView.delegate = self
+        _builderView.delegate = self
     }
 
     func setup(container: View) {
-        container.addSubview(builderView)
-        builderView.layout.makeConstraints { make in
+        container.addSubview(_builderView)
+        
+        _builderView.layout.makeConstraints { make in
             make.edges == container
         }
     }
@@ -34,6 +35,6 @@ class SceneGraphBuilderComponent: RaytracerUIComponent {
 extension SceneGraphBuilderComponent: SceneGraphBuilderViewDelegate {
     @discardableResult
     func openDialog(_ view: UIDialog, location: UIDialogInitialLocation) -> Bool {
-        return delegate?.openDialog(view, location: location) ?? false
+        delegate?.openDialog(view, location: location) ?? false
     }
 }

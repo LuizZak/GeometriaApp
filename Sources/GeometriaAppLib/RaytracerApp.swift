@@ -162,7 +162,7 @@ public class RaytracerApp: Blend2DApp {
         ui.rendererCoordinatorChanged(rendererCoordinator)
         ui.rendererChanged(renderer)
         
-        rendererCoordinator?.stateDidChange.addListener(owner: self) { [weak self] (_, change) in
+        rendererCoordinator?.stateDidChange.addListener(weakOwner: self) { [weak self] (change) in
             DispatchQueue.main.async {
                 guard let self = self else { return }
                 

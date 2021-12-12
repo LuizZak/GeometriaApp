@@ -5,72 +5,64 @@ import ImagineUI_Win
 import Blend2DRenderer
 import GeometriaAppLib
 
-class GeometriaWindow: Blend2DWindowContentType {
-    var width: Int { raytracer.width }
-    var height: Int { raytracer.height }
-    var size: UIIntSize { .init(width: width, height: height) }
-    var preferredRenderScale: UIVector { .init(x: appRenderScale.x, y: appRenderScale.y) }
-    var appRenderScale: BLPoint { raytracer.appRenderScale }
-    weak var delegate: Blend2DWindowContentDelegate?
-
+class GeometriaWindow: ImagineUIWindowContent {
     var raytracer: RaytracerApp
 
-    init(size: UIIntSize) {
+    override init(size: UIIntSize) {
         raytracer = RaytracerApp(width: size.width, height: size.height)
+
+        super.init(size: size)
+        
         raytracer.delegate = self
     }
 
-    func show() {
-        app.show(content: self)
-    }
-
-    func didClose() {
+    override func didClose() {
         WinLogger.info("\(self): Closed")
         app.requestQuit()
     }
 
-    func willStartLiveResize() {
+    override func willStartLiveResize() {
         raytracer.willStartLiveResize()
     }
 
-    func didEndLiveResize() {
+    override func didEndLiveResize() {
         raytracer.didEndLiveResize()
     }
 
-    func render(context ctx: BLContext, renderScale: UIVector, clipRegion: ClipRegion) {
+    override func render(context ctx: BLContext, renderScale: UIVector, clipRegion: ClipRegion) {
         raytracer.render(context: ctx, scale: renderScale.asBLPoint, clipRegion: clipRegion)
     }
 
-    func resize(_ newSize: UIIntSize) {
+    override func resize(_ newSize: UIIntSize) {
         raytracer.resize(width: newSize.width, height: newSize.height)
     }
 
-    func performLayout() {
+    override func performLayout() {
         raytracer.performLayout()
     }
     
-    func mouseDown(event: MouseEventArgs) {
+    override func mouseDown(event: MouseEventArgs) {
         raytracer.mouseDown(event: event)
     }
-    func mouseMoved(event: MouseEventArgs) {
+    override func mouseMoved(event: MouseEventArgs) {
         raytracer.mouseMoved(event: event)
     }
-    func mouseUp(event: MouseEventArgs) {
+    override func mouseUp(event: MouseEventArgs) {
         raytracer.mouseUp(event: event)
     }
-    func mouseScroll(event: MouseEventArgs) {
+    override func mouseScroll(event: MouseEventArgs) {
         raytracer.mouseScroll(event: event)
     }
 
-    func keyPress(event: KeyPressEventArgs) {
+    override func keyPress(event: KeyPressEventArgs) {
         // 
     }
     
-    func keyDown(event: KeyEventArgs) {
+    override func keyDown(event: KeyEventArgs) {
         raytracer.keyDown(event: event)
     }
 
-    func keyUp(event: KeyEventArgs) {
+    override func keyUp(event: KeyEventArgs) {
         raytracer.keyUp(event: event)
     }
 }
@@ -82,17 +74,5 @@ extension GeometriaWindow: Blend2DAppDelegate {
 
     func invalidate(bounds: UIRectangle) {
         delegate?.invalidate(bounds: bounds)
-    }
-
-    func setMouseCursor(_ cursor: MouseCursorKind) {
-        delegate?.setMouseCursor(cursor)
-    }
-
-    func setMouseHiddenUntilMouseMoves() {
-        delegate?.setMouseHiddenUntilMouseMoves()
-    }
-
-    func firstResponderChanged(_ newFirstResponder: KeyboardEventHandler?) {
-        delegate?.firstResponderChanged(newFirstResponder)
     }
 }

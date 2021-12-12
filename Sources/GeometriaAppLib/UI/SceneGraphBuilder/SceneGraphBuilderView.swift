@@ -23,6 +23,8 @@ class SceneGraphBuilderView: RootView {
         _addNode(node1).location = .init(x: 300, y: 100)
         let node2 = RaymarchingSceneNode()
         _addNode(node2).location = .init(x: 350, y: 200)
+        let node3 = RaymarcherNode()
+        _addNode(node3).location = .init(x: 550, y: 210)
     }
 
     override func setupHierarchy() {
@@ -116,10 +118,10 @@ class SceneGraphBuilderView: RootView {
     }
 
     private func _setupEvents(_ view: SceneGraphNodeView) {
-        view.mouseDown.addListener(owner: self) { (view, event) in
+        view.mouseDown.addListener(weakOwner: self) { (view, event) in
             view.bringToFrontOfSuperview()
         }
-        view.mouseClicked.addListener(owner: self) { [weak self] (sender, event) in
+        view.mouseClicked.addListener(weakOwner: self) { [weak self] (sender, event) in
             guard let self = self else { return }
             guard let view = sender as? SceneGraphNodeView else { return }
             guard event.buttons == .right else { return }
@@ -366,6 +368,147 @@ private class SceneGraphNodeView: RootView {
         }
     }
 
+    private class InputView: View {
+        private let _label: Label = Label(textColor: .white)
+        private let _connectionView: ConnectionView = ConnectionView()
+
+        var input: SceneGraphNodeInput
+
+        init(input: SceneGraphNodeInput) {
+            self.input = input
+
+            super.init()
+
+            reloadDisplay()
+        }
+
+        override func setupHierarchy() {
+            super.setupHierarchy()
+
+            addSubview(_label)
+            addSubview(_connectionView)
+        }
+
+        override func setupConstraints() {
+            super.setupConstraints()
+
+            _connectionView.layout.makeConstraints { make in
+                make.left == self + 2
+                make.centerY == self
+                make.height <= self
+            }
+            _label.layout.makeConstraints { make in
+                make.top == self + 2
+                make.left == _connectionView.layout.right + 4
+                make.right == self - 2
+                make.bottom == self - 2
+            }
+        }
+
+        func reloadDisplay() {
+            _label.text = input.name
+        }
+    }
+
+    private class OutputView: View {
+        private let _label: Label = Label(textColor: .white)
+        private let _connectionView: ConnectionView = ConnectionView()
+
+        var output: SceneGraphNodeOutput
+
+        init(output: SceneGraphNodeOutput) {
+            self.output = output
+
+            super.init()
+
+            reloadDisplay()
+        }
+
+        override func setupHierarchy() {
+            super.setupHierarchy()
+
+            addSubview(_label)
+            addSubview(_connectionView)
+        }
+
+        override func setupConstraints() {
+            super.setupConstraints()
+
+            _connectionView.layout.makeConstraints { make in
+                make.right == self - 2
+                make.centerY == self
+                make.height <= self
+            }
+            _label.layout.makeConstraints { make in
+                make.top == self + 2
+                make.left == self + 2
+                make.right == _connectionView.layout.left - 4
+                make.bottom == self - 2
+            }
+        }
+
+        func reloadDisplay() {
+            _label.text = output.name
+            _connectionView.tooltip = "Thing"
+        }
+    }
+
+    private class ConnectionView: ControlView {
+        private let _circleRadius: Double = 6.0
+
+        override var intrinsicSize: UISize? {
+            return .init(repeating: _circleRadius) * 2
+        }
+
+        var connectionState: ConnectionState = .none {
+            didSet {
+                invalidateControlGraphics()
+            }
+        }
+
+        override init() {
+            super.init()
+
+            initialize()
+            updateColors()
+        }
+
+        private func initialize() {
+            strokeColor = .gray
+            strokeWidth = 2
+        }
+
+        override func renderBackground(in renderer: Renderer, screenRegion: ClipRegion) {
+            let circle = UICircle(center: size.asUIPoint / 2, radius: _circleRadius)
+
+            renderer.setStroke(strokeColor)
+            renderer.setStrokeWidth(strokeWidth)
+            renderer.stroke(circle)
+        }
+
+        override func onStateChanged(_ change: ValueChangedEventArgs<ControlViewState>) {
+            super.onStateChanged(change)
+
+            updateColors()
+        }
+
+        private func updateColors() {
+            switch controlState {
+            case .normal:
+                strokeWidth = 1
+            case .highlighted:
+                strokeWidth = 2
+            default:
+                break
+            }
+        }
+
+        enum ConnectionState {
+            case none
+            case connected(SceneGraphNode.Connection)
+        }
+    }
+
     private class HeaderView: View {
         private let _iconView: ImageView = ImageView(image: nil)
         private let _label: Label = Label(textColor: .white)
@@ -429,146 +572,6 @@ private class SceneGraphNodeView: RootView {
             if _iconView.image != nil {
                 _stackView.insertArrangedSubview(_iconView, at: 0)
             }
-        }
-    }
-
-    private class InputView: View {
-        private let _label: Label = Label(textColor: .white)
-        private let _connection: ConnectionView = ConnectionView()
-
-        var input: SceneGraphNodeInput
-
-        init(input: SceneGraphNodeInput) {
-            self.input = input
-
-            super.init()
-
-            reloadDisplay()
-        }
-
-        override func setupHierarchy() {
-            super.setupHierarchy()
-
-            addSubview(_label)
-            addSubview(_connection)
-        }
-
-        override func setupConstraints() {
-            super.setupConstraints()
-
-            _connection.layout.makeConstraints { make in
-                make.left == self + 2
-                make.centerY == self
-                make.height <= self
-            }
-            _label.layout.makeConstraints { make in
-                make.top == self + 2
-                make.left == _connection.layout.right + 4
-                make.right == self - 2
-                make.bottom == self - 2
-            }
-        }
-
-        func reloadDisplay() {
-            _label.text = input.name
-        }
-    }
-
-    private class OutputView: View {
-        private let _label: Label = Label(textColor: .white)
-        private let _connection: ConnectionView = ConnectionView()
-
-        var output: SceneGraphNodeOutput
-
-        init(output: SceneGraphNodeOutput) {
-            self.output = output
-
-            super.init()
-
-            reloadDisplay()
-        }
-
-        override func setupHierarchy() {
-            super.setupHierarchy()
-
-            addSubview(_label)
-            addSubview(_connection)
-        }
-
-        override func setupConstraints() {
-            super.setupConstraints()
-
-            _connection.layout.makeConstraints { make in
-                make.right == self - 2
-                make.centerY == self
-                make.height <= self
-            }
-            _label.layout.makeConstraints { make in
-                make.top == self + 2
-                make.left == self + 2
-                make.right == _connection.layout.left - 4
-                make.bottom == self - 2
-            }
-        }
-
-        func reloadDisplay() {
-            _label.text = output.name
-        }
-    }
-
-    private class ConnectionView: ControlView {
-        private let _circleRadius: Double = 6.0
-
-        override var intrinsicSize: UISize? {
-            return .init(repeating: _circleRadius) * 2
-        }
-
-        var connectionState: ConnectionState = .none {
-            didSet {
-                invalidateControlGraphics()
-            }
-        }
-
-        override init() {
-            super.init()
-
-            initialize()
-            updateColors()
-        }
-
-        private func initialize() {
-            strokeColor = .gray
-            strokeWidth = 2
-        }
-
-        override func renderBackground(in renderer: Renderer, screenRegion: ClipRegion) {
-            let circle = UICircle(center: size.asUIPoint / 2, radius: _circleRadius)
-
-            renderer.setStroke(strokeColor)
-            renderer.setStrokeWidth(strokeWidth)
-            renderer.stroke(circle)
-        }
-
-        override func onStateChanged(_ change: ValueChangedEventArgs<ControlViewState>) {
-            super.onStateChanged(change)
-
-            updateColors()
-        }
-
-        private func updateColors() {
-            switch controlState {
-            case .normal:
-                strokeWidth = 1
-            case .highlighted:
-                strokeWidth = 2
-            default:
-                break
-            }
-        }
-
-        enum ConnectionState {
-            case none
-            case connected(SceneGraphNode.Connection)
         }
     }
 }

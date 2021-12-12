@@ -49,7 +49,7 @@ class StatusLabelsComponent: RaytracerUIComponent {
         
         updateLabels()
 
-        Scheduler.instance.fixedFrameEvent.addListener(owner: self) { [weak self] _ in
+        Scheduler.instance.fixedFrameEvent.addListener(weakOwner: self) { [weak self] _ in
             guard let self = self else { return }
 
             if let renderer = self.rendererCoordinator, renderer.state == .running {
@@ -94,7 +94,7 @@ class StatusLabelsComponent: RaytracerUIComponent {
     func rendererCoordinatorChanged(_ coordinator: RendererCoordinator?) {
         self.rendererCoordinator = coordinator
 
-        coordinator?.stateDidChange.addListener(owner: self) { [weak self] (_, change) in
+        coordinator?.stateDidChange.addListener(weakOwner: self) { [weak self] (change) in
             DispatchQueue.main.async {
                 self?.onStateChange(old: change.oldValue, new: change.newValue)
             }

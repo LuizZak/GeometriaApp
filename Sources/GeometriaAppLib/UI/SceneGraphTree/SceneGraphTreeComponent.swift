@@ -46,7 +46,7 @@ class SceneGraphTreeComponent: RaytracerUIComponent {
     }
 
     private func setupTreeViewEvents() {
-        treeView.mouseRightClickedItem.addListener(owner: self) { [weak self] (sender, index) in
+        treeView.mouseRightClickedItem.addListener(weakOwner: self) { [weak self] (sender, index) in
             self?.onRightClickItem(index)
         }
     }
