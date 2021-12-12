@@ -10,7 +10,6 @@ R = Reset  |   Space = Pause
 
 public class RaytracerApp: Blend2DApp {
     private var _updateTimer: SchedulerTimerType?
-    private let _font: Font
     private var _isResizing: Bool = false
     private var _timeStarted: TimeInterval = 0.0
     private var _timeEnded: TimeInterval = 0.0
@@ -38,7 +37,6 @@ public class RaytracerApp: Blend2DApp {
         self.width = width
         self.height = height
         time = 0
-        _font = Fonts.defaultFont(size: 12)
         
         let uiWrapper = ImagineUIWrapper(size: BLSizeI(w: Int32(width), h: Int32(height)))
         ui = RaytracerUI(uiWrapper: uiWrapper)

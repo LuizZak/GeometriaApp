@@ -5,14 +5,13 @@ import Text
 import Blend2DRenderer
 
 public class RaytracerGraphApp: Blend2DApp {
-    private let _font: Font
     private var _isResizing: Bool = false
     
     private var ui: RaytracerUI
     
     public var width: Int
     public var height: Int
-    public var appRenderScale: BLPoint = .one
+    public var appRenderScale: BLPoint = .init(repeating: 2)
     public var time: TimeInterval = 0
     
     public weak var delegate: Blend2DAppDelegate? {
@@ -25,7 +24,6 @@ public class RaytracerGraphApp: Blend2DApp {
         self.width = width
         self.height = height
         time = 0
-        _font = Fonts.defaultFont(size: 12)
 
         let uiWrapper = ImagineUIWrapper(size: BLSizeI(w: Int32(width), h: Int32(height)))
         uiWrapper.clearRendererOnRedraw = true

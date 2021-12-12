@@ -1,4 +1,5 @@
 import ImagineUI
+import Blend2DRenderer
 
 class SceneGraphBuilderView: RootView {
     private var _sidePanel: SidePanel = SidePanel(pinSide: .left, length: 250)
@@ -408,9 +409,9 @@ private class SceneGraphNodeView: RootView {
         func reloadDisplay() {
             _label.text = input.name
             if !input.required {
-                _connectionView.tooltip = "\(input.name): \(input.type) (optional)"
+                _connectionView.tooltip = formatTooltip("\(symbol: input.name): \(input.type) \(muted: "optional")")
             } else {
-                _connectionView.tooltip = "\(input.name): \(input.type)"
+                _connectionView.tooltip = formatTooltip("\(symbol: input.name): \(input.type)")
             }
         }
     }
@@ -454,7 +455,7 @@ private class SceneGraphNodeView: RootView {
 
         func reloadDisplay() {
             _label.text = output.name
-            _connectionView.tooltip = "\(output.name): \(output.type)"
+            _connectionView.tooltip = formatTooltip("\(symbol: output.name): \(output.type)")
         }
     }
 
@@ -577,6 +578,64 @@ private class SceneGraphNodeView: RootView {
             if _iconView.image != nil {
                 _stackView.insertArrangedSubview(_iconView, at: 0)
             }
+        }
+    }
+}
+
+private func formatTooltip(_ tooltip: FormattedInterpolatedString) -> Tooltip {
+    return .init(text: tooltip.result)
+}
+
+private struct FormattedInterpolatedString: ExpressibleByStringInterpolation {
+    static var monoFont: Font = {
+        // TODO: Make this font loading renderer-agnostic
+        let context = Blend2DRendererContext()
+        let fontPath = Resources.bundle.path(forResource: "FiraCode-Bold", ofType: "ttf")!
+
+        let fontFace = try! context.fontManager.loadFontFace(fromPath: fontPath)
+
+        return fontFace.font(withSize: 12)
+    }()
+
+    var result: AttributedText
+
+    init(stringLiteral value: String) {
+        result = AttributedText(value)
+    }
+
+    init(stringInterpolation: StringInterpolation) {
+        result = stringInterpolation.output
+    }
+
+    struct StringInterpolation: StringInterpolationProtocol {
+        var output: AttributedText = ""
+
+        init(literalCapacity: Int, interpolationCount: Int) {
+            output.reserveCapacity(segmentCount: interpolationCount)
+        }
+
+        mutating func appendLiteral(_ literal: String) {
+            output.append(literal)
+        }
+
+        mutating func appendInterpolation<T>(_ literal: T, attributes: AttributedText.Attributes) {
+            output.append("\(literal)", attributes: attributes)
+        }
+
+        mutating func appendInterpolation(_ literal: SceneNodeDataType) {
+            output.append("\(literal)", attributes: [.foregroundColor: Color.fuchsia])
+        }
+
+        mutating func appendInterpolation<T>(muted literal: T) {
+            output.append("\(literal)", attributes: [.foregroundColor: Color.gray])
+        }
+
+        mutating func appendInterpolation<T>(symbol literal: T) {
+            output.append("\(literal)", attributes: [.font: FormattedInterpolatedString.monoFont])
+        }
+
+        mutating func appendInterpolation<T>(_ literal: T) {
+            output.append("\(literal)")
         }
     }
 }

@@ -23,8 +23,17 @@ var geometriaAppLibTarget: Target = .target(
         .product(name: "Blend2DRenderer", package: "ImagineUI"),
         "SwiftBlend2D",
     ],
+    exclude: [
+        "Resources/FiraCode-License.txt"
+    ],
     resources: [
-        .copy("Resources/NotoSans-Regular.ttf")
+        .copy("Resources/FiraCode-Bold.ttf"),
+        .copy("Resources/FiraCode-Light.ttf"),
+        .copy("Resources/FiraCode-Medium.ttf"),
+        .copy("Resources/FiraCode-Regular.ttf"),
+        .copy("Resources/FiraCode-Retina.ttf"),
+        .copy("Resources/FiraCode-SemiBold.ttf"),
+        .copy("Resources/NotoSans-Regular.ttf"),
     ]
 )
 
