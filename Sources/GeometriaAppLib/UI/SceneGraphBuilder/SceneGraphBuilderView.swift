@@ -407,6 +407,11 @@ private class SceneGraphNodeView: RootView {
 
         func reloadDisplay() {
             _label.text = input.name
+            if !input.required {
+                _connectionView.tooltip = "\(input.name): \(input.type) (optional)"
+            } else {
+                _connectionView.tooltip = "\(input.name): \(input.type)"
+            }
         }
     }
 
@@ -449,7 +454,7 @@ private class SceneGraphNodeView: RootView {
 
         func reloadDisplay() {
             _label.text = output.name
-            _connectionView.tooltip = "Thing"
+            _connectionView.tooltip = "\(output.name): \(output.type)"
         }
     }
 

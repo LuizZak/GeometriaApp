@@ -30,6 +30,31 @@ enum SceneNodeDataType: Hashable {
     }
 }
 
+extension SceneNodeDataType: CustomStringConvertible {
+    var description: String {
+        switch self {
+        case .any:
+            return "Any"
+        case .anyElement:
+            return "Element"
+        case .anyRaymarchingElement:
+            return "Raymarching element"
+        case .geometry:
+            return "Geometry"
+        case .raymarchingScene:
+            return "Raymarching scene"
+        case .color:
+            return "Color"
+        case .materialMap:
+            return "Material map"
+        case .camera:
+            return "Camera"
+        case .vector3:
+            return "Vector3"
+        }
+    }
+}
+
 protocol SceneNodeDataTypeRepresentable {
     /// Gets the static data type for this scene node data representable type.
     static var staticDataType: SceneNodeDataType { get }
