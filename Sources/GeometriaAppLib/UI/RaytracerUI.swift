@@ -2,8 +2,8 @@ import Foundation
 import ImagineUI
 import SwiftBlend2D
 
-class RaytracerUI {
-    private let ui: ImagineUIWrapper
+class RaytracerUI: ImagineUIContentType {
+    private let ui: ImagineUIWindowContent
     private let dialogsContainer: View = View()
     private var components: [RaytracerUIComponent] = []
 
@@ -23,13 +23,23 @@ class RaytracerUI {
     /// The view all components are added to.
     let componentsContainer: View = View()
 
-    weak var delegate: Blend2DAppDelegate? {
-        didSet {
-            ui.delegate = delegate
+    var size: UIIntSize
+
+    var preferredRenderScale: UIVector {
+        ui.preferredRenderScale
+    }
+
+    weak var delegate: ImagineUIContentDelegate? {
+        get {
+            ui.delegate
+        }
+        set {
+            ui.delegate = newValue
         }
     }
 
-    init(uiWrapper: ImagineUIWrapper) {
+    init(uiWrapper: ImagineUIWindowContent) {
+        self.size = uiWrapper.size
         self.ui = uiWrapper
 
         initialize()
@@ -88,6 +98,10 @@ class RaytracerUI {
     }
 
     // MARK: Event forwarding
+
+    func didCloseWindow() {
+        ui.didCloseWindow()
+    }
     
     func willStartLiveResize() {
         ui.willStartLiveResize()
@@ -97,8 +111,8 @@ class RaytracerUI {
         ui.didEndLiveResize()
     }
 
-    func resize(width: Int, height: Int) {
-        ui.resize(width: width, height: height)
+    func resize(_ size: UIIntSize) {
+        ui.resize(size)
     }
     
     func performLayout() {
@@ -109,8 +123,8 @@ class RaytracerUI {
         ui.update(time)
     }
 
-    func render(context ctx: BLContext, scale: BLPoint) {
-        ui.render(context: ctx, scale: scale)
+    func render(renderer: Renderer, renderScale: UIVector, clipRegion: ClipRegion) {
+        ui.render(renderer: renderer, renderScale: renderScale, clipRegion: clipRegion)
     }
     
     func mouseDown(event: MouseEventArgs) {
@@ -139,6 +153,10 @@ class RaytracerUI {
 
     func keyUp(event: KeyEventArgs) {
         ui.keyUp(event: event)
+    }
+
+    func keyPress(event: KeyPressEventArgs) {
+        ui.keyPress(event: event)
     }
 
     private func _setupDialogsContainer() {

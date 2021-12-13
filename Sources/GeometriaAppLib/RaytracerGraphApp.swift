@@ -4,29 +4,34 @@ import ImagineUI
 import Text
 import Blend2DRenderer
 
-public class RaytracerGraphApp: Blend2DApp {
+open class RaytracerGraphApp: ImagineUIContentType {
     private var _isResizing: Bool = false
     
     private var ui: RaytracerUI
-    
-    public var width: Int
-    public var height: Int
-    public var appRenderScale: BLPoint = .init(repeating: 2)
-    public var time: TimeInterval = 0
-    
-    public weak var delegate: Blend2DAppDelegate? {
-        didSet {
-            ui.delegate = delegate
+
+    private(set) public var size: UIIntSize
+    public var width: Int {
+        size.width
+    }
+    public var height: Int {
+        size.height
+    }
+
+    public var preferredRenderScale: UIVector = .init(repeating: 2)
+
+    public weak var delegate: ImagineUIContentDelegate? {
+        get {
+            ui.delegate
+        }
+        set {
+            ui.delegate = newValue
         }
     }
     
-    public init(width: Int, height: Int) {
-        self.width = width
-        self.height = height
-        time = 0
+    public init(size: UIIntSize) {
+        self.size = size
 
-        let uiWrapper = ImagineUIWrapper(size: BLSizeI(w: Int32(width), h: Int32(height)))
-        uiWrapper.clearRendererOnRedraw = true
+        let uiWrapper = ImagineUIWindowContent(size: size)
         ui = RaytracerUI(uiWrapper: uiWrapper)
 
         createUI()
@@ -37,6 +42,10 @@ public class RaytracerGraphApp: Blend2DApp {
 
         let sceneGraph = SceneGraphBuilderComponent()
         ui.addComponent(sceneGraph)
+    }
+
+    open func didCloseWindow() {
+        
     }
     
     public func willStartLiveResize() {
@@ -51,11 +60,10 @@ public class RaytracerGraphApp: Blend2DApp {
         _isResizing = false
     }
     
-    public func resize(width: Int, height: Int) {
-        self.width = width
-        self.height = height
+    public func resize(_ size: UIIntSize) {
+        self.size = size
 
-        ui.resize(width: width, height: height)
+        ui.resize(size)
     }
     
     // MARK: - UI
@@ -70,6 +78,10 @@ public class RaytracerGraphApp: Blend2DApp {
     
     public func keyUp(event: KeyEventArgs) {
         ui.keyUp(event: event)
+    }
+
+    public func keyPress(event: KeyPressEventArgs) {
+        ui.keyPress(event: event)
     }
     
     public func mouseScroll(event: MouseEventArgs) {
@@ -91,20 +103,14 @@ public class RaytracerGraphApp: Blend2DApp {
     // MARK: -
     
     public func update(_ time: TimeInterval) {
-        self.time = time
-        
         ui.update(time)
     }
     
     func invalidateAll() {
-        delegate?.invalidate(bounds: .init(x: 0, y: 0, width: Double(width), height: Double(height)))
+        delegate?.invalidate(self, bounds: .init(location: .zero, size: UISize(size)))
     }
-    
-    public func render(context ctx: BLContext, scale: BLPoint, clipRegion: ClipRegion) {
-        let bounds = clipRegion.bounds()
-        ctx.setFillStyle(BLRgba32.black)
-        ctx.fillRect(bounds.asBLRect)
 
-        ui.render(context: ctx, scale: scale)
+    public func render(renderer: Renderer, renderScale: UIVector, clipRegion: ClipRegion) {
+        ui.render(renderer: renderer, renderScale: renderScale, clipRegion: clipRegion)
     }
 }

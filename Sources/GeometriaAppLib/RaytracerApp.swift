@@ -8,7 +8,7 @@ private let instructions: String = """
 R = Reset  |   Space = Pause
 """
 
-public class RaytracerApp: Blend2DApp {
+open class RaytracerApp: ImagineUIContentType {
     private var _updateTimer: SchedulerTimerType?
     private var _isResizing: Bool = false
     private var _timeStarted: TimeInterval = 0.0
@@ -22,23 +22,32 @@ public class RaytracerApp: Blend2DApp {
     var rendererCoordinator: RendererCoordinator?
     var buffer: Blend2DBufferWriter?
     
-    public var width: Int
-    public var height: Int
-    public var appRenderScale: BLPoint = .one
+    private(set) public var size: UIIntSize
+    public var width: Int {
+        size.width
+    }
+    public var height: Int {
+        size.height
+    }
+    
+    public var preferredRenderScale: UIVector = .one
     public var time: TimeInterval = 0
     
-    public weak var delegate: Blend2DAppDelegate? {
-        didSet {
-            ui.delegate = delegate
+    public weak var delegate: ImagineUIContentDelegate? {
+        get {
+            ui.delegate
+        }
+        set {
+            ui.delegate = newValue
         }
     }
     
-    public init(width: Int, height: Int) {
-        self.width = width
-        self.height = height
+    public init(size: UIIntSize) {
+        self.size = size
         time = 0
         
-        let uiWrapper = ImagineUIWrapper(size: BLSizeI(w: Int32(width), h: Int32(height)))
+        let uiWrapper = ImagineUIWindowContent(size: size)
+        uiWrapper.backgroundColor = nil
         ui = RaytracerUI(uiWrapper: uiWrapper)
 
         restartRendering()
@@ -59,6 +68,10 @@ public class RaytracerApp: Blend2DApp {
             make.right(of: sceneGraph.sidePanel)
         }
     }
+
+    open func didCloseWindow() {
+        
+    }
     
     public func willStartLiveResize() {
         ui.willStartLiveResize()
@@ -74,11 +87,10 @@ public class RaytracerApp: Blend2DApp {
         recreateRenderer()
     }
     
-    public func resize(width: Int, height: Int) {
-        self.width = width
-        self.height = height
+    public func resize(_ size: UIIntSize) {
+        self.size = size
 
-        ui.resize(width: width, height: height)
+        ui.resize(size)
 
         restartRendering()
     }
@@ -228,6 +240,10 @@ public class RaytracerApp: Blend2DApp {
     public func keyUp(event: KeyEventArgs) {
         ui.keyUp(event: event)
     }
+
+    public func keyPress(event: KeyPressEventArgs) {
+        ui.keyPress(event: event)
+    }
     
     public func mouseScroll(event: MouseEventArgs) {
         ui.mouseScroll(event: event)
@@ -260,35 +276,31 @@ public class RaytracerApp: Blend2DApp {
     }
     
     func invalidateAll() {
-        delegate?.invalidate(bounds: .init(x: 0, y: 0, width: Double(width), height: Double(height)))
+        delegate?.invalidate(self, bounds: .init(location: .zero, size: UISize(size)))
     }
     
-    public func render(context ctx: BLContext, scale: BLPoint, clipRegion: ClipRegion) {
+    public func render(renderer: Renderer, renderScale: UIVector, clipRegion: ClipRegion) {
         if let buffer = buffer {
             buffer.usingImage { img in
-                ctx.save()
-                ctx.clipToRect(clipRegion.bounds().scaled(by: scale).asBLRect)
+                let img = Blend2DImage(image: img)
 
-                if scale == .one {
-                    ctx.blitImage(img, at: BLPointI.zero)
+                if renderScale == .one {
+                    renderer.drawImage(img, at: .zero)
                 } else {
-                    let rect = BLRect(
+                    let rect = UIRectangle(
                         x: 0,
                         y: 0,
-                        w: Double(width) * scale.x,
-                        h: Double(height) * scale.y
+                        width: Double(width) * renderScale.x,
+                        height: Double(height) * renderScale.y
                     )
                     
-                    ctx.blitScaledImage(img, rectangle: rect, imageArea: nil)
+                    renderer.drawImageScaled(img, area: rect)
                 }
-
-                ctx.restore()
             }
         } else {
-            ctx.setFillStyle(BLRgba32.white)
-            ctx.fillAll()
+            renderer.clear(.white)
         }
         
-        ui.render(context: ctx, scale: scale)
+        ui.render(renderer: renderer, renderScale: renderScale, clipRegion: clipRegion)
     }
 }

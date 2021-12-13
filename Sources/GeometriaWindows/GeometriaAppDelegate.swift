@@ -1,7 +1,7 @@
 import ImagineUI_Win
 
 class GeometriaAppDelegate: ImagineUIAppDelegate {
-    var main: Blend2DWindowContentType?
+    var main: ImagineUIContentType?
 
     func appDidLaunch() {
         let main = SceneGraphWindow(size: .init(width: 1000, height: 750))
