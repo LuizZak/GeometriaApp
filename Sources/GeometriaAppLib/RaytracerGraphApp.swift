@@ -39,6 +39,7 @@ open class RaytracerGraphApp: ImagineUIContentType {
     
     func createUI() {
         ControlView.globallyCacheAsBitmap = false
+        Label.globallyCacheAsBitmap = false
 
         let sceneGraph = SceneGraphBuilderComponent()
         ui.addComponent(sceneGraph)

@@ -54,18 +54,20 @@ class SceneGraphBuilderView: RootView {
     override func onMouseDown(_ event: MouseEventArgs) {
         super.onMouseDown(event)
 
-        if let node = _nodeUnder(point: event.location) {
-            node.bringToFrontOfSuperview()
-            
-            _mouseState = .draggingNode(
-                ViewDragOperation(
-                    view: node,
-                    container: _nodesContainer,
-                    offset: node.convert(point: event.location, from: self)
+        if event.buttons == .left {
+            if let node = _nodeUnder(point: event.location) {
+                node.bringToFrontOfSuperview()
+                
+                _mouseState = .draggingNode(
+                    ViewDragOperation(
+                        view: node,
+                        container: _nodesContainer,
+                        offset: node.convert(point: event.location, from: self)
+                    )
                 )
-            )
-        } else {
-            _mouseState = .draggingViewport(initialOffset: event.location - _nodesContainer.translation)
+            } else {
+                _mouseState = .draggingViewport(initialOffset: event.location - _nodesContainer.translation)
+            }
         }
     }
 
@@ -89,6 +91,14 @@ class SceneGraphBuilderView: RootView {
         _mouseState = .none
     }
 
+    override func onMouseClick(_ event: MouseEventArgs) {
+        super.onMouseClick(event)
+
+        if event.buttons == .right, let node = _nodeUnder(point: event.location) {
+            _openContextMenu(for: node, location: convert(point: event.location, to: nil))
+        }
+    }
+
     override func onMouseWheel(_ event: MouseEventArgs) {
         super.onMouseWheel(event)
 
@@ -106,8 +116,6 @@ class SceneGraphBuilderView: RootView {
         _nodesContainer.addSubview(view)
         _nodeViews.append(view)
 
-        _setupEvents(view)
-
         return view
     }
 
@@ -116,19 +124,6 @@ class SceneGraphBuilderView: RootView {
 
         view.removeFromSuperview()
         _nodeViews.remove(at: index)
-    }
-
-    private func _setupEvents(_ view: SceneGraphNodeView) {
-        view.mouseDown.addListener(weakOwner: self) { (view, event) in
-            view.bringToFrontOfSuperview()
-        }
-        view.mouseClicked.addListener(weakOwner: self) { [weak self] (sender, event) in
-            guard let self = self else { return }
-            guard let view = sender as? SceneGraphNodeView else { return }
-            guard event.buttons == .right else { return }
-
-            self._openContextMenu(for: view, location: view.convert(point: event.location, to: nil))
-        }
     }
 
     private func _openContextMenu(for view: SceneGraphNodeView, location: UIPoint) {

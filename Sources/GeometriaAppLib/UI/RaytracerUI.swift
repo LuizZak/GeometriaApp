@@ -161,7 +161,6 @@ class RaytracerUI: ImagineUIContentType {
 
     private func _setupDialogsContainer() {
         ui.rootView.addSubview(dialogsContainer)
-        dialogsContainer.area = ui.rootView.bounds
         
         dialogsContainer.layout.makeConstraints { make in
             make.edges == ui.rootView
