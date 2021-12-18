@@ -111,7 +111,7 @@ open class RaytracerGraphApp: ImagineUIContentType {
         delegate?.invalidate(self, bounds: .init(location: .zero, size: UISize(size)))
     }
 
-    public func render(renderer: Renderer, renderScale: UIVector, clipRegion: ClipRegion) {
+    public func render(renderer: Renderer, renderScale: UIVector, clipRegion: ClipRegionType) {
         ui.render(renderer: renderer, renderScale: renderScale, clipRegion: clipRegion)
     }
 }

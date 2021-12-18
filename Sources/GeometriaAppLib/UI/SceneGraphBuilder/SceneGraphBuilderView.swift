@@ -479,7 +479,7 @@ private class SceneGraphNodeView: RootView {
             strokeWidth = 2
         }
 
-        override func renderBackground(in renderer: Renderer, screenRegion: ClipRegion) {
+        override func renderBackground(in renderer: Renderer, screenRegion: ClipRegionType) {
             let circle = UICircle(center: size.asUIPoint / 2, radius: _circleRadius)
 
             renderer.setStroke(strokeColor)

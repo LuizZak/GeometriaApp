@@ -279,7 +279,7 @@ open class RaytracerApp: ImagineUIContentType {
         delegate?.invalidate(self, bounds: .init(location: .zero, size: UISize(size)))
     }
     
-    public func render(renderer: Renderer, renderScale: UIVector, clipRegion: ClipRegion) {
+    public func render(renderer: Renderer, renderScale: UIVector, clipRegion: ClipRegionType) {
         if let buffer = buffer {
             buffer.usingImage { img in
                 let img = Blend2DImage(image: img)

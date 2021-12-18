@@ -156,7 +156,7 @@ class ContextMenuView: ControlView {
             super.init()
         }
 
-        override func render(in renderer: Renderer, screenRegion: ClipRegion) {
+        override func render(in renderer: Renderer, screenRegion: ClipRegionType) {
 
             let inset: Double = 8
             let line = UILine(

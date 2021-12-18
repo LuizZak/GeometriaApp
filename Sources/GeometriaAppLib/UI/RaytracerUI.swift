@@ -123,7 +123,7 @@ class RaytracerUI: ImagineUIContentType {
         ui.update(time)
     }
 
-    func render(renderer: Renderer, renderScale: UIVector, clipRegion: ClipRegion) {
+    func render(renderer: Renderer, renderScale: UIVector, clipRegion: ClipRegionType) {
         ui.render(renderer: renderer, renderScale: renderScale, clipRegion: clipRegion)
     }
     
@@ -289,7 +289,7 @@ class RaytracerUI: ImagineUIContentType {
             super.init()
         }
 
-        override func render(in renderer: Renderer, screenRegion: ClipRegion) {
+        override func render(in renderer: Renderer, screenRegion: ClipRegionType) {
             renderer.withTemporaryState {
                 renderer.setFill(effectiveShadowColor)
                 renderer.fill(bounds.insetBy(x: shadowRadius * 2, y: shadowRadius * 2))
