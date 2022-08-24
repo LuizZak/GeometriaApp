@@ -71,7 +71,7 @@ struct RayHit: Equatable {
     }
 
     /// Translates the components of this ray hit, returning a new hit that is 
-    /// shifted in space by an ammout specified by `vector`.
+    /// shifted in space by an amount specified by `vector`.
     @_transparent
     func translated(by vector: RVector3D) -> RayHit {
         var hit = self
@@ -82,7 +82,7 @@ struct RayHit: Equatable {
     }
 
     /// Scales the components of this ray hit, returning a new hit that is 
-    /// scaled in space around a given center point by an ammout specified by 
+    /// scaled in space around a given center point by an amount specified by 
     /// `factor`.
     @_transparent
     func scaledBy(_ factor: Double, around center: RVector3D) -> Self {
@@ -94,25 +94,51 @@ struct RayHit: Equatable {
 
         return hit
     }
+
+    /// Returns a ray hit ignore that ignores this particular hit in subsequent
+    /// raytracing queries.
+    ///
+    /// May fail, as hits are not discretely identified and can only be ignored
+    /// based on loose inner/outer hits and geometry ID.
+    func rayIgnoreForHit(minimumRayLengthSquared: Double = 0.0) -> RayIgnore {
+        switch hitDirection {
+        case .inside:
+            return .entrance(id: id, minimumRayLengthSquared: minimumRayLengthSquared)
+
+        case .outside:
+            return .exit(id: id, minimumRayLengthSquared: minimumRayLengthSquared)
+
+        case .singlePoint:
+            return .full(id: id)
+        }
+    }
     
     /// Specifies the direction of the ray when it hit the boundaries of 
     /// a geometry.
     enum HitDirection {
         /// Ray hit the geometry from the inside out
         case inside
+
         /// Ray hit the geometry from the outside in
         case outside
+
+        /// Ray hit a geometry that is not volumetric, e.g. a plane.
+        case singlePoint
         
         /// Returns the opposite hit direction that this value represents.
         ///
         /// Returns `HitDirection.inside` if this value is `.outside`, and
         /// `.outside` if this value is `.inside`.
+        ///
+        /// `.singlePoint` always maps back into `.singlePoint`.
         var inverted: Self {
             switch self {
             case .inside:
                 return .outside
             case .outside:
                 return .inside
+            case .singlePoint:
+                return .singlePoint
             }
         }
     }

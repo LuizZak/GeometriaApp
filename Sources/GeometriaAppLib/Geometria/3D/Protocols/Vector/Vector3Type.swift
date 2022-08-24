@@ -1,8 +1,8 @@
 /// Protocol for types that can represent 3D vectors.
-public protocol Vector3Type: VectorType {
+public protocol Vector3Type: VectorTakeable where TakeDimensions == Vector3TakeDimensions {
     /// The 2-dimensional vector type for selections of 2-components on this
     /// vector.
-    associatedtype SubVector2: Vector2Type where SubVector2.Scalar == Scalar
+    associatedtype SubVector3 = Self
     
     /// The X coordinate of this 3D vector.
     var x: Scalar { get set }
@@ -22,18 +22,26 @@ public protocol Vector3Type: VectorType {
     /// print(vector.take.xz) // Prints "(x: 3.5, y: 1.0)"
     /// print(vector.take.zy) // Prints "(x: 1.0, y: 2.1)"
     /// ```
+    @available(*, deprecated, message: "Replaced with VectorTakeable protocol. Use `vector[.x, .y, .z, ...]` as a replacement.")
     var take: TakeVector3<Self> { get }
-    
+
     /// Initializes this vector type with the given coordinates.
     init(x: Scalar, y: Scalar, z: Scalar)
     
     /// Creates a new vector with the coordinates of a given ``Vector2Type``,
     /// along with a new value for the ``z`` axis.
-    init<V: Vector2Type>(_ vec: V, z: Scalar)
+    init<V: Vector2Type>(_ vec: V, z: Scalar) where V.Scalar == Scalar
     
     /// Initializes a new instance of this `Vector3Type` type by copying the
     /// coordinates of another `Vector3Type` of matching scalar type.
-    init<Vector: Vector3Type>(_ vector: Vector)
+    init<Vector: Vector3Type>(_ vector: Vector) where Vector.Scalar == Scalar
+}
+
+/// Defines the dimension of an indexed takeable getter for a Vector 3 type.
+public enum Vector3TakeDimensions: Int {
+    case x
+    case y
+    case z
 }
 
 public extension Vector3Type {
@@ -90,12 +98,12 @@ public extension Vector3Type {
     }
     
     @_transparent
-    init<V: Vector2Type>(_ vec: V, z: Scalar) {
+    init<V: Vector2Type>(_ vec: V, z: Scalar) where V.Scalar == Scalar {
         self.init(x: vec.x, y: vec.y, z: z)
     }
     
     @_transparent
-    init<Vector: Vector3Type>(_ vector: Vector) {
+    init<Vector: Vector3Type>(_ vector: Vector) where Vector.Scalar == Scalar {
         self.init(x: vector.x, y: vector.y, z: vector.z)
     }
 }

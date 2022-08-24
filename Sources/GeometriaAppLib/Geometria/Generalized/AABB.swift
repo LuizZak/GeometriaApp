@@ -1,6 +1,6 @@
 /// Represents an axis-aligned bounding box with two N-dimensional vectors that
 /// describe the minimal and maximal coordinates of the box's opposite corners.
-public struct AABB<Vector: VectorType>: GeometricType, CustomStringConvertible {
+public struct AABB<Vector: VectorType>: GeometricType {
     /// Convenience for `Vector.Scalar`.
     public typealias Scalar = Vector.Scalar
     
@@ -246,7 +246,7 @@ extension AABB: SelfIntersectableRectangleType where Vector: VectorAdditive & Ve
         minimum <= box.maximum && maximum >= box.minimum
     }
     
-    /// Creates a rectangle which is equal to the non-zero area shared between
+    /// Creates a rectangle which is equal to the positive area shared between
     /// this rectangle and `other`.
     ///
     /// If the AABBs do not intersect (i.e. produce a rectangle with < 0 bounds),
@@ -572,8 +572,8 @@ extension AABB: SignedDistanceMeasurableType where Vector: VectorFloatingPoint {
     // Distance function derived from: https://iquilezles.org/www/articles/distfunctions/distfunctions.htm
     @inlinable
     public func signedDistance(to point: Vector) -> Vector.Scalar {
-        let s2 = size / 2
-        let q = abs(point - (location + s2)) - s2
+        // Distance function derived from: https://www.iquilezles.org/www/articles/distfunctions/distfunctions.htm
+        let q = abs(point - center) - size / 2
         let distOutside = max(q, .zero).length
         let distInside = min(q, .zero).maximalComponent
         

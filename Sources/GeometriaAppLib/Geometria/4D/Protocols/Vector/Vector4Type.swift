@@ -1,8 +1,6 @@
 /// Protocol for types that can represent 4D vectors.
-public protocol Vector4Type: VectorType {
-    /// The 2-dimensional vector type for selections of 3-components on this
-    /// vector.
-    associatedtype SubVector3: Vector3Type where SubVector3.Scalar == Scalar
+public protocol Vector4Type: VectorTakeable where TakeDimensions == Vector4TakeDimensions {
+    associatedtype SubVector4 = Self
     
     /// The X coordinate of this 4D vector.
     var x: Scalar { get set }
@@ -21,15 +19,23 @@ public protocol Vector4Type: VectorType {
     
     /// Creates a new vector with the coordinates of a given ``Vector3Type``,
     /// along with a new value for the ``z`` and ``w`` axis.
-    init<V: Vector2Type>(_ vec: V, z: Scalar, w: Scalar)
+    init<V: Vector2Type>(_ vec: V, z: Scalar, w: Scalar) where V.Scalar == Scalar
     
     /// Creates a new vector with the coordinates of a given ``Vector3Type``,
     /// along with a new value for the ``w`` axis.
-    init<V: Vector3Type>(_ vec: V, w: Scalar)
+    init<V: Vector3Type>(_ vec: V, w: Scalar) where V.Scalar == Scalar
     
     /// Initializes a new instance of this `Vector4Type` type by copying the
     /// coordinates of another `Vector4Type` of matching scalar type.
-    init<Vector: Vector4Type>(_ vector: Vector)
+    init<Vector: Vector4Type>(_ vector: Vector) where Vector.Scalar == Scalar
+}
+
+/// Defines the dimension of an indexed takeable getter for a Vector 3 type.
+public enum Vector4TakeDimensions: Int {
+    case x
+    case y
+    case z
+    case w
 }
 
 public extension Vector4Type {
@@ -88,17 +94,17 @@ public extension Vector4Type {
     }
     
     @_transparent
-    init<V: Vector2Type>(_ vec: V, z: Scalar, w: Scalar) {
+    init<V: Vector2Type>(_ vec: V, z: Scalar, w: Scalar) where V.Scalar == Scalar {
         self.init(x: vec.x, y: vec.y, z: z, w: w)
     }
     
     @_transparent
-    init<V: Vector3Type>(_ vec: V, w: Scalar) {
+    init<V: Vector3Type>(_ vec: V, w: Scalar) where V.Scalar == Scalar {
         self.init(x: vec.x, y: vec.y, z: vec.z, w: w)
     }
     
     @_transparent
-    init<Vector: Vector4Type>(_ vector: Vector) {
+    init<Vector: Vector4Type>(_ vector: Vector) where Vector.Scalar == Scalar {
         self.init(x: vector.x, y: vector.y, z: vector.z, w: vector.w)
     }
 }

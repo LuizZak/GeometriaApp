@@ -118,9 +118,6 @@ let package = Package(
     dependencies: packageDependencies,
     targets: [
         geometriaAppTarget,
-        geometriaAppLibTarget,
-        .testTarget(
-            name: "GeometriaAppTests",
-            dependencies: ["GeometriaApp"]),
+        geometriaAppLibTarget
     ] + osTargets
 )

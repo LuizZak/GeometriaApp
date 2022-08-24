@@ -80,6 +80,8 @@ extension SubtractionRaytracingElement: RaytracingElement {
                 return
             }
 
+            // TODO: Add support for hollow subtracts which don't report intersections
+            // with the subtracting geometry, leaving the model with a hole.
             if isInsideT0 {
                 results.append(flipped)
             }

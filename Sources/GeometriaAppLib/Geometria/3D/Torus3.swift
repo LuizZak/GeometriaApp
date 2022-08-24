@@ -40,8 +40,8 @@ public struct Torus3<Vector: Vector3FloatingPoint>: GeometricType {
     }
 }
 
-extension Torus3: Equatable where Vector: Equatable { }
-extension Torus3: Hashable where Vector: Hashable { }
+extension Torus3: Equatable where Vector: Equatable, Scalar: Equatable { }
+extension Torus3: Hashable where Vector: Hashable, Scalar: Hashable { }
 
 extension Torus3: BoundableType {
     /// Gets the minimal bounding box capable of fully containing all the points
@@ -143,8 +143,8 @@ extension Torus3: SignedDistanceMeasurableType {
         
         // Re-orient the vector according to the orientation of the axis of the
         // torus, as the algorithm expects the torus to be lying flat along the
-        // Z axis, centered around the origin.
-        // If the torus' axis is pointing up or down the Z axis, skip the rotation
+        // Y axis, centered around the origin.
+        // If the torus' axis is pointing up or down the Y axis, skip the rotation
         // step.
         var transformed = point - center
         let origin = axis
@@ -155,7 +155,7 @@ extension Torus3: SignedDistanceMeasurableType {
             transformed = m.transformPoint(transformed)
         }
 
-        let q = Vector.SubVector2(x: transformed.take.xz.length - majorRadius, y: transformed.y)
+        let q = Vector.SubVector2(x: transformed[.x, .z].length - majorRadius, y: transformed.y)
         return q.length - minorRadius
     }
 }

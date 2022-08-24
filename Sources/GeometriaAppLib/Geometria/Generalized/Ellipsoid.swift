@@ -32,7 +32,7 @@ extension Ellipsoid: BoundableType where Vector: VectorAdditive {
 }
 
 public extension Ellipsoid where Vector: VectorMultiplicative {
-    /// Retunrs an ``Ellipsoid`` with center `.zero` and radius `.one`.
+    /// Returns an ``Ellipsoid`` with center `.zero` and radius `.one`.
     @_transparent
     static var unit: Self {
         Self(center: .zero, radius: .one)
@@ -74,14 +74,19 @@ extension Ellipsoid: ConvexType where Vector: VectorReal {
         switch scaledSphere.intersection(with: scaledLine) {
         case .noIntersection:
             return .noIntersection
+            
         case .contained:
             return .contained
+
         case .singlePoint(let pn):
             return .singlePoint(scalePointNormal(pn))
+            
         case .enter(let pn):
             return .enter(scalePointNormal(pn))
+
         case .exit(let pn):
             return .exit(scalePointNormal(pn))
+
         case let .enterExit(penter, pexit):
             return .enterExit(scalePointNormal(penter), scalePointNormal(pexit))
         }

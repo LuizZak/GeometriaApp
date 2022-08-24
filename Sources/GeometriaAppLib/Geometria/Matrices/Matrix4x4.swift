@@ -135,49 +135,49 @@ public struct Matrix4x4: MatrixType, CustomStringConvertible {
         set { (r0.3, r1.3, r2.3, r3.3) = newValue }
     }
     
-    /// Gets the first row of this matrix in a Vector4.
+    /// Gets the first row of this matrix in a Vector4D.
     public var r0Vec: Vector4D {
         @_transparent
         get { Vector4D(r0) }
     }
     
-    /// Gets the second row of this matrix in a Vector4.
+    /// Gets the second row of this matrix in a Vector4D.
     public var r1Vec: Vector4D {
         @_transparent
         get { Vector4D(r1) }
     }
     
-    /// Gets the third row of this matrix in a Vector4.
+    /// Gets the third row of this matrix in a Vector4D.
     public var r2Vec: Vector4D {
         @_transparent
         get { Vector4D(r2) }
     }
     
-    /// Gets the fourth row of this matrix in a Vector4.
+    /// Gets the fourth row of this matrix in a Vector4D.
     public var r3Vec: Vector4D {
         @_transparent
         get { Vector4D(r3) }
     }
     
-    /// Gets the first column of this matrix in a Vector4.
+    /// Gets the first column of this matrix in a Vector4D.
     public var c0Vec: Vector4D {
         @_transparent
         get { Vector4D(c0) }
     }
     
-    /// Gets the second column of this matrix in a Vector4.
+    /// Gets the second column of this matrix in a Vector4D.
     public var c1Vec: Vector4D {
         @_transparent
         get { Vector4D(c1) }
     }
     
-    /// Gets the third column of this matrix in a Vector4.
+    /// Gets the third column of this matrix in a Vector4D.
     public var c2Vec: Vector4D {
         @_transparent
         get { Vector4D(c2) }
     }
     
-    /// Gets the fourth column of this matrix in a Vector4.
+    /// Gets the fourth column of this matrix in a Vector4D.
     public var c3Vec: Vector4D {
         @_transparent
         get { Vector4D(c3) }
@@ -284,7 +284,7 @@ public struct Matrix4x4: MatrixType, CustomStringConvertible {
         m = rows
     }
     
-    /// Initializes a new matrix with the given ``Vector4`` values as the values
+    /// Initializes a new matrix with the given ``Vector4D`` values as the values
     /// for each row.
     @_transparent
     public init<Vector: Vector4Type>(rows: (Vector, Vector, Vector, Vector)) {
@@ -412,7 +412,7 @@ public struct Matrix4x4: MatrixType, CustomStringConvertible {
     /// translation to the vector.
     @_transparent
     public func transformPoint<Vector: Vector3FloatingPoint>(_ vec: Vector) -> Vector {
-        let vec4 = Vector4(vec, w: 1)
+        let vec4 = Vector4D(vec, w: 1)
         
         let result = transformPoint(vec4)
         

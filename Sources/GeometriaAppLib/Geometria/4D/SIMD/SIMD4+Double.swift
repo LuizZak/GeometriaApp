@@ -2,14 +2,21 @@
 
 import simd
 
-extension SIMD4: GeometricType, VectorType, Vector4Type where Scalar == Double {
-    public typealias SubVector3 = SIMD3<Scalar>
-    
-    /// Initializes this ``Vector4Type`` with the values from a given tuple.
-    @_transparent
-    public init(_ tuple: (Scalar, Scalar, Scalar, Scalar)) {
-        self.init(tuple.0, tuple.1, tuple.2, tuple.3)
+extension SIMD4: VectorTakeable where Scalar == Double {
+    public typealias SubVector2 = SIMD2<Scalar>
+    public typealias SubVector4 = SIMD4<Scalar>
+
+    /// Defines the dimension of an indexed takeable getter.
+    public enum TakeDimensions: Int {
+        case x
+        case y
+        case z
+        case w
     }
+}
+
+extension SIMD4: GeometricType, VectorType, Vector4Type where Scalar == Double {
+    
 }
 
 extension SIMD4: AdditiveArithmetic, VectorAdditive where Scalar == Double {
@@ -71,7 +78,9 @@ extension SIMD4: VectorFloatingPoint where Scalar == Double {
 }
 
 extension SIMD4: Vector4FloatingPoint where Scalar == Double {
-    
+    public init<V>(_ other: V) where V : Vector4Type, V.Scalar : BinaryInteger {
+        self.init(x: Scalar(other.x), y: Scalar(other.y), z: Scalar(other.z), w: Scalar(other.w))
+    }
 }
 
 extension SIMD4: SignedDistanceMeasurableType where Scalar == Double {

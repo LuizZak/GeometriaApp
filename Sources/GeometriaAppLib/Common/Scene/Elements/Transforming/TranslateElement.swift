@@ -110,6 +110,8 @@ extension TranslateElement {
     }
 }
 
+// MARK: - Global functions
+
 @_transparent
 func translated<T: Element>(by translation: RVector3D, @ElementBuilder _ builder: () -> T) -> TranslateElement<T> {
     builder().translated(by: translation)
@@ -119,3 +121,15 @@ func translated<T: Element>(by translation: RVector3D, @ElementBuilder _ builder
 func translated<T: Element>(by translation: RVector3D, @ElementBuilder _ builder: () -> TranslateElement<T>) -> TranslateElement<T> {
     builder().translated(by: translation)
 }
+
+
+@_transparent
+func translated<T: Element>(x: Double, y: Double, z: Double, @ElementBuilder _ builder: () -> T) -> TranslateElement<T> {
+    builder().translated(x: x, y: y, z: z)
+}
+
+@_transparent
+func translated<T: Element>(x: Double, y: Double, z: Double, @ElementBuilder _ builder: () -> TranslateElement<T>) -> TranslateElement<T> {
+    builder().translated(x: x, y: y, z: z)
+}
+

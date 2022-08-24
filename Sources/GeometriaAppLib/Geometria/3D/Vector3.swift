@@ -3,7 +3,6 @@ import RealModule
 /// A three-component vector type
 public struct Vector3: Hashable, Codable, Vector3Type, CustomStringConvertible {
     public typealias Scalar = Double
-    public typealias SubVector2 = Vector2D
     
     /// X coordinate of this vector
     public var x: Scalar

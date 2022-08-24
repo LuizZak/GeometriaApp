@@ -65,7 +65,7 @@ struct RayQuery: Equatable {
     }
 
     /// Translates the components of this ray query, returning a new ray query
-    /// that is shifted in space by an ammout specified by `vector`.
+    /// that is shifted in space by an amount specified by `vector`.
     @_transparent
     func translated(by vector: RVector3D) -> Self {
         var query = self
@@ -78,8 +78,8 @@ struct RayQuery: Equatable {
         return query
     }
 
-    /// Uniformely scales the components of this ray query, returning a new ray 
-    /// query that is scaled in space around the given center point by an ammout 
+    /// Uniformly scales the components of this ray query, returning a new ray 
+    /// query that is scaled in space around the given center point by an amount 
     /// specified by `factor`.
     @_transparent
     func scaled(by factor: Double, around center: RVector3D) -> Self {

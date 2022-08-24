@@ -94,7 +94,11 @@ extension LineSegment: LineMultiplicative where Vector: VectorMultiplicative {
 }
 
 extension LineSegment: LineDivisible where Vector: VectorDivisible {
-    
+    /// Gets the center point of this line segment.
+    @_transparent
+    public var center: Vector {
+        (start + end) / 2
+    }
 }
 
 extension LineSegment: LineFloatingPoint & PointProjectableType & SignedDistanceMeasurableType where Vector: VectorFloatingPoint {

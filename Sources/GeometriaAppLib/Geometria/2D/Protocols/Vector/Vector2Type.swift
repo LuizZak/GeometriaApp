@@ -1,5 +1,7 @@
 /// Protocol for types that can represent 2D vectors.
-public protocol Vector2Type: VectorType {
+public protocol Vector2Type: VectorTakeable where TakeDimensions == Vector2TakeDimensions {
+    associatedtype SubVector2 = Self
+
     /// The X coordinate of this 2D vector.
     var x: Scalar { get set }
     
@@ -11,7 +13,13 @@ public protocol Vector2Type: VectorType {
     
     /// Initializes a new instance of this `Vector2Type` type by copying the
     /// coordinates of another `Vector2Type` of matching scalar type.
-    init<Vector: Vector2Type>(_ vector: Vector)
+    init<Vector: Vector2Type>(_ vector: Vector) where Vector.Scalar == Scalar
+}
+
+/// Defines the dimension of an indexed takeable getter for a Vector 2 type.
+public enum Vector2TakeDimensions: Int {
+    case x
+    case y
 }
 
 public extension Vector2Type {
@@ -55,7 +63,7 @@ public extension Vector2Type {
         }
     }
     
-    init<Vector: Vector2Type>(_ vector: Vector) {
+    init<Vector: Vector2Type>(_ vector: Vector) where Vector.Scalar == Scalar {
         self.init(x: vector.x, y: vector.y)
     }
 }

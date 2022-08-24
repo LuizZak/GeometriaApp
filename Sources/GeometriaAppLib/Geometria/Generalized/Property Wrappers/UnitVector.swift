@@ -52,7 +52,7 @@ public struct UnitVector<Vector: VectorFloatingPoint> {
     }
 }
 
-extension UnitVector: Equatable where Vector: Equatable { }
-extension UnitVector: Hashable where Vector: Hashable { }
-extension UnitVector: Encodable where Vector: Encodable { }
-extension UnitVector: Decodable where Vector: Decodable { }
+extension UnitVector: Equatable where Vector: Equatable, Vector.Scalar: Equatable { }
+extension UnitVector: Hashable where Vector: Hashable, Vector.Scalar: Hashable { }
+extension UnitVector: Encodable where Vector: Encodable, Vector.Scalar: Encodable { }
+extension UnitVector: Decodable where Vector: Decodable, Vector.Scalar: Decodable { }

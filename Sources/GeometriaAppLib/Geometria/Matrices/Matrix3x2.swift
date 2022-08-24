@@ -53,7 +53,7 @@ import Foundation
 /// double-precision floating-point components.
 ///
 /// [affine transformations]: http://en.wikipedia.org/wiki/Affine_transformation
-public typealias Matrix3x2D = Matrix3x2
+public typealias Matrix3x2D = Matrix3x2//<Double>
 
 /// Plain 3-row 2-column Matrix for 2D [affine transformations] with floating-point
 /// components.
@@ -466,7 +466,7 @@ public struct Matrix3x2: Hashable, CustomStringConvertible {
     /// - Parameter point: The original vector to apply the transformation.
     /// - Returns: The result of the transformation for the input vector.
     @inlinable
-    public static func transformPoint<V: Vector2Type>(matrix: Matrix3x2, point: V) -> V {
+    public static func transformPoint<V: Vector2Type>(matrix: Matrix3x2, point: V) -> V where V.Scalar == Scalar {
         let x = (point.x * matrix.m11) as Scalar + (point.y * matrix.m21) as Scalar + matrix.m31
         let y = (point.x * matrix.m12) as Scalar + (point.y * matrix.m22) as Scalar + matrix.m32
         
@@ -611,6 +611,11 @@ public struct Matrix3x2: Hashable, CustomStringConvertible {
     }
 }
 
+// MARK: Conformances
+
+extension Matrix3x2: Encodable { }
+extension Matrix3x2: Decodable { }
+
 // MARK: Geometry transformation
 
 public extension Matrix3x2 {
@@ -620,7 +625,7 @@ public extension Matrix3x2 {
     /// of the transformation, so scaling and rotating do not happen around the
     /// origin or center of the rectangle itself.
     @inlinable
-    func transform<V: Vector2Type & VectorAdditive & VectorComparable>(_ rect: NRectangle<V>) -> NRectangle<V> {
+    func transform<V: Vector2Type & VectorAdditive & VectorComparable>(_ rect: NRectangle<V>) -> NRectangle<V> where V.Scalar == Scalar {
         let topLeft = transform(rect.topLeft)
         let topRight = transform(rect.topRight)
         let bottomLeft = transform(rect.bottomLeft)

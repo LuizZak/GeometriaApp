@@ -130,7 +130,7 @@ final class Raytracer<Scene: RaytracingSceneType>: RendererType {
             if material.transparency > 0.0 {
                 // Raycast past geometry and add color
                 var rayThroughObject: RRay3D = RRay3D(start: hit.point, direction: ray.direction)
-                var rayIgnore: RayIgnore = .full(id: hit.id)
+                var rayIgnore: RayIgnore = hit.rayIgnoreForHit(minimumRayLengthSquared: minimumRayToleranceSq)
                 
                 // If refraction is active, create a ray that points to the exit
                 // point of the refracted ray that was generated inside the object's
@@ -153,11 +153,11 @@ final class Raytracer<Scene: RaytracingSceneType>: RendererType {
                     // Do a sanity check that the ray isn't going to collide
                     // immediately with the same geometry - if it does, skip the
                     // geometry fully in the subsequent raycast
-                    let innerHit = 
-                    scene.intersect(
-                        ray: innerRay, 
-                        ignoring: .allButSingleId(id: hit.id, rayIgnore)
-                    )
+                    let innerHit =
+                        scene.intersect(
+                            ray: innerRay, 
+                            ignoring: .allButSingleId(id: hit.id, rayIgnore)
+                        )
 
                     if let innerHit = innerHit, innerHit.point.distanceSquared(to: hit.point) <= minDistSq {
                         rayIgnore = .full(id: hit.id)
@@ -166,26 +166,27 @@ final class Raytracer<Scene: RaytracingSceneType>: RendererType {
                     rayThroughObject = innerRay
                 }
                 
-                let backHit = raytrace(ray: rayThroughObject,
-                                       ignoring: rayIgnore,
-                                       bounceCount: bounceCount + 1)
+                let backHit = raytrace(
+                    ray: rayThroughObject,
+                    ignoring: rayIgnore,
+                    bounceCount: bounceCount + 1
+                )
+
                 color = mergeColors(color, backHit.color, factor: material.transparency * trans)
             }
             
             // Reflectivity
             if material.reflectivity > 0.0 && bounceCount < maxBounces && canRebound {
                 // Raycast from normal and fade in the reflected color
-                let ignoring: RayIgnore
-                if hit.hitDirection == .inside {
-                    ignoring = .entrance(id: hit.id, minimumRayLengthSquared: minimumRayToleranceSq)
-                } else {
-                    ignoring = .exit(id: hit.id, minimumRayLengthSquared: minimumRayToleranceSq)
-                }
+                let ignoring: RayIgnore = hit.rayIgnoreForHit(minimumRayLengthSquared: minimumRayToleranceSq)
+                
                 let reflection = reflect(direction: ray.direction, normal: hit.normal)
                 let normRay = RRay3D(start: hit.point, direction: reflection)
-                let secondHit = raytrace(ray: normRay,
-                                         ignoring: ignoring,
-                                         bounceCount: bounceCount + 1)
+                let secondHit = raytrace(
+                    ray: normRay,
+                    ignoring: ignoring,
+                    bounceCount: bounceCount + 1
+                )
                 
                 var factor: Double
                 if material.refractiveIndex != 1.0 {
@@ -292,7 +293,11 @@ final class Raytracer<Scene: RaytracingSceneType>: RendererType {
         
         var transparency: Double = 1.0
 
-        let intersections = scene.intersectAll(ray: ray, ignoring: .full(id: hit.id))
+        let intersections = scene.intersectAll(
+            ray: ray,
+            ignoring: hit.rayIgnoreForHit()
+        )
+        
         for intersection in intersections {
             switch intersection.material.flatMap({ materialMapCache[$0] }) {
             case .diffuse(let material)?:

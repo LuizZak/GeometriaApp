@@ -28,8 +28,8 @@ public struct Cylinder3<Vector: Vector3Type>: GeometricType {
     }
 }
 
-extension Cylinder3: Equatable where Vector: Equatable { }
-extension Cylinder3: Hashable where Vector: Hashable { }
+extension Cylinder3: Equatable where Vector: Equatable, Scalar: Equatable { }
+extension Cylinder3: Hashable where Vector: Hashable, Scalar: Hashable { }
 
 public extension Cylinder3 {
     /// Returns a line segment with the same ``LineSegment/start`` and
@@ -47,7 +47,7 @@ public extension Cylinder3 {
     }
 }
 
-public extension Cylinder3 where Vector: Equatable {
+public extension Cylinder3 where Vector: Equatable, Scalar: Comparable & AdditiveArithmetic {
     /// Returns whether this cylinder's parameters produce a valid, non-empty
     /// cylinder.
     ///
@@ -157,7 +157,7 @@ extension Cylinder3: PointProjectableType where Vector: Vector3FloatingPoint {
     }
 }
 
-extension Cylinder3: SignedDistanceMeasurableType where Vector: Vector3FloatingPoint {
+extension Cylinder3: SignedDistanceMeasurableType where Vector: VectorFloatingPoint {
     @inlinable
     public func signedDistance(to point: Vector) -> Vector.Scalar {
         // Derived from:
@@ -208,7 +208,7 @@ extension Cylinder3: Convex3Type where Vector: Vector3Real {
         // Line is parallel to cylinder's line - choose a normal based on the
         // direction from the cylinder's center line to the line
         if crossSlope == .zero {
-            crossSlope = (line.projectUnclamped(start) - start).normalized()
+            crossSlope = (start - line.projectUnclamped(start)).normalized()
         }
         
         // Create a 2D version of the problem by cross-sectioning the cylinder
@@ -239,11 +239,13 @@ extension Cylinder3: Convex3Type where Vector: Vector3Real {
         
         rectHalfWidth = Scalar.sqrt(radiusSquared - depthSquared)
         
-        let cylinStartProj = pl.project2D(start)
-        let cylinEndProj = cylinStartProj + Vector2(x: 0, y: rectHeight)
+        let cylStartProj = pl.project2D(start)
+        let cylEndProj = cylStartProj + Vector2(x: 0, y: rectHeight)
         
-        let aabb = AABB2<Vector2>(minimum: cylinStartProj - Vector2(x: rectHalfWidth, y: 0),
-                                  maximum: cylinEndProj + Vector2(x: rectHalfWidth, y: 0))
+        let aabb = AABB2<Vector2>(
+            minimum: cylStartProj - Vector2(x: rectHalfWidth, y: 0),
+            maximum: cylEndProj + Vector2(x: rectHalfWidth, y: 0)
+        )
         
         let lineAProj = pl.project2D(line.a)
         let lineBProj = pl.project2D(line.b)
@@ -254,7 +256,19 @@ extension Cylinder3: Convex3Type where Vector: Vector3Real {
         
         func mapPointNormal(_ pn: PointNormal<Vector2>, negateNormal: Bool) -> PointNormal<Vector> {
             let worldPoint = pl.projectOut(pn.point)
-            var normal = normalForVector(worldPoint)
+
+            var normal: Vector
+            // If the intersection has a point normal that is vertical, this
+            // indicates the exit is along the top/bottom of the cylinder. In
+            // this case, the normal is simply the 3D projected normal of the 2D
+            // intersection case.
+            if pn.normal == .unitY || pn.normal == -.unitY {
+                normal = cylinderSlope.normalized()
+            } else {
+                // Otherwise the normal can be computed as the direction between
+                // the intersection point and its projection on the cylinder's line
+                normal =  (cylinderLine.projectUnclamped(worldPoint) - worldPoint).normalized()
+            }
             
             // Use the normal that has the least value (pointing towards the
             // start of the line)

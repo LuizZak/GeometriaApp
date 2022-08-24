@@ -34,7 +34,7 @@
 				"type": "shell",
 				"command": "python utils\\build.py",
 				"args": [
-					"-c", "debug"
+					"-c", "debug",
 				]
 			},
             {
@@ -45,7 +45,7 @@
 					"run",
 					"-c", "debug",
 					"-t", "GeometriaApp",
-					"-m", "Sources\\GeometriaWindows\\GeometriaApp.exe.manifest"
+					"-m", "Sources\\GeometriaWindows\\GeometriaApp.exe.manifest",
 				]
 			},
             {
@@ -56,9 +56,52 @@
 					"run",
 					"-c", "release",
 					"-t", "GeometriaApp",
-					"-m", "Sources\\GeometriaWindows\\GeometriaApp.exe.manifest"
+					"-m", "Sources\\GeometriaWindows\\GeometriaApp.exe.manifest",
 				]
 			},
+		]
+	},
+	"launch": {
+		"configurations": [
+			{
+				"type": "lldb-vscode",
+				"request": "launch",
+				"name": "Launch",
+				"program": "${workspaceFolder:Build}/debug/GeometriaApp.exe",
+				"args": [],
+				"cwd": "${workspaceFolder:Build}/debug",
+			},
+			{
+				"type": "lldb",
+				"request": "launch",
+				"name": "Debug GeometriaApp",
+				"program": "${workspaceFolder:GeometriaApp}/.build/debug/GeometriaApp",
+				"args": [],
+				"env": {
+				},
+				"cwd": "${workspaceFolder:GeometriaApp}",
+				"preLaunchTask": "Build Win32 (debug)",
+			},
+			{
+				"type": "lldb",
+				"request": "launch",
+				"name": "Release GeometriaApp",
+				"program": "${workspaceFolder:GeometriaApp}/.build/release/GeometriaApp",
+				"args": [],
+				"cwd": "${workspaceFolder:GeometriaApp}",
+				"preLaunchTask": "Run Win32 (release)",
+			},
+			{
+				"type": "lldb",
+				"request": "launch",
+				"name": "Test GeometriaApp",
+				"program": "./.build/debug/GeometriaAppPackageTests.xctest",
+				"cwd": "${workspaceFolder:GeometriaApp}",
+				"env": {
+					"path": "C:\\Library\\Developer\\Platforms\\Windows.platform\\Developer\\Library\\XCTest-development\\usr\\bin;${env:PATH}"
+				},
+				"preLaunchTask": "Build Win32 (debug)",
+			}
 		]
 	},
 	"folders": [
@@ -130,10 +173,11 @@
 			"superview",
 			"swiftpm"
 		],
+		"cmake.configureOnOpen": false,
 	},
 	"extensions": {
 		"recommendations": [
 			"exodiusstudios.comment-anchors"
 		]
-	}
+	},
 }

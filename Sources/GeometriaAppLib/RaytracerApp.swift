@@ -131,17 +131,20 @@ open class RaytracerApp: ImagineUIContentType {
 //        let batcher = SinglePixelBatcher(pixel: .init(x: 255, y: 224)) // Bug in refractive bouncing in cylinder's base
 //        let batcher = SinglePixelBatcher(pixel: .init(x: 177, y: 202)) // Top of cube-cylinder subtraction demo scene
 //        let batcher = SinglePixelBatcher(pixel: .init(x: 180, y: 195)) // Left of cube-cylinder subtraction demo scene bug
+        // let batcher = SinglePixelBatcher(pixel: .init(x: 590, y: 415)) // Pass-through of bottom of cylinder subtracted from a cube
+        //*
         let batcher = TiledBatcher(splitting: viewportSize,
                                    estimatedThreadCount: threadCount * 2,
                                    shuffleOrder: true)
+        // */
 //        let batcher = SieveBatcher()
 //        let batcher = LinearBatcher()
         
         // TODO: Derive camera configuration from the demo scene builders.
 
-        #if false
+        #if true
         
-        let scene = RaytracingDemoScene3.makeScene()
+        let scene = RaytracingHalfSubtract.makeScene()
         
         let renderer = Raytracer(
             scene: scene,
@@ -150,7 +153,7 @@ open class RaytracerApp: ImagineUIContentType {
         
         #else
 
-        let scene = RaymarchingDemoScene3.makeScene()
+        let scene = RaymarchingDemoScene1.makeScene()
         
         let renderer = Raymarcher(
             scene: scene,

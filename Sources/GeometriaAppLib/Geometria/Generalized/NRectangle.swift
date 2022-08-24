@@ -129,7 +129,7 @@ extension NRectangle: VolumetricType where Vector: VectorAdditive & VectorCompar
     /// If no points are supplied, an empty NRectangle is created instead.
     @_transparent
     public init(of points: Vector...) {
-        self = NRectangle(points: points)
+        self = Self(points: points)
     }
     
     /// Initializes a NRectangle out of a set of points, expanding to the
@@ -200,7 +200,7 @@ extension NRectangle: SelfIntersectableRectangleType where Vector: VectorAdditiv
         Self.union(self, other)
     }
     
-    /// Creates a rectangle which is equal to the non-zero area shared between
+    /// Creates a rectangle which is equal to the positive area shared between
     /// this rectangle and `other`.
     ///
     /// If the rectangles do not intersect (i.e. produce a rectangle with < 0
@@ -236,8 +236,8 @@ public extension NRectangle where Vector: VectorMultiplicative {
     /// Returns a NRectangle with the same position as this NRectangle, with its
     /// size multiplied by the coordinates of the given vector.
     @inlinable
-    func scaledBy(vector: Vector) -> NRectangle {
-        NRectangle(location: location, size: size * vector)
+    func scaledBy(vector: Vector) -> Self {
+        Self(location: location, size: size * vector)
     }
 }
 

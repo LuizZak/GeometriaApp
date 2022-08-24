@@ -47,14 +47,14 @@ enum RayIgnore: Equatable {
                 return false
             }
 
-            return hit.hitDirection == .outside
+            return hit.hitDirection == .outside || hit.hitDirection == .singlePoint
         
         case .exit(let geoId, _):
             if geoId != hit.id {
                 return false
             }
 
-            return hit.hitDirection == .inside
+            return hit.hitDirection == .inside || hit.hitDirection == .singlePoint
 
         case let .allButSingleId(geoId, ignore):
             if geoId != hit.id {
@@ -76,22 +76,32 @@ enum RayIgnore: Equatable {
     /// available intersection.
     ///
     /// For most intersections where the geometry is not ignored, the first
-    /// (entrance) or singular point of intersection is returned, if no entrance
+    /// (entrance) or singular point of intersection is returned; if no entrance
     /// is available, the exit point is returned, and if no exit point is
-    /// available `nil` is then ultimately returned.
-    func computePointNormalOfInterest(id: Int,
-                                      intersection: RConvexLineResult3D) -> (point: RPointNormal3D, hitDirection: RayHit.HitDirection)? {
+    /// available still, `nil` is then ultimately returned.
+    func computePointNormalOfInterest(
+        id: Int,
+        intersection: RConvexLineResult3D
+    ) -> (point: RPointNormal3D, hitDirection: RayHit.HitDirection)? {
+
+        let isSinglePoint: Bool
+        if case .singlePoint = intersection {
+            isSinglePoint = true
+        } else {
+            isSinglePoint = false
+        }
         
         switch self {
         case .none:
             break
 
-        case let .allButSingleId(geoId, ignore):
+        case .allButSingleId(let geoId, let ignore):
             if geoId != id {
                 return nil
             }
             
             return ignore.computePointNormalOfInterest(id: id, intersection: intersection)
+
         case .full(let geoId):
             if geoId == id {
                 return nil
@@ -102,7 +112,7 @@ enum RayIgnore: Equatable {
                 break
             }
             
-            if let exit = intersection.exitPoint {
+            if !isSinglePoint, let exit = intersection.exitPoint {
                 return (exit, .inside)
             } else {
                 return nil
@@ -113,7 +123,7 @@ enum RayIgnore: Equatable {
                 break
             }
             
-            if let entrance = intersection.entrancePoint {
+            if !isSinglePoint, let entrance = intersection.entrancePoint {
                 return (entrance, .outside)
             } else {
                 return nil
@@ -121,10 +131,10 @@ enum RayIgnore: Equatable {
         }
 
         if let entrance = intersection.entrancePoint {
-            return (entrance, .outside)
+            return (entrance, isSinglePoint ? .singlePoint : .outside)
         }
         if let exit = intersection.exitPoint {
-            return (exit, .inside)
+            return (exit, isSinglePoint ? .singlePoint : .inside)
         }
         
         return nil
@@ -136,9 +146,18 @@ enum RayIgnore: Equatable {
     /// Returns an empty array in case none of the available intersection points 
     /// is of interest, or if this ``RayIgnore`` rule instance ignores the only
     /// available intersection.
-    func computePointNormalsOfInterest(id: Int,
-                                       intersection: RConvexLineResult3D) -> [(point: RPointNormal3D, hitDirection: RayHit.HitDirection)] {
+    func computePointNormalsOfInterest(
+        id: Int,
+        intersection: RConvexLineResult3D
+    ) -> [(point: RPointNormal3D, hitDirection: RayHit.HitDirection)] {
         
+        let isSinglePoint: Bool
+        if case .singlePoint = intersection {
+            isSinglePoint = true
+        } else {
+            isSinglePoint = false
+        }
+
         // Pre-check before looking into each point normal
         switch self {
         case let .allButSingleId(geoId, ignore):
@@ -158,16 +177,25 @@ enum RayIgnore: Equatable {
         case (_, nil, nil):
             return []
 
-        case (.entrance(id, _), _?, let exit?),
-             (_, nil, let exit?):
+        // Ignore entrances
+        case (.entrance(id, _), _?, let exit?), (_, nil, let exit?):
+            if isSinglePoint {
+                return []
+            }
+
             return [(exit, .inside)]
 
-        case (.exit(id, _), let enter?, _?),
-             (_, let enter?, nil):
+        // Ignore exits
+        case (.exit(id, _), let enter?, _?), (_, let enter?, nil):
+            if isSinglePoint {
+                return []
+            }
+
             return [(enter, .outside)]
-            
+        
+        // Ignore none
         case (_, let enter?, let exit?):
-            return [(enter, .outside), (exit, .inside)]
+            return [(enter, isSinglePoint ? .singlePoint : .outside), (exit, isSinglePoint ? .singlePoint : .inside)]
         }
     }
 }

@@ -3,20 +3,23 @@
 import RealModule
 import simd
 
-extension SIMD2: GeometricType where Scalar == Double {
+extension SIMD2: VectorType {
     
 }
 
-extension SIMD2: VectorType where Scalar == Double {
-    
+extension SIMD2: VectorTakeable where Scalar == Double {
+    public typealias SubVector2 = SIMD2<Scalar>
+    public typealias SubVector4 = SIMD4<Scalar>
+
+    /// Defines the dimension of an indexed takeable getter.
+    public enum TakeDimensions: Int {
+        case x
+        case y
+    }
 }
 
 extension SIMD2: Vector2Type where Scalar == Double {
-    /// Initializes this ``Vector2Type`` with the values from a given tuple.
-    @_transparent
-    public init(_ tuple: (Scalar, Scalar)) {
-        self.init(tuple.0, tuple.1)
-    }
+    
 }
 
 extension SIMD2: VectorComparable where Scalar == Double {
@@ -71,11 +74,11 @@ extension SIMD2: VectorComparable where Scalar == Double {
     }
 }
 
-extension SIMD2: AdditiveArithmetic where Scalar: FloatingPoint {
+extension SIMD2: AdditiveArithmetic {
     
 }
 
-extension SIMD2: VectorAdditive where Scalar == Double {
+extension SIMD2: VectorAdditive {
     
 }
 
@@ -231,7 +234,10 @@ extension SIMD2: SignedDistanceMeasurableType where Scalar == Double {
 }
 
 extension SIMD2: Vector2FloatingPoint where Scalar == Double {
-    
+    @_transparent
+    public init<V>(_ other: V) where V: Vector2Type, V.Scalar: BinaryInteger {
+        self.init(x: Scalar(other.x), y: Scalar(other.y))
+    }
 }
 
 extension SIMD2: VectorReal where Scalar == Double {
@@ -297,10 +303,10 @@ extension SIMD2: Vector2Real where Scalar == Double {
                               translate: Self = Self(x: 0, y: 0)) -> Matrix3x2 {
         
         Matrix3x2.transformation(xScale: scale.x,
-                                 yScale: scale.y,
-                                 angle: angle,
-                                 xOffset: translate.x,
-                                 yOffset: translate.y)
+                                       yScale: scale.y,
+                                       angle: angle,
+                                       xOffset: translate.x,
+                                       yOffset: translate.y)
     }
     
     @inlinable
