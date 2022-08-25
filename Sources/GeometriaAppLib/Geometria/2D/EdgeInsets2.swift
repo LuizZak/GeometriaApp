@@ -33,10 +33,10 @@ public struct EdgeInsets2<Vector: Vector2Type> {
     }
 }
 
-extension EdgeInsets2: Equatable where Vector: Equatable, Scalar: Equatable { }
-extension EdgeInsets2: Hashable where Vector: Hashable, Scalar: Hashable { }
-extension EdgeInsets2: Encodable where Vector: Encodable, Scalar: Encodable { }
-extension EdgeInsets2: Decodable where Vector: Decodable, Scalar: Decodable { }
+extension EdgeInsets2: Equatable where Vector: Equatable { }
+extension EdgeInsets2: Hashable where Vector: Hashable { }
+extension EdgeInsets2: Encodable where Vector: Encodable { }
+extension EdgeInsets2: Decodable where Vector: Decodable { }
 
 public extension EdgeInsets2 where Vector: VectorAdditive {
     @_transparent

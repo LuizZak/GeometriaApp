@@ -16,7 +16,7 @@ class CanvasView: NSView {
     
     var usingCGImage = false
     
-    var app: Blend2DApp!
+    var app: ImagineUIContentType!
     var blImage: BLImage!
     var redrawBounds: [NSRect] = []
     var viewsToLayout: [ImagineUI.View] = []
@@ -71,13 +71,15 @@ class CanvasView: NSView {
                   timeInSecondsFunction: { CACurrentMediaTime() })
         )
         
-        let app = RaytracerApp(width: Int(bounds.width), height: Int(bounds.height))
+        let app = RaytracerApp(size: .init(width: Int(bounds.width), height: Int(bounds.height)))
         app.delegate = self
         self.app = app
         
-        blImage = BLImage(width: app.width * Int(app.appRenderScale.x),
-                          height: app.height * Int(app.appRenderScale.y),
-                          format: .xrgb32)
+        blImage = BLImage(
+            width: app.width * Int(app.preferredRenderScale.x),
+            height: app.height * Int(app.preferredRenderScale.y),
+            format: .xrgb32
+        )
         
         recreateCgImageContext()
     }
@@ -101,11 +103,12 @@ class CanvasView: NSView {
     }
     
     private func resizeApp() {
-        app.resize(width: Int(bounds.width), height: Int(bounds.height))
+        app.resize(.init(width: Int(bounds.width), height: Int(bounds.height)))
         
-        blImage = BLImage(width: app.width * Int(app.appRenderScale.x),
-                          height: app.height * Int(app.appRenderScale.y),
-                          format: .xrgb32)
+        blImage = BLImage(
+            width: app.size.width * Int(app.preferredRenderScale.x),
+            height: app.size.height * Int(app.preferredRenderScale.y),
+                      format: .xrgb32)
         
         recreateCgImageContext()
         
@@ -268,11 +271,26 @@ class CanvasView: NSView {
     
     func update() {
         if let first = redrawBounds.first {
-            let options = BLContext.CreateOptions(threadCount: 4)
+            let options = BLContext.CreateOptions(threadCount: 0)
             
             let ctx = BLContext(image: blImage, options: options)!
             
-            app.render(context: ctx)
+            let renderer = Blend2DRenderer(context: ctx)
+            let clipRegion = UIRegionClipRegion(
+                region: .init(
+                    rectangle: .init(
+                        x: 0,
+                        y: 0,
+                        width: Double(bounds.width),
+                        height: Double(bounds.height)
+                    )
+                )
+            )
+            app.render(
+                renderer: renderer,
+                renderScale: app.preferredRenderScale,
+                clipRegion: clipRegion
+            )
             
             ctx.flush(flags: .sync)
             ctx.end()
@@ -318,27 +336,33 @@ class CanvasView: NSView {
     }
 }
 
-extension CanvasView: Blend2DAppDelegate {
-    func firstResponderChanged(_ newFirstResponder: KeyboardEventHandler?) {
+extension CanvasView: ImagineUIContentDelegate {
+    func firstResponderChanged(_ content: ImagineUIContentType, _ newFirstResponder: KeyboardEventHandler?) {
         
     }
     
-    func needsLayout(_ view: ImagineUI.View) {
+    func preferredRenderScaleChanged(_ content: ImagineUIContentType, renderScale: UIVector) {
+        
+    }
+    
+    func needsLayout(_ content: ImagineUIContentType, _ view: ImagineUI.View) {
         viewsToLayout.append(view)
     }
     
-    func invalidate(bounds: UIRectangle) {
-        let rectBounds = NSRect(x: bounds.x,
-                                y: Double(self.bounds.height) - bounds.y - bounds.height,
-                                width: bounds.width,
-                                height: bounds.height)
+    func invalidate(_ content: ImagineUIContentType, bounds: UIRectangle) {
+        let rectBounds = NSRect(
+            x: bounds.x,
+            y: Double(self.bounds.height) - bounds.y - bounds.height,
+            width: bounds.width,
+            height: bounds.height
+        )
         
         let intersectedBounds = rectBounds.intersection(self.bounds)
         
         redrawBounds.append(intersectedBounds)
     }
-
-    func setMouseCursor(_ cursor: MouseCursorKind) {
+    
+    func setMouseCursor(_ content: ImagineUIContentType, cursor: MouseCursorKind) {
         switch cursor {
         case .iBeam:
             NSCursor.iBeam.set()
@@ -361,8 +385,8 @@ extension CanvasView: Blend2DAppDelegate {
             cursor.set()
         }
     }
-
-    func setMouseHiddenUntilMouseMoves() {
+    
+    func setMouseHiddenUntilMouseMoves(_ content: ImagineUIContentType) {
         NSCursor.setHiddenUntilMouseMoves(true)
     }
 }

@@ -19,15 +19,15 @@ public protocol Vector4Type: VectorTakeable where TakeDimensions == Vector4TakeD
     
     /// Creates a new vector with the coordinates of a given ``Vector3Type``,
     /// along with a new value for the ``z`` and ``w`` axis.
-    init<V: Vector2Type>(_ vec: V, z: Scalar, w: Scalar) where V.Scalar == Scalar
+    init<V: Vector2Type>(_ vec: V, z: Scalar, w: Scalar)
     
     /// Creates a new vector with the coordinates of a given ``Vector3Type``,
     /// along with a new value for the ``w`` axis.
-    init<V: Vector3Type>(_ vec: V, w: Scalar) where V.Scalar == Scalar
+    init<V: Vector3Type>(_ vec: V, w: Scalar)
     
     /// Initializes a new instance of this `Vector4Type` type by copying the
     /// coordinates of another `Vector4Type` of matching scalar type.
-    init<Vector: Vector4Type>(_ vector: Vector) where Vector.Scalar == Scalar
+    init<Vector: Vector4Type>(_ vector: Vector)
 }
 
 /// Defines the dimension of an indexed takeable getter for a Vector 3 type.
@@ -94,17 +94,17 @@ public extension Vector4Type {
     }
     
     @_transparent
-    init<V: Vector2Type>(_ vec: V, z: Scalar, w: Scalar) where V.Scalar == Scalar {
+    init<V: Vector2Type>(_ vec: V, z: Scalar, w: Scalar) {
         self.init(x: vec.x, y: vec.y, z: z, w: w)
     }
     
     @_transparent
-    init<V: Vector3Type>(_ vec: V, w: Scalar) where V.Scalar == Scalar {
+    init<V: Vector3Type>(_ vec: V, w: Scalar) {
         self.init(x: vec.x, y: vec.y, z: vec.z, w: w)
     }
     
     @_transparent
-    init<Vector: Vector4Type>(_ vector: Vector) where Vector.Scalar == Scalar {
+    init<Vector: Vector4Type>(_ vector: Vector) {
         self.init(x: vector.x, y: vector.y, z: vector.z, w: vector.w)
     }
 }

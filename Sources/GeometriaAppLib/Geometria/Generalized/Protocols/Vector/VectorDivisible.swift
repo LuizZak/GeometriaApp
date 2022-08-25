@@ -27,7 +27,7 @@ public extension Collection {
     /// print(vectors.averageVector()) // Prints "(x: 1.0, y: 4.5)"
     /// ```
     @inlinable
-    func averageVector<V: VectorDivisible>() -> V where Element == V, V.Scalar: FloatingPoint {
+    func averageVector<V: VectorDivisible>() -> V where Element == V {
         if isEmpty {
             return .zero
         }

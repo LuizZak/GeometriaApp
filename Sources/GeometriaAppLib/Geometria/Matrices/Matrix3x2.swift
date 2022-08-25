@@ -466,7 +466,7 @@ public struct Matrix3x2: Hashable, CustomStringConvertible {
     /// - Parameter point: The original vector to apply the transformation.
     /// - Returns: The result of the transformation for the input vector.
     @inlinable
-    public static func transformPoint<V: Vector2Type>(matrix: Matrix3x2, point: V) -> V where V.Scalar == Scalar {
+    public static func transformPoint<V: Vector2Type>(matrix: Matrix3x2, point: V) -> V {
         let x = (point.x * matrix.m11) as Scalar + (point.y * matrix.m21) as Scalar + matrix.m31
         let y = (point.x * matrix.m12) as Scalar + (point.y * matrix.m22) as Scalar + matrix.m32
         
@@ -625,7 +625,7 @@ public extension Matrix3x2 {
     /// of the transformation, so scaling and rotating do not happen around the
     /// origin or center of the rectangle itself.
     @inlinable
-    func transform<V: Vector2Type & VectorAdditive & VectorComparable>(_ rect: NRectangle<V>) -> NRectangle<V> where V.Scalar == Scalar {
+    func transform<V: Vector2Type & VectorAdditive & VectorComparable>(_ rect: NRectangle<V>) -> NRectangle<V> {
         let topLeft = transform(rect.topLeft)
         let topRight = transform(rect.topRight)
         let bottomLeft = transform(rect.bottomLeft)

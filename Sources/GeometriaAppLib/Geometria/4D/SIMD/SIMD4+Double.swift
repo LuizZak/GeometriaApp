@@ -5,14 +5,6 @@ import simd
 extension SIMD4: VectorTakeable where Scalar == Double {
     public typealias SubVector2 = SIMD2<Scalar>
     public typealias SubVector4 = SIMD4<Scalar>
-
-    /// Defines the dimension of an indexed takeable getter.
-    public enum TakeDimensions: Int {
-        case x
-        case y
-        case z
-        case w
-    }
 }
 
 extension SIMD4: GeometricType, VectorType, Vector4Type where Scalar == Double {
@@ -78,8 +70,12 @@ extension SIMD4: VectorFloatingPoint where Scalar == Double {
 }
 
 extension SIMD4: Vector4FloatingPoint where Scalar == Double {
-    public init<V>(_ other: V) where V : Vector4Type, V.Scalar : BinaryInteger {
+    public init<V>(_ other: V) where V: Vector4Type {
         self.init(x: Scalar(other.x), y: Scalar(other.y), z: Scalar(other.z), w: Scalar(other.w))
+    }
+    
+    public init(_ tuple: (Scalar, Scalar, Scalar, Scalar)) {
+        self.init(x: tuple.0, y: tuple.1, z: tuple.2, w: tuple.3)
     }
 }
 

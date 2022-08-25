@@ -40,8 +40,8 @@ public struct Torus3<Vector: Vector3FloatingPoint>: GeometricType {
     }
 }
 
-extension Torus3: Equatable where Vector: Equatable, Scalar: Equatable { }
-extension Torus3: Hashable where Vector: Hashable, Scalar: Hashable { }
+extension Torus3: Equatable where Vector: Equatable { }
+extension Torus3: Hashable where Vector: Hashable { }
 
 extension Torus3: BoundableType {
     /// Gets the minimal bounding box capable of fully containing all the points

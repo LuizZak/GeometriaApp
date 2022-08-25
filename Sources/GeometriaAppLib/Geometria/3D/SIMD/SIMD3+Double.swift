@@ -3,20 +3,17 @@
 import RealModule
 import simd
 
-extension SIMD3: VectorType {
+extension SIMD3: GeometricType {
+    
+}
+
+extension SIMD3: VectorType where Scalar == Double {
     
 }
 
 extension SIMD3: VectorTakeable where Scalar == Double {
     public typealias SubVector2 = SIMD2<Scalar>
     public typealias SubVector4 = SIMD4<Scalar>
-
-    /// Defines the dimension of an indexed takeable getter.
-    public enum TakeDimensions: Int {
-        case x
-        case y
-        case z
-    }
 }
 
 extension SIMD3: Vector3Type where Scalar == Double {
@@ -75,11 +72,11 @@ extension SIMD3: VectorComparable where Scalar == Double {
     }
 }
 
-extension SIMD3: AdditiveArithmetic {
+extension SIMD3: AdditiveArithmetic where Scalar == Double {
     
 }
 
-extension SIMD3: VectorAdditive {
+extension SIMD3: VectorAdditive where Scalar == Double {
     
 }
 
@@ -191,8 +188,12 @@ extension SIMD3: SignedDistanceMeasurableType where Scalar == Double {
 
 extension SIMD3: Vector3FloatingPoint where Scalar == Double {
     @_transparent
-    public init<V>(_ other: V) where V: Vector3Type, V.Scalar: BinaryInteger {
+    public init<V>(_ other: V) where V: Vector3Type {
         self.init(x: Scalar(other.x), y: Scalar(other.y), z: Scalar(other.z))
+    }
+    
+    public init(_ tuple: (Scalar, Scalar, Scalar)) {
+        self.init(x: tuple.0, y: tuple.1, z: tuple.2)
     }
 }
 

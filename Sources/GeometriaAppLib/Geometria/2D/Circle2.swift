@@ -12,7 +12,7 @@ public extension Circle2 {
     }
 }
 
-public extension Circle2 where Vector: VectorMultiplicative, Scalar: Comparable {
+public extension Circle2 where Vector: VectorMultiplicative {
     /// Returns `true` if this circle's area contains a given point.
     ///
     /// Points at the perimeter of the circle (distance to center == radius)

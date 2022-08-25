@@ -28,8 +28,8 @@ public struct Cylinder3<Vector: Vector3Type>: GeometricType {
     }
 }
 
-extension Cylinder3: Equatable where Vector: Equatable, Scalar: Equatable { }
-extension Cylinder3: Hashable where Vector: Hashable, Scalar: Hashable { }
+extension Cylinder3: Equatable where Vector: Equatable { }
+extension Cylinder3: Hashable where Vector: Hashable { }
 
 public extension Cylinder3 {
     /// Returns a line segment with the same ``LineSegment/start`` and
@@ -47,7 +47,7 @@ public extension Cylinder3 {
     }
 }
 
-public extension Cylinder3 where Vector: Equatable, Scalar: Comparable & AdditiveArithmetic {
+public extension Cylinder3 where Vector: Equatable {
     /// Returns whether this cylinder's parameters produce a valid, non-empty
     /// cylinder.
     ///
