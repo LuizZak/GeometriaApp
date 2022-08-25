@@ -54,7 +54,7 @@ extension UnionRaytracingElement: RaytracingElement {
         func processT0(_ hit: RayHit) {
             isInsideT0 = hit.hitDirection == .outside
 
-            guard !query.ignoring.shouldIgnore(hit: hit) else {
+            guard !query.ignoring.shouldIgnore(hit: hit, rayStart: query.ray.start) else {
                 return
             }
 
@@ -66,7 +66,7 @@ extension UnionRaytracingElement: RaytracingElement {
         func processT1(_ hit: RayHit) {
             isInsideT1 = hit.hitDirection == .outside
 
-            guard !query.ignoring.shouldIgnore(hit: hit) else {
+            guard !query.ignoring.shouldIgnore(hit: hit, rayStart: query.ray.start) else {
                 return
             }
 
