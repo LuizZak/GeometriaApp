@@ -30,4 +30,25 @@ extension RepeatTranslateRaytracingElement: RaytracingElement {
             current = current.translated(by: -translation)
         }
     }
+    
+    func fullyContainsRay(query: RayQuery) -> Bool {
+        if count == 0 {
+            return false
+        }
+        
+        var current = query
+
+        var index = 0
+        while index < count {
+            defer { index += 1 }
+            
+            if !element.fullyContainsRay(query: query) {
+                return false
+            }
+            
+            current = current.translated(by: -translation)
+        }
+        
+        return true
+    }
 }

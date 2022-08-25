@@ -3,7 +3,7 @@ typealias SphereRaytracingElement = SphereElement
 extension SphereRaytracingElement: RaytracingElement {
     @inlinable
     func raycast(query: RayQuery) -> RayQuery {
-        query.intersecting(id: id, material: material, geometry: geometry)
+        query.intersecting(id: id, material: material, convex: geometry)
     }
 
     @inlinable
@@ -11,8 +11,12 @@ extension SphereRaytracingElement: RaytracingElement {
         query.intersectAll(
             id: id,
             material: material,
-            geometry: geometry,
+            convex: geometry,
             results: &results
         )
+    }
+    
+    func fullyContainsRay(query: RayQuery) -> Bool {
+        query.isFullyContained(by: geometry)
     }
 }

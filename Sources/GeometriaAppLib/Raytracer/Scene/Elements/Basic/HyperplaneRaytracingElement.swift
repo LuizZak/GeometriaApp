@@ -1,6 +1,6 @@
-typealias EllipseRaytracingElement = EllipseElement
+typealias HyperplaneRaytracingElement = HyperplaneElement
 
-extension EllipseRaytracingElement: RaytracingElement {
+extension HyperplaneRaytracingElement: RaytracingElement {
     @inlinable
     func raycast(query: RayQuery) -> RayQuery {
         query.intersecting(id: id, material: material, convex: geometry)

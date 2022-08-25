@@ -92,6 +92,10 @@ extension UnionRaytracingElement: RaytracingElement {
             }
         }
     }
+    
+    func fullyContainsRay(query: RayQuery) -> Bool {
+        t0.fullyContainsRay(query: query) && t1.fullyContainsRay(query: query)
+    }
 }
 
 private enum RayHitInfo {

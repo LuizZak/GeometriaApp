@@ -21,4 +21,11 @@ extension ScaleRaytracingElement: RaytracingElement {
 
         return element.raycast(query: scaledQuery, results: &results)
     }
+    
+    func fullyContainsRay(query: RayQuery) -> Bool {
+        let invScaling = 1 / scaling
+        let scaledQuery = query.scaled(by: invScaling, around: scalingCenter)
+        
+        return element.fullyContainsRay(query: scaledQuery)
+    }
 }

@@ -135,6 +135,7 @@ open class RaytracerApp: ImagineUIContentType {
         //let batcher = SinglePixelBatcher(pixel: .init(x: 500, y: 493)) // Pass-through of bottom of cylinder subtracted from a cube
         //let batcher = SinglePixelBatcher(pixel: .init(x: 111, y: 174)) // Glitch in shadow in background box in raytracing Demo Scene 1
         //let batcher = SinglePixelBatcher(pixel: .init(x: 500, y: 549)) // Ray missing target plane in raytracing Demo Scene 1
+        //let batcher = SinglePixelBatcher(pixel: .init(x: 450, y: 400)) // Issue with intersection of hyperplanes in Tetrahedron scene
         //*
         let batcher = TiledBatcher(
             splitting: viewportSize,
@@ -149,7 +150,7 @@ open class RaytracerApp: ImagineUIContentType {
 
         #if true
         
-        let scene = RaytracingDemoScene1.makeScene()
+        let scene = RaytracingHyperplaneTetraScene.makeScene()
         
         let renderer = Raytracer(
             scene: scene,

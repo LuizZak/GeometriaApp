@@ -111,7 +111,7 @@ extension RayQuery {
     }
     
     @inlinable
-    func intersect<Convex: Convex3Type>(_ geometry: Convex) -> RConvexLineResult3D where Convex.Vector == RVector3D {
+    func intersect<Convex: Convex3Type>(convex geometry: Convex) -> RConvexLineResult3D where Convex.Vector == RVector3D {
         let intersection = 
             rayMagnitudeSquared.isFinite
                 ? geometry.intersection(with: lineSegment)
@@ -135,8 +135,8 @@ extension RayQuery {
     }
     
     @inlinable
-    func intersect<Plane: LineIntersectablePlaneType>(_ geometry: Plane) -> RConvexLineResult3D where Plane.Vector == RVector3D {
-        guard let inter = intersection(geometry) else {
+    func intersect<Plane: LineIntersectablePlaneType>(plane geometry: Plane) -> RConvexLineResult3D where Plane.Vector == RVector3D {
+        guard let inter = intersection(plane: geometry) else {
             return .noIntersection
         }
         
@@ -153,8 +153,26 @@ extension RayQuery {
         return .singlePoint(PointNormal(point: inter, normal: normal))
     }
     
+    func isFullyContained<Convex: Convex3Type>(by convex: Convex) -> Bool where Convex.Vector == RVector3D {
+        if rayMagnitudeSquared.isFinite {
+            switch convex.intersection(with: lineSegment) {
+            case .contained:
+                return true
+            default:
+                return false
+            }
+        } else {
+            switch convex.intersection(with: ray) {
+            case .contained:
+                return true
+            default:
+                return false
+            }
+        }
+    }
+    
     @_transparent
-    private func intersection<Plane: LineIntersectablePlaneType>(_ geometry: Plane) -> RVector3D? where Plane.Vector == RVector3D {
+    private func intersection<Plane: LineIntersectablePlaneType>(plane geometry: Plane) -> RVector3D? where Plane.Vector == RVector3D {
         rayMagnitudeSquared.isFinite
             ? geometry.intersection(with: lineSegment)
             : geometry.intersection(with: ray)
@@ -169,14 +187,14 @@ extension RayQuery {
     func intersecting<Convex: Convex3Type>(
         id: Int,
         material: MaterialId?,
-        geometry: Convex
+        convex geometry: Convex
     ) -> RayQuery where Convex.Vector == RVector3D {
         
         guard !ignoring.shouldIgnoreFully(id: id) else {
             return self
         }
 
-        let intersection = intersect(geometry)
+        let intersection = intersect(convex: geometry)
 
         guard let hit = RayHit(
             findingPointOfInterestOf: ignoring,
@@ -194,7 +212,7 @@ extension RayQuery {
     func intersectAll<Convex: Convex3Type>(
         id: Int,
         material: MaterialId?,
-        geometry: Convex,
+        convex geometry: Convex,
         results: inout [RayHit]
     ) where Convex.Vector == RVector3D {
         
@@ -202,7 +220,7 @@ extension RayQuery {
             return
         }
 
-        let intersection = intersect(geometry)
+        let intersection = intersect(convex: geometry)
         let pois = ignoring.computePointNormalsOfInterest(
             id: id,
             intersection: intersection,
@@ -225,14 +243,14 @@ extension RayQuery {
     func intersecting<Plane: LineIntersectablePlaneType>(
         id: Int,
         material: MaterialId?,
-        geometry: Plane
+        plane geometry: Plane
     ) -> RayQuery where Plane.Vector == RVector3D {
         
         guard !ignoring.shouldIgnoreFully(id: id) else {
             return self
         }
 
-        let intersection = intersect(geometry)
+        let intersection = intersect(plane: geometry)
         guard let hit = RayHit(
             findingPointOfInterestOf: ignoring,
             intersection: intersection,
@@ -249,7 +267,7 @@ extension RayQuery {
     func intersectAll<Plane: LineIntersectablePlaneType>(
         id: Int,
         material: MaterialId?,
-        geometry: Plane,
+        plane geometry: Plane,
         results: inout [RayHit]
     ) where Plane.Vector == RVector3D {
         
@@ -257,7 +275,7 @@ extension RayQuery {
             return
         }
     	
-        let intersection = intersect(geometry)
+        let intersection = intersect(plane: geometry)
         let pois = ignoring.computePointNormalsOfInterest(
             id: id,
             intersection: intersection,

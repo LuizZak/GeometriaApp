@@ -78,7 +78,11 @@ public typealias RPointNormal3D = PointNormal<RVector3D>
 /// ConvexLineIntersection for Raytracing operations
 public typealias RConvexLineResult3D = ConvexLineIntersection<RVector3D>
 
-public typealias RRotationMatrix3D = RotationMatrix3
+/// RotationMatrix3 for Raytracing operations
+public typealias RRotationMatrix3D = RotationMatrix3D
+
+/// Hyperplane3 for Raytracing operations
+public typealias RHyperplane3D = Hyperplane3<RVector3D>
 
 /// Screen-space pixel coordinates
 public typealias PixelCoord = UIIntPoint //Vector2i

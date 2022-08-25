@@ -46,4 +46,7 @@ extension AnyRaytracingElement: RaytracingElement {
     func raycast(query: RayQuery, results: inout [RayHit]) {
         element.raycast(query: query, results: &results)
     }
+    func fullyContainsRay(query: RayQuery) -> Bool {
+        element.fullyContainsRay(query: query)
+    }
 }

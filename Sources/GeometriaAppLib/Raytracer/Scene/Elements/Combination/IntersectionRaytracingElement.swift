@@ -33,10 +33,17 @@ extension IntersectionRaytracingElement: RaytracingElement {
         var t1Hits: [RayHit] = []
         t0.raycast(query: noHitQuery, results: &t0Hits)
         t1.raycast(query: noHitQuery, results: &t1Hits)
-
-        // Must have at least one hit of each geometry type to be able to form
-        // an intersection geometry
-        if t0Hits.isEmpty || t1Hits.isEmpty {
+        
+        // Skip fully empty hits
+        if t0Hits.isEmpty && t1Hits.isEmpty {
+            return
+        }
+        
+        // Must have at least one hit of (or be fully contained by) each geometry
+        // type to be able to form an intersection geometry
+        if (t0Hits.isEmpty && !t0.fullyContainsRay(query: noHitQuery)) ||
+            (t1Hits.isEmpty && !t1.fullyContainsRay(query: noHitQuery))
+        {
             return
         }
 
@@ -53,8 +60,8 @@ extension IntersectionRaytracingElement: RaytracingElement {
             $0.distanceSquared < $1.distanceSquared
         }
 
-        var isInsideT0 = t0Hits[0].hitDirection == .inside
-        var isInsideT1 = t1Hits[0].hitDirection == .inside
+        var isInsideT0 = t0Hits.isEmpty || t0Hits[0].hitDirection == .inside
+        var isInsideT1 = t1Hits.isEmpty || t1Hits[0].hitDirection == .inside
 
         @_transparent
         func processT0(_ hit: RayHit) {
@@ -97,6 +104,10 @@ extension IntersectionRaytracingElement: RaytracingElement {
             case .t1: processT1(rayHit)
             }
         }
+    }
+    
+    func fullyContainsRay(query: RayQuery) -> Bool {
+        t0.fullyContainsRay(query: query) && t1.fullyContainsRay(query: query)
     }
 }
 

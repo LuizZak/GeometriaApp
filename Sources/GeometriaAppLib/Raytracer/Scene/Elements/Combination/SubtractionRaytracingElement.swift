@@ -32,9 +32,10 @@ extension SubtractionRaytracingElement: RaytracingElement {
         var t0Hits: [RayHit] = []
         t0.raycast(query: noHitQuery, results: &t0Hits)
 
-        // If t0 is not intersected by the ray, it means we are no longer within
-        // its bounds and thus there's no geometry left to subtract.
-        if t0Hits.isEmpty {
+        // If t0 is not intersected by the ray and does not fully contain it, it
+        // means we are no longer within its bounds and thus there's no geometry
+        // left to subtract.
+        if t0Hits.isEmpty && !t0.fullyContainsRay(query: noHitQuery) {
             return
         }
 
@@ -107,6 +108,11 @@ extension SubtractionRaytracingElement: RaytracingElement {
             case .t1: processT1(rayHit)
             }
         }
+    }
+    
+    // TODO: Properly implement ray containment chekcs in subtraction geometry
+    func fullyContainsRay(query: RayQuery) -> Bool {
+        return false
     }
 }
 

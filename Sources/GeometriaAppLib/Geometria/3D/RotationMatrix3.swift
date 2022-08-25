@@ -162,8 +162,12 @@ public extension RotationMatrix3 {
     ///
     /// [rotation matrix]: https://en.wikipedia.org/wiki/Rotation_matrix
     /// [orientation]: https://en.wikipedia.org/wiki/Orientation_(vector_space)
-    static func make3DRotationFromAxisAngle<Vector: Vector3FloatingPoint>(axis: Vector, _ angleInRadians: Scalar, 
-                                                                          orientation: Orientation3 = .rightHanded) -> RotationMatrix3 {
+    static func make3DRotationFromAxisAngle<Vector: Vector3FloatingPoint>(
+        axis: Vector,
+        _ angleInRadians: Scalar,
+        orientation: Orientation3 = .rightHanded
+    ) -> RotationMatrix3 {
+        
         let axis = axis.normalized()
 
         let c = Scalar.cos(angleInRadians)

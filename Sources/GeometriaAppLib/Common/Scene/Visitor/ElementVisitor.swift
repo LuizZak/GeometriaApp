@@ -19,6 +19,7 @@ protocol ElementVisitor {
     func visit(_ element: PlaneElement) -> ResultType
     func visit(_ element: SphereElement) -> ResultType
     func visit(_ element: TorusElement) -> ResultType
+    func visit(_ element: HyperplaneElement) -> ResultType
 
     // MARK: Bounding
 

@@ -10,4 +10,8 @@ extension EmptyRaytracingElement: RaytracingElement {
     func raycast(query: RayQuery, results: inout [RayHit]) {
         
     }
+    
+    func fullyContainsRay(query: RayQuery) -> Bool {
+        false
+    }
 }

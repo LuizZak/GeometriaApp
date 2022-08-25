@@ -173,6 +173,11 @@ extension SceneGraphTreeNode {
             .addingProperty(name: "End", value: element.geometry.end)
             .addingProperty(name: "Radius", value: element.geometry.radius)
     }
+    
+    func addingProperties<T: GeometryElementType>(for element: T) -> SceneGraphTreeNode where T.GeometryType == RHyperplane3D {
+        self.addingProperty(name: "Origin", value: element.geometry.point)
+            .addingProperty(name: "Normal", value: element.geometry.normal)
+    }
 
     
     func addingProperties<T>(for element: BoundingBoxElement<T>) -> SceneGraphTreeNode {
@@ -318,6 +323,11 @@ class SceneGraphVisitor: ElementVisitor {
     }
     func visit(_ element: TorusElement) -> ResultType {
         SceneGraphTreeNode(element: element, title: "Torus")
+            .addingIcon(for: element)
+            .addingProperties(for: element)
+    }
+    func visit(_ element: HyperplaneElement) -> ResultType {
+        SceneGraphTreeNode(element: element, title: "Hyperplane")
             .addingIcon(for: element)
             .addingProperties(for: element)
     }

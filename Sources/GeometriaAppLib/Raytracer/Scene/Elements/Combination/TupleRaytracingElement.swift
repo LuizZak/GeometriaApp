@@ -35,6 +35,11 @@ extension TupleRaytracingElement2: RaytracingElement {
         t0.raycast(query: query, results: &results)
         t1.raycast(query: query, results: &results)
     }
+    
+    func fullyContainsRay(query: RayQuery) -> Bool {
+        return t0.fullyContainsRay(query: query)
+            && t1.fullyContainsRay(query: query)
+    }
 }
 
 extension TupleRaytracingElement3: RaytracingElement {
@@ -54,6 +59,12 @@ extension TupleRaytracingElement3: RaytracingElement {
         t0.raycast(query: query, results: &results)
         t1.raycast(query: query, results: &results)
         t2.raycast(query: query, results: &results)
+    }
+    
+    func fullyContainsRay(query: RayQuery) -> Bool {
+        return t0.fullyContainsRay(query: query)
+            && t1.fullyContainsRay(query: query)
+            && t2.fullyContainsRay(query: query)
     }
 }
 
@@ -76,6 +87,13 @@ extension TupleRaytracingElement4: RaytracingElement {
         t1.raycast(query: query, results: &results)
         t2.raycast(query: query, results: &results)
         t3.raycast(query: query, results: &results)
+    }
+    
+    func fullyContainsRay(query: RayQuery) -> Bool {
+        return t0.fullyContainsRay(query: query)
+            && t1.fullyContainsRay(query: query)
+            && t2.fullyContainsRay(query: query)
+            && t3.fullyContainsRay(query: query)
     }
 }
 
@@ -100,6 +118,14 @@ extension TupleRaytracingElement5: RaytracingElement {
         t2.raycast(query: query, results: &results)
         t3.raycast(query: query, results: &results)
         t4.raycast(query: query, results: &results)
+    }
+    
+    func fullyContainsRay(query: RayQuery) -> Bool {
+        return t0.fullyContainsRay(query: query)
+            && t1.fullyContainsRay(query: query)
+            && t2.fullyContainsRay(query: query)
+            && t3.fullyContainsRay(query: query)
+            && t4.fullyContainsRay(query: query)
     }
 }
 
@@ -126,6 +152,15 @@ extension TupleRaytracingElement6: RaytracingElement {
         t3.raycast(query: query, results: &results)
         t4.raycast(query: query, results: &results)
         t5.raycast(query: query, results: &results)
+    }
+    
+    func fullyContainsRay(query: RayQuery) -> Bool {
+        return t0.fullyContainsRay(query: query)
+            && t1.fullyContainsRay(query: query)
+            && t2.fullyContainsRay(query: query)
+            && t3.fullyContainsRay(query: query)
+            && t4.fullyContainsRay(query: query)
+            && t5.fullyContainsRay(query: query)
     }
 }
 
@@ -154,6 +189,16 @@ extension TupleRaytracingElement7: RaytracingElement {
         t4.raycast(query: query, results: &results)
         t5.raycast(query: query, results: &results)
         t6.raycast(query: query, results: &results)
+    }
+    
+    func fullyContainsRay(query: RayQuery) -> Bool {
+        return t0.fullyContainsRay(query: query)
+            && t1.fullyContainsRay(query: query)
+            && t2.fullyContainsRay(query: query)
+            && t3.fullyContainsRay(query: query)
+            && t4.fullyContainsRay(query: query)
+            && t5.fullyContainsRay(query: query)
+            && t6.fullyContainsRay(query: query)
     }
 }
 
@@ -184,5 +229,16 @@ extension TupleRaytracingElement8: RaytracingElement {
         t5.raycast(query: query, results: &results)
         t6.raycast(query: query, results: &results)
         t7.raycast(query: query, results: &results)
+    }
+    
+    func fullyContainsRay(query: RayQuery) -> Bool {
+        return t0.fullyContainsRay(query: query)
+            && t1.fullyContainsRay(query: query)
+            && t2.fullyContainsRay(query: query)
+            && t3.fullyContainsRay(query: query)
+            && t4.fullyContainsRay(query: query)
+            && t5.fullyContainsRay(query: query)
+            && t6.fullyContainsRay(query: query)
+            && t7.fullyContainsRay(query: query)
     }
 }

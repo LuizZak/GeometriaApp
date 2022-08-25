@@ -18,4 +18,10 @@ extension TranslateRaytracingElement: RaytracingElement {
     func raycast(query: RayQuery, results: inout [RayHit]) {
         element.raycast(query: query.translated(by: -translation), results: &results)
     }
+    
+    func fullyContainsRay(query: RayQuery) -> Bool {
+        let offsetQuery = query.translated(by: -translation)
+        
+        return element.fullyContainsRay(query: offsetQuery)
+    }
 }

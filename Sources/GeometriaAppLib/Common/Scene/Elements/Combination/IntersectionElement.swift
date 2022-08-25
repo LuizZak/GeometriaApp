@@ -36,9 +36,32 @@ extension IntersectionElement: BoundedElement where T0: BoundedElement, T1: Boun
     }
 }
 
+// Convenience when disabling elements in intersection to inspect a single geometry
+// at a time
+@_transparent
+func intersection<T0>(@ElementBuilder _ builder: () -> T0) -> T0 {
+    let value = builder()
+
+    return value
+}
+
 @_transparent
 func intersection<T0, T1>(@ElementBuilder _ builder: () -> TupleElement2<T0, T1>) -> IntersectionElement<T0, T1> {
     let value = builder()
 
     return .init(t0: value.t0, t1: value.t1)
+}
+
+@_transparent
+func intersection<T0, T1, T2>(@ElementBuilder _ builder: () -> TupleElement3<T0, T1, T2>) -> IntersectionElement<IntersectionElement<T0, T1>, T2> {
+    let value = builder()
+
+    return .init(t0: .init(t0: value.t0, t1: value.t1), t1: value.t2)
+}
+
+@_transparent
+func intersection<T0, T1, T2, T3>(@ElementBuilder _ builder: () -> TupleElement4<T0, T1, T2, T3>) -> IntersectionElement<IntersectionElement<IntersectionElement<T0, T1>, T2>, T3> {
+    let value = builder()
+
+    return .init(t0: .init(t0: .init(t0: value.t0, t1: value.t1), t1: value.t2), t1: value.t3)
 }

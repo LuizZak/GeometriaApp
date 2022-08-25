@@ -19,6 +19,14 @@ extension BoundingBoxRaytracingElement: RaytracingElement {
 
         element.raycast(query: query, results: &results)
     }
+    
+    func fullyContainsRay(query: RayQuery) -> Bool {
+        guard intersects(query: query) else {
+            return false
+        }
+        
+        return element.fullyContainsRay(query: query)
+    }
 
     @inlinable
     func intersects(query: RayQuery) -> Bool {
