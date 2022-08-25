@@ -203,51 +203,55 @@ enum RayIgnore: Equatable {
         default:
             break
         }
-
-        switch (self, intersection.entrancePoint, intersection.exitPoint) {
-        case (_, nil, nil):
+        
+        if intersection.entrancePoint == nil && intersection.exitPoint == nil {
             return []
+        }
+        
+        var result: [(point: RPointNormal3D, hitDirection: RayHit.HitDirection)] = []
+
+        switch (self) {
+        case .none:
+            if let enter = intersection.entrancePoint {
+                result.append(
+                    (enter, isSinglePoint ? .singlePoint : .outside)
+                )
+            }
+            if let exit = intersection.exitPoint {
+                result.append(
+                    (exit, isSinglePoint ? .singlePoint : .inside)
+                )
+            }
 
         // Ignore entrances
-        case (.entrance(id, let minDist), _?, let exit?):
+        case .entrance(id, let minDist):
             if isSinglePoint {
-                return []
+                break
             }
-            if rayStart.distanceSquared(to: exit.point) < minDist {
-                return []
+            
+            if let exit = intersection.exitPoint, rayStart.distanceSquared(to: exit.point) < minDist {
+                result.append(
+                    (exit, .inside)
+                )
             }
-
-            return [(exit, .inside)]
         
         // Ignore exits
-        case (.exit(id, let minDist), let enter?, _?):
+        case .exit(id, let minDist):
             if isSinglePoint {
-                return []
+                break
             }
-            if rayStart.distanceSquared(to: enter.point) < minDist {
-                return []
+            
+            if let enter = intersection.entrancePoint, rayStart.distanceSquared(to: enter.point) < minDist {
+                result.append(
+                    (enter, .outside)
+                )
             }
-
-            return [(enter, .outside)]
-
-        case (_, let enter?, nil):
-            if isSinglePoint {
-                return []
-            }
-
-            return [(enter, .outside)]
-        
-        case (_, nil, let exit?):
-            if isSinglePoint {
-                return []
-            }
-
-            return [(exit, .inside)]
-
-        // Ignore none
-        case (_, let enter?, let exit?):
-            return [(enter, isSinglePoint ? .singlePoint : .outside), (exit, isSinglePoint ? .singlePoint : .inside)]
+            
+        default:
+            break
         }
+        
+        return result
     }
 }
 
