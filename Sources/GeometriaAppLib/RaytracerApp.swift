@@ -124,6 +124,7 @@ open class RaytracerApp: ImagineUIContentType {
         let buffer = Blend2DBufferWriter(image: image)
         self.buffer = buffer
         
+        // NOTE: Following coordinates assume a window size of 1000 x 750.
 //        let batcher = SinglePixelBatcher(pixel: .init(x: 173, y: 171)) // Transparent sphere - bottom-left center of refraction 'anomaly'
 //        let batcher = SinglePixelBatcher(pixel: .init(x: 261, y: 173)) // Reflection of transparent sphere on right sphere
 //        let batcher = SinglePixelBatcher(pixel: .init(x: 273, y: 150)) // Refractive cylinder
@@ -131,11 +132,14 @@ open class RaytracerApp: ImagineUIContentType {
 //        let batcher = SinglePixelBatcher(pixel: .init(x: 255, y: 224)) // Bug in refractive bouncing in cylinder's base
 //        let batcher = SinglePixelBatcher(pixel: .init(x: 177, y: 202)) // Top of cube-cylinder subtraction demo scene
 //        let batcher = SinglePixelBatcher(pixel: .init(x: 180, y: 195)) // Left of cube-cylinder subtraction demo scene bug
-        // let batcher = SinglePixelBatcher(pixel: .init(x: 590, y: 415)) // Pass-through of bottom of cylinder subtracted from a cube
+        //let batcher = SinglePixelBatcher(pixel: .init(x: 500, y: 493)) // Pass-through of bottom of cylinder subtracted from a cube
+        //let batcher = SinglePixelBatcher(pixel: .init(x: 111, y: 174)) // Glitch in shadow in background box in raytracing Demo Scene 1
         //*
-        let batcher = TiledBatcher(splitting: viewportSize,
-                                   estimatedThreadCount: threadCount * 2,
-                                   shuffleOrder: true)
+        let batcher = TiledBatcher(
+            splitting: viewportSize,
+            estimatedThreadCount: threadCount * 2,
+            shuffleOrder: true
+        )
         // */
 //        let batcher = SieveBatcher()
 //        let batcher = LinearBatcher()
@@ -144,7 +148,7 @@ open class RaytracerApp: ImagineUIContentType {
 
         #if true
         
-        let scene = RaytracingHalfSubtract.makeScene()
+        let scene = RaytracingDemoScene1.makeScene()
         
         let renderer = Raytracer(
             scene: scene,

@@ -43,10 +43,14 @@ extension SubtractionRaytracingElement: RaytracingElement {
 
         var combined: [RayHitInfo] = []
         combined.append(contentsOf:
-            t0Hits.map { .t0($0, $0.point.distanceSquared(to: query.ray.start)) }
+            t0Hits.map {
+                .t0($0, $0.point.distanceSquared(to: query.ray.start))
+            }
         )
         combined.append(contentsOf:
-            t1Hits.map { .t1($0, $0.point.distanceSquared(to: query.ray.start)) }
+            t1Hits.map {
+                .t1($0, $0.point.distanceSquared(to: query.ray.start))
+            }
         )
 
         // Sort hit points by distance along the ray
