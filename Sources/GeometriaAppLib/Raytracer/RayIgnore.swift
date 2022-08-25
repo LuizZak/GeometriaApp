@@ -7,9 +7,15 @@ enum RayIgnore: Equatable {
     case full(id: Int)
     
     /// Ignores entrance rays for a given geometry object.
+    ///
+    /// `minimumRayLengthSquared` indicates how far the ray must have traveled
+    /// before exits on the same geometry are also not ignored.
     case entrance(id: Int, minimumRayLengthSquared: Double = 0.0)
     
     /// Ignores exit rays for a given geometry object.
+    ///
+    /// `minimumRayLengthSquared` indicates how far the ray must have traveled
+    /// before entrances on the same geometry are also not ignored.
     case exit(id: Int, minimumRayLengthSquared: Double = 0.0)
 
     /// A ray ignore that only affects a single ID, and all other IDs are
@@ -36,22 +42,29 @@ enum RayIgnore: Equatable {
     }
 
     /// Returns `true` if this ``RayIgnore`` is configured to ignore a particular
-    /// ray hit configuration based on its id and hit direction.
-    func shouldIgnore(hit: RayHit) -> Bool {
+    /// ray hit configuration based on its id, hit direction, and distance traveled
+    /// by ray before the hit.
+    func shouldIgnore(hit: RayHit, rayStart: RVector3D) -> Bool {
         switch self {
         case .full(let geoId):
             return geoId == hit.id
         
-        case .entrance(let geoId, _):
+        case .entrance(let geoId, let minLen):
             if geoId != hit.id {
                 return false
+            }
+            if rayStart.distanceSquared(to: hit.point) < minLen {
+                return true
             }
 
             return hit.hitDirection == .outside || hit.hitDirection == .singlePoint
         
-        case .exit(let geoId, _):
+        case .exit(let geoId, let minLen):
             if geoId != hit.id {
                 return false
+            }
+            if rayStart.distanceSquared(to: hit.point) < minLen {
+                return true
             }
 
             return hit.hitDirection == .inside || hit.hitDirection == .singlePoint
@@ -61,7 +74,7 @@ enum RayIgnore: Equatable {
                 return true
             }
 
-            return ignore.shouldIgnore(hit: hit)
+            return ignore.shouldIgnore(hit: hit, rayStart: rayStart)
 
         case .none:
             return false
@@ -81,7 +94,8 @@ enum RayIgnore: Equatable {
     /// available still, `nil` is then ultimately returned.
     func computePointNormalOfInterest(
         id: Int,
-        intersection: RConvexLineResult3D
+        intersection: RConvexLineResult3D,
+        rayStart: RVector3D
     ) -> (point: RPointNormal3D, hitDirection: RayHit.HitDirection)? {
 
         let isSinglePoint: Bool
@@ -100,30 +114,42 @@ enum RayIgnore: Equatable {
                 return nil
             }
             
-            return ignore.computePointNormalOfInterest(id: id, intersection: intersection)
+            return ignore.computePointNormalOfInterest(
+                id: id,
+                intersection: intersection,
+                rayStart: rayStart
+            )
 
         case .full(let geoId):
             if geoId == id {
                 return nil
             }
             
-        case .entrance(let geoId, _):
+        case .entrance(let geoId, let minLen):
             if geoId != id {
                 break
             }
             
             if !isSinglePoint, let exit = intersection.exitPoint {
+                if rayStart.distanceSquared(to: exit.point) < minLen {
+                    return nil
+                }
+
                 return (exit, .inside)
             } else {
                 return nil
             }
             
-        case .exit(let geoId, _):
+        case .exit(let geoId, let minLen):
             if geoId != id {
                 break
             }
             
             if !isSinglePoint, let entrance = intersection.entrancePoint {
+                if rayStart.distanceSquared(to: entrance.point) < minLen {
+                    return nil
+                }
+
                 return (entrance, .outside)
             } else {
                 return nil
@@ -148,7 +174,8 @@ enum RayIgnore: Equatable {
     /// available intersection.
     func computePointNormalsOfInterest(
         id: Int,
-        intersection: RConvexLineResult3D
+        intersection: RConvexLineResult3D,
+        rayStart: RVector3D
     ) -> [(point: RPointNormal3D, hitDirection: RayHit.HitDirection)] {
         
         let isSinglePoint: Bool
@@ -162,7 +189,11 @@ enum RayIgnore: Equatable {
         switch self {
         case let .allButSingleId(geoId, ignore):
             if geoId == id {
-                return ignore.computePointNormalsOfInterest(id: id, intersection: intersection)
+                return ignore.computePointNormalsOfInterest(
+                    id: id,
+                    intersection: intersection,
+                    rayStart: rayStart
+                )
             }
             return []
 
@@ -178,21 +209,41 @@ enum RayIgnore: Equatable {
             return []
 
         // Ignore entrances
-        case (.entrance(id, _), _?, let exit?), (_, nil, let exit?):
+        case (.entrance(id, let minDist), _?, let exit?):
             if isSinglePoint {
+                return []
+            }
+            if rayStart.distanceSquared(to: exit.point) < minDist {
                 return []
             }
 
             return [(exit, .inside)]
-
+        
         // Ignore exits
-        case (.exit(id, _), let enter?, _?), (_, let enter?, nil):
+        case (.exit(id, let minDist), let enter?, _?):
+            if isSinglePoint {
+                return []
+            }
+            if rayStart.distanceSquared(to: enter.point) < minDist {
+                return []
+            }
+
+            return [(enter, .outside)]
+
+        case (_, let enter?, nil):
             if isSinglePoint {
                 return []
             }
 
             return [(enter, .outside)]
         
+        case (_, nil, let exit?):
+            if isSinglePoint {
+                return []
+            }
+
+            return [(exit, .inside)]
+
         // Ignore none
         case (_, let enter?, let exit?):
             return [(enter, isSinglePoint ? .singlePoint : .outside), (exit, isSinglePoint ? .singlePoint : .inside)]

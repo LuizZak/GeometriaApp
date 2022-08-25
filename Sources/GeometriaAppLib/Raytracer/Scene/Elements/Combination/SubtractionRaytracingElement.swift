@@ -65,7 +65,7 @@ extension SubtractionRaytracingElement: RaytracingElement {
         func processT0(_ hit: RayHit) {
             isInsideT0 = hit.hitDirection == .outside
 
-            guard !query.ignoring.shouldIgnore(hit: hit) else {
+            guard !query.ignoring.shouldIgnore(hit: hit, rayStart: query.ray.start) else {
                 return
             }
 
@@ -80,7 +80,7 @@ extension SubtractionRaytracingElement: RaytracingElement {
             var flipped = hit
             flipped.hitDirection = hit.hitDirection.inverted
 
-            guard !query.ignoring.shouldIgnore(hit: flipped) else {
+            guard !query.ignoring.shouldIgnore(hit: flipped, rayStart: query.ray.start) else {
                 return
             }
 

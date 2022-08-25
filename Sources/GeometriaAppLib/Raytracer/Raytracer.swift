@@ -295,7 +295,7 @@ final class Raytracer<Scene: RaytracingSceneType>: RendererType {
 
         let intersections = scene.intersectAll(
             ray: ray,
-            ignoring: hit.rayIgnoreForHit()
+            ignoring: hit.rayIgnoreForHit(minimumRayLengthSquared: 1)
         )
         
         for intersection in intersections {

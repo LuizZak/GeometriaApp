@@ -17,12 +17,24 @@ struct RayHit: Equatable {
     var normal: RVector3D {
         return pointNormal.normal
     }
+
+    /// Returns a copy of this ray hit, but with an inverted `hitDirection` value.
+    var withInvertedHitDirection: Self {
+        return .init(
+            id: id,
+            pointNormal: pointNormal,
+            hitDirection: hitDirection.inverted,
+            material: material
+        )
+    }
     
     @_transparent
-    init(id: Int,
-         pointNormal: PointNormal<RVector3D>,
-         hitDirection: HitDirection,
-         material: MaterialId?) {
+    init(
+        id: Int,
+        pointNormal: PointNormal<RVector3D>,
+        hitDirection: HitDirection,
+        material: MaterialId?
+    ) {
         
         self.id = id
         self.pointNormal = pointNormal
@@ -31,9 +43,11 @@ struct RayHit: Equatable {
     }
 
     @_transparent
-    init(id: Int,
-         pointOfInterest: (point: RPointNormal3D, hitDirection: RayHit.HitDirection),
-         material: MaterialId?) {
+    init(
+        id: Int,
+        pointOfInterest: (point: RPointNormal3D, hitDirection: RayHit.HitDirection),
+        material: MaterialId?
+    ) {
         
         self.id = id
         self.pointNormal = pointOfInterest.point
@@ -42,12 +56,19 @@ struct RayHit: Equatable {
     }
     
     @_transparent
-    init?(findingPointOfInterestOf rayIgnore: RayIgnore,
-          intersection: RConvexLineResult3D,
-          material: MaterialId?,
-          id: Int) {
+    init?(
+        findingPointOfInterestOf rayIgnore: RayIgnore,
+        intersection: RConvexLineResult3D,
+        rayStart: RVector3D,
+        material: MaterialId?,
+        id: Int
+    ) {
         
-        guard let poi = rayIgnore.computePointNormalOfInterest(id: id, intersection: intersection) else {
+        guard let poi = rayIgnore.computePointNormalOfInterest(
+            id: id,
+            intersection: intersection,
+            rayStart: rayStart
+        ) else {
             return nil
         }
         
@@ -59,10 +80,16 @@ struct RayHit: Equatable {
     ///
     /// Returns `nil` if ``RayIgnore/computePointNormalOfInterest`` returns `nil`
     @_transparent
-    func assignPointOfInterest(from rayIgnore: RayIgnore, intersection: RConvexLineResult3D) -> RayHit? {
+    func assignPointOfInterest(
+        from rayIgnore: RayIgnore,
+        intersection: RConvexLineResult3D,
+        rayStart: RVector3D
+    ) -> RayHit? {
+
         guard let poi = rayIgnore.computePointNormalOfInterest(
             id: id,
-            intersection: intersection
+            intersection: intersection,
+            rayStart: rayStart
         ) else {
             return nil
         }
@@ -98,8 +125,9 @@ struct RayHit: Equatable {
     /// Returns a ray hit ignore that ignores this particular hit in subsequent
     /// raytracing queries.
     ///
-    /// May fail, as hits are not discretely identified and can only be ignored
-    /// based on loose inner/outer hits and geometry ID.
+    /// Ray hits with this ignore may fail to yield expected results, as hits are
+    /// not discretely identified and can only be ignored based on loose
+    /// inner/outer hits and geometry ID.
     func rayIgnoreForHit(minimumRayLengthSquared: Double = 0.0) -> RayIgnore {
         switch hitDirection {
         case .inside:
