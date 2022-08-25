@@ -108,7 +108,8 @@ class CanvasView: NSView {
         blImage = BLImage(
             width: app.size.width * Int(app.preferredRenderScale.x),
             height: app.size.height * Int(app.preferredRenderScale.y),
-                      format: .xrgb32)
+            format: .xrgb32
+        )
         
         recreateCgImageContext()
         
@@ -129,21 +130,28 @@ class CanvasView: NSView {
             bitmapInfo.insert(CGBitmapInfo(rawValue: CGImageAlphaInfo.noneSkipFirst.rawValue))
             
             let length = imageData.stride * Int(imageData.size.h)
-            guard let provider = CGDataProvider(dataInfo: nil, data: imageData.pixelData, size: length, releaseData: { _, _, _ in }) else {
+            guard let provider = CGDataProvider(
+                dataInfo: nil,
+                data: imageData.pixelData,
+                size: length,
+                releaseData: { _, _, _ in }
+            ) else {
                 return
             }
             
-            image = CGImage(width: Int(imageData.size.w),
-                            height: Int(imageData.size.h),
-                            bitsPerComponent: 8,
-                            bitsPerPixel: 32,
-                            bytesPerRow: imageData.stride,
-                            space: colorSpace,
-                            bitmapInfo: bitmapInfo,
-                            provider: provider,
-                            decode: nil,
-                            shouldInterpolate: false,
-                            intent: .defaultIntent)
+            image = CGImage(
+                width: Int(imageData.size.w),
+                height: Int(imageData.size.h),
+                bitsPerComponent: 8,
+                bitsPerPixel: 32,
+                bytesPerRow: imageData.stride,
+                space: colorSpace,
+                bitmapInfo: bitmapInfo,
+                provider: provider,
+                decode: nil,
+                shouldInterpolate: false,
+                intent: .defaultIntent
+            )
         } else {
             image = nil
             
@@ -152,13 +160,15 @@ class CanvasView: NSView {
             bitmapInfo |= CGImageAlphaInfo.noneSkipFirst.rawValue
             bitmapInfo |= CGImageByteOrderInfo.order32Little.rawValue
             
-            imageContext = CGContext(data: imageData.pixelData,
-                                     width: blImage.width,
-                                     height: blImage.height,
-                                     bitsPerComponent: 8,
-                                     bytesPerRow: imageData.stride,
-                                     space: colorSpace,
-                                     bitmapInfo: bitmapInfo)
+            imageContext = CGContext(
+                data: imageData.pixelData,
+                width: blImage.width,
+                height: blImage.height,
+                bitsPerComponent: 8,
+                bytesPerRow: imageData.stride,
+                space: colorSpace,
+                bitmapInfo: bitmapInfo
+            )
         }
     }
     
@@ -221,7 +231,12 @@ class CanvasView: NSView {
         
         trackingAreas.forEach(removeTrackingArea(_:))
         
-        let options: NSTrackingArea.Options = [.activeAlways, .inVisibleRect, .mouseEnteredAndExited, .mouseMoved]
+        let options: NSTrackingArea.Options = [
+            .activeAlways,
+            .inVisibleRect,
+            .mouseEnteredAndExited,
+            .mouseMoved
+        ]
         let area = NSTrackingArea(rect: bounds, options: options, owner: self, userInfo: nil)
         
         addTrackingArea(area)
@@ -258,11 +273,13 @@ class CanvasView: NSView {
             clickCount = 0
         }
         
-        return MouseEventArgs(location: UIVector(x: Double(point.x), y: Double(bounds.height - point.y)),
-                              buttons: mouseButton,
-                              delta: UIVector(x: scrollingDeltaX, y: scrollingDeltaY),
-                              clicks: clickCount,
-                              modifiers: [])
+        return MouseEventArgs(
+            location: UIVector(x: Double(point.x), y: Double(bounds.height - point.y)),
+            buttons: mouseButton,
+            delta: UIVector(x: scrollingDeltaX, y: scrollingDeltaY),
+            clicks: clickCount,
+            modifiers: []
+        )
     }
     
     func incrementUpdateWorkQueue() {

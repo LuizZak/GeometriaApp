@@ -22,7 +22,7 @@ public class AppDelegate: NSObject, NSApplicationDelegate {
         mainMenu.addItem(appMenu)
         NSApplication.shared.mainMenu = mainMenu
         
-        let size = CGSize(width: 400, height: 300)
+        let size = CGSize(width: 1000, height: 750)
         window.setContentSize(size)
         window.styleMask = [.closable, .miniaturizable, .resizable, .titled]
         window.delegate = windowDelegate
