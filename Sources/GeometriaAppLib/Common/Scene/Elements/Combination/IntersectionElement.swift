@@ -65,3 +65,44 @@ func intersection<T0, T1, T2, T3>(@ElementBuilder _ builder: () -> TupleElement4
 
     return .init(t0: .init(t0: .init(t0: value.t0, t1: value.t1), t1: value.t2), t1: value.t3)
 }
+
+@_transparent
+func intersection<T0, T1, T2, T3, T4>(@ElementBuilder _ builder: () -> TupleRaytracingElement5<T0, T1, T2, T3, T4>) -> some RaytracingElement {
+    let value = builder()
+
+    return IntersectionElement(
+        t0: IntersectionElement(
+            t0: IntersectionElement(
+                t0: IntersectionElement(
+                    t0: value.t0,
+                    t1: value.t1
+                ),
+                t1: value.t2
+            ),
+            t1: value.t3
+        ),
+        t1: value.t4
+    )
+}
+
+@_transparent
+func intersection<T0, T1, T2, T3, T4, T5>(@ElementBuilder _ builder: () -> TupleRaytracingElement6<T0, T1, T2, T3, T4, T5>) -> some RaytracingElement {
+    let value = builder()
+
+    return IntersectionElement(
+        t0: IntersectionElement(
+            t0: IntersectionElement(
+                t0: IntersectionElement(
+                    t0: IntersectionElement(
+                        t0: value.t0,
+                        t1: value.t1
+                    ),
+                    t1: value.t2
+                ),
+                t1: value.t3
+            ),
+            t1: value.t4
+        ),
+        t1: value.t5
+    )
+}

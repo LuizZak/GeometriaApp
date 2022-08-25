@@ -13,7 +13,7 @@ enum RaytracingHyperplaneTetraScene {
 private func scene() -> some RaytracingElement {
     makeFloorPlane()
     
-    translated(x: 0, y: -80, z: 30) {
+    translated(x: 0, y: -20, z: 30) {
         makeTetrahedron(
             center: .init(x: 0, y: 100, z: 40),
             length: 30
@@ -23,19 +23,17 @@ private func scene() -> some RaytracingElement {
 
 private func makeTetrahedron(center: RVector3D, length: Double) -> some RaytracingElement {
     let offset = length / 2
-    let normSide = RVector3D(x: 0, y: 1, z: -1).normalized()
-    let mat = RRotationMatrix3D.make3DRotationFromAxisAngle(axis: RVector3D.unitZ, 120)
     
+    let rot = RRotationMatrix3D.make3DRotationFromAxisAngle(axis: RVector3D.unitZ, -15 * (.pi / 180))
+    
+    let mat1 = RRotationMatrix3D.make3DRotationFromAxisAngle(axis: RVector3D.unitZ, 120 * (.pi / 180))
+    let mat2 = RRotationMatrix3D.make3DRotationFromAxisAngle(axis: RVector3D.unitZ, 240 * (.pi / 180))
+    
+    let normSide = rot.transformPoint(RVector3D(x: 2, y: 0, z: 1).normalized())
     let norm1 = normSide
-    let norm2 = mat.transformPoint(norm1)
-    let norm3 = mat.transformPoint(norm2)
+    let norm2 = mat1.transformPoint(normSide)
+    let norm3 = mat2.transformPoint(normSide)
     
-    return intersection {
-        makeHyper(point: center + .unitX * 10, normal: .unitX)
-        makeHyper(point: center - .unitX * 10, normal: -.unitX)
-    }
-    
-    /*
     return intersection {
         makeHyper(
             point: center - .unitZ * offset,
@@ -45,7 +43,6 @@ private func makeTetrahedron(center: RVector3D, length: Double) -> some Raytraci
             point: center + norm1 * offset,
             normal: norm1
         )
-        /*
         makeHyper(
             point: center + norm2 * offset,
             normal: norm2
@@ -53,9 +50,8 @@ private func makeTetrahedron(center: RVector3D, length: Double) -> some Raytraci
         makeHyper(
             point: center + norm3 * offset,
             normal: norm3
-        )*/
+        )
     }
-    */
 }
 
 private func makeHyper(point: RVector3D, normal: RVector3D) -> HyperplaneRaytracingElement {
@@ -64,7 +60,7 @@ private func makeHyper(point: RVector3D, normal: RVector3D) -> HyperplaneRaytrac
             point: point,
             normal: normal
         ),
-        material: MaterialMapEnum.default.rawValue
+        material: MaterialMapEnum.glassy.rawValue
     )
 }
 
@@ -78,7 +74,7 @@ private func makeFloorPlane() -> PlaneRaytracingElement {
 private enum MaterialMapEnum: Int, CaseIterable, MaterialMapEnumType {
     case `default` = 0
     case floor = 1
-    case semiTransparent = 2
+    case glassy = 2
 
     func makeMaterial() -> Material {
         switch self {
@@ -92,15 +88,13 @@ private enum MaterialMapEnum: Int, CaseIterable, MaterialMapEnumType {
                 color2: .black
             )
             
-        case .semiTransparent:
+        case .glassy:
             return .diffuse(
                 .init(
                     color: .init(r: 128, g: 128, b: 128, a: 255),
-                    //bumpNoiseFrequency: 1.0,
-                    //bumpMagnitude: 0.0,
-                    //reflectivity: 0.2,
-                    transparency: 0.8
-                    //refractiveIndex: 1.3
+                    reflectivity: 0.3,
+                    transparency: 0.9,
+                    refractiveIndex: 1.3
                 )
             )
         }
