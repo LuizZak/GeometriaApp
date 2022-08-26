@@ -88,11 +88,13 @@ final class Raytracer<Scene: RaytracingSceneType>: RendererType {
         return computeColor(materialId: material, ray: ray, hit: hit, bounceCount: bounceCount)
     }
     
-    private func computeColor(materialId: MaterialId,
-                              ray: RRay3D,
-                              hit: RayHit,
-                              ignoring: RayIgnore = .none,
-                              bounceCount: Int = 0) -> RaytraceResult {
+    private func computeColor(
+        materialId: MaterialId,
+        ray: RRay3D,
+        hit: RayHit,
+        ignoring: RayIgnore = .none,
+        bounceCount: Int = 0
+    ) -> RaytraceResult {
         
         let material = materialMapCache[materialId]
         
