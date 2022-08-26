@@ -1,6 +1,6 @@
 import Foundation
 
-enum RaytracingHyperplaneTetraScene {
+enum RaytracingHyperplanePolyhedronScene {
     @inlinable
     static func makeScene() -> some RaytracingSceneType {
         let materials: MaterialMap = makeMaterialMap(MaterialMapEnum.self)

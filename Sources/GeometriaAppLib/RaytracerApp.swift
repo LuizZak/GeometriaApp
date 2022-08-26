@@ -150,7 +150,7 @@ open class RaytracerApp: ImagineUIContentType {
 
         #if true
         
-        let scene = RaytracingHyperplaneTetraScene.makeScene()
+        let scene = RaytracingHyperplanePolyhedronScene.makeScene()
         
         let renderer = Raytracer(
             scene: scene,
