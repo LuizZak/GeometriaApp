@@ -170,23 +170,19 @@ enum RayIgnore: Equatable {
     /// points on the intersection are the points-of-interest for the intersection.
     ///
     /// Returns an empty array in case none of the available intersection points 
-    /// is of interest, or if this ``RayIgnore`` rule instance ignores the only
+    /// are of interest, or if this ``RayIgnore`` rule instance ignores the only
     /// available intersection.
     func computePointNormalsOfInterest(
         id: Int,
         intersection: RConvexLineResult3D,
         rayStart: RVector3D
-    ) -> [(point: RPointNormal3D, hitDirection: RayHit.HitDirection)] {
+    ) -> RConvexLineResult3D {
         
-        let isSinglePoint: Bool
-        if case .singlePoint = intersection {
-            isSinglePoint = true
-        } else {
-            isSinglePoint = false
-        }
-
         // Pre-check before looking into each point normal
         switch self {
+        case .none:
+            return intersection
+
         case let .allButSingleId(geoId, ignore):
             if geoId == id {
                 return ignore.computePointNormalsOfInterest(
@@ -195,34 +191,28 @@ enum RayIgnore: Equatable {
                     rayStart: rayStart
                 )
             }
-            return []
+
+            return .noIntersection
 
         case .full(let geoId) where geoId == id:
-            return []
+            return .noIntersection
 
         default:
             break
         }
         
         if intersection.entrancePoint == nil && intersection.exitPoint == nil {
-            return []
+            return .noIntersection
         }
         
-        var result: [(point: RPointNormal3D, hitDirection: RayHit.HitDirection)] = []
-
-        switch (self) {
-        case .none:
-            if let enter = intersection.entrancePoint {
-                result.append(
-                    (enter, isSinglePoint ? .singlePoint : .outside)
-                )
-            }
-            if let exit = intersection.exitPoint {
-                result.append(
-                    (exit, isSinglePoint ? .singlePoint : .inside)
-                )
-            }
-
+        let isSinglePoint: Bool
+        if case .singlePoint = intersection {
+            isSinglePoint = true
+        } else {
+            isSinglePoint = false
+        }
+        
+        switch self {
         // Ignore entrances
         case .entrance(id, let minDist):
             if isSinglePoint {
@@ -230,9 +220,7 @@ enum RayIgnore: Equatable {
             }
             
             if let exit = intersection.exitPoint, rayStart.distanceSquared(to: exit.point) < minDist {
-                result.append(
-                    (exit, .inside)
-                )
+                return .exit(exit)
             }
         
         // Ignore exits
@@ -242,16 +230,14 @@ enum RayIgnore: Equatable {
             }
             
             if let enter = intersection.entrancePoint, rayStart.distanceSquared(to: enter.point) < minDist {
-                result.append(
-                    (enter, .outside)
-                )
+                return .enter(enter)
             }
             
         default:
             break
         }
-        
-        return result
+
+        return .noIntersection
     }
 }
 

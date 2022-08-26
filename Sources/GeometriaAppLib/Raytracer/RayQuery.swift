@@ -170,6 +170,23 @@ extension RayQuery {
             }
         }
     }
+
+    func isFullyContained(by hyperplane: RHyperplane3D) -> Bool {
+        if !hyperplane.contains(ray.a) {
+            return false
+        }
+
+        // Line is parallel: checking for point containment above is enough
+        if hyperplane.normal.dot(ray.lineSlope) <= .leastNonzeroMagnitude {
+            return true
+        }
+
+        guard let mag = hyperplane.unclampedNormalMagnitudeForIntersection(with: ray) else {
+            return false
+        }
+
+        return mag >= 0.0 && mag * mag <= rayMagnitudeSquared
+    }
     
     @_transparent
     private func intersection<Plane: LineIntersectablePlaneType>(plane geometry: Plane) -> RVector3D? where Plane.Vector == RVector3D {
@@ -227,15 +244,7 @@ extension RayQuery {
             rayStart: ray.start
         )
 
-        results.append(contentsOf:
-            pois.map {
-                .init(
-                    id: id,
-                    pointOfInterest: $0,
-                    material: material
-                )
-            }
-        )
+        appendPointsOfInterest(pois, id: id, material: material, to: &results)
     }
 
     // MARK: LineIntersectablePlaneType
@@ -282,14 +291,31 @@ extension RayQuery {
             rayStart: ray.start
         )
 
-        results.append(contentsOf:
-            pois.map {
-                .init(
-                    id: id,
-                    pointOfInterest: $0,
-                    material: material
-                )
-            }
-        )
+        appendPointsOfInterest(pois, id: id, material: material, to: &results)
+    }
+
+    private func appendPointsOfInterest(
+        _ intersection: RConvexLineResult3D,
+        id: Int,
+        material: MaterialId?,
+        to results: inout [RayHit]
+    ) {
+        switch intersection {
+        case .enterExit(let enter, let exit):
+            results.append(.init(id: id, pointOfInterest: (enter, .outside), material: material))
+            results.append(.init(id: id, pointOfInterest: (exit, .inside), material: material))
+        
+        case .enter(let enter):
+            results.append(.init(id: id, pointOfInterest: (enter, .outside), material: material))
+
+        case .exit(let exit):
+            results.append(.init(id: id, pointOfInterest: (exit, .inside), material: material))
+
+        case .singlePoint(let point):
+            results.append(.init(id: id, pointOfInterest: (point, .singlePoint), material: material))
+
+        case .contained, .noIntersection:
+            break
+        }
     }
 }

@@ -52,12 +52,6 @@ extension BoundedElement {
     }
 }
 
-extension Element {
-    func makeBounded(by bounds: ElementBounds) -> BoundingBoxElement<Self> {
-        .init(element: self, boundingBox: bounds)
-    }
-}
-
 @_transparent
 func boundingBox<T: BoundedElement>(@ElementBuilder _ builder: () -> T) -> BoundingBoxElement<T> {
     builder().makeBoundingBox()

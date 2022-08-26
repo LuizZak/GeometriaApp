@@ -1,3 +1,5 @@
+import Foundation
+
 enum RaytracingHyperplaneTetraScene {
     @inlinable
     static func makeScene() -> some RaytracingSceneType {
@@ -15,59 +17,23 @@ private func scene() -> some RaytracingElement {
     
     makeTetrahedron(
         center: .init(x: 0, y: 80, z: 40),
-        length: 20,
+        edgeLength: 40,
         material: .glassy
     )
 
     makeDodecahedron(
         center: .init(x: 80, y: 80, z: 40),
-        faceRadius: 20,
+        edgeLength: 20,
         material: .glassy
     )
 }
 
-private func makeTetrahedron(center: RVector3D, length: Double, material: MaterialMapEnum = .glassy) -> some RaytracingElement {
-    let offset = length / 2
-    
-    let rot = RRotationMatrix3D.make3DRotationFromAxisAngle(axis: RVector3D.unitZ, toRadians(-15))
-    
-    let mat1 = RRotationMatrix3D.make3DRotationFromAxisAngle(axis: RVector3D.unitZ, toRadians(120))
-    let mat2 = RRotationMatrix3D.make3DRotationFromAxisAngle(axis: RVector3D.unitZ, toRadians(240))
-    
-    let normSide = rot.transformPoint(RVector3D(x: 2, y: 0, z: 1).normalized())
-    let norm1 = normSide
-    let norm2 = mat1.transformPoint(normSide)
-    let norm3 = mat2.transformPoint(normSide)
-    
-    return intersection {
-        makeHyper(
-            point: center - .unitZ * offset,
-            normal: -.unitZ,
-            material: material
-        )
-        makeHyper(
-            point: center + norm1 * offset,
-            normal: norm1,
-            material: material
-        )
-        makeHyper(
-            point: center + norm2 * offset,
-            normal: norm2,
-            material: material
-        )
-        makeHyper(
-            point: center + norm3 * offset,
-            normal: norm3,
-            material: material
-        )
-    }
-}
+private func makeTetrahedron(center: RVector3D, edgeLength: Double, material: MaterialMapEnum = .glassy) -> some RaytracingElement {
+    let insphereRadius = edgeLength / 24.0.squareRoot()
+    let circumscribedRadius = edgeLength * (6.0.squareRoot() / 4.0)
 
-private func makeDodecahedron(center: RVector3D, faceRadius: Double, material: MaterialMapEnum = .glassy) -> some RaytracingElement {
-    let offset = faceRadius
-
-    let rot = toRadians(360 / 5)
-    let dihedralAngle = toRadians(116.56505)
+    let rot = toRadians(360 / 3)
+    let dihedralAngle = acos(1.0 / 3.0)
     let faceElevation = .pi / 2 - dihedralAngle
 
     func hyper(azimuth: Double, elevation: Double) -> HyperplaneRaytracingElement {
@@ -78,7 +44,39 @@ private func makeDodecahedron(center: RVector3D, faceRadius: Double, material: M
     }
     func hyper(normal: RVector3D) -> HyperplaneRaytracingElement {
         return makeHyper(
-            point: center + normal * offset,
+            point: center + normal * insphereRadius,
+            normal: normal,
+            material: material
+        )
+    }
+
+    return intersection {
+        hyper(azimuth: 0, elevation: faceElevation)
+        hyper(azimuth: rot, elevation: faceElevation)
+        hyper(azimuth: rot * 2, elevation: faceElevation)
+        hyper(normal: -.unitZ)
+    }.makeBounded(by:
+        RSphere3D(center: center, radius: circumscribedRadius)
+    )
+}
+
+private func makeDodecahedron(center: RVector3D, edgeLength: Double, material: MaterialMapEnum = .glassy) -> some RaytracingElement {
+    let insphereRadius: Double = (edgeLength / 2.0) * (5.0 / 2.0 + (11.0 / 10.0) * 5.0.squareRoot()).squareRoot()
+    let circumscribedRadius: Double = edgeLength * (3.0.squareRoot() / 4.0) * (1.0 + 5.0.squareRoot())
+
+    let rot = toRadians(360 / 5)
+    let dihedralAngle = acos(-1.0 / 5.0.squareRoot())
+    let faceElevation = .pi / 2 - dihedralAngle
+
+    func hyper(azimuth: Double, elevation: Double) -> HyperplaneRaytracingElement {
+        let unit = RSphere3D.unit
+        let normal = unit.projectOut(.init(azimuth: azimuth, elevation: elevation))
+
+        return hyper(normal: normal)
+    }
+    func hyper(normal: RVector3D) -> HyperplaneRaytracingElement {
+        return makeHyper(
+            point: center + normal * insphereRadius,
             normal: normal,
             material: material
         )
@@ -107,10 +105,9 @@ private func makeDodecahedron(center: RVector3D, faceRadius: Double, material: M
     return intersection {
         top
         bottom
-    }.makeBounded(by: .init(
-        minimum: center - .one * faceRadius,
-        maximum: center + .one * faceRadius
-    ))
+    }.makeBounded(by:
+        RSphere3D(center: center, radius: circumscribedRadius)
+    )
 }
 
 private func makeHyper(point: RVector3D, normal: RVector3D, material: MaterialMapEnum = .glassy) -> HyperplaneRaytracingElement {
@@ -138,6 +135,7 @@ private enum MaterialMapEnum: Int, CaseIterable, MaterialMapEnumType {
     case `default` = 0
     case floor = 1
     case glassy = 2
+    case transparent = 3
 
     func makeMaterial() -> Material {
         switch self {
@@ -158,6 +156,14 @@ private enum MaterialMapEnum: Int, CaseIterable, MaterialMapEnumType {
                     reflectivity: 0.3,
                     transparency: 0.9,
                     refractiveIndex: 1.3
+                )
+            )
+            
+        case .transparent:
+            return .diffuse(
+                .init(
+                    color: .init(r: 128, g: 128, b: 128, a: 255),
+                    transparency: 0.9
                 )
             )
         }

@@ -68,6 +68,16 @@ extension ElementBounds {
     }
 }
 
+extension Element {
+    func makeBounded(by bounds: ElementBounds) -> BoundingBoxElement<Self> {
+        .init(element: self, boundingBox: bounds)
+    }
+
+    func makeBounded<T: BoundableType>(by boundable: T) -> BoundingBoxElement<Self> where T.Vector == RVector3D {
+        .init(element: self, boundingBox: boundable.bounds)
+    }
+}
+
 extension BoundingBoxElement {
     @_transparent
     init(element: T) where T: BoundedElement {

@@ -21,7 +21,7 @@ extension BoundingSphereRaytracingElement: RaytracingElement {
     }
     
     func fullyContainsRay(query: RayQuery) -> Bool {
-        guard intersects(query: query) else {
+        guard intersects(query: query) && query.isFullyContained(by: boundingSphere) else {
             return false
         }
         
