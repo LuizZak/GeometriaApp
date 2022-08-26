@@ -40,7 +40,7 @@ class RaytracerProcessingPrinter: ProcessingPrinter {
         
         let elevation = -camera.cameraPlane.normal.elevation
         
-        printLine("cam = new PeasyCam(this, \(vec3String_pCoordinates(camera.cameraPlane.point)), \(-camera.cameraCenterOffset));")
+        printLine("cam = new PeasyCam(this, \(vec3String_pCoordinates(camera.cameraPlane.point)), \(90));")
         printLine("cam.setWheelScale(0.3);")
         printLine("cam.rotateX(\(elevation));")
     }
