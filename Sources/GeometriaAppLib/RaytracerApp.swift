@@ -59,10 +59,13 @@ open class RaytracerApp: ImagineUIContentType {
     }
     
     func createUI() {
+        let uiProjection = UIProjectionComponent()
+        ui.addComponent(uiProjection)
+        
         let sceneGraph = SceneGraphTreeComponent(width: 250.0)
         ui.addComponent(sceneGraph)
+        
         let labelsContainer = ui.addComponentInReservedView(StatusLabelsComponent())
-
         labelsContainer.layout.makeConstraints { make in
             (make.top, make.right, make.bottom) == ui.componentsContainer
             make.right(of: sceneGraph.sidePanel)
@@ -150,7 +153,7 @@ open class RaytracerApp: ImagineUIContentType {
 
         #if true
         
-        let scene = RaytracingHyperplanePolyhedronScene.makeScene()
+        let scene = RaytracingDemoScene1.makeScene()
         
         let renderer = Raytracer(
             scene: scene,

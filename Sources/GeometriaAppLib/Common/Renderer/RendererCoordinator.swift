@@ -34,6 +34,11 @@ final class RendererCoordinator: RendererWorkerContext {
     var buffer: RendererBufferWriter
     var hasWork: Bool = true
     
+    /// The camera of the scene being rendered.
+    var camera: Camera {
+        _renderer.camera
+    }
+    
     /// Progress of rendering, from 0.0 to 1.0, inclusive.
     /// Based on number of remaining batchers, according to ``batcher``.
     var progress: Double {

@@ -8,7 +8,7 @@ struct Camera {
             upAxis: .unitZ
         )
 
-    var projectionMode: ProjectionMode = .perspective(cameraCenterOffset: -90) {
+    var projectionMode: ProjectionMode {
         didSet {
             recomputeCamera()
         }
@@ -30,8 +30,9 @@ struct Camera {
         }
     }
     
-    init(viewportSize: ViewportSize) {
+    init(viewportSize: ViewportSize, projectionMode: ProjectionMode = .perspective(cameraCenterOffset: -90)) {
         self.viewportSize = viewportSize
+        self.projectionMode = projectionMode
         
         recomputeCamera()
     }
@@ -42,13 +43,10 @@ struct Camera {
     }
     
     func rayFromCamera(at point: PixelCoord) -> RRay3D {
-        let centeredPoint = (point - viewportSize / 2) * PixelCoord(x: 1, y: -1)
-        let projectedPoint = RVector2D(centeredPoint) * cameraSizeScale
-        
+        let projectedPoint = pixelToPlane(point: point)
         let inWorld = cameraPlane.projectOut(projectedPoint)
 
         let dir: RVector3D
-
         switch projectionMode {
         case .perspective(let cameraCenterOffset):
             let cameraCenterPoint = cameraPlane.point + cameraPlane.normal * cameraCenterOffset
@@ -59,6 +57,85 @@ struct Camera {
         }
         
         return RRay3D(start: inWorld, direction: dir)
+    }
+    
+    /// Projects a 3D point into the camera's plane.
+    ///
+    /// Ignores points that are not contained within the camera's frustrum.
+    func projectToCamera(_ point: RVector3D) -> RVector2D? {
+        if cameraPlane.signedDistance(to: point) < 0 {
+            return nil
+        }
+        
+        guard let pointOnPlane = projectToCameraUnclamped(point) else {
+            return nil
+        }
+        
+        var minPixel = pixelToPlane(point: .zero)
+        var maxPixel = pixelToPlane(point: viewportSize.asUIIntPoint)
+        
+        (minPixel, maxPixel) = (min(minPixel, maxPixel), max(minPixel, maxPixel))
+        
+        guard pointOnPlane >= minPixel && pointOnPlane <= maxPixel else {
+            return nil
+        }
+        
+        return pointOnPlane
+    }
+    
+    /// Projects a 3D point into the camera's plane.
+    ///
+    /// Includes points that are outside the frustrum of the camera.
+    func projectToCameraUnclamped(_ point: RVector3D) -> RVector2D? {
+        let pointOnPlane: RVector2D?
+        
+        switch projectionMode {
+        case .perspective(let cameraCenterOffset):
+            let cameraCenterPoint = cameraPlane.point + cameraPlane.normal * cameraCenterOffset
+            
+            // TODO: Implement proper plane perspective projection in Geometria
+            // to use here instead of this explicit line-intersection construction
+            let line = RLine3D(a: point, b: cameraCenterPoint)
+            
+            pointOnPlane = cameraPlane.projectLineIntersection(line)
+            
+        case .orthographic:
+            pointOnPlane = cameraPlane.project2D(point)
+        }
+        
+        return pointOnPlane
+    }
+    
+    /// Projects a 3D point into the camera's plane, returning the equivalent
+    /// pixel coordinates of the projection's result.
+    ///
+    /// Includes points that are outside the frustrum of the camera.
+    func projectAsPixelUnclamped(_ point: RVector3D) -> PixelCoord? {
+        guard let projected = projectToCameraUnclamped(point) else {
+            return nil
+        }
+        
+        return planeToPixel(point: projected)
+    }
+    
+    /// Converts an integer pixel screen-coordinate into a projected 2D value on
+    /// the camera plane.
+    func pixelToPlane(point: PixelCoord) -> RVector2D {
+        let vecPoint = RVector2D(point)
+        
+        let centeredPoint = (vecPoint - RVector2D(viewportSize) / 2) * RVector2D(x: 1, y: -1)
+        let projectedPoint = centeredPoint * cameraSizeScale
+        
+        return projectedPoint
+    }
+    
+    /// Converts a projected 2D coordinate from the camera plane into an integer
+    /// pixel screen-coordinate.
+    func planeToPixel(point: RVector2D) -> PixelCoord {
+        let scaledPoint = point / cameraSizeScale
+        let decenteredPoint = (scaledPoint * RVector2D(x: 1, y: -1)) + RVector2D(viewportSize) / 2
+        
+        return PixelCoord(x: Int(decenteredPoint.x), y: Int(decenteredPoint.y))
     }
 
     /// Specifies the projective mode of a camera
