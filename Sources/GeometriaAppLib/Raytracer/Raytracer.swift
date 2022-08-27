@@ -291,6 +291,14 @@ final class Raytracer<Scene: RaytracingSceneType>: RendererType {
     /// Transparent geometries contributed a weighted value that is relative
     /// to how opaque they are.
     private func calculateShadow(for hit: RayHit) -> Double {
+        if hit.normal.dot(-scene.sunDirection) < 0, let hitMaterial = hit.material {
+            let material = materialMapCache[hitMaterial]
+            
+            if material.transparency == 0.0 {
+                return 1.0
+            }
+        }
+        
         let ray = RRay3D(start: hit.point, direction: -scene.sunDirection)
         
         var transparency: Double = 1.0
@@ -301,16 +309,11 @@ final class Raytracer<Scene: RaytracingSceneType>: RendererType {
         )
         
         for intersection in intersections {
-            switch intersection.material.flatMap({ materialMapCache[$0] }) {
-            case .diffuse(let material)?:
-                transparency *= material.transparency
-            
-            case .target, .checkerboard:
-                return 0.0
-
-            case nil:
+            guard let material = intersection.material else {
                 continue
             }
+            
+            transparency *= materialMapCache[material].transparency
         }
         
         return max(0.0, min(1.0, 1 - transparency))

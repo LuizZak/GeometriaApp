@@ -80,15 +80,15 @@ class UIProjectionComponent: RaytracerUIComponent {
         
         for geometry in geometries {
             switch geometry {
-            case .circle(let _, let circle):
+            case .circle(_, let circle):
                 context.stroke(circle)
                 
-            case .aabb(let _, let lines):
+            case .aabb(_, let lines):
                 for line in lines {
                     context.stroke(line)
                 }
                 
-            case .line(let _, let line):
+            case .line(_, let line):
                 context.stroke(line)
             }
         }

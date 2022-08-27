@@ -194,8 +194,12 @@ enum RayIgnore: Equatable {
 
             return .noIntersection
 
-        case .full(let geoId) where geoId == id:
-            return .noIntersection
+        case .full(let geoId):
+            if id == geoId {
+                return .noIntersection
+            }
+            
+            return intersection
 
         default:
             break
@@ -234,7 +238,7 @@ enum RayIgnore: Equatable {
             }
             
         default:
-            break
+            return intersection
         }
 
         return .noIntersection

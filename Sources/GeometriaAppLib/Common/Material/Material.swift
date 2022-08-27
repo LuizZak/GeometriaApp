@@ -6,6 +6,16 @@ enum Material: Equatable {
     case diffuse(DiffuseMaterial)
     case checkerboard(size: Double, color1: BLRgba32, color2: BLRgba32)
     case target(center: RVector3D, stripeFrequency: Double, color1: BLRgba32, color2: BLRgba32)
+    
+    var transparency: Double {
+        switch self {
+        case .diffuse(let diffuse):
+            return diffuse.transparency
+            
+        case .checkerboard, .target:
+            return 0.0
+        }
+    }
 
     static func solid(_ color: BLRgba32) -> Material {
         .diffuse(.default.withColor(color))
