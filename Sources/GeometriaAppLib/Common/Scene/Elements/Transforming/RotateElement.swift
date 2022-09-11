@@ -4,7 +4,21 @@ struct RotateElement<T: Element> {
     var element: T
     
     var rotation: RRotationMatrix3D
+    var rotationInv: RRotationMatrix3D
     var rotationCenter: RVector3D
+    
+    internal init(
+        id: Int = 0,
+        element: T,
+        rotation: RRotationMatrix3D,
+        rotationCenter: RVector3D
+    ) {
+        self.id = id
+        self.element = element
+        self.rotation = rotation
+        self.rotationInv = rotation.inverted() ?? .identity
+        self.rotationCenter = rotationCenter
+    }
 }
 
 extension RotateElement: Element {

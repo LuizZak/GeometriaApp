@@ -122,7 +122,15 @@ class SceneGraphTreeComponent: RaytracerUIComponent {
             func elementCount() -> Int {
                 switch self {
                 case .node(let node):
-                    var count = 1 // ID property
+                    var count = 0
+                    
+                    switch node.object {
+                    case .element:
+                        count += 1 // ID property
+                    case .matrix3x3:
+                        break
+                    }
+                    
                     count += node.properties.count
                     count += node.subnodes.count
 
@@ -140,11 +148,18 @@ class SceneGraphTreeComponent: RaytracerUIComponent {
                 switch self {
                 case .node(let node):
                     var index = index
-
-                    if index == 0 {
-                        return .property(.init(name: "Id", value: "\(node.element.id)"))
+                    
+                    switch node.object {
+                    case .element(let element):
+                        if index == 0 {
+                            return .property(.init(name: "Id", value: "\(element.id)"))
+                        }
+                        
+                        index -= 1
+                        
+                    case .matrix3x3:
+                        break
                     }
-                    index -= 1
 
                     if index < node.properties.count {
                         return .property(node.properties[index])

@@ -19,6 +19,7 @@ protocol RaymarchingElementVisitor: ElementVisitor {
 
     // MARK: Transforming
 
+    func visit<T: RaymarchingElement>(_ element: RotateElement<T>) -> ResultType
     func visit<T: RaymarchingElement>(_ element: ScaleElement<T>) -> ResultType
     func visit<T: RaymarchingElement>(_ element: TranslateElement<T>) -> ResultType
 

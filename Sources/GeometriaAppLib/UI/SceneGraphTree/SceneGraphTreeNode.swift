@@ -2,18 +2,28 @@ import ImagineUI
 import Blend2DRenderer
 
 final class SceneGraphTreeNode {
-    var element: Element
+    var object: NodeOwner
     var title: String
     var icon: Image?
     var properties: [PropertyEntry] = []
     var subnodes: [SceneGraphTreeNode] = []
 
-    var mutator: ((Element) -> Element)?
+    var mutator: ((NodeOwner) -> NodeOwner)?
 
     weak var parent: SceneGraphTreeNode?
 
     init(element: Element, title: String) {
-        self.element = element
+        self.object = .element(element)
+        self.title = title
+    }
+    
+    init(matrix: Matrix3x3, title: String) {
+        self.object = .matrix3x3(matrix)
+        self.title = title
+    }
+    
+    private init(object: NodeOwner, title: String) {
+        self.object = object
         self.title = title
     }
 
@@ -52,13 +62,17 @@ final class SceneGraphTreeNode {
     }
     */
 
-    func addSubNode<Base: Element, Value: Element>(_ node: SceneGraphTreeNode, mutating keyPath: WritableKeyPath<Base, Value>) {
+    func addSubNode<Base: Element, Value: Element>(
+        _ node: SceneGraphTreeNode,
+        mutating keyPath: WritableKeyPath<Base, Value>
+    ) {
+        
         addSubNode(node)
 
         self.mutator = { [weak self] newValue in
             guard let self = self else { return newValue }
 
-            guard var castObject = self.element as? Base else {
+            guard case .element(var castObject as Base) = self.object else {
                 return newValue
             }
             guard let value = newValue as? Value else {
@@ -66,7 +80,7 @@ final class SceneGraphTreeNode {
             }
 
             castObject[keyPath: keyPath] = value
-            return castObject
+            return .element(castObject)
         }
     }
 
@@ -88,28 +102,77 @@ final class SceneGraphTreeNode {
         return self
     }
 
-    func addingSubNode<Base: Element, Value: Element>(_ visitor: SceneGraphVisitor, mutating element: Base, _ keyPath: WritableKeyPath<Base, Value>) -> SceneGraphTreeNode {
+    func addingSubNode<Base: Element, Value: Element>(
+        _ visitor: SceneGraphVisitor,
+        mutating element: Base, _ keyPath: WritableKeyPath<Base, Value>
+    ) -> SceneGraphTreeNode {
+        
         addSubNode(element[keyPath: keyPath].accept(visitor), mutating: keyPath)
 
         return self
     }
 
-    func addingSubNode<Base: Element, Value: RaymarchingElement>(_ visitor: SceneGraphVisitor, mutating element: Base, _ keyPath: WritableKeyPath<Base, Value>) -> SceneGraphTreeNode {
+    func addingSubNode<Base: Element, Value: RaymarchingElement>(
+        _ visitor: SceneGraphVisitor,
+        mutating element: Base,
+        _ keyPath: WritableKeyPath<Base, Value>
+    ) -> SceneGraphTreeNode {
+        
         addSubNode(element[keyPath: keyPath].accept(visitor), mutating: keyPath)
 
         return self
     }
 
-    func addingSubNodes<Base: Element, Value: Element>(_ visitor: SceneGraphVisitor, mutating element: Base, _ keyPath: WritableKeyPath<Base, [Value]>) -> SceneGraphTreeNode {
+    func addingSubNodes<Base: Element, Value: Element>(
+        _ visitor: SceneGraphVisitor,
+        mutating element: Base,
+        _ keyPath: WritableKeyPath<Base, [Value]>
+    ) -> SceneGraphTreeNode {
+        
         var result = self
 
         let elements = element[keyPath: keyPath]
         for index in 0..<elements.count {
             let kp = keyPath.appending(path: \.[index])
 
-            result = result.addingSubNode(visitor, mutating: element, kp)
+            result = result.addingSubNode(
+                visitor,
+                mutating: element,
+                kp
+            )
         }
 
+        return result
+    }
+    
+    func addingCustomSubNode(
+        title: String,
+        _ builder: (inout SceneGraphTreeNode) -> Void
+    ) -> SceneGraphTreeNode {
+        
+        var node = SceneGraphTreeNode(object: object, title: title)
+        builder(&node)
+        
+        let result = self
+        
+        result.addSubNode(node)
+        
+        return result
+    }
+    
+    func addingCustomSubNode(
+        matrix: Matrix3x3,
+        title: String,
+        _ builder: (inout SceneGraphTreeNode) -> Void
+    ) -> SceneGraphTreeNode {
+        
+        var node = SceneGraphTreeNode(matrix: matrix, title: title)
+        builder(&node)
+        
+        let result = self
+        
+        result.addSubNode(node)
+        
         return result
     }
 
@@ -123,6 +186,11 @@ final class SceneGraphTreeNode {
         var name: String
         var value: String
     }
+    
+    enum NodeOwner {
+        case element(Element)
+        case matrix3x3(Matrix3x3)
+    }
 }
 
 // MARK: - Property derivation
@@ -130,6 +198,32 @@ final class SceneGraphTreeNode {
 extension SceneGraphTreeNode {
     func addingProperty(name: String, value: RVector3D) -> SceneGraphTreeNode {
         addingProperty(name: name, value: "(\(value.x), \(value.y), \(value.z))")
+    }
+    
+    func addingMatrixProperty(name: String, value: Matrix3x3) -> SceneGraphTreeNode {
+        addingCustomSubNode(matrix: value, title: name) { node in
+            let rows = value.rows()
+            
+            for (i, row) in rows.enumerated() {
+                node.addProperty(
+                    name: "row \(i)",
+                    value: "(\(row.map { "\($0)" }.joined(separator: ", ")))"
+                )
+            }
+        }
+    }
+    
+    func addingMatrixProperty<M: MatrixType>(name: String, value: M) -> SceneGraphTreeNode {
+        addingCustomSubNode(title: name) { node in
+            let rows = value.rows()
+            
+            for (i, row) in rows.enumerated() {
+                node.addProperty(
+                    name: "row \(i)",
+                    value: "(\(row.map { "\($0)" }.joined(separator: ", ")))"
+                )
+            }
+        }
     }
 
     func addingProperties<T: Element>(for element: T) -> SceneGraphTreeNode {
@@ -191,6 +285,11 @@ extension SceneGraphTreeNode {
     func addingProperties<T>(for element: RepeatTranslateElement<T>) -> SceneGraphTreeNode {
         self.addingProperty(name: "Translation", value: element.translation)
             .addingProperty(name: "Count", value: element.count)
+    }
+    
+    func addingProperties<T>(for element: RotateElement<T>) -> SceneGraphTreeNode {
+        self.addingMatrixProperty(name: "Matrix", value: element.rotation)
+            .addingProperty(name: "Center", value: element.rotationCenter)
     }
 
     func addingProperties<T>(for element: ScaleElement<T>) -> SceneGraphTreeNode {
@@ -394,6 +493,12 @@ class SceneGraphVisitor: ElementVisitor {
 
     // MARK: Transforming
 
+    func visit<T>(_ element: RotateElement<T>) -> ResultType {
+        SceneGraphTreeNode(element: element, title: "Rotate")
+            .addingIcon(for: element)
+            .addingProperties(for: element)
+            .addingSubNode(self, mutating: element, \.element)
+    }
     func visit<T>(_ element: ScaleElement<T>) -> ResultType {
         SceneGraphTreeNode(element: element, title: "Scale")
             .addingIcon(for: element)

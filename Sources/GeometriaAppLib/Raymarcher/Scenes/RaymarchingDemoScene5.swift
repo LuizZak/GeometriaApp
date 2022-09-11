@@ -1,16 +1,16 @@
-enum RaytracingDemoScene4 {
+enum RaymarchingDemoScene5 {
     @inlinable
-    static func makeScene() -> some RaytracingSceneType {
+    static func makeScene() -> some RaymarchingSceneType {
         let materials: MaterialMap = makeMaterialMap(MaterialMapEnum.self)
         
-        return RaytracingElementBuilder.makeScene(skyColor: .cornflowerBlue, materials: materials) {
+        return RaymarchingElementBuilder.makeScene(skyColor: .cornflowerBlue, materials: materials) {
             scene()
         }
     }
 }
 
-@RaytracingElementBuilder
-private func scene() -> some RaytracingElement {
+@RaymarchingElementBuilder
+private func scene() -> some RaymarchingElement {
     makeFloorPlane()
 
     rotated(by: .make3DRotationY(.pi / 2), around: .init(x: 0, y: 100, z: 40)) {
@@ -47,7 +47,7 @@ private func makeCylinder(
 }
 
 private func makeFloorPlane() -> PlaneElement {
-    PlaneRaytracingElement(
+    PlaneRaymarchingElement(
         geometry: .init(point: .zero, normal: .unitZ),
         material: MaterialMapEnum.floor.rawValue
     )

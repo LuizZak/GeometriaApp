@@ -40,6 +40,7 @@ protocol ElementVisitor {
 
     // MARK: Transforming
 
+    func visit<T>(_ element: RotateElement<T>) -> ResultType
     func visit<T>(_ element: ScaleElement<T>) -> ResultType
     func visit<T>(_ element: TranslateElement<T>) -> ResultType
 
