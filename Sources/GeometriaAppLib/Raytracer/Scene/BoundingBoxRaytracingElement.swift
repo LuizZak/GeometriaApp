@@ -1,7 +1,7 @@
 typealias BoundingBoxRaytracingElement<T: RaytracingElement> = 
     BoundingBoxElement<T>
 
-extension BoundingBoxRaytracingElement: RaytracingElement {
+extension BoundingBoxRaytracingElement: RaytracingElement & BoundedRaytracingElement {
     @inlinable
     func raycast(query: RayQuery) -> RayQuery {
         guard intersects(query: query) else {

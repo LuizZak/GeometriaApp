@@ -359,6 +359,9 @@ extension Vector3: SignedDistanceMeasurableType {
 
 extension Vector3: Vector3FloatingPoint {
     
+    public func rotated(by matrix: RotationMatrix3, around center: Self) -> Self {
+        matrix.transformPoint(self - center) + center
+    }
 }
 
 extension Vector3: VectorReal {
@@ -396,5 +399,13 @@ extension Vector3: Vector3Real {
         }
         
         return Scalar.asin(z / l)
+    }
+}
+
+public extension Sequence where Element: Vector3FloatingPoint {
+    func transformed(by matrix: Matrix3x3) -> [Element] {
+        map {
+            matrix.transformPoint($0)
+        }
     }
 }

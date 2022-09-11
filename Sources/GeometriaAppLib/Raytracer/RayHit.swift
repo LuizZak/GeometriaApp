@@ -99,7 +99,6 @@ struct RayHit: Equatable {
 
     /// Translates the components of this ray hit, returning a new hit that is 
     /// shifted in space by an amount specified by `vector`.
-    @_transparent
     func translated(by vector: RVector3D) -> RayHit {
         var hit = self
         
@@ -111,7 +110,6 @@ struct RayHit: Equatable {
     /// Scales the components of this ray hit, returning a new hit that is 
     /// scaled in space around a given center point by an amount specified by 
     /// `factor`.
-    @_transparent
     func scaledBy(_ factor: Double, around center: RVector3D) -> Self {
         var hit = self
 
@@ -119,6 +117,26 @@ struct RayHit: Equatable {
         // hit information.
         hit.pointNormal.point = (pointNormal.point - center) * factor + center
 
+        return hit
+    }
+    
+    /// Rotates the components of this ray hit, returning a new ray hit that
+    /// is rotated in space around the given center point by a given rotational
+    /// matrix.
+    func rotated(by matrix: RRotationMatrix3D, around center: RVector3D) -> Self {
+        var hit = self
+        
+        hit.pointNormal.point =
+            hit.pointNormal
+                .point
+                .rotated(by: matrix, around: center)
+        
+        hit.pointNormal.normal =
+            hit.pointNormal
+                .normal
+                .rotated(by: matrix, around: .zero)
+                .normalized()
+        
         return hit
     }
 

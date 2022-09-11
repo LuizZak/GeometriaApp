@@ -28,7 +28,7 @@ private func scene() -> some RaytracingElement {
     )
 }
 
-private func makeTetrahedron(center: RVector3D, edgeLength: Double, material: MaterialMapEnum = .glassy) -> some RaytracingElement {
+private func makeTetrahedron(center: RVector3D, edgeLength: Double, material: MaterialMapEnum = .glassy) -> some BoundedRaytracingElement {
     let insphereRadius = edgeLength / 24.0.squareRoot()
     let circumscribedRadius = edgeLength * (6.0.squareRoot() / 4.0)
 
@@ -60,7 +60,7 @@ private func makeTetrahedron(center: RVector3D, edgeLength: Double, material: Ma
     )
 }
 
-private func makeDodecahedron(center: RVector3D, edgeLength: Double, material: MaterialMapEnum = .glassy) -> some RaytracingElement {
+private func makeDodecahedron(center: RVector3D, edgeLength: Double, material: MaterialMapEnum = .glassy) -> some BoundedRaytracingElement {
     let insphereRadius: Double = (edgeLength / 2.0) * (5.0 / 2.0 + (11.0 / 10.0) * 5.0.squareRoot()).squareRoot()
     let circumscribedRadius: Double = edgeLength * (3.0.squareRoot() / 4.0) * (1.0 + 5.0.squareRoot())
 

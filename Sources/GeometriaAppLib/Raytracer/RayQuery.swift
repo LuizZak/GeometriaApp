@@ -68,7 +68,6 @@ struct RayQuery: Equatable {
 
     /// Translates the components of this ray query, returning a new ray query
     /// that is shifted in space by an amount specified by `vector`.
-    @_transparent
     func translated(by vector: RVector3D) -> Self {
         var query = self
 
@@ -83,7 +82,6 @@ struct RayQuery: Equatable {
     /// Uniformly scales the components of this ray query, returning a new ray 
     /// query that is scaled in space around the given center point by an amount 
     /// specified by `factor`.
-    @_transparent
     func scaled(by factor: Double, around center: RVector3D) -> Self {
         var query = self
         let vector = RVector3D(repeating: factor)
@@ -93,6 +91,20 @@ struct RayQuery: Equatable {
         query.rayAABB = self.rayAABB?.scaledBy(factor, around: center)
         query.lineSegment = self.lineSegment.withPointsScaledBy(vector, around: center)
         query.lastHit = self.lastHit?.scaledBy(factor, around: center)
+        
+        return query
+    }
+    
+    /// Rotates the components of this ray query, returning a new ray query that
+    /// is rotated in space around the given center point by a given rotational
+    /// matrix.
+    func rotated(by matrix: RRotationMatrix3D, around center: RVector3D) -> Self {
+        var query = self
+
+        query.ray = self.ray.rotated(by: matrix, around: center)
+        query.rayAABB = self.rayAABB?.rotated(by: matrix, around: center)
+        query.lineSegment = self.lineSegment.rotated(by: matrix, around: center)
+        query.lastHit = self.lastHit?.rotated(by: matrix, around: center)
         
         return query
     }

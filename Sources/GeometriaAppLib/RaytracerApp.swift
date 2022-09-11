@@ -157,7 +157,7 @@ open class RaytracerApp: ImagineUIContentType {
 
         #if true
         
-        let scene = RaytracingDemoScene1.makeScene()
+        let scene = RaytracingDemoScene4.makeScene()
         
         let renderer = Raytracer(
             scene: scene,

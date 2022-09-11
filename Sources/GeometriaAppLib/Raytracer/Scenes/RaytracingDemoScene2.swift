@@ -29,22 +29,26 @@ private func makeGreekBuilding(withBaseCenteredAt point: RVector3D) -> some Rayt
 
         let pillarBounds = pillars.makeBounds()
 
-        let baseSize = pillarBounds.size.take.xy + .init(x: 5, y: 5)
+        let baseSize = pillarBounds.size[.x, .y] + .init(x: 5, y: 5)
 
         makeBase(
-            center: .init(pillarBounds.center.take.xy),
+            center: .init(pillarBounds.center[.x, .y]),
             size: baseSize
         )
 
         makeTop(
-            center: .init(pillarBounds.center.take.xy, z: pillarBounds.maximum.z),
+            center: .init(pillarBounds.center[.x, .y], z: pillarBounds.maximum.z),
             size: baseSize
         )
         
         pillars
     }
-
-    return building.centered(at: .init(point.take.xy, z: point.z + building.makeBounds().size.z / 2)).makeBoundingBox()
+    
+    return building.centered(
+        at: RVector3D(
+            point[.x, .y], z: point.z + building.makeBounds().size.z / 2
+        )
+    ).makeBoundingBox()
 }
 
 @RaytracingElementBuilder

@@ -195,6 +195,10 @@ extension SIMD3: Vector3FloatingPoint where Scalar == Double {
     public init(_ tuple: (Scalar, Scalar, Scalar)) {
         self.init(x: tuple.0, y: tuple.1, z: tuple.2)
     }
+    
+    public func rotated(by matrix: RotationMatrix3, around center: Self) -> Self {
+        matrix.transformPoint(self - center) + center
+    }
 }
 
 extension SIMD3: VectorReal where Scalar == Double {

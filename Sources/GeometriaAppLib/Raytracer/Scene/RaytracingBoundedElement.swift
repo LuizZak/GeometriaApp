@@ -1,0 +1,3 @@
+protocol BoundedRaytracingElement: RaytracingElement, BoundedElement {
+
+}
