@@ -309,6 +309,10 @@ final class Raytracer<Scene: RaytracingSceneType>: RendererType {
         )
         
         for intersection in intersections {
+            if intersection.id == hit.id && intersection.point.distanceSquared(to: hit.point) < 1 {
+                continue
+            }
+
             guard let material = intersection.material else {
                 continue
             }

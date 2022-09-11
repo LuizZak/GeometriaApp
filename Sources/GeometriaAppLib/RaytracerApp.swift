@@ -155,7 +155,7 @@ open class RaytracerApp: ImagineUIContentType {
         
         // TODO: Derive camera configuration from the demo scene builders.
 
-        #if false
+        #if true
         
         let scene = RaytracingDemoScene4.makeScene()
         
