@@ -202,6 +202,8 @@ extension SceneGraphTreeNode {
     
     func addingMatrixProperty(name: String, value: Matrix3x3) -> SceneGraphTreeNode {
         addingCustomSubNode(matrix: value, title: name) { node in
+            node.icon = IconLibrary.matrixIcon
+
             let rows = value.rows()
             
             for (i, row) in rows.enumerated() {
@@ -215,6 +217,8 @@ extension SceneGraphTreeNode {
     
     func addingMatrixProperty<M: MatrixType>(name: String, value: M) -> SceneGraphTreeNode {
         addingCustomSubNode(title: name) { node in
+            node.icon = IconLibrary.matrixIcon
+
             let rows = value.rows()
             
             for (i, row) in rows.enumerated() {

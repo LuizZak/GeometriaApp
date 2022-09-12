@@ -64,11 +64,11 @@ class IconLibrary {
     static let tupleIcon: Image = makeIcon(.cornflowerBlue) { (renderer, size) in
         let circleLeft = UICircle(
             center: .init(x: size.width, y: size.height / 2),
-            radius: size.width - 2
+            radius: size.width * (10.0 / 12.0)
         )
         let circleRight = UICircle(
             center: .init(x: 0, y: size.height / 2),
-            radius: size.width - 2
+            radius: size.width * (10.0 / 12.0)
         )
 
         renderer.stroke(circleLeft)
@@ -105,6 +105,41 @@ class IconLibrary {
         poly.close()
 
         renderer.stroke(poly)
+    }
+
+    // MARK: - Green icons (data types)
+
+    static let matrixIcon: Image = makeIcon(.green) { (renderer, size) in
+        let sizePoint = size.asUIPoint
+
+        func rounded(_ p: UIPoint) -> UIPoint {
+            UIPoint(x: p.x.rounded(), y: p.y.rounded())
+        }
+
+        func line(start: UIPoint, end: UIPoint) {
+            renderer.strokeLine(
+                start: rounded(start),
+                end: rounded(end)
+            )
+        }
+
+        line(
+            start: sizePoint * UIVector(x: 1.0 / 3.0, y: 0.0),
+            end: sizePoint * UIVector(x: 1.0 / 3.0, y: 1.0)
+        )
+        line(
+            start: sizePoint * UIVector(x: 2.0 / 3.0, y: 0.0),
+            end: sizePoint * UIVector(x: 2.0 / 3.0, y: 1.0)
+        )
+        
+        line(
+            start: sizePoint * UIVector(x: 0.0, y: 1.0 / 3.0),
+            end: sizePoint * UIVector(x: 1.0, y: 1.0 / 3.0)
+        )
+        line(
+            start: sizePoint * UIVector(x: 0.0, y: 2.0 / 3.0),
+            end: sizePoint * UIVector(x: 1.0, y: 2.0 / 3.0)
+        )
     }
 
     // MARK: -
