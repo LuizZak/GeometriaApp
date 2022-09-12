@@ -3,25 +3,38 @@ class RaytracerProcessingPrinter: ProcessingPrinter {
     
     var scene: SceneType
     var sceneCamera: Camera?
-
+    
     init(viewportSize: RVector2D, scene: SceneType, sceneCamera: Camera? = nil) {
         self.scene = scene
         self.sceneCamera = sceneCamera
         super.init(size: viewportSize, scale: 1.5)
     }
     
-    func add(hit: RayHit, ray: DirectionalRay3<RVector3D>) {
-        is3D = true
-        
-        let line = LineSegment3<RVector3D>(start: ray.start, end: hit.point)
-        
-        add(line: line, color: "255, 0, 0")
-        add(hit: hit)
+    func addRaycast(
+        hit: RayHit,
+        ray: DirectionalRay3<RVector3D>,
+        function: String = #function,
+        lineNumber: Int = #line
+    ) {
+        addRaycast(ray: ray, function: function, lineNumber: lineNumber)
+        add(hit: hit, function: function, lineNumber: lineNumber)
     }
     
-    func add(hit: RayHit) {
+    func addRaycast(
+        ray: DirectionalRay3<RVector3D>,
+        function: String = #function,
+        lineNumber: Int = #line
+    ) {
         is3D = true
         
+        addDrawLine("// \(function):\(lineNumber)")
+        add(ray: ray)
+    }
+    
+    func add(hit: RayHit, function: String = #function, lineNumber: Int = #line) {
+        is3D = true
+        
+        addDrawLine("// \(function):\(lineNumber)")
         addStrokeColorSet("255, 0, 0")
         addStrokeWeightSet("2 / scale")
         add(pointNormal: hit.pointNormal)

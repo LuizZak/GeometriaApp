@@ -79,7 +79,7 @@ final class Raytracer<Scene: RaytracingSceneType>: RendererType {
             return RaytraceResult(color: scene.skyColor, dotSunDirection: 0.0)
         }
         
-        processingPrinter?.add(hit: hit, ray: ray)
+        processingPrinter?.addRaycast(hit: hit, ray: ray)
         
         // No material information, potentially a hit against invisible geometry?
         guard let material = hit.material else {
@@ -302,6 +302,8 @@ final class Raytracer<Scene: RaytracingSceneType>: RendererType {
         
         let ray = RRay3D(start: hit.point, direction: -scene.sunDirection)
         
+        processingPrinter?.addRaycast(ray: ray)
+        
         var transparency: Double = 1.0
 
         let intersections = scene.intersectAll(
@@ -317,6 +319,8 @@ final class Raytracer<Scene: RaytracingSceneType>: RendererType {
             guard let material = intersection.material else {
                 continue
             }
+            
+            processingPrinter?.add(hit: intersection)
             
             transparency *= materialMapCache[material].transparency
         }

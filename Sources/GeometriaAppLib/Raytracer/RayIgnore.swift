@@ -223,7 +223,7 @@ enum RayIgnore: Equatable {
                 break
             }
             
-            if let exit = intersection.exitPoint, rayStart.distanceSquared(to: exit.point) < minDist {
+            if let exit = intersection.exitPoint, rayStart.distanceSquared(to: exit.point) > minDist {
                 return .exit(exit)
             }
         
@@ -233,7 +233,7 @@ enum RayIgnore: Equatable {
                 break
             }
             
-            if let enter = intersection.entrancePoint, rayStart.distanceSquared(to: enter.point) < minDist {
+            if let enter = intersection.entrancePoint, rayStart.distanceSquared(to: enter.point) > minDist {
                 return .enter(enter)
             }
             
