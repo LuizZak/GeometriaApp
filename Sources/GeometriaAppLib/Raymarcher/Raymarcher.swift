@@ -52,6 +52,7 @@ final class Raymarcher<Scene: RaymarchingSceneType>: RendererType {
         processingPrinter =
             RaytracerProcessingPrinter(
                 viewportSize: RVector2D(viewportSize),
+                scene: currentScene(),
                 sceneCamera: camera
             )
     }

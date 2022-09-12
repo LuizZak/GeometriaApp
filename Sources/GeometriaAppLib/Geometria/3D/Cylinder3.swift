@@ -254,7 +254,7 @@ extension Cylinder3: Convex3Type where Vector: Vector3Real {
         
         let intersection = aabb.intersection(with: line2d)
         
-        func mapPointNormal(_ pn: PointNormal<Vector2>, negateNormal: Bool) -> PointNormal<Vector> {
+        func mapPointNormal(_ pn: PointNormal<Vector2>) -> PointNormal<Vector> {
             let worldPoint = pl.projectOut(pn.point)
 
             var normal: Vector
@@ -272,7 +272,7 @@ extension Cylinder3: Convex3Type where Vector: Vector3Real {
             
             // Use the normal that has the least value (pointing towards the
             // start of the line)
-            if lineSlope.dot(-normal) < lineSlope.dot(normal) {
+            if lineSlope.dot(normal) > 0.0 {
                 normal = -normal
             }
             
@@ -290,19 +290,19 @@ extension Cylinder3: Convex3Type where Vector: Vector3Real {
             return .contained
             
         case .enter(let pn):
-            return .enter(mapPointNormal(pn, negateNormal: false))
+            return .enter(mapPointNormal(pn))
             
             // TODO: Cover this case in unit tests
         case .singlePoint(let pn):
-            return .singlePoint(mapPointNormal(pn, negateNormal: false))
+            return .singlePoint(mapPointNormal(pn))
             
         case .exit(let pn):
-            return .exit(mapPointNormal(pn, negateNormal: true))
+            return .exit(mapPointNormal(pn))
             
         case let .enterExit(pn1, pn2):
             return .enterExit(
-                mapPointNormal(pn1, negateNormal: false),
-                mapPointNormal(pn2, negateNormal: true)
+                mapPointNormal(pn1),
+                mapPointNormal(pn2)
             )
         }
     }

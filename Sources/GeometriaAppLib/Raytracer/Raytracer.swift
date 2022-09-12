@@ -49,6 +49,7 @@ final class Raytracer<Scene: RaytracingSceneType>: RendererType {
         processingPrinter =
         RaytracerProcessingPrinter(
             viewportSize: RVector2D(viewportSize),
+            scene: currentScene(),
             sceneCamera: camera
         )
     }

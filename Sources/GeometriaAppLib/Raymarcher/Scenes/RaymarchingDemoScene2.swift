@@ -18,19 +18,18 @@ private func scene() -> some RaymarchingElement {
 }
 
 private func makeGreekBuilding(withBaseCenteredAt point: RVector3D) -> some RaymarchingElement & BoundedElement {
+    let pillars = makePillar(
+        at: .init(x: 0, y: 0, z: 0),
+        height: 80,
+        radius: 7
+    )
+    .repeatTranslated(count: 10, translation: .unitX * 30).makeBoundingBox()
+    .repeatTranslated(count: 2, translation: .unitY * 150).makeBoundingBox()
+
+    let pillarBounds = pillars.makeBounds()
+    let baseSize = pillarBounds.size[.x, .y] + RVector2D(x: 5, y: 5)
+
     let building = group {
-        let pillars = makePillar(
-            at: .init(x: 0, y: 0, z: 0),
-            height: 80,
-            radius: 7
-        )
-        .repeatTranslated(count: 10, translation: .unitX * 30).makeBoundingBox()
-        .repeatTranslated(count: 2, translation: .unitY * 150).makeBoundingBox()
-
-        let pillarBounds = pillars.makeBounds()
-
-        let baseSize = pillarBounds.size[.x, .y] + .init(x: 5, y: 5)
-
         makeBase(
             center: .init(pillarBounds.center[.x, .y]),
             size: baseSize

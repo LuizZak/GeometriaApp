@@ -1,4 +1,6 @@
 class ProcessingPrinter {
+    typealias Transform3D = Matrix4x4
+    
     private var _lastStrokeColorCall: String? = ""
     private var _lastStrokeWeightCall: String? = ""
     private var _lastFillColorCall: String? = ""
@@ -6,7 +8,7 @@ class ProcessingPrinter {
     private let identDepth: Int = 2
     private var currentIndent: Int = 0
     private var draws: [String] = []
-    var cylinders: [Cylinder3<RVector3D>] = []
+    var cylinders: [(Cylinder3<RVector3D>, transform: Transform3D?)] = []
     var shouldPrintDrawNormal: Bool = false
     var shouldPrintDrawTangent: Bool = false
     var is3D: Bool = false
@@ -37,11 +39,12 @@ class ProcessingPrinter {
         addDrawLine("")
     }
     
-    func add<V: Vector3FloatingPoint>(ellipse3: Ellipsoid<V>) {
+    func add<V: Vector3FloatingPoint>(ellipse3: Ellipsoid<V>, transform: Transform3D? = nil) {
         is3D = true
         addNoStroke()
         add3DSpaceBarBoilerplate(lineWeight: ellipse3.radius.maximalComponent)
         addDrawLine("pushMatrix();")
+        addMatrixLine(transform)
         addDrawLine("translate(\(vec3String(ellipse3.center)));")
         addDrawLine("scale(\(vec3String(ellipse3.radius)));")
         addDrawLine("sphere(1);")
@@ -65,11 +68,12 @@ class ProcessingPrinter {
         addDrawLine("")
     }
     
-    func add<Line: Line3Type>(line: Line, color: String = "0") {
+    func add<Line: Line3Type>(line: Line, color: String = "0", transform: Transform3D? = nil) {
         is3D = true
         
         addStrokeColorSet(color)
         addStrokeWeightSet("2 / scale")
+        // TODO: Add transform matrix push
         addDrawLine("line(\(vec3String(line.a)), \(vec3String(line.b)));")
         addDrawLine("")
     }
@@ -78,8 +82,10 @@ class ProcessingPrinter {
         switch result {
         case .contained, .noIntersection:
             break
+            
         case .singlePoint(let pn), .enter(let pn), .exit(let pn):
             add(pointNormal: pn)
+            
         case let .enterExit(p1, p2):
             add(pointNormal: p1)
             add(pointNormal: p2)
@@ -133,26 +139,36 @@ class ProcessingPrinter {
         addDrawLine("rect(\(vec2String(aabb.minimum)), \(vec2String(aabb.maximum)));")
     }
     
-    func add<V: Vector3Type>(sphere: Sphere3<V>) {
+    func add<V: Vector3Type>(sphere: Sphere3<V>, transform: Transform3D? = nil) {
         is3D = true
         
-        addDrawLine("drawSphere(\(vec3String(sphere.center)), \(sphere.radius));")
+        let line = "drawSphere(\(vec3String(sphere.center)), \(sphere.radius));"
+        
+        if let transform = transform {
+            addDrawLine("pushMatrix();")
+            addMatrixLine(transform)
+            addDrawLine(line)
+            addDrawLine("popMatrix();")
+        } else {
+            addDrawLine(line)
+        }
     }
     
-    func add<V: Vector3Additive & VectorDivisible>(aabb: AABB3<V>) {
+    func add<V: Vector3Additive & VectorDivisible>(aabb: AABB3<V>, transform: Transform3D? = nil) {
         is3D = true
         
         add3DSpaceBarBoilerplate(lineWeight: 1.0)
         addDrawLine("pushMatrix();")
+        addMatrixLine(transform)
         addDrawLine("translate(\(vec3String(aabb.minimum + aabb.size / 2)));")
         addDrawLine("box(\(vec3String(aabb.size)));")
         addDrawLine("popMatrix();")
     }
     
-    func add(cylinder: Cylinder3<RVector3D>) {
+    func add(cylinder: Cylinder3<RVector3D>, transform: Transform3D? = nil) {
         is3D = true
         
-        cylinders.append(cylinder)
+        cylinders.append((cylinder, transform))
     }
     
     func printAll() {
@@ -181,7 +197,7 @@ class ProcessingPrinter {
             printLine("PeasyCam cam;")
         }
         if hasCylinders {
-            printLine("ArrayList<Tube> cylinders = new ArrayList<Tube>();")
+            printLine("ArrayList<Cylinder> cylinders = new ArrayList<Cylinder>();")
         }
         
         printCustomHeader()
@@ -232,6 +248,11 @@ class ProcessingPrinter {
             printLine("")
             printDrawSphere()
         }
+        
+        if hasCylinders {
+            printLine("")
+            printCylinderClass()
+        }
     }
     
     // MARK: - Expression Printing
@@ -249,6 +270,18 @@ class ProcessingPrinter {
             indentString(depth: 1) + "lights();",
             "}"
         ]
+    }
+    
+    func addMatrixLine(_ matrix: Matrix4x4?) {
+        guard let matrix = matrix else {
+            return
+        }
+
+        addDrawLine("applyMatrix(")
+        indented {
+            addDrawLine(mat2String(matrix, multiline: true))
+        }
+        addDrawLine(")")
     }
     
     func addDrawLine(_ line: String) {
@@ -317,11 +350,19 @@ class ProcessingPrinter {
     // MARK: - Function Printing
     
     func printSetup() {
-        func printCylinder(_ cylinder: Cylinder3<RVector3D>) {
+        func registerCylinder(_ cylinder: Cylinder3<RVector3D>, transform: Transform3D?) {
             let start = vec3PVectorString(cylinder.start)
             let end = vec3PVectorString(cylinder.end)
             
-            printLine("addCylinder(\(start), \(end), \(cylinder.radius));")
+            var line = "addCylinder(\(start), \(end), \(cylinder.radius)"
+            
+            if let transform = transform {
+                line += ", " + mat2ArrayString(transform, multiline: true)
+            }
+            
+            line += ");"
+            
+            printLine(line)
         }
         
         indentedBlock("void setup() {") {
@@ -334,10 +375,8 @@ class ProcessingPrinter {
                 printLine("size(\(vec2String_int(size)));")
             }
             
-            if hasCylinders {
-                for cylinder in cylinders {
-                    printCylinder(cylinder)
-                }
+            for cylinder in cylinders {
+                registerCylinder(cylinder.0, transform: cylinder.transform)
             }
             
             printLine("ellipseMode(RADIUS);")
@@ -391,13 +430,13 @@ class ProcessingPrinter {
             }
             
             if hasCylinders {
-                indentedBlock("for (Tube t: cylinders) {") {
+                indentedBlock("for (Cylinder cyl: cylinders) {") {
                     indentedBlock("if (isSpaceBarPressed) {") {
-                        printLine("t.drawMode(S3D.WIRE);")
+                        printLine("cyl.tube.drawMode(S3D.WIRE);")
                     }
                     printLine("else")
                     indentedBlock("{") {
-                        printLine("t.drawMode(S3D.SOLID);")
+                        printLine("cyl.tube.drawMode(S3D.SOLID);")
                     }
                 }
             }
@@ -405,7 +444,7 @@ class ProcessingPrinter {
     }
     
     func printAddCylinder() {
-        indentedBlock("void addCylinder(PVector start, PVector end, float radius) {") {
+        indentedBlock("void addCylinder(PVector start, PVector end, float radius, float[] mat) {") {
             printLine("Oval base = new Oval(radius, 20);")
             printLine("Path line = new Linear(start, end, 1);")
             printLine("")
@@ -416,14 +455,21 @@ class ProcessingPrinter {
             printLine("tube.strokeWeight(1);")
             printLine("tube.fill(color(200, 200, 200, 50));")
             printLine("")
-            printLine("cylinders.add(tube);")
+            printLine("Cylinder cylinder = new Cylinder(tube, mat);")
+            printLine("cylinders.add(cylinder);")
         }
     }
     
     func printDrawCylinders() {
         indentedBlock("void drawCylinders() {") {
-            indentedBlock("for (Tube t: cylinders) {") {
-                printLine("t.draw(getGraphics());")
+            indentedBlock("for (Cylinder cyl: cylinders) {") {
+                printLine("pushMatrix();")
+                indentedBlock("if (cyl.matrix != null) {") {
+                    printLine("applyMatrix(cyl.matrix);")
+                }
+                printLine("")
+                printLine("cyl.tube.draw(getGraphics());")
+                printLine("popMatrix();")
             }
         }
     }
@@ -512,6 +558,36 @@ class ProcessingPrinter {
         }
     }
     
+    func printCylinderClass() {
+        indentedBlock("class Cylinder {") {
+            printLine("Tube tube;")
+            printLine("PMatrix matrix;")
+            printLine("")
+            indentedBlock("Cylinder(Tube tube) {") {
+                printLine("this.tube = tube;")
+                printLine("this.matrix = null;")
+            }
+            printLine("")
+            indentedBlock("Cylinder(Tube tube, float[] mat) {") {
+                printLine("this.tube = tube;")
+                printLine("")
+                indentedBlock("if (mat != null) {") {
+                    indentedBlock("this.matrix = new PMatrix3D(", closingBrace: ");") {
+                        printLine("mat[0], mat[1], mat[2], mat[3],")
+                        printLine("mat[4], mat[5], mat[6], mat[7],")
+                        printLine("mat[8], mat[9], mat[10], mat[11],")
+                        printLine("mat[12], mat[13], mat[14], mat[15]")
+                    }
+                }
+            }
+            printLine("")
+            indentedBlock("Cylinder(Tube tube, PMatrix matrix) {") {
+                printLine("this.tube = tube;")
+                printLine("this.matrix = matrix;")
+            }
+        }
+    }
+    
     // MARK: - String printing
     
     func vec3PVectorString<V: Vector3Type>(_ vec: V) -> String {
@@ -535,6 +611,62 @@ class ProcessingPrinter {
         "\(Int(vec.x)), \(Int(vec.y))"
     }
     
+    func mat2PMatrixString(_ matrix: Matrix4x4, multiline: Bool = false) -> String {
+        let prefix = "new PMatrix3D("
+        let postfix = ")"
+        
+        var result = prefix
+        
+        if multiline {
+            result += "\n\(indentString())"
+        }
+        
+        result += mat2String(matrix, multiline: multiline)
+        result += postfix
+        
+        return result
+    }
+    
+    func mat2ArrayString<M: MatrixType>(_ matrix: M, multiline: Bool = false) -> String {
+        "new float[] { \(mat2String(matrix, multiline: multiline)) }"
+    }
+    
+    func mat2String<M: MatrixType>(_ matrix: M, multiline: Bool = false) -> String {
+        var result = ""
+        
+        let values = matrix.rowMajorValues()
+        
+        if multiline {
+            for row in 0..<matrix.rowCount {
+                let start = row * matrix.columnCount
+                let end = start + matrix.columnCount
+                
+                var line: String = indentString()
+                line += commaSeparated(values[start..<end], trailing: end != values.count)
+                result += line + "\n"
+            }
+        } else {
+            result = commaSeparated(values)
+        }
+        
+        return result
+    }
+    
+    func array2String<S: Sequence>(_ seq: S, typeName: String) -> String {
+        let elements = commaSeparated(seq)
+        
+        return "new \(typeName)[] { \(elements)\(elements.isEmpty ? "" : " ")}"
+    }
+    
+    func commaSeparated<S: Sequence>(_ els: S, trailing: Bool = false) -> String {
+        let list = els.map { "\($0)" }.joined(separator: ", ")
+        if trailing {
+            return list + ", "
+        }
+        
+        return list
+    }
+    
     func printLine(_ line: String) {
         print("\(indentString())\(line)", to: &buffer)
     }
@@ -552,12 +684,12 @@ class ProcessingPrinter {
         String(repeating: " ", count: depth)
     }
     
-    func indentedBlock(_ start: String, _ block: () -> Void) {
+    func indentedBlock(_ start: String, closingBrace: String = "}", _ block: () -> Void) {
         printLine(start)
         indented {
             block()
         }
-        printLine("}")
+        printLine(closingBrace)
     }
     
     func indented(_ block: () -> Void) {

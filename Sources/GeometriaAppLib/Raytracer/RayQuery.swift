@@ -19,12 +19,12 @@ struct RayQuery: Equatable {
 
     /// Returns a copy of this query with no hit information attributed.
     @_transparent
-    func withNilHit() -> RayQuery {
+    func withNilHit() -> Self {
         .init(ray: ray, ignoring: ignoring)
     }
     
     @inlinable
-    func withHit(_ rayHit: RayHit) -> RayQuery {
+    func withHit(_ rayHit: RayHit) -> Self {
         let point = rayHit.point
         let magnitudeSquared = point.distanceSquared(to: ray.start)
         
@@ -54,7 +54,7 @@ struct RayQuery: Equatable {
         normal: RVector3D,
         hitDirection: RayHit.HitDirection,
         material: MaterialId
-    ) -> RayQuery {
+    ) -> Self {
         
         let hit = RayHit(
             id: id,
@@ -123,7 +123,10 @@ extension RayQuery {
     }
     
     @inlinable
-    func intersect<Convex: Convex3Type>(convex geometry: Convex) -> RConvexLineResult3D where Convex.Vector == RVector3D {
+    func intersect<Convex: Convex3Type>(
+        convex geometry: Convex
+    ) -> RConvexLineResult3D where Convex.Vector == RVector3D {
+        
         let intersection = 
             rayMagnitudeSquared.isFinite
                 ? geometry.intersection(with: lineSegment)
@@ -147,7 +150,10 @@ extension RayQuery {
     }
     
     @inlinable
-    func intersect<Plane: LineIntersectablePlaneType>(plane geometry: Plane) -> RConvexLineResult3D where Plane.Vector == RVector3D {
+    func intersect<Plane: LineIntersectablePlaneType>(
+        plane geometry: Plane
+    ) -> RConvexLineResult3D where Plane.Vector == RVector3D {
+        
         guard let inter = intersection(plane: geometry) else {
             return .noIntersection
         }
@@ -165,7 +171,10 @@ extension RayQuery {
         return .singlePoint(PointNormal(point: inter, normal: normal))
     }
     
-    func isFullyContained<Convex: Convex3Type>(by convex: Convex) -> Bool where Convex.Vector == RVector3D {
+    func isFullyContained<Convex: Convex3Type>(
+        by convex: Convex
+    ) -> Bool where Convex.Vector == RVector3D {
+        
         if rayMagnitudeSquared.isFinite {
             switch convex.intersection(with: lineSegment) {
             case .contained:
@@ -201,7 +210,10 @@ extension RayQuery {
     }
     
     @_transparent
-    private func intersection<Plane: LineIntersectablePlaneType>(plane geometry: Plane) -> RVector3D? where Plane.Vector == RVector3D {
+    private func intersection<Plane: LineIntersectablePlaneType>(
+        plane geometry: Plane
+    ) -> RVector3D? where Plane.Vector == RVector3D {
+        
         rayMagnitudeSquared.isFinite
             ? geometry.intersection(with: lineSegment)
             : geometry.intersection(with: ray)
@@ -217,7 +229,7 @@ extension RayQuery {
         id: Int,
         material: MaterialId?,
         convex geometry: Convex
-    ) -> RayQuery where Convex.Vector == RVector3D {
+    ) -> Self where Convex.Vector == RVector3D {
         
         guard !ignoring.shouldIgnoreFully(id: id) else {
             return self
@@ -265,7 +277,7 @@ extension RayQuery {
         id: Int,
         material: MaterialId?,
         plane geometry: Plane
-    ) -> RayQuery where Plane.Vector == RVector3D {
+    ) -> Self where Plane.Vector == RVector3D {
         
         guard !ignoring.shouldIgnoreFully(id: id) else {
             return self

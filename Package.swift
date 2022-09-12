@@ -1,5 +1,16 @@
 // swift-tools-version:5.5
 import PackageDescription
+import class Foundation.ProcessInfo
+
+let reportingSwiftSettings: [SwiftSetting] = [
+    .unsafeFlags([
+        "-driver-time-compilation",
+        "-Xfrontend",
+        "-warn-long-function-bodies=1000",
+        "-Xfrontend",
+        "-warn-long-expression-type-checking=300"
+    ])
+]
 
 var packageDependencies: [Package.Dependency] =  [
     // TODO: When Swift properly supports -Xswiftc -cross-module-optimization, re-enable external Geometria import.
@@ -34,8 +45,15 @@ var geometriaAppLibTarget: Target = .target(
         .copy("Resources/FiraCode-Retina.ttf"),
         .copy("Resources/FiraCode-SemiBold.ttf"),
         .copy("Resources/NotoSans-Regular.ttf"),
+    ],
+    swiftSettings: [
+        
     ]
 )
+
+if ProcessInfo.processInfo.environment["REPORT_BUILD_TIME"] == "YES" {
+    geometriaAppLibTarget.swiftSettings?.append(contentsOf: reportingSwiftSettings)
+}
 
 var osTargets: [Target] = []
 
