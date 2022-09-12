@@ -142,7 +142,7 @@ open class RaytracerApp: ImagineUIContentType {
         //let batcher = SinglePixelBatcher(pixel: .init(x: 445, y: 375)) // Issue with refraction in Tetrahedron scene
         //let batcher = SinglePixelBatcher(pixel: .init(x: 350, y: 470)) // Issue with AABB shadows in raytracing demo scene 1
         //let batcher = SinglePixelBatcher(pixel: .init(x: 425, y: 570)) // Issue with target-textured plane shadows in raytracing demo scene 1
-        //let batcher = SinglePixelBatcher(pixel: .init(x: 430, y: 510)) // Expected shadow path for transluscent sphere in raytracing demo scene 1
+        //let batcher = SinglePixelBatcher(pixel: .init(x: 430, y: 510)) // Expected shadow path for translucent sphere in raytracing demo scene 1
         //let batcher = SinglePixelBatcher(pixel: .init(x: 455, y: 507)) // Buggy shadow in raytraced rotated cylinder in RaytracingDemoScene4
         //*
         let batcher = TiledBatcher(
