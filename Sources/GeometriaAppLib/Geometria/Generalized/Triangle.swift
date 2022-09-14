@@ -15,6 +15,10 @@ public struct Triangle<Vector: VectorType>: GeometricType {
     /// The third point of this triangle.
     public var c: Vector
     
+    public var description: String {
+        "\(type(of: self))(a: \(a), b: \(b), c: \(c))"
+    }
+    
     @_transparent
     public init(a: Vector, b: Vector, c: Vector) {
         self.a = a

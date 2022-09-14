@@ -11,6 +11,10 @@ public struct NSquare<Vector: VectorType>: GeometricType {
     /// The length of the side edges of this square.
     public var sideLength: Scalar
     
+    public var description: String {
+        "\(type(of: self))(location: \(location), sideLength: \(sideLength))"
+    }
+    
     /// Returns a rectangle with the same boundaries as this square.
     @_transparent
     public var asRectangle: NRectangle<Vector> {

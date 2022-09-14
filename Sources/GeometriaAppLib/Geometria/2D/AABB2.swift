@@ -6,12 +6,6 @@ public typealias AABB2D = AABB2<Vector2D>
 /// Typealias for `AABB<V>`, where `V` is constrained to ``Vector2Type``.
 public typealias AABB2<V: Vector2Type> = AABB<V>
 
-extension AABB2: CustomStringConvertible {
-    public var description: String {
-        "\(type(of: self))(left: \(minimum.x), top: \(minimum.y), right: \(maximum.x), bottom: \(maximum.y))"
-    }
-}
-
 public extension AABB2 {
     /// The x coordinate of the left corner of this 2d box.
     ///

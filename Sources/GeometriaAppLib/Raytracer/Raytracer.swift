@@ -40,7 +40,7 @@ final class Raytracer<Scene: RaytracingSceneType>: RendererType {
         if isMultiThreaded {
             if !_attemptedDebugInMultithreadedYet {
                 _attemptedDebugInMultithreadedYet = true
-                print("Attempted to invoke Raytracer.beginDebug() with a multi-pixel, multi-threaded render, which is potentially not intended. Ignoring...")
+                GeometriaLogger.warning("Attempted to invoke Raytracer.beginDebug() with a multi-pixel, multi-threaded render, which is potentially not intended. Ignoring...")
             }
             
             return
@@ -54,8 +54,8 @@ final class Raytracer<Scene: RaytracingSceneType>: RendererType {
         )
     }
     
-    func endDebug() {
-        processingPrinter?.printAll()
+    func endDebug(target: ProcessingPrinterTarget?) {
+        processingPrinter?.printAll(target: target)
         processingPrinter = nil
     }
     
@@ -66,6 +66,9 @@ final class Raytracer<Scene: RaytracingSceneType>: RendererType {
         assert(coord >= .zero && coord < viewportSize, "\(coord) is not within \(PixelCoord.zero) x \(viewportSize) limits")
         
         let ray = camera.rayFromCamera(at: coord)
+        
+        processingPrinter?.add(ray: ray, comment: "Raycast @ pixel (x: \(coord.x), y: \(coord.y))")
+
         return raytrace(ray: ray).color
     }
     
@@ -185,6 +188,9 @@ final class Raytracer<Scene: RaytracingSceneType>: RendererType {
                 
                 let reflection = reflect(direction: ray.direction, normal: hit.normal)
                 let normRay = RRay3D(start: hit.point, direction: reflection)
+                
+                processingPrinter?.add(ray: normRay, comment: "Reflection (direction: \(normRay.direction))")
+
                 let secondHit = raytrace(
                     ray: normRay,
                     ignoring: ignoring,

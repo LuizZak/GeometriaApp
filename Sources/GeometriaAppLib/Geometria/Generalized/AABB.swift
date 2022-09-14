@@ -18,7 +18,7 @@ public struct AABB<Vector: VectorType>: GeometricType {
     public var location: Vector { minimum }
 
     public var description: String {
-        "\(type(of: self))(minimum: \(minimum), maximum: \(maximum))"
+        "AABB(minimum: \(minimum), maximum: \(maximum))"
     }
     
     /// Initializes a `NBox` with the given minimum and maximum boundary
@@ -422,6 +422,10 @@ extension AABB: ConvexType where Vector: VectorFloatingPoint {
         while index < lineSlope.scalarCount {
             defer { index += 1 }
             guard lineSlope[index] != 0 else {
+                if lineToMin[index] > 0 || lineToMax[index] < 0 {
+                    return false
+                }
+
                 continue
             }
             
@@ -448,8 +452,9 @@ extension AABB: ConvexType where Vector: VectorFloatingPoint {
                 return true
             }
         }
-        
-        return false
+
+        // Check for containment as a last resort
+        return contains(line.a) && contains(line.b)
     }
     
     /// Performs an intersection test against the given line, returning up to

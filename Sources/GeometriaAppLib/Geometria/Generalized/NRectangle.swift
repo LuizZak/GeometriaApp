@@ -14,6 +14,10 @@ public struct NRectangle<Vector: VectorType>: ConstructableRectangleType {
     /// Must be `>= Vector.zero`
     public var size: Vector
     
+    public var description: String {
+        "\(type(of: self))(location: \(location), size: \(size))"
+    }
+    
     /// Initializes a NRectangle with the location + size of a rectangle.
     @_transparent
     public init(location: Vector, size: Vector) {

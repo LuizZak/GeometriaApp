@@ -19,8 +19,14 @@ protocol RendererType: AnyObject {
     func render(pixelAt coord: PixelCoord) -> BLRgba32
     
     func beginDebug()
-    func endDebug()
-
+    func endDebug(target: ProcessingPrinterTarget?)
+    
     /// Gets the scene configured on this renderer.
     func currentScene() -> SceneType
+}
+
+extension RendererType {
+    func endDebug() {
+        endDebug(target: nil)
+    }
 }

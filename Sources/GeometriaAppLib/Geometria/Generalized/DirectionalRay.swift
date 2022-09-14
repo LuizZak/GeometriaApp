@@ -14,6 +14,10 @@ public struct DirectionalRay<Vector: VectorFloatingPoint>: GeometricType {
     /// Must have `length > 0`.
     @UnitVector public var direction: Vector
     
+    public var description: String {
+        "\(type(of: self))(start: \(start), direction: \(direction))"
+    }
+    
     /// Initializes a directional ray with a given start position and direction
     /// vectors.
     ///

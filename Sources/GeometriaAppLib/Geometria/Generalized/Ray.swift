@@ -13,6 +13,10 @@ public struct Ray<Vector: VectorType>: GeometricType {
     /// being projected to infinity in a straight line.
     public var b: Vector
     
+    public var description: String {
+        "\(type(of: self))(start: \(start), b: \(b))"
+    }
+    
     @_transparent
     public init(start: Vector, b: Vector) {
         self.start = start

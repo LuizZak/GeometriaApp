@@ -1,4 +1,4 @@
 /// A general geometric type.
-public protocol GeometricType {
+public protocol GeometricType: CustomStringConvertible {
     
 }

@@ -6,12 +6,6 @@ public typealias Rectangle2D = Rectangle2<Vector2D>
 /// Typealias for `NRectangle<V>`, where `V` is constrained to ``Vector2Type``.
 public typealias Rectangle2<V: Vector2Type> = NRectangle<V>
 
-extension Rectangle2: CustomStringConvertible {
-    public var description: String {
-        "\(type(of: self))(x: \(x), y: \(y), width: \(width), height: \(height))"
-    }
-}
-
 public extension Rectangle2 where Vector: VectorAdditive {
     /// The x coordinate of the right corner of this rectangle.
     ///

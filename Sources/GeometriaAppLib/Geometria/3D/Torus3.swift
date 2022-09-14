@@ -31,6 +31,10 @@ public struct Torus3<Vector: Vector3FloatingPoint>: GeometricType {
     /// The radius of the tube of the torus.
     public var minorRadius: Scalar
     
+    public var description: String {
+        "\(type(of: self))(center: \(center), majorRadius: \(majorRadius), minorRadius: \(minorRadius))"
+    }
+    
     @_transparent
     public init(center: Vector, axis: Vector, majorRadius: Scalar, minorRadius: Scalar) {
         self.center = center

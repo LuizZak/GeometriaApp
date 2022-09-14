@@ -178,6 +178,10 @@ extension BLBoxI {
 extension BLPointI {
     public typealias Scalar = Int32
     
+    public var asUIIntPoint: UIIntPoint {
+        return UIIntPoint(x: Int(x), y: Int(y))
+    }
+    
     public init(repeating scalar: Scalar) {
         self.init(x: scalar, y: scalar)
     }
@@ -250,5 +254,17 @@ extension BLSizeI {
     
     public init(repeating scalar: Scalar) {
         self.init(x: scalar, y: scalar)
+    }
+}
+
+extension UIIntPoint {
+    var asBLPointI: BLPointI {
+        BLPointI(x: Int32(x), y: Int32(y))
+    }
+}
+
+extension UIVector {
+    var asBLPointI: BLPointI {
+        BLPointI(x: Int32(x), y: Int32(y))
     }
 }

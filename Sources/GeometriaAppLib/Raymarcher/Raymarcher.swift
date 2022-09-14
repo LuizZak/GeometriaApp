@@ -57,8 +57,8 @@ final class Raymarcher<Scene: RaymarchingSceneType>: RendererType {
             )
     }
     
-    func endDebug() {
-        processingPrinter?.printAll()
+    func endDebug(target: ProcessingPrinterTarget?) {
+        processingPrinter?.printAll(target: target)
         processingPrinter = nil
     }
     

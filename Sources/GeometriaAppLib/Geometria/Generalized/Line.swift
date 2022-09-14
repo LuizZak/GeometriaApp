@@ -15,6 +15,10 @@ public struct Line<Vector: VectorType>: LineType {
     /// being projected to infinity in a straight line.
     public var b: Vector
     
+    public var description: String {
+        "\(type(of: self))(a: \(a), b: \(b))"
+    }
+    
     @_transparent
     public init(a: Vector, b: Vector) {
         self.a = a

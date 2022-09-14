@@ -12,6 +12,10 @@ public struct Ellipsoid<Vector: VectorType>: GeometricType {
     /// The axis-aligned axis (or radii) for this ellipsoid.
     public var radius: Vector
     
+    public var description: String {
+        "\(type(of: self))(center: \(center), radius: \(radius))"
+    }
+    
     public init(center: Vector, radius: Vector) {
         self.center = center
         self.radius = radius

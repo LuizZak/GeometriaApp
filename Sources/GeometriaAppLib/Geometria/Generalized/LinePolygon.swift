@@ -10,6 +10,10 @@ public struct LinePolygon<Vector: VectorType>: GeometricType {
     /// end points.
     public var vertices: [Vector]
     
+    public var description: String {
+        "\(type(of: self))(vertices: \(vertices))"
+    }
+    
     /// Initializes a LinePolygon with empty ``vertices`` list.
     @_transparent
     public init() {

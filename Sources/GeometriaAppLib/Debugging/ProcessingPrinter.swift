@@ -5,14 +5,17 @@ class ProcessingPrinter {
     private var _lastStrokeWeightCall: String? = ""
     private var _lastFillColorCall: String? = ""
     
+    private let defaultPrintTarget: ProcessingPrinterTarget
+
     private let identDepth: Int = 2
     private var currentIndent: Int = 0
     private var draws: [String] = []
-    var cylinders: [(Cylinder3<RVector3D>, transform: Transform3D?)] = []
+    var cylinders: [(Cylinder3<RVector3D>, comment: String?, transform: Transform3D?)] = []
     var shouldPrintDrawNormal: Bool = false
     var shouldPrintDrawTangent: Bool = false
     var is3D: Bool = false
     var hasCylinders: Bool { !cylinders.isEmpty }
+    var hasDisks: Bool = false
     
     var buffer: String = ""
     
@@ -22,6 +25,7 @@ class ProcessingPrinter {
     var drawOrigin: Bool = true
     var drawGrid: Bool = false
 
+
     convenience init(size: ViewportSize, scale: Double = 25.0) {
         self.init(size: RVector2D(size), scale: scale)
     }
@@ -29,24 +33,35 @@ class ProcessingPrinter {
     init(size: RVector2D = .init(x: 800, y: 600), scale: Double = 25.0) {
         self.size = size
         self.scale = scale
+
+        #if os(Windows)
+        defaultPrintTarget = LogProcessingPrinterTarget()
+        #else
+        defaultPrintTarget = ConsoleProcessingPrinterTarget()
+        #endif
     }
     
     func add<V: Vector2Type>(ellipse: Ellipsoid<V>) {
         addStrokeColorSet("0")
         addStrokeWeightSet("1 / scale")
         addNoFill()
-        addDrawLine("ellipse(\(vec2String(ellipse.center)), \(vec2String(ellipse.radius)));")
+        addDrawLine(Self.ellipse2String(ellipse))
         addDrawLine("")
     }
     
-    func add<V: Vector3FloatingPoint>(ellipse3: Ellipsoid<V>, transform: Transform3D? = nil) {
+    func add<V: Vector3FloatingPoint>(ellipse3: Ellipsoid<V>, comment: String? = nil, transform: Transform3D? = nil) {
         is3D = true
+
+        if let comment = comment {
+            addDrawLine("// \(comment)")
+        }
+
         addNoStroke()
         add3DSpaceBarBoilerplate(lineWeight: ellipse3.radius.maximalComponent)
         addDrawLine("pushMatrix();")
         addMatrixLine(transform)
-        addDrawLine("translate(\(vec3String(ellipse3.center)));")
-        addDrawLine("scale(\(vec3String(ellipse3.radius)));")
+        addDrawLine("translate(\(Self.vec3String(ellipse3.center)));")
+        addDrawLine("scale(\(Self.vec3String(ellipse3.radius)));")
         addDrawLine("sphere(1);")
         addDrawLine("popMatrix();")
         addDrawLine("")
@@ -55,26 +70,34 @@ class ProcessingPrinter {
     func add<Line: Line2Type>(line: Line) {
         addStrokeColorSet("0")
         addStrokeWeightSet("1 / scale")
-        addDrawLine("line(\(vec2String(line.a)), \(vec2String(line.b)));")
+        addDrawLine(Self.line2String(line))
         addDrawLine("")
     }
     
-    func add<Vector: Vector3Type>(ray: DirectionalRay3<Vector>) {
+    func add<Vector: Vector3Type>(ray: DirectionalRay3<Vector>, comment: String? = nil) {
         is3D = true
         
+        if let comment = comment {
+            addDrawLine("// \(comment)")
+        }
+
         addStrokeColorSet("255, 0, 0")
         addStrokeWeightSet("2 / scale")
-        addDrawLine("line(\(vec3String(ray.start)), \(vec3String(ray.projectedMagnitude(500))));")
+        addDrawLine(Self.ray3String(ray))
         addDrawLine("")
     }
     
-    func add<Line: Line3Type>(line: Line, color: String = "0", transform: Transform3D? = nil) {
+    func add<Line: Line3Type>(line: Line, color: String = "0", comment: String? = nil, transform: Transform3D? = nil) {
         is3D = true
         
+        if let comment = comment {
+            addDrawLine("// \(comment)")
+        }
+
         addStrokeColorSet(color)
         addStrokeWeightSet("2 / scale")
         // TODO: Add transform matrix push
-        addDrawLine("line(\(vec3String(line.a)), \(vec3String(line.b)));")
+        addDrawLine(Self.line3String(line))
         addDrawLine("")
     }
     
@@ -110,9 +133,9 @@ class ProcessingPrinter {
         
         addStrokeWeightSet("1 / scale")
         addStrokeColorSet("255, 0, 0, 100")
-        addDrawLine("drawNormal(\(vec2String(pointNormal.point)), \(vec2String(pointNormal.normal)));")
+        addDrawLine(Self.pointNormal2String_normal(pointNormal))
         addStrokeColorSet("255, 0, 255, 100")
-        addDrawLine("drawTangent(\(vec2String(pointNormal.point)), \(vec2String(pointNormal.normal)));")
+        addDrawLine(Self.pointNormal2String_tangent(pointNormal))
         addDrawLine("")
     }
     
@@ -123,26 +146,30 @@ class ProcessingPrinter {
         
         addStrokeWeightSet("1 / scale")
         addStrokeColorSet("255, 0, 0, 100")
-        addDrawLine("drawNormal(\(vec3String(pointNormal.point)), \(vec3String(pointNormal.normal)));")
+        addDrawLine(Self.pointNormal3String_normal(pointNormal))
     }
     
     func add<V: Vector2Type>(circle: Circle2<V>) {
         addStrokeWeightSet("1 / scale")
         addStrokeColorSet("255, 0, 0, 100")
-        addDrawLine("circle(\(vec2String(circle.center)), \(circle.radius));")
+        addDrawLine(Self.circle2String(circle))
     }
     
     func add<V: Vector2Additive & VectorDivisible>(aabb: AABB2<V>) {
         addStrokeWeightSet("1 / scale")
         addStrokeColorSet("255, 0, 0, 100")
         addNoFill()
-        addDrawLine("rect(\(vec2String(aabb.minimum)), \(vec2String(aabb.maximum)));")
+        addDrawLine(Self.aabb2String(aabb))
     }
     
-    func add<V: Vector3Type>(sphere: Sphere3<V>, transform: Transform3D? = nil) {
+    func add<V: Vector3Type>(sphere: Sphere3<V>, comment: String? = nil, transform: Transform3D? = nil) {
         is3D = true
+
+        if let comment = comment {
+            addDrawLine("// \(comment)")
+        }
         
-        let line = "drawSphere(\(vec3String(sphere.center)), \(sphere.radius));"
+        let line = Self.sphere3String(sphere)
         
         if let transform = transform {
             addDrawLine("pushMatrix();")
@@ -154,25 +181,53 @@ class ProcessingPrinter {
         }
     }
     
-    func add<V: Vector3Additive & VectorDivisible>(aabb: AABB3<V>, transform: Transform3D? = nil) {
+    func add<V: Vector3Additive & VectorDivisible>(aabb: AABB3<V>, comment: String? = nil, transform: Transform3D? = nil) {
         is3D = true
+        
+        if let comment = comment {
+            addDrawLine("// \(comment)")
+        }
         
         add3DSpaceBarBoilerplate(lineWeight: 1.0)
         addDrawLine("pushMatrix();")
         addMatrixLine(transform)
-        addDrawLine("translate(\(vec3String(aabb.minimum + aabb.size / 2)));")
-        addDrawLine("box(\(vec3String(aabb.size)));")
+        addDrawLine("translate(\(Self.vec3String(aabb.minimum + aabb.size / 2)));")
+        addDrawLine("box(\(Self.vec3String(aabb.size)));")
         addDrawLine("popMatrix();")
     }
     
-    func add(cylinder: Cylinder3<RVector3D>, transform: Transform3D? = nil) {
+    func add(cylinder: Cylinder3<RVector3D>, comment: String? = nil, transform: Transform3D? = nil) {
         is3D = true
         
-        cylinders.append((cylinder, transform))
+        cylinders.append((cylinder, comment, transform))
     }
     
-    func printAll() {
-        defer { printBuffer() }
+    func add(disk: Disk3<RVector3D>, comment: String? = nil, transform: Transform3D? = nil) {
+        is3D = true
+        hasDisks = true
+
+        if let comment = comment {
+            addDrawLine("// \(comment)")
+        }
+        
+        let line = Self.disk3String(disk)
+        
+        if let transform = transform {
+            addDrawLine("pushMatrix();")
+            addMatrixLine(transform)
+            addDrawLine(line)
+            addDrawLine("popMatrix();")
+        } else {
+            addDrawLine(line)
+        }
+    }
+
+    func printAll(target: ProcessingPrinterTarget? = nil) {
+        defer {
+            printBuffer(
+                target: target ?? defaultPrintTarget
+            )
+        }
         
         prepareCustomPreFile()
         
@@ -248,6 +303,11 @@ class ProcessingPrinter {
             printLine("")
             printDrawSphere()
         }
+
+        if hasDisks {
+            printLine("")
+            printDrawDisk()
+        }
         
         if hasCylinders {
             printLine("")
@@ -300,6 +360,8 @@ class ProcessingPrinter {
         addDrawLine("noFill();")
     }
     
+    // TODO: Transform this boilerplate into a function in the output script
+    // TODO: instead of creating a distinct copy every time.
     func add3DSpaceBarBoilerplate<T: FloatingPoint>(lineWeight: T) {
         boilerplate3DSpaceBar(lineWeight: lineWeight).forEach(addDrawLine(_:))
     }
@@ -350,9 +412,13 @@ class ProcessingPrinter {
     // MARK: - Function Printing
     
     func printSetup() {
-        func registerCylinder(_ cylinder: Cylinder3<RVector3D>, transform: Transform3D?) {
-            let start = vec3PVectorString(cylinder.start)
-            let end = vec3PVectorString(cylinder.end)
+        func registerCylinder(_ cylinder: Cylinder3<RVector3D>, comment: String?, transform: Transform3D?) {
+            if let comment = comment {
+                printLine("// \(comment)")
+            }
+
+            let start = Self.vec3PVectorString(cylinder.start)
+            let end = Self.vec3PVectorString(cylinder.end)
             
             var line = "addCylinder(\(start), \(end), \(cylinder.radius)"
             
@@ -367,16 +433,16 @@ class ProcessingPrinter {
         
         indentedBlock("void setup() {") {
             if is3D {
-                printLine("size(\(vec2String_int(size)), P3D);")
+                printLine("size(\(Self.vec2String_int(size)), P3D);")
                 printLine("perspective(PI / 3, 1, 0.3, 8000); // Corrects default zNear plane being too far for unit measurements")
                 printLine("cam = new PeasyCam(this, 250);")
                 printLine("cam.setWheelScale(0.3);")
             } else {
-                printLine("size(\(vec2String_int(size)));")
+                printLine("size(\(Self.vec2String_int(size)));")
             }
             
             for cylinder in cylinders {
-                registerCylinder(cylinder.0, transform: cylinder.transform)
+                registerCylinder(cylinder.0, comment: cylinder.comment, transform: cylinder.transform)
             }
             
             printLine("ellipseMode(RADIUS);")
@@ -500,13 +566,13 @@ class ProcessingPrinter {
             
             printLine("// X axis")
             printLine("stroke(255, 0, 0, 50);")
-            printLine("line(\(vec3String(Vector3D.zero)), \(vec3String(vx)));")
+            printLine("line(\(Self.vec3String(Vector3D.zero)), \(Self.vec3String(vx)));")
             printLine("// Y axis")
             printLine("stroke(0, 255, 0, 50);")
-            printLine("line(\(vec3String(Vector3D.zero)), \(vec3String(vy)));")
+            printLine("line(\(Self.vec3String(Vector3D.zero)), \(Self.vec3String(vy)));")
             printLine("// Z axis")
             printLine("stroke(0, 0, 255, 50);")
-            printLine("line(\(vec3String(Vector3D.zero)), \(vec3String(vz)));")
+            printLine("line(\(Self.vec3String(Vector3D.zero)), \(Self.vec3String(vz)));")
         }
     }
     
@@ -557,6 +623,65 @@ class ProcessingPrinter {
             printLine("popMatrix();")
         }
     }
+
+    func printDrawDisk() {
+        indentedBlock("void drawDisk(float x, float y, float z, float radius, float nx, float ny, float nz) {") {
+            printLine("int resolution = 20;")
+            printLine("")
+
+            printLine("PVector center = new PVector(x, y, z);")
+            printLine("PVector normal = new PVector(nx, ny, nz);")
+            printLine("normal.normalize();")
+            printLine("")
+
+            printLine("PVector rightVec;")
+            printLine("")
+
+            indentedBlock("if (normal.z != 1) {") {
+                printLine("rightVec = normal.cross(new PVector(0, 0, 1));")
+            }
+            printLine("else")
+            indentedBlock("{") {
+                printLine("rightVec = normal.cross(new PVector(1, 0, 0));")
+            }
+            printLine("")
+
+            printLine("PVector upVec = rightVec.cross(normal);")
+            printLine("")
+
+            boilerplate3DSpaceBar(lineWeight: 1.0).forEach(printLine)
+            printLine("")
+
+            printLine("pushMatrix();")
+            printLine("")
+
+            printLine("beginShape(TRIANGLE_FAN);")
+            printLine("")
+
+            printLine("vertex(center.x, center.y, center.z);")
+            printLine("")
+            
+            indentedBlock("for (int i = 0; i <= resolution; i++) {") {
+                printLine("float angle = PI * 2 * ((float)i) / ((float)resolution);")
+                printLine("float dx = cos(angle) * radius;")
+                printLine("float dy = sin(angle) * radius;")
+                printLine("")
+
+                printLine("PVector vec = center.copy();")
+                printLine("vec.add(upVec.copy().mult(dx));")
+                printLine("vec.add(rightVec.copy().mult(dy));")
+                printLine("")
+
+                printLine("vertex(vec.x, vec.y, vec.z);")
+            }
+
+            printLine("")
+            printLine("endShape();")
+
+            printLine("")
+            printLine("popMatrix();")
+        }
+    }
     
     func printCylinderClass() {
         indentedBlock("class Cylinder {") {
@@ -590,25 +715,69 @@ class ProcessingPrinter {
     
     // MARK: - String printing
     
-    func vec3PVectorString<V: Vector3Type>(_ vec: V) -> String {
-        return "new PVector(\(vec3String(vec)))"
+    static func vec3PVectorString<V: Vector3Type>(_ vec: V) -> String {
+        "new PVector(\(vec3String(vec)))"
     }
     
-    func vec3String<V: Vector3Type>(_ vec: V) -> String {
-        return "\(vec.x), \(vec.y), \(vec.z)"
+    static func vec3String<V: Vector3Type>(_ vec: V) -> String {
+        "\(vec.x), \(vec.y), \(vec.z)"
     }
     
-    func vec3String_pCoordinates<V: Vector3Type>(_ vec: V) -> String {
+    static func vec3String_pCoordinates<V: Vector3Type>(_ vec: V) -> String {
         // Flip Y-Z axis (in Processing positive Y axis is down and positive Z axis is towards the screen)
-        return "\(vec.x), \(-vec.z), \(-vec.y)"
+        "\(vec.x), \(-vec.z), \(-vec.y)"
     }
     
-    func vec2String<V: Vector2Type>(_ vec: V) -> String {
+    static func vec2String<V: Vector2Type>(_ vec: V) -> String {
         "\(vec.x), \(vec.y)"
     }
     
-    func vec2String_int<V: Vector2Type>(_ vec: V) -> String {
+    static func vec2String_int<V: Vector2Type>(_ vec: V) -> String {
         "\(Int(vec.x)), \(Int(vec.y))"
+    }
+
+    static func ellipse2String<V: Vector2Type>(_ ellipse: Ellipsoid<V>) -> String {
+        "ellipse(\(vec2String(ellipse.center)), \(vec2String(ellipse.radius)));"
+    }
+
+    static func circle2String<V: Vector2Type>(_ circle: Circle2<V>) -> String {
+        "circle(\(vec2String(circle.center)), \(circle.radius));"
+    }
+
+    static func sphere3String<V: Vector3Type>(_ sphere: Sphere3<V>) -> String {
+        "drawSphere(\(vec3String(sphere.center)), \(sphere.radius));"
+    }
+
+    static func disk3String<V: Vector3Type>(_ disk: Disk3<V>) -> String {
+        "drawDisk(\(vec3String(disk.center)), \(disk.radius), \(vec3String(disk.normal)));"
+    }
+
+    static func aabb2String<V: Vector2Additive & VectorDivisible>(_ aabb: AABB2<V>) -> String {
+        "rect(\(vec2String(aabb.minimum)), \(vec2String(aabb.maximum)));"
+    }
+
+    static func line2String<Line: Line2Type>(_ line: Line) -> String {
+        "line(\(vec2String(line.a)), \(vec2String(line.b)));"
+    }
+
+    static func line3String<Line: Line3Type>(_ line: Line) -> String {
+        "line(\(vec3String(line.a)), \(vec3String(line.b)));"
+    }
+
+    static func ray3String<Vector: Vector3Type>(_ ray: DirectionalRay3<Vector>) -> String {
+        "line(\(vec3String(ray.start)), \(vec3String(ray.projectedMagnitude(500))));"
+    }
+
+    static func pointNormal2String_normal<V: Vector2Type>(_ pointNormal: PointNormal<V>) -> String {
+        "drawNormal(\(vec2String(pointNormal.point)), \(vec2String(pointNormal.normal)));"
+    }
+
+    static func pointNormal2String_tangent<V: Vector2Type>(_ pointNormal: PointNormal<V>) -> String {
+        "drawTangent(\(vec2String(pointNormal.point)), \(vec2String(pointNormal.normal)));"
+    }
+
+    static func pointNormal3String_normal<V: Vector3Type>(_ pointNormal: PointNormal<V>) -> String {
+        "drawNormal(\(vec3String(pointNormal.point)), \(vec3String(pointNormal.normal)));"
     }
     
     func mat2PMatrixString(_ matrix: Matrix4x4, multiline: Bool = false) -> String {
@@ -642,23 +811,23 @@ class ProcessingPrinter {
                 let end = start + matrix.columnCount
                 
                 var line: String = indentString()
-                line += commaSeparated(values[start..<end], trailing: end != values.count)
+                line += Self.commaSeparated(values[start..<end], trailing: end != values.count)
                 result += line + "\n"
             }
         } else {
-            result = commaSeparated(values)
+            result = Self.commaSeparated(values)
         }
         
         return result
     }
     
-    func array2String<S: Sequence>(_ seq: S, typeName: String) -> String {
+    static func array2String<S: Sequence>(_ seq: S, typeName: String) -> String {
         let elements = commaSeparated(seq)
         
         return "new \(typeName)[] { \(elements)\(elements.isEmpty ? "" : " ")}"
     }
     
-    func commaSeparated<S: Sequence>(_ els: S, trailing: Bool = false) -> String {
+    static func commaSeparated<S: Sequence>(_ els: S, trailing: Bool = false) -> String {
         let list = els.map { "\($0)" }.joined(separator: ", ")
         if trailing {
             return list + ", "
@@ -671,8 +840,9 @@ class ProcessingPrinter {
         print("\(indentString())\(line)", to: &buffer)
     }
     
-    private func printBuffer() {
-        print(buffer)
+    private func printBuffer(target: ProcessingPrinterTarget) {
+        target.printBuffer(buffer)
+
         buffer = ""
     }
     

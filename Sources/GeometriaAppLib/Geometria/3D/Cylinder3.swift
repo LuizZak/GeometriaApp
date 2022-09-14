@@ -21,6 +21,10 @@ public struct Cylinder3<Vector: Vector3Type>: GeometricType {
     /// The radius of this cylinder.
     public var radius: Scalar
     
+    public var description: String {
+        "\(type(of: self))(start: \(start), end: \(end), radius: \(radius))"
+    }
+    
     public init(start: Vector, end: Vector, radius: Scalar) {
         self.start = start
         self.end = end

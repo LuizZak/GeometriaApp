@@ -16,6 +16,10 @@ public struct Disk3<Vector: Vector3FloatingPoint>: GeometricType {
     /// The radius of the disk.
     public var radius: Scalar
     
+    public var description: String {
+        "\(type(of: self))(center: \(center), normal: \(normal), radius: \(radius))"
+    }
+    
     @_transparent
     public init(center: Vector, normal: Vector, radius: Scalar) {
         self.center = center

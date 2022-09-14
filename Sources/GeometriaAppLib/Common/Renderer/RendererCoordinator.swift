@@ -167,7 +167,7 @@ final class RendererCoordinator: RendererWorkerContext {
     }
     
     func stopWorkQueue() {
-        for worker in _workers {
+        signalWorkers { worker in
             worker.cancel()
         }
         

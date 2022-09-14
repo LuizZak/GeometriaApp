@@ -25,6 +25,10 @@ public struct LineSegment<Vector: VectorType>: LineType {
         end
     }
     
+    public var description: String {
+        "\(type(of: self))(start: \(start), end: \(end))"
+    }
+    
     @_transparent
     public init(start: Vector, end: Vector) {
         self.start = start

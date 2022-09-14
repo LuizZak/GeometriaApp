@@ -5,7 +5,6 @@ import Text
 import Blend2DRenderer
 
 private let instructions: String = """
-R = Reset  |   Space = Pause
 """
 
 open class RaytracerApp: ImagineUIContentType {
@@ -18,8 +17,10 @@ open class RaytracerApp: ImagineUIContentType {
     private var threadCount: Int = 12
     
     private var ui: RaytracerUI
+    private let statusMessages: StatusMessageStack = StatusMessageStack()
     
     var rendererCoordinator: RendererCoordinator?
+    var renderer: RendererType?
     var buffer: Blend2DBufferWriter?
     
     private(set) public var size: UIIntSize
@@ -70,6 +71,8 @@ open class RaytracerApp: ImagineUIContentType {
             (make.top, make.right, make.bottom) == ui.componentsContainer
             make.right(of: sceneGraph.sidePanel)
         }
+
+        ui.addComponent(statusMessages)
     }
 
     open func didCloseWindow() {
@@ -100,9 +103,7 @@ open class RaytracerApp: ImagineUIContentType {
     
     func restartRendering() {
         _updateTimer = Scheduler.instance.scheduleTimer(interval: 1 / 60.0, repeats: true) { [weak self] in
-            guard let self = self else { return }
-
-            self.update(UISettings.timeInSeconds())
+            self?.update(UISettings.timeInSeconds())
         }
 
         rendererCoordinator?.cancel()
@@ -126,7 +127,7 @@ open class RaytracerApp: ImagineUIContentType {
         
         let buffer = Blend2DBufferWriter(image: image)
         self.buffer = buffer
-        
+
         // NOTE: Following coordinates assume a window size of 1000 x 750.
 //        let batcher = SinglePixelBatcher(pixel: .init(x: 173, y: 171)) // Transparent sphere - bottom-left center of refraction 'anomaly'
 //        let batcher = SinglePixelBatcher(pixel: .init(x: 261, y: 173)) // Reflection of transparent sphere on right sphere
@@ -144,6 +145,7 @@ open class RaytracerApp: ImagineUIContentType {
         //let batcher = SinglePixelBatcher(pixel: .init(x: 425, y: 570)) // Issue with target-textured plane shadows in raytracing demo scene 1
         //let batcher = SinglePixelBatcher(pixel: .init(x: 430, y: 510)) // Expected shadow path for translucent sphere in raytracing demo scene 1
         //let batcher = SinglePixelBatcher(pixel: .init(x: 455, y: 507)) // Buggy shadow in raytraced rotated cylinder in RaytracingDemoScene4
+        //let batcher = SinglePixelBatcher(pixel: .init(x: 717, y: 445)) // Raytracing penetration past disk object in reflection of right sphere on raytracing demo scene 1
         //*
         let batcher = TiledBatcher(
             splitting: viewportSize,
@@ -158,7 +160,7 @@ open class RaytracerApp: ImagineUIContentType {
 
         #if true
         
-        let scene = RaytracingDemoScene4.makeScene()
+        let scene = RaytracingDemoScene1.makeScene()
         
         let renderer = Raytracer(
             scene: scene,
@@ -201,6 +203,8 @@ open class RaytracerApp: ImagineUIContentType {
         }
         rendererCoordinator?.initialize()
         rendererCoordinator?.start()
+
+        self.renderer = renderer
         
         _timeStarted = UISettings.timeInSeconds()
         _timeEnded = 0.0
@@ -232,6 +236,52 @@ open class RaytracerApp: ImagineUIContentType {
             resume()
         }
     }
+
+    func debugAtMousePointer() {
+        guard let rendererCoordinator = rendererCoordinator else {
+            return
+        }
+
+        guard rendererCoordinator.state != .running else {
+            statusMessages.showMessage(
+                "Cannot debug pixels during rendering (please pause with space bar first)"
+            )
+
+            return
+        }
+
+        guard let renderer = renderer else {
+            return
+        }
+        guard let clipboard = globalTextClipboard else {
+            return
+        }
+
+        clipboard.setText("Abcde")
+
+        let pixel = _mouseLocation.asUIIntPoint
+        guard pixel >= .zero && pixel < size.asUIIntPoint else {
+            return
+        }
+
+        let oldIsMultithreaded = renderer.isMultiThreaded
+        renderer.isMultiThreaded = false
+        renderer.beginDebug()
+        
+        _ = renderer.render(pixelAt: pixel)
+        
+        renderer.endDebug(target:
+            ClipboardProcessingPrinterTarget(
+                clipboard: clipboard
+            )
+        )
+
+        renderer.isMultiThreaded = oldIsMultithreaded
+
+        statusMessages.showMessage(
+            "Copied Processing debug scene for pixel (\(pixel.x), \(pixel.y)) to clipboard."
+        )
+    }
     
     // MARK: - UI
     
@@ -246,6 +296,10 @@ open class RaytracerApp: ImagineUIContentType {
         }
         if event.keyCode == .r {
             restartRendering()
+            event.handled = true
+        }
+        if event.keyCode == .o {
+            debugAtMousePointer()
             event.handled = true
         }
         
@@ -267,6 +321,8 @@ open class RaytracerApp: ImagineUIContentType {
     }
     
     public func mouseMoved(event: MouseEventArgs) {
+        _mouseLocation = event.location.asBLPointI
+
         ui.mouseMoved(event: event)
         
         invalidateAll()

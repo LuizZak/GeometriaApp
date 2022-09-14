@@ -25,6 +25,10 @@ public struct ProjectivePointNormalPlane3<Vector: Vector3FloatingPoint>: PointPr
     @_transparent
     public var pointOnPlane: Vector { point }
     
+    public var description: String {
+        "\(type(of: self))(normal: \(normal), upAxis: \(upAxis), rightAxis: \(rightAxis))"
+    }
+    
     public init(point: Vector, normal: Vector, upAxis: Vector, rightAxis: Vector) {
         self.point = point
         self.normal = normal

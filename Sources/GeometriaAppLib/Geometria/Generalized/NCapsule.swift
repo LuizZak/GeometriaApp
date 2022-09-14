@@ -20,6 +20,10 @@ public struct NCapsule<Vector: VectorType>: GeometricType {
     /// The radius of this capsule.
     public var radius: Scalar
     
+    public var description: String {
+        "\(type(of: self))(start: \(start), end: \(end), radius: \(radius))"
+    }
+    
     @_transparent
     public init(start: Vector, end: Vector, radius: Scalar) {
         self.start = start

@@ -7,6 +7,10 @@ public struct RoundNRectangle<Vector: VectorType>: GeometricType {
     public var rectangle: NRectangle<Vector>
     public var radius: Vector
     
+    public var description: String {
+        "\(type(of: self))(rectangle: \(rectangle), radius: \(radius))"
+    }
+    
     @_transparent
     public init(rectangle: NRectangle<Vector>, radius: Vector) {
         self.rectangle = rectangle

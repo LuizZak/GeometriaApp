@@ -16,7 +16,9 @@ class RaytracerProcessingPrinter: ProcessingPrinter {
         function: String = #function,
         lineNumber: Int = #line
     ) {
-        addRaycast(ray: ray, function: function, lineNumber: lineNumber)
+        let lineSegment = RLineSegment3D(start: ray.start, end: hit.point)
+
+        add(line: lineSegment, comment: "\(function):\(lineNumber) (direction: \(ray.direction))")
         add(hit: hit, function: function, lineNumber: lineNumber)
     }
     
@@ -25,10 +27,7 @@ class RaytracerProcessingPrinter: ProcessingPrinter {
         function: String = #function,
         lineNumber: Int = #line
     ) {
-        is3D = true
-        
-        addDrawLine("// \(function):\(lineNumber)")
-        add(ray: ray)
+        add(ray: ray, comment: "\(function):\(lineNumber) (direction: \(ray.direction))")
     }
     
     func add(hit: RayHit, function: String = #function, lineNumber: Int = #line) {
@@ -57,20 +56,19 @@ class RaytracerProcessingPrinter: ProcessingPrinter {
         
         switch kind {
         case .sphere(let element):
-            add(sphere: element, transform: transform)
+            add(sphere: element, comment: "id: \(id)", transform: transform)
             
         case .aabb(let element):
-            add(aabb: element, transform: transform)
+            add(aabb: element, comment: "id: \(id)", transform: transform)
             
         case .cylinder(let element):
-            add(cylinder: element, transform: transform)
+            add(cylinder: element, comment: "id: \(id)", transform: transform)
             
         case .ellipse(let element):
-            add(ellipse3: element, transform: transform)
+            add(ellipse3: element, comment: "id: \(id)", transform: transform)
             
         case .disk(let element):
-            // TODO
-            _ = element
+            add(disk: element, comment: "id: \(id)", transform: transform)
             
         case .lineSegment(let element):
             add(line: element)
@@ -105,7 +103,7 @@ class RaytracerProcessingPrinter: ProcessingPrinter {
         
         let elevation = -camera.cameraPlane.normal.elevation
         
-        printLine("cam = new PeasyCam(this, \(vec3String_pCoordinates(camera.cameraPlane.point)), \(90));")
+        printLine("cam = new PeasyCam(this, \(Self.vec3String_pCoordinates(camera.cameraPlane.point)), \(90));")
         printLine("cam.setWheelScale(0.3);")
         printLine("cam.rotateX(\(elevation));")
     }
