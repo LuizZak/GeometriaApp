@@ -1,5 +1,8 @@
 import ImagineUI
 import Blend2DRenderer
+#if canImport(Geometria)
+import Geometria
+#endif
 
 final class SceneGraphTreeNode {
     var object: NodeOwner
@@ -17,7 +20,7 @@ final class SceneGraphTreeNode {
         self.title = title
     }
     
-    init(matrix: Matrix3x3, title: String) {
+    init(matrix: RMatrix3x3, title: String) {
         self.object = .matrix3x3(matrix)
         self.title = title
     }
@@ -161,7 +164,7 @@ final class SceneGraphTreeNode {
     }
     
     func addingCustomSubNode(
-        matrix: Matrix3x3,
+        matrix: RMatrix3x3,
         title: String,
         _ builder: (inout SceneGraphTreeNode) -> Void
     ) -> SceneGraphTreeNode {
@@ -189,7 +192,7 @@ final class SceneGraphTreeNode {
     
     enum NodeOwner {
         case element(Element)
-        case matrix3x3(Matrix3x3)
+        case matrix3x3(RMatrix3x3)
     }
 }
 
@@ -200,7 +203,7 @@ extension SceneGraphTreeNode {
         addingProperty(name: name, value: "(\(value.x), \(value.y), \(value.z))")
     }
     
-    func addingMatrixProperty(name: String, value: Matrix3x3) -> SceneGraphTreeNode {
+    func addingMatrixProperty(name: String, value: RMatrix3x3) -> SceneGraphTreeNode {
         addingCustomSubNode(matrix: value, title: name) { node in
             node.icon = IconLibrary.matrixIcon
 

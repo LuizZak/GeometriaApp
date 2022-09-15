@@ -23,23 +23,4 @@ extension LineSegment3: Line3Type {
 
 extension LineSegment3: Line3FloatingPoint where Vector: Vector3FloatingPoint {
     
-    /// Rotates this line segment around the origin using a given rotation
-    /// matrix.
-    @inlinable
-    public func rotated(by matrix: RotationMatrix3) -> Self {
-        let aT = matrix.transformPoint(start)
-        let bT = matrix.transformPoint(end)
-        
-        return Self(start: aT, end: bT)
-    }
-    
-    /// Rotates this line segment around a center point using a given rotation
-    /// matrix.
-    @inlinable
-    public func rotated(by matrix: RotationMatrix3, around center: Vector) -> Self {
-        let aT = matrix.transformPoint(start - center) + center
-        let bT = matrix.transformPoint(end - center) + center
-        
-        return Self(start: aT, end: bT)
-    }
 }

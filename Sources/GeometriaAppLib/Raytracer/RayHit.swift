@@ -1,4 +1,6 @@
-// import Geometria
+#if canImport(Geometria)
+import Geometria
+#endif
 
 struct RayHit: Equatable {
     /// The identifier for the element that was hit.

@@ -1,3 +1,7 @@
+#if canImport(Geometria)
+import Geometria
+#endif
+
 #if false // Sphere bounds
 
 typealias ElementBounds = RSphere3D

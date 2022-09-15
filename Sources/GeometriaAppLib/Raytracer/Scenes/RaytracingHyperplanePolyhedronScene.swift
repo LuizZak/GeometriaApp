@@ -1,4 +1,7 @@
 import Foundation
+#if canImport(Geometria)
+import Geometria
+#endif
 
 enum RaytracingHyperplanePolyhedronScene {
     @inlinable

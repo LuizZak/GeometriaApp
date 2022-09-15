@@ -1,3 +1,7 @@
+#if canImport(Geometria)
+import Geometria
+#endif
+
 typealias GeometryRaytracingElement<T: Convex3Type> = GeometryElement<T> where T.Vector == RVector3D
 
 extension GeometryRaytracingElement: RaytracingElement {

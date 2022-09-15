@@ -1,5 +1,8 @@
 import SwiftBlend2D
 import ImagineUI
+#if canImport(Geometria)
+import Geometria
+#endif
 
 private var _attemptedDebugInMultithreadedYet = false
 

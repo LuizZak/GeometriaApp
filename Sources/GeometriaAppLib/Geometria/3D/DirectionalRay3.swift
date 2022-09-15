@@ -42,23 +42,4 @@ extension DirectionalRay3: Line3Type where Vector.SubVector2: Vector2FloatingPoi
 
 extension DirectionalRay3: Line3FloatingPoint where Vector: Vector3FloatingPoint {
     
-    /// Rotates this directional ray around the origin using a given rotation
-    /// matrix.
-    @inlinable
-    public func rotated(by matrix: RotationMatrix3) -> Self {
-        let aT = matrix.transformPoint(start)
-        let dirT = matrix.transformPoint(direction)
-        
-        return Self(start: aT, direction: dirT)
-    }
-    
-    /// Rotates this directional ray around a center point using a given rotation
-    /// matrix.
-    @inlinable
-    public func rotated(by matrix: RotationMatrix3, around center: Vector) -> Self {
-        let aT = matrix.transformPoint(start - center) + center
-        let dirT = matrix.transformPoint(direction)
-        
-        return Self(start: aT, direction: dirT)
-    }
 }

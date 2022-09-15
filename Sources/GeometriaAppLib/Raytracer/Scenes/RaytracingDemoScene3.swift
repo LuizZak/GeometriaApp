@@ -1,3 +1,7 @@
+#if canImport(Geometria)
+import Geometria
+#endif
+
 enum RaytracingDemoScene3 {
     @inlinable
     static func makeScene() -> some RaytracingSceneType {

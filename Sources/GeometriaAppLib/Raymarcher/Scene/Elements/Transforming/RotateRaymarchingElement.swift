@@ -1,3 +1,7 @@
+#if canImport(Geometria)
+import Geometria
+#endif
+
 typealias RotateRaymarchingElement<T: RaymarchingElement> = RotateElement<T>
 
 extension RotateRaymarchingElement: RaymarchingElement {

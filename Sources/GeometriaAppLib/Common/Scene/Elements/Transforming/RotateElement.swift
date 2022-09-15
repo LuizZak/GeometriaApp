@@ -1,3 +1,7 @@
+#if canImport(Geometria)
+import Geometria
+#endif
+
 /// Element that encodes a rotation in 3D space of another element.
 struct RotateElement<T: Element> {
     var id: Int = 0

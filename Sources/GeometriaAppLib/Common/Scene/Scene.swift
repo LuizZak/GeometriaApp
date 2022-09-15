@@ -1,4 +1,7 @@
 import SwiftBlend2D
+#if canImport(Geometria)
+import Geometria
+#endif
 
 /// Base type for renderer scenes.
 struct Scene<T: Element>: SceneType {

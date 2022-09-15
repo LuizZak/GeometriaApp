@@ -1,3 +1,7 @@
+#if canImport(Geometria)
+import Geometria
+#endif
+
 typealias GeometryRaymarchingElement<T> = GeometryElement<T>
 
 extension GeometryRaymarchingElement: RaymarchingElement where T: SignedDistanceMeasurableType, T.Vector == RVector3D {

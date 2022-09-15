@@ -1,6 +1,10 @@
 import SwiftBlend2D
 import ImagineUI
 
+#if canImport(Geometria)
+import Geometria
+#endif
+
 #if canImport(simd)
 
 import simd
@@ -83,6 +87,12 @@ public typealias RRotationMatrix3D = RotationMatrix3D
 
 /// Hyperplane3 for Raytracing operations
 public typealias RHyperplane3D = Hyperplane3<RVector3D>
+
+/// Matrix3x3 for Raytracing operations
+public typealias RMatrix3x3 = Matrix3x3//<Double>
+
+/// Matrix4x4 for Raytracing operations
+public typealias RMatrix4x4 = Matrix4x4//<Double>
 
 /// Screen-space pixel coordinates
 public typealias PixelCoord = UIIntPoint //Vector2i

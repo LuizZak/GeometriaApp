@@ -1,4 +1,7 @@
 import ImagineUI
+#if canImport(Geometria)
+import Geometria
+#endif
 
 /// Allows projection of some 3D geometry into the camera of a scene, converting
 /// the coordinates into pixel-coordinates to perform rasterization of the

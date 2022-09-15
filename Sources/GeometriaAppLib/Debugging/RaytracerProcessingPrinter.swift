@@ -1,3 +1,7 @@
+#if canImport(Geometria)
+import Geometria
+#endif
+
 class RaytracerProcessingPrinter: ProcessingPrinter {
     private var _elementsVisible: Set<Int> = []
     

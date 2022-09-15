@@ -1,3 +1,7 @@
+#if canImport(Geometria)
+import Geometria
+#endif
+
 typealias ScaleRaymarchingElement<T: RaymarchingElement> = ScaleElement<T>
 
 extension ScaleRaymarchingElement: RaymarchingElement {

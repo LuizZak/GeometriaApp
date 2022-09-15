@@ -1,3 +1,7 @@
+#if canImport(Geometria)
+import Geometria
+#endif
+
 enum RaymarchingDemoScene1 {
     static func makeScene() -> some RaymarchingSceneType {
         let materials: MaterialMap = makeMaterialMap(MaterialMapEnum.self)

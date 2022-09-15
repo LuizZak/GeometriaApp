@@ -1,5 +1,9 @@
+#if canImport(Geometria)
+import Geometria
+#endif
+
 class ProcessingPrinter {
-    typealias Transform3D = Matrix4x4
+    typealias Transform3D = RMatrix4x4
     
     private var _lastStrokeColorCall: String? = ""
     private var _lastStrokeWeightCall: String? = ""
@@ -24,7 +28,6 @@ class ProcessingPrinter {
     
     var drawOrigin: Bool = true
     var drawGrid: Bool = false
-
 
     convenience init(size: ViewportSize, scale: Double = 25.0) {
         self.init(size: RVector2D(size), scale: scale)
@@ -115,7 +118,7 @@ class ProcessingPrinter {
         }
     }
     
-    func add<V: Vector3Type>(intersection result: ConvexLineIntersection<V>) {
+    func add<V: Vector3Type>(intersection result: ConvexLineIntersection<V>) where V.Scalar == Double {
         switch result {
         case .contained, .noIntersection:
             break
@@ -139,7 +142,7 @@ class ProcessingPrinter {
         addDrawLine("")
     }
     
-    func add<V: Vector3Type>(pointNormal: PointNormal<V>) {
+    func add<V: Vector3Type>(pointNormal: PointNormal<V>) where V.Scalar == Double {
         shouldPrintDrawNormal = true
         
         add(sphere: Sphere3<V>(center: pointNormal.point, radius: 0.5))
@@ -332,7 +335,7 @@ class ProcessingPrinter {
         ]
     }
     
-    func addMatrixLine(_ matrix: Matrix4x4?) {
+    func addMatrixLine(_ matrix: RMatrix4x4?) {
         guard let matrix = matrix else {
             return
         }
@@ -723,7 +726,7 @@ class ProcessingPrinter {
         "\(vec.x), \(vec.y), \(vec.z)"
     }
     
-    static func vec3String_pCoordinates<V: Vector3Type>(_ vec: V) -> String {
+    static func vec3String_pCoordinates<V: Vector3Type & VectorSigned>(_ vec: V) -> String {
         // Flip Y-Z axis (in Processing positive Y axis is down and positive Z axis is towards the screen)
         "\(vec.x), \(-vec.z), \(-vec.y)"
     }
@@ -732,7 +735,7 @@ class ProcessingPrinter {
         "\(vec.x), \(vec.y)"
     }
     
-    static func vec2String_int<V: Vector2Type>(_ vec: V) -> String {
+    static func vec2String_int<V: Vector2Type>(_ vec: V) -> String where V.Scalar: BinaryFloatingPoint {
         "\(Int(vec.x)), \(Int(vec.y))"
     }
 
@@ -780,7 +783,7 @@ class ProcessingPrinter {
         "drawNormal(\(vec3String(pointNormal.point)), \(vec3String(pointNormal.normal)));"
     }
     
-    func mat2PMatrixString(_ matrix: Matrix4x4, multiline: Bool = false) -> String {
+    func mat2PMatrixString(_ matrix: RMatrix4x4, multiline: Bool = false) -> String {
         let prefix = "new PMatrix3D("
         let postfix = ")"
         

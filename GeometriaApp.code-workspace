@@ -57,7 +57,7 @@
 					"-c", "release",
 					"-t", "GeometriaApp",
 					"-m", "Sources\\GeometriaWindows\\GeometriaApp.exe.manifest",
-					// "-cross-module-optimization", // TODO: Validate whether cross-module-optimization offers performance advantages
+					"-cross-module-optimization", // TODO: Validate whether cross-module-optimization offers performance advantages
 				]
 			},
 		]

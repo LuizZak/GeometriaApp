@@ -1,4 +1,7 @@
 import SwiftBlend2D
+#if canImport(Geometria)
+import Geometria
+#endif
 
 enum RaytracingDemoScene2 {
     static func makeScene() -> some RaytracingSceneType {

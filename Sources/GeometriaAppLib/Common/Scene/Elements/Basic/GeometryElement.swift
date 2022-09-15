@@ -1,3 +1,7 @@
+#if canImport(Geometria)
+import Geometria
+#endif
+
 struct GeometryElement<T>: GeometryElementType {
     var id: Int = 0
     var geometry: T

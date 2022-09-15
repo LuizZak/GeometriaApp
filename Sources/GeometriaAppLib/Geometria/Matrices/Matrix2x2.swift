@@ -1,5 +1,7 @@
 import RealModule
 
+public typealias Matrix2x2D = Matrix2x2//<Double>
+
 /// Plain 2-row 2-column Matrix with real components.
 public struct Matrix2x2: SquareMatrixType, CustomStringConvertible {
     public typealias Scalar = Double

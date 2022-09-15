@@ -1,3 +1,7 @@
+#if canImport(Geometria)
+import Geometria
+#endif
+
 struct RayQuery: Equatable {
     var ray: RRay3D
     

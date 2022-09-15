@@ -152,7 +152,7 @@ class RunCommandArgs:
 
     def swift_build_args(self) -> List[str]:
         build_args = BuildCommandArgs(
-            self.target_name,
+            None,
             self.config,
             self.manifest_path,
             self.definitions,

@@ -1,3 +1,7 @@
+#if canImport(Geometria)
+import Geometria
+#endif
+
 class ProcessingSceneElementProvider {
     var scene: SceneType
     
@@ -13,10 +17,10 @@ class ProcessingSceneElementProvider {
 }
 
 struct FoundElement {
-    var transform: Matrix4x4?
+    var transform: RMatrix4x4?
     var element: ElementKind
     
-    func transformed(by matrix: Matrix4x4, prepend: Bool = false) -> Self {
+    func transformed(by matrix: RMatrix4x4, prepend: Bool = false) -> Self {
         var copy = self
         let prevTransform = copy.transform ?? .identity
         
@@ -182,7 +186,7 @@ private class Visitor: ElementVisitor {
     // MARK: Transforming
 
     func visit<T>(_ element: RotateElement<T>) -> ResultType {
-        let mat = Matrix4x4.identity
+        let mat = RMatrix4x4.identity
             .applying3DRotation(
                 element.rotation,
                 around: element.rotationCenter

@@ -10,8 +10,6 @@ private let instructions: String = """
 open class RaytracerApp: ImagineUIContentType {
     private var _updateTimer: SchedulerTimerType?
     private var _isResizing: Bool = false
-    private var _timeStarted: TimeInterval = 0.0
-    private var _timeEnded: TimeInterval = 0.0
     private var _mouseLocation: BLPointI = .zero
     
     private var threadCount: Int = 12
@@ -196,7 +194,6 @@ open class RaytracerApp: ImagineUIContentType {
                 guard let self = self else { return }
                 
                 if change.newValue == .finished {
-                    self._timeEnded = UISettings.timeInSeconds()
                     self.invalidateAll()
                 }
             }
@@ -205,9 +202,6 @@ open class RaytracerApp: ImagineUIContentType {
         rendererCoordinator?.start()
 
         self.renderer = renderer
-        
-        _timeStarted = UISettings.timeInSeconds()
-        _timeEnded = 0.0
     }
     
     func pause() {

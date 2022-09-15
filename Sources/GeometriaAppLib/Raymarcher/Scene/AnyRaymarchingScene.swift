@@ -1,4 +1,7 @@
 import SwiftBlend2D
+#if canImport(Geometria)
+import Geometria
+#endif
 
 struct AnyRaymarchingScene: SceneType {
     var root: AnyRaymarchingElement

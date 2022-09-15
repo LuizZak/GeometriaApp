@@ -1,4 +1,7 @@
 import SwiftBlend2D
+#if canImport(Geometria)
+import Geometria
+#endif
 
 struct RaytracingScene<T: RaytracingElement>: RaytracingSceneType {
     var root: T

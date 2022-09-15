@@ -1,3 +1,7 @@
+#if canImport(Geometria)
+import Geometria
+#endif
+
 @resultBuilder
 struct RaytracingElementBuilder {
 

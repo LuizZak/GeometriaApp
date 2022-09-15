@@ -1,3 +1,7 @@
+#if canImport(Geometria)
+import Geometria
+#endif
+
 struct BoundingSphereElement<T: Element> {
     var id: Int = 0
     var element: T

@@ -1,4 +1,7 @@
 import ImagineUI
+#if canImport(Geometria)
+import Geometria
+#endif
 
 struct Camera {
     var cameraPlane: ProjectivePointNormalPlane3<RVector3D> =

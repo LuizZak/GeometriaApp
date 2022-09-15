@@ -1,3 +1,7 @@
+#if canImport(Geometria)
+import Geometria
+#endif
+
 typealias RepeatTranslateRaymarchingElement<T: RaymarchingElement> = RepeatTranslateElement<T>
 
 extension RepeatTranslateRaymarchingElement: RaymarchingElement {

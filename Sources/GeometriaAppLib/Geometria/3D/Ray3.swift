@@ -35,22 +35,4 @@ extension Ray3: Line3Type where Vector: VectorAdditive {
 
 extension Ray3: Line3FloatingPoint where Vector: Vector3FloatingPoint {
     
-    /// Rotates this ray around the origin using a given rotation matrix.
-    @inlinable
-    public func rotated(by matrix: RotationMatrix3) -> Self {
-        let aT = matrix.transformPoint(start)
-        let bT = matrix.transformPoint(b)
-        
-        return Self(start: aT, b: bT)
-    }
-    
-    /// Rotates this directional ray around a center point using a given rotation
-    /// matrix.
-    @inlinable
-    public func rotated(by matrix: RotationMatrix3, around center: Vector) -> Self {
-        let aT = matrix.transformPoint(start - center) + center
-        let bT = matrix.transformPoint(b - center) + center
-        
-        return Self(start: aT, b: bT)
-    }
 }
