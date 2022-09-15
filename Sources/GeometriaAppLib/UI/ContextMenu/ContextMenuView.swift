@@ -173,8 +173,8 @@ class ContextMenuView: ControlView {
 
 extension ContextMenuView: UIDialog {
     func customBackdrop() -> View? {
-        let view = ControlView()
-        view.mouseDown.addListener(weakOwner: self) { [weak self] (_, _) in
+        let view = BackdropControl()
+        view.wantsToDismiss.addListener(weakOwner: self) { [weak self] in
             guard let self = self else { return }
 
             self.dialogDelegate?.dialogWantsToClose(self)
@@ -189,6 +189,29 @@ extension ContextMenuView: UIDialog {
 
     func didClose() {
         _onClose?()
+    }
+
+    private class BackdropControl: ControlView {
+        @Event<Void>
+        var wantsToDismiss
+
+        override func onMouseDown(_ event: MouseEventArgs) {
+            super.onMouseDown(event)
+
+            _wantsToDismiss()
+        }
+
+        override func canHandle(_ eventRequest: EventRequest) -> Bool {
+            guard let mouseEvent = eventRequest as? MouseEventRequest else {
+                return super.canHandle(eventRequest)
+            }
+            guard mouseEvent.eventType == MouseEventType.mouseDown, mouseEvent.buttons == .right else {
+                return super.canHandle(eventRequest)
+            }
+
+            _wantsToDismiss()
+            return false
+        }
     }
 }
 
@@ -223,7 +246,14 @@ struct ContextMenuItem {
     /// item.
     var mouseExitedItem: (() -> Void)?
 
-    init(icon: Image? = nil, title: String, selected: @escaping () -> Void, mouseEnteredItem: (() -> Void)? = nil, mouseExitedItem: (() -> Void)? = nil) {
+    init(
+        icon: Image? = nil,
+        title: String,
+        selected: @escaping () -> Void,
+        mouseEnteredItem: (() -> Void)? = nil,
+        mouseExitedItem: (() -> Void)? = nil
+    ) {
+
         self.icon = icon
         self.title = title
         self.selected = selected

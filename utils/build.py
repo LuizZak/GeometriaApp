@@ -224,6 +224,12 @@ def deserialize_json(target_class: Callable[[Any], T], object_repr: str | bytes 
     bound_signature.apply_defaults()
     return target_class(**bound_signature.arguments)
 
+def print_args(args: Any):
+    print('Arguments:')
+    v = vars(args)
+    for k, v in v.items():
+        print(f'  - {k}: {v}')
+    
 
 def run_output(bin_name: str, *args: str | PathLike, echo: bool = True) -> bytes:
     if echo:
@@ -336,6 +342,10 @@ def run_target(settings: RunCommandArgs):
 
 
 def do_build_command(args: Any):
+    print('Processing Build request...')
+    print_args(args)
+    print('')
+
     settings = BuildCommandArgs(
         args.target,
         args.configuration,
@@ -351,6 +361,10 @@ def do_build_command(args: Any):
 
 
 def do_test_command(args: Any):
+    print('Processing Test request...')
+    print_args(args)
+    print('')
+
     settings = TestCommandArgs(args.configuration, args.definitions)
     run_test(settings)
 
@@ -360,6 +374,10 @@ def do_test_command(args: Any):
 
 
 def do_run_command(args: Any):
+    print('Processing Run request...')
+    print_args(args)
+    print('')
+
     settings = RunCommandArgs(
         args.target,
         args.executable,
@@ -368,7 +386,9 @@ def do_run_command(args: Any):
         args.definitions,
         args.enable_cross_module_optimization
     )
+
     run_target(settings)
+
     return
 
 

@@ -11,12 +11,15 @@ final class Raymarcher<Scene: RaymarchingSceneType>: RendererType {
     private var processingPrinter: RaytracerProcessingPrinter?
     private var materialMapCache: MaterialMap
     private var globalMarchParameters: MarchingParameters
+    private var isDebugOn: Bool = false
     
     var isMultiThreaded: Bool = false
     
     let scene: Scene
     let camera: Camera
     var viewportSize: ViewportSize = .zero
+
+    var renderMode: RenderMode = .fullRender
     
     init(scene: Scene, camera: Camera) {
         self.scene = scene
@@ -46,12 +49,14 @@ final class Raymarcher<Scene: RaymarchingSceneType>: RendererType {
         if isMultiThreaded {
             if !_attemptedDebugInMultithreadedYet {
                 _attemptedDebugInMultithreadedYet = true
-                print("Attempted to invoke Raymarcher.beginDebug() with a multi-pixel, multi-threaded render, which is potentially not intended. Ignoring...")
+                GeometriaLogger.warning("Attempted to invoke Raymarcher.beginDebug() with a multi-pixel, multi-threaded render, which is potentially not intended. Ignoring...")
             }
             
             return
         }
-        
+
+        isDebugOn = true
+
         processingPrinter =
             RaytracerProcessingPrinter(
                 viewportSize: RVector2D(viewportSize),
@@ -61,6 +66,8 @@ final class Raymarcher<Scene: RaymarchingSceneType>: RendererType {
     }
     
     func endDebug(target: ProcessingPrinterTarget?) {
+        isDebugOn = false
+        
         processingPrinter?.printAll(target: target)
         processingPrinter = nil
     }
@@ -123,6 +130,14 @@ final class Raymarcher<Scene: RaymarchingSceneType>: RendererType {
             ray.start = ray.projectedMagnitude(signedDistance)
         }
 
+        switch renderMode {
+        case .marchSteps(let range):
+            return computeRenderStepsColor(iterations: iteration, range: range)
+
+        case .fullRender:
+            break
+        }
+
         if escaped {
             return scene.skyColor
         }
@@ -162,6 +177,51 @@ final class Raymarcher<Scene: RaymarchingSceneType>: RendererType {
         resultColor = mergeColors(resultColor, scene.skyColor, factor: distFactor * distFactor)
         
         return resultColor
+    }
+
+    private func computeRenderStepsColor(iterations: Int, range: [(steps: Int, color: BLRgba32)]) -> BLRgba32 {
+        if isDebugOn {
+            GeometriaLogger.info("Iterations: \(iterations)")
+        }
+
+        var range = range
+        if range.isEmpty {
+            range = [
+                (steps: 0, color: BLRgba32.blue),
+                (steps: globalMarchParameters.maxMarchIterationCount / 8, color: BLRgba32.green),
+                (steps: globalMarchParameters.maxMarchIterationCount / 4, color: BLRgba32.yellow),
+                (steps: globalMarchParameters.maxMarchIterationCount, color: BLRgba32.red),
+            ]
+        }
+
+        range.sort { $0.steps < $1.steps }
+
+        if isDebugOn {
+            GeometriaLogger.info("Ranges: \(range)")
+        }
+
+        guard let startIndex = range.lastIndex(where: { $0.steps < iterations }), startIndex < range.count - 1 else {
+            return range.last!.color
+        }
+
+        if isDebugOn {
+            GeometriaLogger.info("Range index: \(startIndex)")
+        }
+
+        let current = range[startIndex]
+        let next = range[startIndex + 1]
+        
+        let ratio = (Float(iterations) - Float(current.steps)) / (Float(next.steps) - Float(current.steps))
+        let clamped = clamp(ratio, min: 0.0, max: 1.0)
+        let color = current.color.faded(towards: next.color, factor: ratio)
+        
+        if isDebugOn {
+            GeometriaLogger.info("Colors: \(current.color) - \(next.color)")
+            GeometriaLogger.info("Color factor: \(ratio) (before clamp: \(clamped))")
+            GeometriaLogger.info("Color: \(color)")
+        }
+
+        return color
     }
 
     private func computeShadowFactor(at point: RVector3D, startDist: Double, softShadowSizeFactor: Double = 8.0) -> Double {
@@ -298,5 +358,21 @@ final class Raymarcher<Scene: RaymarchingSceneType>: RendererType {
 
         /// The maximum global (world) coordinates to march.
         var maxDistance: Double
+    }
+
+    /// Specifies the rendering mode of a `Raymarcher` instance.
+    enum RenderMode {
+        /// Does a fully colored, textured render.
+        case fullRender
+
+        /// Renders each pixel as the number of raymarching steps that it took
+        /// to reach a geometry on the scene.
+        ///
+        /// The associated value `range` specifies the colors and the number of
+        /// steps associated with each color. Colors are interpolated between
+        /// each step count.
+        /// If empty, a raymarcher instance may choose its own choice of default
+        /// colors instead.
+        case marchSteps(range: [(steps: Int, color: BLRgba32)] = [])
     }
 }

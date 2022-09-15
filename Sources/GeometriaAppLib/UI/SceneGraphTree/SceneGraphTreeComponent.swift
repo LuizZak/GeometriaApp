@@ -3,6 +3,7 @@ import ImagineUI
 import Blend2DRenderer
 
 class SceneGraphTreeComponent: RaytracerUIComponent {
+    private var _mouseLocation: UIPoint = .zero
     private let treeView = TreeView()
     private var sceneDataSource: SceneDataSource?
 
@@ -46,7 +47,7 @@ class SceneGraphTreeComponent: RaytracerUIComponent {
     }
 
     func mouseMoved(event: MouseEventArgs) {
-
+        _mouseLocation = event.location
     }
 
     private func setupTreeViewEvents() {
