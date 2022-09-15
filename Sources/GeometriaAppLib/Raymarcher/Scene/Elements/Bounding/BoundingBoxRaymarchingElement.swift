@@ -1,7 +1,7 @@
 typealias BoundingBoxRaymarchingElement<T: RaymarchingElement> = 
     BoundingBoxElement<T>
 
-extension BoundingBoxRaymarchingElement: RaymarchingElement {
+extension BoundingBoxRaymarchingElement: RaymarchingElement & RaymarchingBoundedElement {
     @inlinable
     func signedDistance(to point: RVector3D, current: RaymarchingResult) -> RaymarchingResult {
         let clamped = boundingBox.clamp(point)

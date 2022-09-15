@@ -156,7 +156,7 @@ open class RaytracerApp: ImagineUIContentType {
         
         // TODO: Derive camera configuration from the demo scene builders.
 
-        #if true
+        #if false
         
         let scene = RaytracingDemoScene1.makeScene()
         
@@ -167,7 +167,7 @@ open class RaytracerApp: ImagineUIContentType {
         
         #else
 
-        let scene = RaymarchingDemoScene5.makeScene()
+        let scene = RaymarchingHyperplanePolyhedronScene.makeScene()
         
         let renderer = Raymarcher(
             scene: scene,

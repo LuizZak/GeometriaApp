@@ -3,19 +3,19 @@ import Foundation
 import Geometria
 #endif
 
-enum RaytracingHyperplanePolyhedronScene {
+enum RaymarchingHyperplanePolyhedronScene {
     @inlinable
-    static func makeScene() -> some RaytracingSceneType {
+    static func makeScene() -> some RaymarchingSceneType {
         let materials: MaterialMap = makeMaterialMap(MaterialMapEnum.self)
         
-        return RaytracingElementBuilder.makeScene(skyColor: .cornflowerBlue, materials: materials) {
+        return RaymarchingElementBuilder.makeScene(skyColor: .cornflowerBlue, materials: materials) {
             scene()
         }
     }
 }
 
-@RaytracingElementBuilder
-private func scene() -> some RaytracingElement {
+@RaymarchingElementBuilder
+private func scene() -> some RaymarchingElement {
     makeFloorPlane()
     
     makeTetrahedron(
@@ -31,7 +31,7 @@ private func scene() -> some RaytracingElement {
     )
 }
 
-private func makeTetrahedron(center: RVector3D, edgeLength: Double, material: MaterialMapEnum = .glassy) -> some RaytracingBoundedElement {
+private func makeTetrahedron(center: RVector3D, edgeLength: Double, material: MaterialMapEnum = .glassy) -> some RaymarchingBoundedElement {
     let insphereRadius = edgeLength / 24.0.squareRoot()
     let circumscribedRadius = edgeLength * (6.0.squareRoot() / 4.0)
 
@@ -39,13 +39,13 @@ private func makeTetrahedron(center: RVector3D, edgeLength: Double, material: Ma
     let dihedralAngle = acos(1.0 / 3.0)
     let faceElevation = .pi / 2 - dihedralAngle
 
-    func hyper(azimuth: Double, elevation: Double) -> HyperplaneRaytracingElement {
+    func hyper(azimuth: Double, elevation: Double) -> HyperplaneRaymarchingElement {
         let unit = RSphere3D.unit
         let normal = unit.projectOut(.init(azimuth: azimuth, elevation: elevation))
 
         return hyper(normal: normal)
     }
-    func hyper(normal: RVector3D) -> HyperplaneRaytracingElement {
+    func hyper(normal: RVector3D) -> HyperplaneRaymarchingElement {
         return makeHyper(
             point: center + normal * insphereRadius,
             normal: normal,
@@ -63,7 +63,7 @@ private func makeTetrahedron(center: RVector3D, edgeLength: Double, material: Ma
     )
 }
 
-private func makeDodecahedron(center: RVector3D, edgeLength: Double, material: MaterialMapEnum = .glassy) -> some RaytracingBoundedElement {
+private func makeDodecahedron(center: RVector3D, edgeLength: Double, material: MaterialMapEnum = .glassy) -> some RaymarchingBoundedElement {
     let insphereRadius: Double = (edgeLength / 2.0) * (5.0 / 2.0 + (11.0 / 10.0) * 5.0.squareRoot()).squareRoot()
     let circumscribedRadius: Double = edgeLength * (3.0.squareRoot() / 4.0) * (1.0 + 5.0.squareRoot())
 
@@ -71,13 +71,13 @@ private func makeDodecahedron(center: RVector3D, edgeLength: Double, material: M
     let dihedralAngle = acos(-1.0 / 5.0.squareRoot())
     let faceElevation = .pi / 2 - dihedralAngle
 
-    func hyper(azimuth: Double, elevation: Double) -> HyperplaneRaytracingElement {
+    func hyper(azimuth: Double, elevation: Double) -> HyperplaneRaymarchingElement {
         let unit = RSphere3D.unit
         let normal = unit.projectOut(.init(azimuth: azimuth, elevation: elevation))
 
         return hyper(normal: normal)
     }
-    func hyper(normal: RVector3D) -> HyperplaneRaytracingElement {
+    func hyper(normal: RVector3D) -> HyperplaneRaymarchingElement {
         return makeHyper(
             point: center + normal * insphereRadius,
             normal: normal,
@@ -113,8 +113,8 @@ private func makeDodecahedron(center: RVector3D, edgeLength: Double, material: M
     )
 }
 
-private func makeHyper(point: RVector3D, normal: RVector3D, material: MaterialMapEnum = .glassy) -> HyperplaneRaytracingElement {
-    HyperplaneRaytracingElement(
+private func makeHyper(point: RVector3D, normal: RVector3D, material: MaterialMapEnum = .glassy) -> HyperplaneRaymarchingElement {
+    HyperplaneRaymarchingElement(
         geometry: RHyperplane3D(
             point: point,
             normal: normal
@@ -123,8 +123,8 @@ private func makeHyper(point: RVector3D, normal: RVector3D, material: MaterialMa
     )
 }
 
-private func makeFloorPlane() -> PlaneRaytracingElement {
-    PlaneRaytracingElement(
+private func makeFloorPlane() -> PlaneRaymarchingElement {
+    PlaneRaymarchingElement(
         geometry: .init(point: .zero, normal: .unitZ),
         material: MaterialMapEnum.floor.rawValue
     )

@@ -1,6 +1,6 @@
-typealias BoundedTypedArrayRaymarchingElement<T: BoundedRaymarchingElement> = BoundedTypedArrayElement<T>
+typealias BoundedTypedArrayRaymarchingElement<T: RaymarchingBoundedElement> = BoundedTypedArrayElement<T>
 
-extension BoundedTypedArrayRaymarchingElement: BoundedRaymarchingElement {
+extension BoundedTypedArrayRaymarchingElement: RaymarchingBoundedElement {
     func accept<Visitor: RaymarchingElementVisitor>(_ visitor: Visitor) -> Visitor.ResultType {
         visitor.visit(self)
     }

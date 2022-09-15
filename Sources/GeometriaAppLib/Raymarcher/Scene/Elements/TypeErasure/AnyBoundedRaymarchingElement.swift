@@ -1,12 +1,12 @@
-struct AnyBoundedRaymarchingElement {
-    var element: BoundedRaymarchingElement
+struct AnyRaymarchingBoundedElement {
+    var element: RaymarchingBoundedElement
     
-    init<T: BoundedRaymarchingElement>(_ element: T) {
+    init<T: RaymarchingBoundedElement>(_ element: T) {
         self.element = element
     }
     
     init?(_ anyElement: AnyRaymarchingElement) {
-        guard let element = anyElement.element as? BoundedRaymarchingElement else {
+        guard let element = anyElement.element as? RaymarchingBoundedElement else {
             return nil
         }
 
@@ -14,7 +14,7 @@ struct AnyBoundedRaymarchingElement {
     }
     
     init?(_ anyElement: AnyBoundedElement) {
-        guard let element = anyElement.element as? BoundedRaymarchingElement else {
+        guard let element = anyElement.element as? RaymarchingBoundedElement else {
             return nil
         }
 
@@ -22,7 +22,7 @@ struct AnyBoundedRaymarchingElement {
     }
     
     init?(_ anyElement: AnyElement) {
-        guard let element = anyElement.element as? BoundedRaymarchingElement else {
+        guard let element = anyElement.element as? RaymarchingBoundedElement else {
             return nil
         }
 
@@ -30,7 +30,7 @@ struct AnyBoundedRaymarchingElement {
     }
 }
 
-extension AnyBoundedRaymarchingElement: Element {
+extension AnyRaymarchingBoundedElement: Element {
     var id: Int {
         get {
             element.id
@@ -55,13 +55,13 @@ extension AnyBoundedRaymarchingElement: Element {
     }
 }
 
-extension AnyBoundedRaymarchingElement: BoundedElement {
+extension AnyRaymarchingBoundedElement: BoundedElement {
     func makeBounds() -> ElementBounds {
         return element.makeBounds()
     }
 }
 
-extension AnyBoundedRaymarchingElement: RaymarchingElement {
+extension AnyRaymarchingBoundedElement: RaymarchingElement {
     func signedDistance(to point: RVector3D, current: RaymarchingResult) -> RaymarchingResult {
         element.signedDistance(to: point, current: current)
     }

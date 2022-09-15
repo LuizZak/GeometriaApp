@@ -1,0 +1,3 @@
+protocol RaymarchingBoundedElement: RaymarchingElement, BoundedElement {
+
+}

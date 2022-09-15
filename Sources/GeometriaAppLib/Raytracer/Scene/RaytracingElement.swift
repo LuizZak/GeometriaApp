@@ -4,6 +4,6 @@ protocol RaytracingElement: Element {
     
     // If this raytracing element is volumetric, returns whether the ray of the
     // given query is fully contained within its geometry.
-    // For inifinitely-spanning rays, only Hyperplane types can contain the ray.
+    // For infinitely-spanning rays, only Hyperplane types can contain the ray.
     func fullyContainsRay(query: RayQuery) -> Bool
 }

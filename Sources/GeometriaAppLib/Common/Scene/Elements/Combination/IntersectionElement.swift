@@ -49,25 +49,43 @@ func intersection<T0>(@ElementBuilder _ builder: () -> T0) -> T0 {
 func intersection<T0, T1>(@ElementBuilder _ builder: () -> TupleElement2<T0, T1>) -> IntersectionElement<T0, T1> {
     let value = builder()
 
-    return .init(t0: value.t0, t1: value.t1)
+    return IntersectionElement(
+        t0: value.t0,
+        t1: value.t1
+    )
 }
 
 @_transparent
 func intersection<T0, T1, T2>(@ElementBuilder _ builder: () -> TupleElement3<T0, T1, T2>) -> IntersectionElement<IntersectionElement<T0, T1>, T2> {
     let value = builder()
 
-    return .init(t0: .init(t0: value.t0, t1: value.t1), t1: value.t2)
+    return IntersectionElement(
+        t0: IntersectionElement(
+            t0: value.t0,
+            t1: value.t1
+        ),
+        t1: value.t2
+    )
 }
 
 @_transparent
 func intersection<T0, T1, T2, T3>(@ElementBuilder _ builder: () -> TupleElement4<T0, T1, T2, T3>) -> IntersectionElement<IntersectionElement<IntersectionElement<T0, T1>, T2>, T3> {
     let value = builder()
 
-    return .init(t0: .init(t0: .init(t0: value.t0, t1: value.t1), t1: value.t2), t1: value.t3)
+    return IntersectionElement(
+        t0: IntersectionElement(
+            t0: IntersectionElement(
+                t0: value.t0,
+                t1: value.t1
+            ),
+            t1: value.t2
+        ),
+        t1: value.t3
+    )
 }
 
 @_transparent
-func intersection<T0, T1, T2, T3, T4>(@ElementBuilder _ builder: () -> TupleRaytracingElement5<T0, T1, T2, T3, T4>) -> some RaytracingElement {
+func intersection<T0, T1, T2, T3, T4>(@ElementBuilder _ builder: () -> TupleElement5<T0, T1, T2, T3, T4>) -> IntersectionElement<IntersectionElement<IntersectionElement<IntersectionElement<T0, T1>, T2>, T3>, T4> {
     let value = builder()
 
     return IntersectionElement(
@@ -86,7 +104,7 @@ func intersection<T0, T1, T2, T3, T4>(@ElementBuilder _ builder: () -> TupleRayt
 }
 
 @_transparent
-func intersection<T0, T1, T2, T3, T4, T5>(@ElementBuilder _ builder: () -> TupleRaytracingElement6<T0, T1, T2, T3, T4, T5>) -> some RaytracingElement {
+func intersection<T0, T1, T2, T3, T4, T5>(@ElementBuilder _ builder: () -> TupleElement6<T0, T1, T2, T3, T4, T5>) -> IntersectionElement<IntersectionElement<IntersectionElement<IntersectionElement<IntersectionElement<T0, T1>, T2>, T3>, T4>, T5> {
     let value = builder()
 
     return IntersectionElement(

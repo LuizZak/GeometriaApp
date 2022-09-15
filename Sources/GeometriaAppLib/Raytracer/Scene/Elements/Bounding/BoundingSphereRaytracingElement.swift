@@ -1,7 +1,7 @@
 typealias BoundingSphereRaytracingElement<T: RaytracingElement> = 
     BoundingSphereElement<T>
 
-extension BoundingSphereRaytracingElement: RaytracingElement & BoundedRaytracingElement {
+extension BoundingSphereRaytracingElement: RaytracingElement & RaytracingBoundedElement {
     @inlinable
     func raycast(query: RayQuery) -> RayQuery {
         guard intersects(query: query) else {
