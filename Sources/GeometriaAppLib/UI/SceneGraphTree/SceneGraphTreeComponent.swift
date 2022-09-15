@@ -30,13 +30,17 @@ class SceneGraphTreeComponent: RaytracerUIComponent {
     }
 
     func rendererChanged<T: RendererType>(anyRenderer: T) {
-        let graph = anyRenderer.currentScene().walk(SceneGraphVisitor())
+        let scene = anyRenderer.currentScene()
+        let visitor = SceneGraphVisitor(materialMap: scene.materialMap())
+        let graph = scene.walk(visitor)
 
         updateDataSource(SceneDataSource(root: graph))
     }
 
     func rendererChanged<T>(_ renderer: Raymarcher<T>) {
-        let graph = renderer.scene.walk(SceneGraphVisitor())
+        let scene = renderer.currentScene()
+        let visitor = SceneGraphVisitor(materialMap: scene.materialMap())
+        let graph = scene.walk(visitor)
 
         updateDataSource(SceneDataSource(root: graph))
     }
@@ -127,7 +131,7 @@ class SceneGraphTreeComponent: RaytracerUIComponent {
                     switch node.object {
                     case .element:
                         count += 1 // ID property
-                    case .matrix3x3:
+                    case .matrix3x3, .material:
                         break
                     }
                     
@@ -157,7 +161,7 @@ class SceneGraphTreeComponent: RaytracerUIComponent {
                         
                         index -= 1
                         
-                    case .matrix3x3:
+                    case .matrix3x3, .material:
                         break
                     }
 

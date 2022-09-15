@@ -1,4 +1,5 @@
 import ImagineUI
+import Text
 import Blend2DRenderer
 #if canImport(Geometria)
 import Geometria
@@ -25,17 +26,26 @@ final class SceneGraphTreeNode {
         self.title = title
     }
     
+    init(material: Material, title: String) {
+        self.object = .material(material)
+        self.title = title
+    }
+    
     private init(object: NodeOwner, title: String) {
         self.object = object
         self.title = title
     }
 
-    func addProperty(name: String, value: String) {
-        properties.append(.init(name: name, value: value))
+    func addProperty<Value>(name: String, value: Value) {
+        addProperty(name: name, value: String(describing: value))
     }
 
-    func addProperty<Value>(name: String, value: Value) {
-        properties.append(.init(name: name, value: String(describing: value)))
+    func addProperty(name: String, value: String) {
+        addProperty(name: name, text: AttributedText(value))
+    }
+
+    func addProperty(name: String, text: AttributedText) {
+        properties.append(.init(name: name, value: text))
     }
 
     func addSubNode(_ node: SceneGraphTreeNode) {
@@ -93,21 +103,24 @@ final class SceneGraphTreeNode {
         }
     }
 
-    func addingProperty(name: String, value: String) -> SceneGraphTreeNode {
-        properties.append(.init(name: name, value: value))
-
-        return self
+    func addingProperty<Value>(name: String, value: Value) -> SceneGraphTreeNode {
+        addingProperty(name: name, value: String(describing: value))
     }
 
-    func addingProperty<Value>(name: String, value: Value) -> SceneGraphTreeNode {
-        properties.append(.init(name: name, value: String(describing: value)))
+    func addingProperty(name: String, value: String) -> SceneGraphTreeNode {
+        addingProperty(name: name, text: AttributedText(value))
+    }
+
+    func addingProperty(name: String, text: AttributedText) -> SceneGraphTreeNode {
+        properties.append(.init(name: name, value: text))
 
         return self
     }
 
     func addingSubNode<Base: Element, Value: Element>(
         _ visitor: SceneGraphVisitor,
-        mutating element: Base, _ keyPath: WritableKeyPath<Base, Value>
+        mutating element: Base,
+        _ keyPath: WritableKeyPath<Base, Value>
     ) -> SceneGraphTreeNode {
         
         addSubNode(element[keyPath: keyPath].accept(visitor), mutating: keyPath)
@@ -178,7 +191,7 @@ final class SceneGraphTreeNode {
         
         return result
     }
-
+    
     func addingIcon(_ icon: Image?) -> SceneGraphTreeNode {
         self.icon = icon
 
@@ -187,20 +200,48 @@ final class SceneGraphTreeNode {
 
     struct PropertyEntry {
         var name: String
-        var value: String
+        var value: AttributedText
     }
     
     enum NodeOwner {
         case element(Element)
         case matrix3x3(RMatrix3x3)
+        case material(Material)
     }
 }
 
 // MARK: - Property derivation
 
 extension SceneGraphTreeNode {
+    // MARK: - Data type properties
+
     func addingProperty(name: String, value: RVector3D) -> SceneGraphTreeNode {
-        addingProperty(name: name, value: "(\(value.x), \(value.y), \(value.z))")
+        func fade(_ c: Color) -> Color {
+            c.faded(towards: .white, factor: 0.8)
+        }
+
+        var text = AttributedText()
+        text.append("(")
+        text.append("\(value.x)", attributes: [.foregroundColor: fade(Color.red)])
+        text.append(", ")
+        text.append("\(value.y)", attributes: [.foregroundColor: fade(Color.green)])
+        text.append(", ")
+        text.append("\(value.z)", attributes: [.foregroundColor: fade(Color.blue)])
+        text.append(")")
+
+        return addingProperty(name: name, text: text)
+    }
+
+    func addingProperty(name: String, value: BLRgba32) -> SceneGraphTreeNode {
+        // Find a complimentary color for the text
+        let color = value.asColor
+        let luma = 0.2126 * Double(color.red) + 0.7152 * Double(color.green) + 0.0722 * Double(color.blue)
+        let textColor: Color = luma > 0.5 ? .black : .white
+
+        return addingProperty(
+            name: name,
+            text: "\(value, attributes: [.backgroundColor: color, .foregroundColor: textColor])"
+        )
     }
     
     func addingMatrixProperty(name: String, value: RMatrix3x3) -> SceneGraphTreeNode {
@@ -232,6 +273,61 @@ extension SceneGraphTreeNode {
             }
         }
     }
+
+    func addingMaterialProperty(
+        material id: MaterialId?,
+        map: MaterialMap?
+    ) -> SceneGraphTreeNode {
+        guard let id = id, let material = map?[id] else {
+            return self
+        }
+
+        return addingMaterialProperty(material: material)
+    }
+
+    func addingMaterialProperty(
+        material: Material
+    ) -> SceneGraphTreeNode {
+        var node = SceneGraphTreeNode(material: material, title: "Material")
+
+        switch material {
+        case .diffuse(let diffuse):
+            node = node
+                .addingProperty(name: "Type", value: "Diffuse")
+                .addingProperties(for: diffuse)
+
+        case .checkerboard(let size, let color1, let color2):
+            node = node
+                .addingProperty(name: "Type", value: "Checkerboard")
+                .addingProperty(name: "Size", value: size)
+                .addingProperty(name: "Color 1", value: color1)
+                .addingProperty(name: "Color 2", value: color2)
+        
+        case .target(let center, let stripeFrequency, let color1, let color2):
+            node = node
+                .addingProperty(name: "Type", value: "Target")
+                .addingProperty(name: "Center", value: center)
+                .addingProperty(name: "Stripe Frequency", value: stripeFrequency)
+                .addingProperty(name: "Color 1", value: color1)
+                .addingProperty(name: "Color 2", value: color2)
+        }
+
+        let result = self
+        result.addSubNode(node)
+        
+        return result
+    }
+
+    func addingProperties(for diffuse: DiffuseMaterial) -> SceneGraphTreeNode {
+        self.addingProperty(name: "Color", value: diffuse.color)
+            .addingProperty(name: "Bump Noise Frequency", value: diffuse.bumpNoiseFrequency)
+            .addingProperty(name: "Bump Magnitude", value: diffuse.bumpMagnitude)
+            .addingProperty(name: "Reflectivity", value: diffuse.reflectivity)
+            .addingProperty(name: "Transparency", value: diffuse.transparency)
+            .addingProperty(name: "Refractive Index", value: diffuse.refractiveIndex)
+    }
+
+    // MARK: Scene element properties
 
     func addingProperties<T: Element>(for element: T) -> SceneGraphTreeNode {
         return self
@@ -362,6 +458,12 @@ extension SceneGraphTreeNode {
 class SceneGraphVisitor: ElementVisitor {
     typealias ResultType = SceneGraphTreeNode
 
+    let materialMap: MaterialMap?
+
+    init(materialMap: MaterialMap?) {
+        self.materialMap = materialMap
+    }
+
     // MARK: Generic elements
 
     func visit<T>(_ element: T) -> ResultType where T: BoundedElement {
@@ -381,26 +483,31 @@ class SceneGraphVisitor: ElementVisitor {
         SceneGraphTreeNode(element: element, title: "AABB")
             .addingIcon(for: element)
             .addingProperties(for: element)
+            .addingMaterialProperty(material: element.material, map: materialMap)
     }
     func visit(_ element: CubeElement) -> ResultType {
         SceneGraphTreeNode(element: element, title: "Cube")
             .addingIcon(for: element)
             .addingProperties(for: element)
+            .addingMaterialProperty(material: element.material, map: materialMap)
     }
     func visit(_ element: CylinderElement) -> ResultType {
         SceneGraphTreeNode(element: element, title: "Cylinder")
             .addingIcon(for: element)
             .addingProperties(for: element)
+            .addingMaterialProperty(material: element.material, map: materialMap)
     }
     func visit(_ element: DiskElement) -> ResultType {
         SceneGraphTreeNode(element: element, title: "Disk")
             .addingIcon(for: element)
             .addingProperties(for: element)
+            .addingMaterialProperty(material: element.material, map: materialMap)
     }
     func visit(_ element: EllipseElement) -> ResultType {
         SceneGraphTreeNode(element: element, title: "Ellipse")
             .addingIcon(for: element)
             .addingProperties(for: element)
+            .addingMaterialProperty(material: element.material, map: materialMap)
     }
     func visit(_ element: EmptyElement) -> ResultType {
         SceneGraphTreeNode(element: element, title: "Empty element")
@@ -411,31 +518,37 @@ class SceneGraphVisitor: ElementVisitor {
         SceneGraphTreeNode(element: element, title: "Generic geometry")
             .addingIcon(for: element)
             .addingProperties(for: element)
+            .addingMaterialProperty(material: element.material, map: materialMap)
     }
     func visit(_ element: LineSegmentElement) -> ResultType {
         SceneGraphTreeNode(element: element, title: "Line segment")
             .addingIcon(for: element)
             .addingProperties(for: element)
+            .addingMaterialProperty(material: element.material, map: materialMap)
     }
     func visit(_ element: PlaneElement) -> ResultType {
         SceneGraphTreeNode(element: element, title: "Plane")
             .addingIcon(for: element)
             .addingProperties(for: element)
+            .addingMaterialProperty(material: element.material, map: materialMap)
     }
     func visit(_ element: SphereElement) -> ResultType {
         SceneGraphTreeNode(element: element, title: "Sphere")
             .addingIcon(for: element)
             .addingProperties(for: element)
+            .addingMaterialProperty(material: element.material, map: materialMap)
     }
     func visit(_ element: TorusElement) -> ResultType {
         SceneGraphTreeNode(element: element, title: "Torus")
             .addingIcon(for: element)
             .addingProperties(for: element)
+            .addingMaterialProperty(material: element.material, map: materialMap)
     }
     func visit(_ element: HyperplaneElement) -> ResultType {
         SceneGraphTreeNode(element: element, title: "Hyperplane")
             .addingIcon(for: element)
             .addingProperties(for: element)
+            .addingMaterialProperty(material: element.material, map: materialMap)
     }
 
     // MARK: Bounding
@@ -465,6 +578,7 @@ class SceneGraphVisitor: ElementVisitor {
         SceneGraphTreeNode(element: element, title: "Intersection")
             .addingIcon(for: element)
             .addingProperties(for: element)
+            .addingMaterialProperty(material: element.material, map: materialMap)
             .addingSubNode(self, mutating: element, \.t0)
             .addingSubNode(self, mutating: element, \.t1)
     }
@@ -472,6 +586,7 @@ class SceneGraphVisitor: ElementVisitor {
         SceneGraphTreeNode(element: element, title: "Subtraction")
             .addingIcon(for: element)
             .addingProperties(for: element)
+            .addingMaterialProperty(material: element.material, map: materialMap)
             .addingSubNode(self, mutating: element, \.t0)
             .addingSubNode(self, mutating: element, \.t1)
     }
@@ -485,6 +600,7 @@ class SceneGraphVisitor: ElementVisitor {
         SceneGraphTreeNode(element: element, title: "Union")
             .addingIcon(for: element)
             .addingProperties(for: element)
+            .addingMaterialProperty(material: element.material, map: materialMap)
             .addingSubNode(self, mutating: element, \.t0)
             .addingSubNode(self, mutating: element, \.t1)
     }
