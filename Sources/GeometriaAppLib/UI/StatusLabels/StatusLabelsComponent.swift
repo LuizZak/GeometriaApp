@@ -96,15 +96,16 @@ class StatusLabelsComponent: RaytracerUIComponent {
     func rendererCoordinatorChanged(_ coordinator: RendererCoordinator?) {
         self.rendererCoordinator = coordinator
 
+        self._timeEnded = 0.0
+        self._timeStarted = 0.0
+
         coordinator?.stateDidChange.addListener(weakOwner: self) { [weak self] (change) in
             DispatchQueue.main.async {
                 self?.onStateChange(old: change.oldValue, new: change.newValue)
             }
         }
-
-        if let coordinator = coordinator, coordinator.state == .running {
-            updateLabels()
-        }
+        
+        updateLabels()
         
         stateLabel.isVisible = coordinator != nil
         batcherLabel.isVisible = coordinator != nil
