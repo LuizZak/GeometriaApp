@@ -44,18 +44,25 @@ def make_argparser() -> argparse.ArgumentParser:
                 arg_strings, *args, **kwargs
             )
 
-    def add_target_arg(parser: argparse.ArgumentParser):
-        parser.add_argument('-t', '--target',
-                            type=str,
-                            dest='target',
-                            help="Optional target to build/test/run against. Must be one of the targets specified in Package.swift.")
-
     def add_executable_arg(parser: argparse.ArgumentParser):
         parser.add_argument('executable',
                             type=str,
                             default=None,
                             nargs='?',
                             help="The executable to run.")
+
+    def add_cross_module_optimization_arg(parser: argparse.ArgumentParser):
+        parser.add_argument('-cross-module-optimization',
+                            dest='enable_cross_module_optimization',
+                            default=False,
+                            action='store_true',
+                            help="Whether to pass '-Xswiftc -cross-module-optimization' as a build argument for release builds.")
+
+    def add_target_arg(parser: argparse.ArgumentParser):
+        parser.add_argument('-t', '--target',
+                            type=str,
+                            dest='target',
+                            help="Optional target to build/test/run against. Must be one of the targets specified in Package.swift.")
 
     def add_manifest_arg(parser: argparse.ArgumentParser):
         parser.add_argument('-m', '--manifest-path',
@@ -91,6 +98,8 @@ def make_argparser() -> argparse.ArgumentParser:
     add_common_args(build_parser)
     add_common_args(run_parser)
 
+    add_cross_module_optimization_arg(build_parser)
+    add_cross_module_optimization_arg(run_parser)
     add_target_arg(build_parser)
     add_target_arg(run_parser)
     add_manifest_arg(build_parser)
@@ -115,14 +124,18 @@ class BuildCommandArgs:
     config: str
     manifest_path: Path | None
     definitions: list[str] | None
+    enable_cross_module_optimization: bool
 
     def swift_build_args(self) -> List[str]:
         args = []
 
         if self.target_name is not None:
             args.extend(['--target', self.target_name])
-
+        
         args.extend(['--configuration', self.config, *win32_debug_args, *toSwiftCDefList(self.definitions)])
+
+        if self.config == 'release' and self.enable_cross_module_optimization:
+            args.extend(['-Xswiftc', '-cross-module-optimization'])
 
         return args
 
@@ -135,21 +148,35 @@ class RunCommandArgs:
     config: str
     manifest_path: Path | None
     definitions: list[str] | None
+    enable_cross_module_optimization: bool
 
     def swift_build_args(self) -> List[str]:
-        args = []
+        build_args = BuildCommandArgs(
+            self.target_name,
+            self.config,
+            self.manifest_path,
+            self.definitions,
+            self.enable_cross_module_optimization
+        )
 
-        args.extend(['--configuration', self.config, *win32_debug_args, *toSwiftCDefList(self.definitions)])
-
-        return args
+        return build_args.swift_build_args()
 
     def swift_run_args(self) -> List[str]:
+        build_args = BuildCommandArgs(
+            None,
+            self.config,
+            self.manifest_path,
+            self.definitions,
+            self.enable_cross_module_optimization
+        )
+
         args = []
 
         if self.executable_name is not None:
             args.append(self.executable_name)
 
-        args.extend(['--configuration', self.config, *win32_debug_args, *toSwiftCDefList(self.definitions)])
+        args.extend(['--skip-build'])
+        args.extend(build_args.swift_build_args())
 
         return args
 
@@ -303,13 +330,19 @@ def run_target(settings: RunCommandArgs):
 
         run_manifest_patch(build_dir, settings.target_name, manifest_path)
 
-    run('swift', 'run', '--skip-build', *settings.swift_run_args())
+    run('swift', 'run', *settings.swift_run_args())
 
     return
 
 
 def do_build_command(args: Any):
-    settings = BuildCommandArgs(args.target, args.configuration, args.manifest_path, args.definitions)
+    settings = BuildCommandArgs(
+        args.target,
+        args.configuration,
+        args.manifest_path,
+        args.definitions,
+        args.enable_cross_module_optimization
+    )
     run_build(settings)
 
     print('Success!')
@@ -327,7 +360,14 @@ def do_test_command(args: Any):
 
 
 def do_run_command(args: Any):
-    settings = RunCommandArgs(args.target, args.executable, args.configuration, args.manifest_path, args.definitions)
+    settings = RunCommandArgs(
+        args.target,
+        args.executable,
+        args.configuration,
+        args.manifest_path,
+        args.definitions,
+        args.enable_cross_module_optimization
+    )
     run_target(settings)
     return
 
