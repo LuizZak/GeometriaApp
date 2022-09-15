@@ -158,7 +158,7 @@ open class RaytracerApp: ImagineUIContentType {
 
         #if true
         
-        let scene = RaytracingHyperplanePolyhedronScene.makeScene()
+        let scene = RaytracingDemoScene1.makeScene()
         
         let renderer = Raytracer(
             scene: scene,
