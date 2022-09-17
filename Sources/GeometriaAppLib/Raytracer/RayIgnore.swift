@@ -97,73 +97,23 @@ enum RayIgnore: Equatable {
         intersection: RConvexLineResult3D,
         rayStart: RVector3D
     ) -> (point: RPointNormal3D, hitDirection: RayHit.HitDirection)? {
-
-        let isSinglePoint: Bool
-        if case .singlePoint = intersection {
-            isSinglePoint = true
-        } else {
-            isSinglePoint = false
-        }
         
-        switch self {
-        case .none:
-            break
+        let inter = computePointNormalsOfInterest(
+            id: id,
+            intersection: intersection,
+            rayStart: rayStart
+        )
 
-        case .allButSingleId(let geoId, let ignore):
-            if geoId != id {
-                return nil
-            }
-            
-            return ignore.computePointNormalOfInterest(
-                id: id,
-                intersection: intersection,
-                rayStart: rayStart
-            )
-
-        case .full(let geoId):
-            if geoId == id {
-                return nil
-            }
-            
-        case .entrance(let geoId, let minLen):
-            if geoId != id {
-                break
-            }
-            
-            if !isSinglePoint, let exit = intersection.exitPoint {
-                if rayStart.distanceSquared(to: exit.point) < minLen {
-                    return nil
-                }
-
-                return (exit, .inside)
-            } else {
-                return nil
-            }
-            
-        case .exit(let geoId, let minLen):
-            if geoId != id {
-                break
-            }
-            
-            if !isSinglePoint, let entrance = intersection.entrancePoint {
-                if rayStart.distanceSquared(to: entrance.point) < minLen {
-                    return nil
-                }
-
-                return (entrance, .outside)
-            } else {
-                return nil
-            }
+        switch inter {
+        case .enter(let pn), .enterExit(let pn, _):
+            return (pn, .outside)
+        case .exit(let pn):
+            return (pn, .inside)
+        case .singlePoint(let pn):
+            return (pn, .singlePoint)
+        case .noIntersection, .contained:
+            return nil
         }
-
-        if let entrance = intersection.entrancePoint {
-            return (entrance, isSinglePoint ? .singlePoint : .outside)
-        }
-        if let exit = intersection.exitPoint {
-            return (exit, isSinglePoint ? .singlePoint : .inside)
-        }
-        
-        return nil
     }
 
     /// Using a given geometry intersection result, specified which of the

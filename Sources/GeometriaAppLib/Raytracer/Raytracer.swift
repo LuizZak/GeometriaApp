@@ -321,7 +321,7 @@ final class Raytracer<Scene: RaytracingSceneType>: RendererType {
         )
         
         for intersection in intersections {
-            if intersection.id == hit.id && intersection.point.distanceSquared(to: hit.point) < 1 {
+            if intersection.point.distanceSquared(to: hit.point) < minimumRayToleranceSq {
                 continue
             }
 

@@ -144,6 +144,7 @@ open class RaytracerApp: ImagineUIContentType {
         //let batcher = SinglePixelBatcher(pixel: .init(x: 430, y: 510)) // Expected shadow path for translucent sphere in raytracing demo scene 1
         //let batcher = SinglePixelBatcher(pixel: .init(x: 455, y: 507)) // Buggy shadow in raytraced rotated cylinder in RaytracingDemoScene4
         //let batcher = SinglePixelBatcher(pixel: .init(x: 717, y: 445)) // Raytracing penetration past disk object in reflection of right sphere on raytracing demo scene 1
+        //let batcher = SinglePixelBatcher(pixel: .init(x: 607, y: 514)) // Raytracing bouncing past floor plane causing shadow issues in raytracing demo scene 1
         //*
         let batcher = TiledBatcher(
             splitting: viewportSize,
