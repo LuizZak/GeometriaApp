@@ -11,6 +11,9 @@ class SceneGraphTreeComponent: RaytracerUIComponent {
 
     weak var delegate: RaytracerUIComponentDelegate?
 
+    /// Delegate for interactions with the tree view.
+    weak var treeComponentDelegate: SceneGraphTreeComponentDelegate?
+
     init(width: Double) {
         self.sidePanel = SidePanel(pinSide: .left, length: width)
 
@@ -21,13 +24,14 @@ class SceneGraphTreeComponent: RaytracerUIComponent {
         container.addSubview(sidePanel)
         sidePanel.addSubview(treeView)
 
+        treeView.overScrollFactor = 0.5
         treeView.layout.makeConstraints { make in
             make.edges == sidePanel.contentBounds
         }
     }
 
     func rendererCoordinatorChanged(_ coordinator: RendererCoordinator?) {
-
+        
     }
 
     func rendererChanged<T: RendererType>(anyRenderer: T) {
@@ -54,10 +58,25 @@ class SceneGraphTreeComponent: RaytracerUIComponent {
         treeView.mouseRightClickedItem.addListener(weakOwner: self) { [weak self] (sender, index) in
             self?.onRightClickItem(index)
         }
+        treeView.didChangeSelection.addListener(weakOwner: self) { [weak self] (sender, args) in
+            self?.onItemSelectionChanged(args.newValue)
+        }
     }
 
     private func onRightClickItem(_ index: TreeView.ItemIndex) {
 
+    }
+
+    private func onItemSelectionChanged(_ selection: Set<TreeView.ItemIndex>) {
+        guard let dataSource = sceneDataSource else { return }
+        guard let treeComponentDelegate = treeComponentDelegate else { return }
+
+        let elementIds = selection.compactMap(dataSource.elementId(at:))
+
+        treeComponentDelegate.sceneGraphTreeComponent(
+            self,
+            didChangeSelection: Set(elementIds)
+        )
     }
 
     private func updateDataSource(_ dataSource: SceneDataSource?) {
@@ -115,6 +134,12 @@ class SceneGraphTreeComponent: RaytracerUIComponent {
             return item.icon()
         }
 
+        func elementId(at index: TreeView.ItemIndex) -> Element.Id? {
+            let item: ItemType = itemAt(hierarchyIndex: index.asHierarchyIndex)
+
+            return item.elementId()
+        }
+
         enum ItemType {
             case node(SceneGraphTreeNode)
             case property(SceneGraphTreeNode.PropertyEntry)
@@ -122,6 +147,23 @@ class SceneGraphTreeComponent: RaytracerUIComponent {
 
             func hasElements() -> Bool {
                 elementCount() > 0
+            }
+
+            /// If the object represented by this item type is a scene element,
+            /// returns its element id, otherwise returns `nil`.
+            func elementId() -> Element.Id? {
+                switch self {
+                case .node(let node):
+                    switch node.object {
+                    case .element(let element):
+                        return element.id
+                    case .matrix3x3, .material:
+                        return nil
+                    }
+                
+                case .property, .subnodes:
+                    return nil
+                }
             }
 
             func elementCount() -> Int {
@@ -195,4 +237,13 @@ class SceneGraphTreeComponent: RaytracerUIComponent {
             }
         }
     }
+}
+
+protocol SceneGraphTreeComponentDelegate: AnyObject {
+    /// Method invoked whenever the user changes the selection on a scene graph
+    /// tree view.
+    func sceneGraphTreeComponent(
+        _ component: SceneGraphTreeComponent,
+        didChangeSelection selection: Set<Element.Id>
+    )
 }

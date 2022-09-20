@@ -38,6 +38,18 @@ class RaytracerUI: ImagineUIContentType {
         }
     }
 
+    /// Gets or sets the debug draw flags.
+    ///
+    /// Changing this value invalidates the screen.
+    var debugDrawFlags: Set<DebugDraw.DebugDrawFlags> {
+        get {
+           ui.debugDrawFlags
+        }
+        set {
+           ui.debugDrawFlags = newValue
+        }
+    }
+
     init(uiWrapper: ImagineUIWindowContent) {
         self.size = uiWrapper.size
         self.ui = uiWrapper

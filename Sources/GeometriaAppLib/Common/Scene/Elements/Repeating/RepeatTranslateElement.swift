@@ -3,7 +3,7 @@ import Geometria
 #endif
 
 struct RepeatTranslateElement<T: Element> {
-    var id: Int = 0
+    var id: Element.Id = 0
     var element: T
     var translation: RVector3D
     var count: Int
@@ -18,8 +18,10 @@ extension RepeatTranslateElement: Element {
     }
 
     @_transparent
-    func queryScene(id: Int) -> Element? {
-        element.queryScene(id: id)
+    func queryScene(id: Element.Id) -> Element? {
+        if id == self.id { return self }
+        
+        return element.queryScene(id: id)
     }
 
     func accept<Visitor: ElementVisitor>(_ visitor: Visitor) -> Visitor.ResultType {
@@ -29,7 +31,7 @@ extension RepeatTranslateElement: Element {
 
 extension RepeatTranslateElement: BoundedElement where T: BoundedElement {
     @inlinable
-    func makeBounds() -> RaymarchingBounds {
+    func makeBounds() -> ElementBounds {
         let bounds = element.makeBounds()
         
         return bounds.union(bounds.offsetBy(translation * Double(count - 1)))

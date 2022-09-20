@@ -3,7 +3,7 @@ import Geometria
 #endif
 
 struct BoundingBoxElement<T: Element> {
-    var id: Int = 0
+    var id: Element.Id = 0
     var element: T
     var boundingBox: RAABB3D
     
@@ -33,8 +33,10 @@ extension BoundingBoxElement: Element {
         element.attributeIds(&idFactory)
     }
 
-    func queryScene(id: Int) -> Element? {
-        element.queryScene(id: id)
+    func queryScene(id: Element.Id) -> Element? {
+        if id == self.id { return self }
+        
+        return element.queryScene(id: id)
     }
 
     func accept<Visitor: ElementVisitor>(_ visitor: Visitor) -> Visitor.ResultType {

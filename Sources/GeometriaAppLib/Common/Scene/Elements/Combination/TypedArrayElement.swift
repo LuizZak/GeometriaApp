@@ -1,5 +1,5 @@
 struct TypedArrayElement<T: Element> {
-    var id: Int = 0
+    var id: Element.Id = 0
     var elements: [T]
 }
 
@@ -16,7 +16,9 @@ extension TypedArrayElement: Element {
     }
 
     @inlinable
-    func queryScene(id: Int) -> Element? {
+    func queryScene(id: Element.Id) -> Element? {
+        if id == self.id { return self }
+        
         for element in elements {
             if let result = element.queryScene(id: id) {
                 return result

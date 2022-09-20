@@ -13,7 +13,14 @@ class UIProjectionComponent: RaytracerUIComponent {
     }
     
     /// Whether to enable rendering of geometries on screen.
-    var showGeometries: Bool = false {
+    var showGeometries: Bool = true {
+        didSet {
+            renderView.invalidate()
+        }
+    }
+
+    /// The Id of geometry objects to render.
+    var geometryIdsToShow: Set<Element.Id> = [] {
         didSet {
             renderView.invalidate()
         }
@@ -47,8 +54,6 @@ class UIProjectionComponent: RaytracerUIComponent {
     func rendererChanged<T>(_ renderer: Raymarcher<T>) {
         rendererChanged(anyRenderer: renderer)
         
-        rendererChanged(anyRenderer: renderer)
-        
         let traverser = SceneTraverser(camera: renderer.camera)
         renderer.scene.walk(traverser)
         
@@ -79,9 +84,11 @@ class UIProjectionComponent: RaytracerUIComponent {
         )
         
         for geometry in geometries {
+            guard geometryIdsToShow.contains(geometry.id) else { continue }
+
             switch geometry {
-            case .circle(_, let circle):
-                context.stroke(circle)
+            case .ellipse(_, let ellipse):
+                context.stroke(ellipse)
                 
             case .aabb(_, let lines):
                 for line in lines {
@@ -96,9 +103,19 @@ class UIProjectionComponent: RaytracerUIComponent {
 }
 
 private enum GeometryToRender {
-    case circle(id: Int, UICircle)
-    case aabb(id: Int, [UILine])
-    case line(id: Int, UILine)
+    case ellipse(id: Element.Id, UIEllipse)
+    case aabb(id: Element.Id, [UILine])
+    case line(id: Element.Id, UILine)
+
+    var id: Element.Id {
+        switch self {
+        case .ellipse(let id, _),
+            .aabb(let id, _),
+            .line(let id, _):
+            
+            return id
+        }
+    }
 }
 
 private class UIDrawingView: ImagineUI.View {
@@ -155,13 +172,13 @@ private class SceneTraverser: ElementVisitor {
         )
     }
     func visit(_ element: CylinderElement) -> ResultType {
-        
+        // TODO: Support cylinders
     }
     func visit(_ element: DiskElement) -> ResultType {
-        
+        // TODO: Support disks
     }
     func visit(_ element: EllipseElement) -> ResultType {
-        
+        // TODO: Support ellipses
     }
     func visit(_ element: EmptyElement) -> ResultType {
         
@@ -187,7 +204,7 @@ private class SceneTraverser: ElementVisitor {
         }
         
         geometries.append(
-            .circle(id: element.id, projected)
+            .ellipse(id: element.id, projected)
         )
     }
     func visit(_ element: TorusElement) -> ResultType {
@@ -209,7 +226,9 @@ private class SceneTraverser: ElementVisitor {
     // MARK: Combination
 
     func visit<T>(_ element: BoundedTypedArrayElement<T>) -> ResultType {
-        // TODO: Support arrays
+        element.elements.forEach {
+            $0.accept(self)
+        }
     }
     func visit<T0, T1>(_ element: IntersectionElement<T0, T1>) -> ResultType {
         element.t0.accept(self)
@@ -220,7 +239,9 @@ private class SceneTraverser: ElementVisitor {
         element.t1.accept(self)
     }
     func visit<T>(_ element: TypedArrayElement<T>) -> ResultType {
-        // TODO: Support arrays
+        element.elements.forEach {
+            $0.accept(self)
+        }
     }
     func visit<T0, T1>(_ element: UnionElement<T0, T1>) -> ResultType {
         element.t0.accept(self)

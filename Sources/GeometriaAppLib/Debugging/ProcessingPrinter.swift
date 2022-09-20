@@ -512,37 +512,6 @@ class ProcessingPrinter {
         }
     }
     
-    func printAddCylinder() {
-        indentedBlock("void addCylinder(PVector start, PVector end, float radius, float[] mat) {") {
-            printLine("Oval base = new Oval(radius, 20);")
-            printLine("Path line = new Linear(start, end, 1);")
-            printLine("")
-            printLine("Tube tube = new Tube(line, base);")
-            printLine("")
-            printLine("tube.drawMode(S3D.SOLID);")
-            printLine("tube.stroke(color(50, 50, 50, 50));")
-            printLine("tube.strokeWeight(1);")
-            printLine("tube.fill(color(200, 200, 200, 50));")
-            printLine("")
-            printLine("Cylinder cylinder = new Cylinder(tube, mat);")
-            printLine("cylinders.add(cylinder);")
-        }
-    }
-    
-    func printDrawCylinders() {
-        indentedBlock("void drawCylinders() {") {
-            indentedBlock("for (Cylinder cyl: cylinders) {") {
-                printLine("pushMatrix();")
-                indentedBlock("if (cyl.matrix != null) {") {
-                    printLine("applyMatrix(cyl.matrix);")
-                }
-                printLine("")
-                printLine("cyl.tube.draw(getGraphics());")
-                printLine("popMatrix();")
-            }
-        }
-    }
-    
     func printDrawGrid2D() {
         indentedBlock("void drawGrid() {") {
             printLine("stroke(0, 0, 0, 30);")
@@ -683,6 +652,41 @@ class ProcessingPrinter {
 
             printLine("")
             printLine("popMatrix();")
+        }
+    }
+    
+    func printAddCylinder() {
+        indentedBlock("void addCylinder(PVector start, PVector end, float radius) {") {
+            printLine("addCylinder(start, end, radius, null);")
+        }
+        printLine("")
+        indentedBlock("void addCylinder(PVector start, PVector end, float radius, float[] mat) {") {
+            printLine("Oval base = new Oval(radius, 20);")
+            printLine("Path line = new Linear(start, end, 1);")
+            printLine("")
+            printLine("Tube tube = new Tube(line, base);")
+            printLine("")
+            printLine("tube.drawMode(S3D.SOLID);")
+            printLine("tube.stroke(color(50, 50, 50, 50));")
+            printLine("tube.strokeWeight(1);")
+            printLine("tube.fill(color(200, 200, 200, 50));")
+            printLine("")
+            printLine("Cylinder cylinder = new Cylinder(tube, mat);")
+            printLine("cylinders.add(cylinder);")
+        }
+    }
+    
+    func printDrawCylinders() {
+        indentedBlock("void drawCylinders() {") {
+            indentedBlock("for (Cylinder cyl: cylinders) {") {
+                printLine("pushMatrix();")
+                indentedBlock("if (cyl.matrix != null) {") {
+                    printLine("applyMatrix(cyl.matrix);")
+                }
+                printLine("")
+                printLine("cyl.tube.draw(getGraphics());")
+                printLine("popMatrix();")
+            }
         }
     }
     

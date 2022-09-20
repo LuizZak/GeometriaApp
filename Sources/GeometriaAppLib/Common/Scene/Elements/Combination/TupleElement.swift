@@ -20,7 +20,7 @@ but do it with multiple tuples for now for performance reasons.
 */
 
 struct TupleElement2<T0: Element, T1: Element>: TupleElementType {
-    var id: Int = 0
+    var id: Element.Id = 0
     var t0: T0
     var t1: T1
 
@@ -28,7 +28,7 @@ struct TupleElement2<T0: Element, T1: Element>: TupleElementType {
 }
 
 struct TupleElement3<T0: Element, T1: Element, T2: Element>: TupleElementType {
-    var id: Int = 0
+    var id: Element.Id = 0
     var t0: T0
     var t1: T1
     var t2: T2
@@ -37,7 +37,7 @@ struct TupleElement3<T0: Element, T1: Element, T2: Element>: TupleElementType {
 }
 
 struct TupleElement4<T0: Element, T1: Element, T2: Element, T3: Element>: TupleElementType {
-    var id: Int = 0
+    var id: Element.Id = 0
     var t0: T0
     var t1: T1
     var t2: T2
@@ -47,7 +47,7 @@ struct TupleElement4<T0: Element, T1: Element, T2: Element, T3: Element>: TupleE
 }
 
 struct TupleElement5<T0: Element, T1: Element, T2: Element, T3: Element, T4: Element>: TupleElementType {
-    var id: Int = 0
+    var id: Element.Id = 0
     var t0: T0
     var t1: T1
     var t2: T2
@@ -58,7 +58,7 @@ struct TupleElement5<T0: Element, T1: Element, T2: Element, T3: Element, T4: Ele
 }
 
 struct TupleElement6<T0: Element, T1: Element, T2: Element, T3: Element, T4: Element, T5: Element>: TupleElementType {
-    var id: Int = 0
+    var id: Element.Id = 0
     var t0: T0
     var t1: T1
     var t2: T2
@@ -70,7 +70,7 @@ struct TupleElement6<T0: Element, T1: Element, T2: Element, T3: Element, T4: Ele
 }
 
 struct TupleElement7<T0: Element, T1: Element, T2: Element, T3: Element, T4: Element, T5: Element, T6: Element>: TupleElementType {
-    var id: Int = 0
+    var id: Element.Id = 0
     var t0: T0
     var t1: T1
     var t2: T2
@@ -83,7 +83,7 @@ struct TupleElement7<T0: Element, T1: Element, T2: Element, T3: Element, T4: Ele
 }
 
 struct TupleElement8<T0: Element, T1: Element, T2: Element, T3: Element, T4: Element, T5: Element, T6: Element, T7: Element>: TupleElementType {
-    var id: Int = 0
+    var id: Element.Id = 0
     var t0: T0
     var t1: T1
     var t2: T2
@@ -107,7 +107,8 @@ extension TupleElement2: Element {
     }
 
     @inlinable
-    func queryScene(id: Int) -> Element? {
+    func queryScene(id: Element.Id) -> Element? {
+        if id == self.id { return self }
         if let el = t0.queryScene(id: id) { return el }
         if let el = t1.queryScene(id: id) { return el }
 
@@ -130,7 +131,8 @@ extension TupleElement3: Element {
     }
 
     @inlinable
-    func queryScene(id: Int) -> Element? {
+    func queryScene(id: Element.Id) -> Element? {
+        if id == self.id { return self }
         if let el = t0.queryScene(id: id) { return el }
         if let el = t1.queryScene(id: id) { return el }
         if let el = t2.queryScene(id: id) { return el }
@@ -155,7 +157,8 @@ extension TupleElement4: Element {
     }
 
     @inlinable
-    func queryScene(id: Int) -> Element? {
+    func queryScene(id: Element.Id) -> Element? {
+        if id == self.id { return self }
         if let el = t0.queryScene(id: id) { return el }
         if let el = t1.queryScene(id: id) { return el }
         if let el = t2.queryScene(id: id) { return el }
@@ -182,7 +185,8 @@ extension TupleElement5: Element {
     }
 
     @inlinable
-    func queryScene(id: Int) -> Element? {
+    func queryScene(id: Element.Id) -> Element? {
+        if id == self.id { return self }
         if let el = t0.queryScene(id: id) { return el }
         if let el = t1.queryScene(id: id) { return el }
         if let el = t2.queryScene(id: id) { return el }
@@ -211,7 +215,8 @@ extension TupleElement6: Element {
     }
 
     @inlinable
-    func queryScene(id: Int) -> Element? {
+    func queryScene(id: Element.Id) -> Element? {
+        if id == self.id { return self }
         if let el = t0.queryScene(id: id) { return el }
         if let el = t1.queryScene(id: id) { return el }
         if let el = t2.queryScene(id: id) { return el }
@@ -242,7 +247,8 @@ extension TupleElement7: Element {
     }
 
     @inlinable
-    func queryScene(id: Int) -> Element? {
+    func queryScene(id: Element.Id) -> Element? {
+        if id == self.id { return self }
         if let el = t0.queryScene(id: id) { return el }
         if let el = t1.queryScene(id: id) { return el }
         if let el = t2.queryScene(id: id) { return el }
@@ -275,7 +281,8 @@ extension TupleElement8: Element {
     }
 
     @inlinable
-    func queryScene(id: Int) -> Element? {
+    func queryScene(id: Element.Id) -> Element? {
+        if id == self.id { return self }
         if let el = t0.queryScene(id: id) { return el }
         if let el = t1.queryScene(id: id) { return el }
         if let el = t2.queryScene(id: id) { return el }

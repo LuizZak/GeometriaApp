@@ -38,6 +38,11 @@ final class RendererCoordinator: RendererWorkerContext {
     var camera: Camera {
         _renderer.camera
     }
+
+    /// The current scene being rendered.
+    var scene: SceneType {
+        _renderer.currentScene()
+    }
     
     /// Progress of rendering, from 0.0 to 1.0, inclusive.
     /// Based on number of remaining batchers, according to ``batcher``.

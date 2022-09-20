@@ -22,7 +22,7 @@ extension AnyElement: Element {
     }
 
     @_transparent
-    func queryScene(id: Int) -> Element? {
+    func queryScene(id: Element.Id) -> Element? {
         element.queryScene(id: id)
     }
 

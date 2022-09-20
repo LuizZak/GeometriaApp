@@ -1,5 +1,5 @@
 struct CylinderElement: GeometryElementType {
-    var id: Int = 0
+    var id: Element.Id = 0
     var geometry: RCylinder3D
     var material: MaterialId
 }
@@ -11,7 +11,7 @@ extension CylinderElement: Element {
     }
 
     @_transparent
-    func queryScene(id: Int) -> Element? {
+    func queryScene(id: Element.Id) -> Element? {
         id == self.id ? self : nil
     }
 

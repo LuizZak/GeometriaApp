@@ -30,25 +30,36 @@ public struct CameraProjection {
     
     // TODO: Support spheres that partially clip into the camera plane.
     /// Attempts to project a 3D sphere into the screen coordinates as a `UICircle`.
-    func projectSphere(_ sphere: RSphere3D) -> UICircle? {
+    func projectSphere(_ sphere: RSphere3D) -> UIEllipse? {
         guard let projectedCenter = camera.projectAsPixelUnclamped(sphere.center) else {
             return nil
         }
         
         // Find an orthogonal axis to place a point on the outer edges of the
-        // sphere relative to the camera to produce a point that is used to
+        // sphere relative to the camera to produce points that are used to
         // calculate the on-screen radius of the sphere.
         // TODO: Find a more optimal way to compute the projected circle's radius
-        let radiusAxis = (sphere.center - camera.cameraPlane.point).normalized().cross(camera.cameraPlane.upAxis)
-        let radiusPoint = sphere.center + radiusAxis * sphere.radius
+        let cameraDirection = (sphere.center - camera.cameraPlane.point).normalized()
+
+        let radiusVAxis = cameraDirection.cross(camera.cameraPlane.rightAxis)
+        let radiusHAxis = cameraDirection.cross(camera.cameraPlane.upAxis)
+
+        let radiusVPoint = sphere.project(sphere.center + radiusVAxis)
+        let radiusHPoint = sphere.project(sphere.center + radiusHAxis)
         
-        guard let projectedRadius = camera.projectAsPixelUnclamped(radiusPoint) else {
+        guard
+            let projectedV = camera.projectAsPixelUnclamped(radiusVPoint),
+            let projectedH = camera.projectAsPixelUnclamped(radiusHPoint)
+        else {
             return nil
         }
         
-        let radius = Double(projectedCenter.distanceSquared(to: projectedRadius)).squareRoot()
+        let radius = UIVector(
+            x: Double(projectedCenter.distanceSquared(to: projectedH)).squareRoot(),
+            y: Double(projectedCenter.distanceSquared(to: projectedV)).squareRoot()
+        )
         
-        return UICircle(
+        return UIEllipse(
             center: UIPoint(projectedCenter),
             radius: radius
         )

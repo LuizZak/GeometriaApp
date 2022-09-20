@@ -4,6 +4,8 @@ public struct AABB<Vector: VectorType>: GeometricType {
     /// Convenience for `Vector.Scalar`.
     public typealias Scalar = Vector.Scalar
     
+    public typealias Vector = Vector
+    
     /// The minimal coordinate of this box.
     /// Must be `<= maximum`.
     public var minimum: Vector

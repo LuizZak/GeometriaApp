@@ -1,5 +1,5 @@
 struct EmptyElement {
-    var id: Int = 0
+    var id: Element.Id = 0
 }
 
 extension EmptyElement: Element {
@@ -9,7 +9,7 @@ extension EmptyElement: Element {
     }
 
     @_transparent
-    func queryScene(id: Int) -> Element? {
+    func queryScene(id: Element.Id) -> Element? {
         nil
     }
 

@@ -1,7 +1,7 @@
 import Foundation
 import ImagineUI
 
-class StatusMessageStack: RaytracerUIComponent {
+class StatusMessageStackComponent: RaytracerUIComponent {
     private let label = LabelControl(text: "")
     private var lastAnim: EventListenerKey?
 

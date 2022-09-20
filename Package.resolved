@@ -11,20 +11,11 @@
         }
       },
       {
-        "package": "ImagineUI-Win",
-        "repositoryURL": "https://github.com/LuizZak/ImagineUI-Win.git",
-        "state": {
-          "branch": "main",
-          "revision": "3c307b753ee55d006bc619bbff780651ce053baf",
-          "version": null
-        }
-      },
-      {
         "package": "SwiftBlend2D",
         "repositoryURL": "https://github.com/LuizZak/swift-blend2d.git",
         "state": {
           "branch": "master",
-          "revision": "71f20d95203495451f46f688952f915724bd0f22",
+          "revision": "fd318406fbdce6d47771722e84e70f6745d28191",
           "version": null
         }
       },

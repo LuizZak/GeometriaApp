@@ -1,5 +1,5 @@
 struct ScaleElement<T: Element> {
-    var id: Int = 0
+    var id: Element.Id = 0
     var element: T
     var scaling: Double
     var scalingCenter: RVector3D
@@ -14,8 +14,10 @@ extension ScaleElement: Element {
     }
 
     @_transparent
-    func queryScene(id: Int) -> Element? {
-        element.queryScene(id: id)
+    func queryScene(id: Element.Id) -> Element? {
+        if id == self.id { return self }
+        
+        return element.queryScene(id: id)
     }
 
     func accept<Visitor: ElementVisitor>(_ visitor: Visitor) -> Visitor.ResultType {

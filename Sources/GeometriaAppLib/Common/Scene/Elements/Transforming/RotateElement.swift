@@ -4,7 +4,7 @@ import Geometria
 
 /// Element that encodes a rotation in 3D space of another element.
 struct RotateElement<T: Element> {
-    var id: Int = 0
+    var id: Element.Id = 0
     var element: T
     
     var rotation: RRotationMatrix3D
@@ -34,8 +34,10 @@ extension RotateElement: Element {
     }
 
     @_transparent
-    func queryScene(id: Int) -> Element? {
-        element.queryScene(id: id)
+    func queryScene(id: Element.Id) -> Element? {
+        if id == self.id { return self }
+        
+        return element.queryScene(id: id)
     }
 
     func accept<Visitor: ElementVisitor>(_ visitor: Visitor) -> Visitor.ResultType {

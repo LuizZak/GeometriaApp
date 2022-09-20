@@ -21,12 +21,12 @@ struct Scene<T: Element>: SceneType {
     /// Returns an item on this scene matching a specified id, across all elements
     /// on the scene.
     /// Returns `nil` if no element with the given ID was found on this scene.
-    func queryScene(id: Int) -> Element? {
+    func queryScene(id: Element.Id) -> Element? {
         root.queryScene(id: id)
     }
 
     /// Returns the material associated with a given element ID.
-    func material(id: Int) -> Material? {
+    func material(id: MaterialId) -> Material? {
         materialIdMap[id]
     }
 

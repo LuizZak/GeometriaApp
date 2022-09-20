@@ -1,5 +1,5 @@
 struct CubeElement: GeometryElementType {
-    var id: Int = 0
+    var id: Element.Id = 0
     var geometry: RCube3D
     var material: MaterialId
 }
@@ -11,7 +11,7 @@ extension CubeElement: Element {
     }
 
     @_transparent
-    func queryScene(id: Int) -> Element? {
+    func queryScene(id: Element.Id) -> Element? {
         id == self.id ? self : nil
     }
 

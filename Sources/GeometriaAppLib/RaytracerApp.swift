@@ -15,7 +15,10 @@ open class RaytracerApp: ImagineUIContentType {
     private var threadCount: Int = 12
     
     private var ui: RaytracerUI
-    private let statusMessages: StatusMessageStack = StatusMessageStack()
+    
+    // Components
+    private let statusMessages: StatusMessageStackComponent = StatusMessageStackComponent()
+    private let uiProjection: UIProjectionComponent = UIProjectionComponent()
     
     var rendererCoordinator: RendererCoordinator?
     var renderer: RendererType?
@@ -58,18 +61,22 @@ open class RaytracerApp: ImagineUIContentType {
     }
     
     func createUI() {
-        let uiProjection = UIProjectionComponent()
+        // UI projection
         ui.addComponent(uiProjection)
         
+        // Scene graph tree view
         let sceneGraph = SceneGraphTreeComponent(width: 250.0)
+        sceneGraph.treeComponentDelegate = self
         ui.addComponent(sceneGraph)
-        
+
+        // Status labels
         let labelsContainer = ui.addComponentInReservedView(StatusLabelsComponent())
         labelsContainer.layout.makeConstraints { make in
             (make.top, make.right, make.bottom) == ui.componentsContainer
             make.right(of: sceneGraph.sidePanel)
         }
 
+        // Status messages
         ui.addComponent(statusMessages)
     }
 
@@ -371,5 +378,16 @@ open class RaytracerApp: ImagineUIContentType {
         }
         
         ui.render(renderer: renderer, renderScale: renderScale, clipRegion: clipRegion)
+    }
+}
+
+extension RaytracerApp: SceneGraphTreeComponentDelegate {
+    func sceneGraphTreeComponent(
+        _ component: SceneGraphTreeComponent,
+        didChangeSelection selection: Set<Element.Id>
+    ) {
+        GeometriaLogger.info("New selection: \(selection)")
+
+        uiProjection.geometryIdsToShow = selection
     }
 }

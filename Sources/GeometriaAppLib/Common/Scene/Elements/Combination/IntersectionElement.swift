@@ -1,5 +1,5 @@
 struct IntersectionElement<T0: Element, T1: Element> {
-    var id: Int = 0
+    var id: Element.Id = 0
     var material: Int? = nil
     var t0: T0
     var t1: T1
@@ -15,8 +15,9 @@ extension IntersectionElement: Element {
     }
 
     @inlinable
-    func queryScene(id: Int) -> Element? {
+    func queryScene(id: Element.Id) -> Element? {
         if id == self.id { return self }
+        
         if let el = t0.queryScene(id: id) { return el }
         if let el = t1.queryScene(id: id) { return el }
 

@@ -49,14 +49,14 @@ extension RSphere3D {
     }
 }
 
-extension BoundingBoxRaytracingElement {
-    init(element: T) where T: RaytracingBoundedElement {
+extension BoundingBoxElement {
+    init(element: T) where T: BoundedElement {
         self.init(element: element, boundingBox: element.makeBounds().bounds)
     }
 }
 
-extension BoundingSphereRaytracingElement {
-    init(element: T) where T: RaytracingBoundedElement {
+extension BoundingSphereElement {
+    init(element: T) where T: BoundedElement {
         self.init(element: element, boundingSphere: element.makeBounds())
     }
 }

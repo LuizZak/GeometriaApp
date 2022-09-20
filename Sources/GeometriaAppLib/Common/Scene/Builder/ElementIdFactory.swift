@@ -1,7 +1,7 @@
 struct ElementIdFactory {
-    private var _nextId: Int = 0
+    private var _nextId: Element.Id = 0
     
-    mutating func makeId() -> Int {
+    mutating func makeId() -> Element.Id {
         defer { _nextId += 1 }
         return _nextId
     }
