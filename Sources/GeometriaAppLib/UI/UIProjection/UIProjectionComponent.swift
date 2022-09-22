@@ -2,9 +2,11 @@ import Foundation
 import ImagineUI
 import SwiftBlend2D
 
+private typealias RenderingShape = CameraProjection.RenderingShape
+
 class UIProjectionComponent: RaytracerUIComponent {
     private weak var rendererCoordinator: RendererCoordinator?
-    
+
     private let renderView: UIDrawingView = UIDrawingView()
     private var geometries: [GeometryToRender] = [] {
         didSet {
@@ -73,47 +75,98 @@ class UIProjectionComponent: RaytracerUIComponent {
             return
         }
         
+        for geometry in geometries {
+            guard geometryIdsToShow.contains(geometry.id) else { continue }
+
+            renderShape(context, geometry.shape)
+        }
+    }
+
+    private func doStroke(_ context: Renderer, _ stroker: (Renderer) -> Void) {
         context.setStroke(
             StrokeStyle(
-                color: .red,
+                color: .white,
                 width: 3,
                 startCap: .round,
                 endCap: .round,
                 joinStyle: .round
             )
         )
-        
-        for geometry in geometries {
-            guard geometryIdsToShow.contains(geometry.id) else { continue }
 
-            switch geometry {
-            case .ellipse(_, let ellipse):
-                context.stroke(ellipse)
-                
-            case .aabb(_, let lines):
-                for line in lines {
-                    context.stroke(line)
-                }
-                
-            case .line(_, let line):
-                context.stroke(line)
+        context.saveState()
+        stroker(context)
+        context.restoreState()
+
+        context.setStroke(
+            StrokeStyle(
+                color: .red,
+                width: 2,
+                startCap: .round,
+                endCap: .round,
+                joinStyle: .round
+            )
+        )
+
+        context.saveState()
+        stroker(context)
+        context.restoreState()
+    }
+
+    private func renderShape(_ context: Renderer, _ shape: RenderingShape) {
+        context.saveState()
+        defer { context.restoreState() }
+
+        switch shape {
+        case .ellipse(let ellipse):
+            doStroke(context) {
+                $0.stroke(ellipse)
+            }
+            
+        case .line(let line):
+            doStroke(context) {
+                $0.stroke(line)
+            }
+            
+        case .shapes(let shapes):
+            for shape in shapes {
+                renderShape(context, shape)
+            }
+
+        case .transform(let transform, let shape):
+            doStroke(context) {
+                $0.transform(transform)
+
+                renderShape($0, shape)
             }
         }
     }
 }
 
 private enum GeometryToRender {
-    case ellipse(id: Element.Id, UIEllipse)
-    case aabb(id: Element.Id, [UILine])
-    case line(id: Element.Id, UILine)
+    case ellipse(id: Element.Id, RenderingShape)
+    case aabb(id: Element.Id, RenderingShape)
+    case line(id: Element.Id, RenderingShape)
+    case disk(id: Element.Id, RenderingShape)
 
     var id: Element.Id {
         switch self {
         case .ellipse(let id, _),
             .aabb(let id, _),
-            .line(let id, _):
+            .line(let id, _),
+            .disk(let id, _):
             
             return id
+        }
+    }
+
+    var shape: RenderingShape {
+        switch self {
+        case .ellipse(_, let shape),
+            .aabb(_, let shape),
+            .line(_, let shape),
+            .disk(_, let shape):
+            
+            return shape
         }
     }
 }
@@ -152,30 +205,36 @@ private class SceneTraverser: ElementVisitor {
     // MARK: Basic
 
     func visit(_ element: AABBElement) -> ResultType {
-        let lines = projector.projectAABB(element.geometry)
-        guard !lines.isEmpty else {
+        let shape = projector.projectAABB(element.geometry)
+        guard !shape.isEmpty else {
             return
         }
         
         geometries.append(
-            .aabb(id: element.id, lines)
+            .aabb(id: element.id, shape)
         )
     }
     func visit(_ element: CubeElement) -> ResultType {
-        let lines = projector.projectAABB(element.geometry)
-        guard !lines.isEmpty else {
+        let shape = projector.projectAABB(element.geometry)
+        guard !shape.isEmpty else {
             return
         }
         
         geometries.append(
-            .aabb(id: element.id, lines)
+            .aabb(id: element.id, shape)
         )
     }
     func visit(_ element: CylinderElement) -> ResultType {
         // TODO: Support cylinders
     }
     func visit(_ element: DiskElement) -> ResultType {
-        // TODO: Support disks
+        guard let shape = projector.projectDisk(element.geometry) else {
+            return
+        }
+        
+        geometries.append(
+            .disk(id: element.id, shape)
+        )
     }
     func visit(_ element: EllipseElement) -> ResultType {
         // TODO: Support ellipses
@@ -187,24 +246,24 @@ private class SceneTraverser: ElementVisitor {
         
     }
     func visit(_ element: LineSegmentElement) -> ResultType {
-        guard let projected = projector.projectLine(element.geometry) else {
+        guard let shape = projector.projectLine(element.geometry) else {
             return
         }
         
         geometries.append(
-            .line(id: element.id, projected)
+            .line(id: element.id, shape)
         )
     }
     func visit(_ element: PlaneElement) -> ResultType {
         
     }
     func visit(_ element: SphereElement) -> ResultType {
-        guard let projected = projector.projectSphere(element.geometry) else {
+        guard let shape = projector.projectSphere(element.geometry) else {
             return
         }
         
         geometries.append(
-            .ellipse(id: element.id, projected)
+            .ellipse(id: element.id, shape)
         )
     }
     func visit(_ element: TorusElement) -> ResultType {

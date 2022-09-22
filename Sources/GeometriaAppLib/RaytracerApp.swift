@@ -164,13 +164,18 @@ open class RaytracerApp: ImagineUIContentType {
         
         // TODO: Derive camera configuration from the demo scene builders.
 
+        let camera = Camera(
+            viewportSize: viewportSize,
+            viewportCenter: .init(x: 0.0, y: 0, z: 90.0)
+        )
+
         #if true
         
         let scene = RaytracingDemoScene1.makeScene()
         
         let renderer = Raytracer(
             scene: scene,
-            camera: Camera(viewportSize: viewportSize)
+            camera: camera
         )
         
         #else
@@ -179,7 +184,7 @@ open class RaytracerApp: ImagineUIContentType {
         
         let renderer = Raymarcher(
             scene: scene,
-            camera: Camera(viewportSize: viewportSize)
+            camera: camera
         )
         // renderer.renderMode = .marchSteps()
         
@@ -386,7 +391,6 @@ extension RaytracerApp: SceneGraphTreeComponentDelegate {
         _ component: SceneGraphTreeComponent,
         didChangeSelection selection: Set<Element.Id>
     ) {
-        GeometriaLogger.info("New selection: \(selection)")
 
         uiProjection.geometryIdsToShow = selection
     }

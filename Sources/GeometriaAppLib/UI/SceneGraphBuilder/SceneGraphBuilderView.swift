@@ -104,7 +104,7 @@ class SceneGraphBuilderView: RootView {
 
         if event.delta.y > 0 {
             _nodesContainer.zoom = min(2.0, _nodesContainer.zoom + 0.1)
-        } else {
+        } else if event.delta.y < 0 {
             _nodesContainer.zoom = max(0.25, _nodesContainer.zoom - 0.1)
         }
     }

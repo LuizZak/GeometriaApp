@@ -318,78 +318,6 @@ class ProcessingPrinter {
         }
     }
     
-    // MARK: - Expression Printing
-    
-    func boilerplate3DSpaceBar<T: FloatingPoint>(lineWeight: T) -> [String] {
-        return [
-            "if (isSpaceBarPressed) {",
-            indentString(depth: 1) + "noFill();",
-            indentString(depth: 1) + "noLights();",
-            indentString(depth: 1) + "stroke(0, 0, 0, 20);",
-            indentString(depth: 1) + "strokeWeight(\(1 / lineWeight) / scale);",
-            "} else {",
-            indentString(depth: 1) + "noStroke();",
-            indentString(depth: 1) + "fill(255, 255, 255, 255);",
-            indentString(depth: 1) + "lights();",
-            "}"
-        ]
-    }
-    
-    func addMatrixLine(_ matrix: RMatrix4x4?) {
-        guard let matrix = matrix else {
-            return
-        }
-
-        addDrawLine("applyMatrix(")
-        indented {
-            addDrawLine(mat2String(matrix, multiline: true))
-        }
-        addDrawLine(")")
-    }
-    
-    func addDrawLine(_ line: String) {
-        draws.append(line)
-    }
-    
-    func addNoStroke() {
-        if _lastStrokeColorCall == nil { return }
-        _lastStrokeColorCall = nil
-        addDrawLine("noStroke();")
-    }
-    
-    func addNoFill() {
-        if _lastFillColorCall == nil { return }
-        _lastFillColorCall = nil
-        addDrawLine("noFill();")
-    }
-    
-    // TODO: Transform this boilerplate into a function in the output script
-    // TODO: instead of creating a distinct copy every time.
-    func add3DSpaceBarBoilerplate<T: FloatingPoint>(lineWeight: T) {
-        boilerplate3DSpaceBar(lineWeight: lineWeight).forEach(addDrawLine(_:))
-    }
-    
-    func addStrokeColorSet(_ value: String) {
-        if _lastStrokeColorCall == value { return }
-        
-        _lastStrokeColorCall = value
-        addDrawLine("stroke(\(value));")
-    }
-    
-    func addStrokeWeightSet(_ value: String) {
-        if _lastStrokeWeightCall == value { return }
-        
-        _lastStrokeWeightCall = value
-        addDrawLine("strokeWeight(\(value));")
-    }
-    
-    func addFillColorSet(_ value: String) {
-        if _lastFillColorCall == value { return }
-        
-        _lastFillColorCall = value
-        addDrawLine("fill(\(value));")
-    }
-    
     // MARK: - Methods for subclasses
     
     func prepareCustomPreFile() {
@@ -437,9 +365,7 @@ class ProcessingPrinter {
         indentedBlock("void setup() {") {
             if is3D {
                 printLine("size(\(Self.vec2String_int(size)), P3D);")
-                printLine("perspective(PI / 3, 1, 0.3, 8000); // Corrects default zNear plane being too far for unit measurements")
-                printLine("cam = new PeasyCam(this, 250);")
-                printLine("cam.setWheelScale(0.3);")
+                printCameraSetup()
             } else {
                 printLine("size(\(Self.vec2String_int(size)));")
             }
@@ -452,6 +378,13 @@ class ProcessingPrinter {
             
             printCustomPostSetup()
         }
+    }
+
+    /// Prints the lines responsible for setting up the camera projection matrix.
+    func printCameraSetup() {
+        printLine("perspective(PI / 3, float(width) / float(height), 0.3, 8000); // Corrects default zNear plane being too far for unit measurements")
+        printLine("cam = new PeasyCam(this, 250);")
+        printLine("cam.setWheelScale(0.3);")
     }
     
     func printDraw() {
@@ -718,6 +651,78 @@ class ProcessingPrinter {
                 printLine("this.matrix = matrix;")
             }
         }
+    }
+    
+    // MARK: - Expression Printing
+    
+    func boilerplate3DSpaceBar<T: FloatingPoint>(lineWeight: T) -> [String] {
+        return [
+            "if (isSpaceBarPressed) {",
+            indentString(depth: 1) + "noFill();",
+            indentString(depth: 1) + "noLights();",
+            indentString(depth: 1) + "stroke(0, 0, 0, 20);",
+            indentString(depth: 1) + "strokeWeight(\(1 / lineWeight) / scale);",
+            "} else {",
+            indentString(depth: 1) + "noStroke();",
+            indentString(depth: 1) + "fill(255, 255, 255, 255);",
+            indentString(depth: 1) + "lights();",
+            "}"
+        ]
+    }
+    
+    func addMatrixLine(_ matrix: RMatrix4x4?) {
+        guard let matrix = matrix else {
+            return
+        }
+
+        addDrawLine("applyMatrix(")
+        indented {
+            addDrawLine(mat2String(matrix, multiline: true))
+        }
+        addDrawLine(")")
+    }
+    
+    func addDrawLine(_ line: String) {
+        draws.append(line)
+    }
+    
+    func addNoStroke() {
+        if _lastStrokeColorCall == nil { return }
+        _lastStrokeColorCall = nil
+        addDrawLine("noStroke();")
+    }
+    
+    func addNoFill() {
+        if _lastFillColorCall == nil { return }
+        _lastFillColorCall = nil
+        addDrawLine("noFill();")
+    }
+    
+    // TODO: Transform this boilerplate into a function in the output script
+    // TODO: instead of creating a distinct copy every time.
+    func add3DSpaceBarBoilerplate<T: FloatingPoint>(lineWeight: T) {
+        boilerplate3DSpaceBar(lineWeight: lineWeight).forEach(addDrawLine(_:))
+    }
+    
+    func addStrokeColorSet(_ value: String) {
+        if _lastStrokeColorCall == value { return }
+        
+        _lastStrokeColorCall = value
+        addDrawLine("stroke(\(value));")
+    }
+    
+    func addStrokeWeightSet(_ value: String) {
+        if _lastStrokeWeightCall == value { return }
+        
+        _lastStrokeWeightCall = value
+        addDrawLine("strokeWeight(\(value));")
+    }
+    
+    func addFillColorSet(_ value: String) {
+        if _lastFillColorCall == value { return }
+        
+        _lastFillColorCall = value
+        addDrawLine("fill(\(value));")
     }
     
     // MARK: - String printing

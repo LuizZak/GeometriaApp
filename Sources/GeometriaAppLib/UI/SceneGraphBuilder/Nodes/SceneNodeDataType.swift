@@ -1,3 +1,5 @@
+import ImagineUI
+
 enum SceneNodeDataType: Hashable {
     case any
     case anyElement
@@ -7,6 +9,7 @@ enum SceneNodeDataType: Hashable {
     case color
     case materialMap
     case camera
+    case size
     case vector3
 
     static func areAssignable(source: Self, target: Self) -> Bool {
@@ -49,6 +52,8 @@ extension SceneNodeDataType: CustomStringConvertible {
             return "Material map"
         case .camera:
             return "Camera"
+        case .size:
+            return "Size"
         case .vector3:
             return "Vector3"
         }
@@ -98,6 +103,12 @@ extension AnyRaymarchingElement: SceneNodeDataTypeRepresentable {
         }
 
         return .anyRaymarchingElement
+    }
+}
+
+extension UIIntSize: SceneNodeDataTypeRepresentable {
+    static var staticDataType: SceneNodeDataType {
+        .size
     }
 }
 

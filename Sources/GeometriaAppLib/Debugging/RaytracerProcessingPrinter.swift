@@ -5,10 +5,14 @@ import Geometria
 class RaytracerProcessingPrinter: ProcessingPrinter {
     private var _elementsVisible: Set<Int> = []
     
-    var scene: SceneType
+    var scene: SceneType?
     var sceneCamera: Camera?
     
-    init(viewportSize: RVector2D, scene: SceneType, sceneCamera: Camera? = nil) {
+    convenience init(viewportSize: ViewportSize, scene: SceneType?, sceneCamera: Camera? = nil) {
+        self.init(viewportSize: RVector2D(viewportSize), scene: scene, sceneCamera: sceneCamera)
+    }
+
+    init(viewportSize: RVector2D, scene: SceneType?, sceneCamera: Camera? = nil) {
         self.scene = scene
         self.sceneCamera = sceneCamera
         super.init(size: viewportSize, scale: 1.5)
@@ -46,6 +50,9 @@ class RaytracerProcessingPrinter: ProcessingPrinter {
     }
     
     func add(id: Int) {
+        guard let scene = scene else {
+            return
+        }
         if !_elementsVisible.insert(id).inserted {
             return
         }
@@ -93,21 +100,27 @@ class RaytracerProcessingPrinter: ProcessingPrinter {
     
     // MARK: Custom printing code
     
-    /// Prepares geometry added to `addedGeometry` before it's print out by
-    /// `printDraw`.
-    override func prepareCustomPreFile() {
-        
-    }
-    
-    override func printCustomPostSetup() {
+    override func printCameraSetup() {
         guard let camera = sceneCamera else {
+            super.printCameraSetup()
             return
         }
         
-        
         let elevation = -camera.cameraPlane.normal.elevation
-        
-        printLine("cam = new PeasyCam(this, \(Self.vec3String_pCoordinates(camera.cameraPlane.point)), \(90));")
+        let distance: Double
+
+        switch camera.projectionMode {
+        case .perspective(let focalLength):
+            distance = focalLength.magnitude
+            
+            printLine("perspective(PI / 3, float(width) / float(height), 0.3, 8000); // Corrects default zNear plane being too far for unit measurements")
+
+        case .orthographic:
+            printLine("ortho()")
+            distance = 0.0
+        }
+
+        printLine("cam = new PeasyCam(this, \(Self.vec3String_pCoordinates(camera.cameraPlane.point)), \(distance));")
         printLine("cam.setWheelScale(0.3);")
         printLine("cam.rotateX(\(elevation));")
     }
@@ -116,13 +129,15 @@ class RaytracerProcessingPrinter: ProcessingPrinter {
 extension RaytracerProcessingPrinter {
     static func withRaytracerPrinter(
         viewportSize: ViewportSize,
-        scene: SceneType,
+        scene: SceneType?,
+        sceneCamera: Camera? = nil,
         _ block: (RaytracerProcessingPrinter) -> Void
     ) {
         
         let printer = RaytracerProcessingPrinter(
             viewportSize: RVector2D(viewportSize),
-            scene: scene
+            scene: scene,
+            sceneCamera: sceneCamera
         )
         
         block(printer)
