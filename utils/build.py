@@ -14,7 +14,7 @@ from typing import Any, Callable, List, Optional, TypeVar
 from os import PathLike
 
 win32_debug_args = ["-Xswiftc", "-g", "-Xswiftc", "-debug-info-format=codeview", "-Xlinker", "-debug"]
-
+win32_release_args = []
 
 def make_argparser() -> argparse.ArgumentParser:
     # Argument parser with support for specifying default subcommand parser
@@ -132,7 +132,14 @@ class BuildCommandArgs:
         if self.target_name is not None:
             args.extend(['--target', self.target_name])
         
-        args.extend(['--configuration', self.config, *win32_debug_args, *toSwiftCDefList(self.definitions)])
+        args.extend(['--configuration', self.config])
+
+        if self.config == 'release':
+            args.extend(win32_release_args)
+        else:
+            args.extend(win32_debug_args)
+        
+        args.extend(toSwiftCDefList(self.definitions))
 
         if self.config == 'release' and self.enable_cross_module_optimization:
             args.extend(['-Xswiftc', '-cross-module-optimization'])
