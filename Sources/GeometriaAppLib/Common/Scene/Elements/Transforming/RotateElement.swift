@@ -7,9 +7,20 @@ struct RotateElement<T: Element> {
     var id: Element.Id = 0
     var element: T
     
-    var rotation: RRotationMatrix3D
-    var rotationInv: RRotationMatrix3D
+    var rotation: Transform3x3
     var rotationCenter: RVector3D
+    
+    internal init(
+        id: Int = 0,
+        element: T,
+        rotation: Transform3x3,
+        rotationCenter: RVector3D
+    ) {
+        self.id = id
+        self.element = element
+        self.rotation = rotation
+        self.rotationCenter = rotationCenter
+    }
     
     internal init(
         id: Int = 0,
@@ -19,8 +30,7 @@ struct RotateElement<T: Element> {
     ) {
         self.id = id
         self.element = element
-        self.rotation = rotation
-        self.rotationInv = rotation.inverted() ?? .identity
+        self.rotation = .init(rotation)
         self.rotationCenter = rotationCenter
     }
 }
@@ -51,7 +61,7 @@ extension RotateElement: BoundedElement where T: BoundedElement {
         var points = element.makeBounds().asRectangle.vertices
 
         points = points.map {
-            rotation.transformPoint($0 - rotationCenter) + rotationCenter
+            rotation.m.transformPoint($0 - rotationCenter) + rotationCenter
         }
 
         return ElementBounds(points: points)

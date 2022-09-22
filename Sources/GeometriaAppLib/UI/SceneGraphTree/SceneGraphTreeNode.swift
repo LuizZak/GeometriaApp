@@ -391,7 +391,7 @@ extension SceneGraphTreeNode {
     }
     
     func addingProperties<T>(for element: RotateElement<T>) -> SceneGraphTreeNode {
-        self.addingMatrixProperty(name: "Matrix", value: element.rotation)
+        self.addingMatrixProperty(name: "Matrix", value: element.rotation.m)
             .addingProperty(name: "Center", value: element.rotationCenter)
     }
 

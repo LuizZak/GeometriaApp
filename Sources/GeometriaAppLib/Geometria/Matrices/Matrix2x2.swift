@@ -335,7 +335,7 @@ public struct Matrix2x2: SquareMatrixType, CustomStringConvertible {
             (r10, r11)
         ))
     }
-    
+
     /// Performs an in-place [matrix multiplication] between `lhs` and `rhs`
     /// and stores the result back to `lhs`.
     ///

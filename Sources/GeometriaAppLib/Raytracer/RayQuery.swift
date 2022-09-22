@@ -112,6 +112,20 @@ struct RayQuery: Equatable {
         
         return query
     }
+    
+    /// Rotates the components of this ray query, returning a new ray query that
+    /// is rotated in space around the given center point by a given 3x3 transform
+    /// matrix.
+    func rotated(by transform: Transform3x3, around center: RVector3D) -> Self {
+        var query = self
+
+        query.ray = self.ray.rotated(by: transform.m, around: center)
+        query.rayAABB = self.rayAABB?.rotated(by: transform.m, around: center)
+        query.lineSegment = self.lineSegment.rotated(by: transform.m, around: center)
+        query.lastHit = self.lastHit?.rotated(by: transform.m, around: center)
+        
+        return query
+    }
 }
 
 extension RayQuery {

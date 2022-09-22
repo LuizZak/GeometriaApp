@@ -41,4 +41,30 @@ extension Matrix4x4 {
         
         return self * mat
     }
+    
+    /// Applies a given [rotation matrix] to this 4x4 matrix, with an option to
+    /// apply a rotation around a given center point, instead of the origin.
+    ///
+    /// `prepend` defines whether the resulting matrix should be multiplied to
+    /// the left or the right side of this matrix.
+    ///
+    /// [rotation matrix]: https://en.wikipedia.org/wiki/Rotation_matrix
+    public func applying3DRotation<Vector: Vector3Real>(
+        _ transform: Transform3x3,
+        around center: Vector,
+        prepend: Bool = false
+    ) -> Self where Vector.Scalar == Scalar {
+        
+        let rot = Self.init(matrix3x3: transform.m)
+        let tr = Self.makeTranslation(center)
+        let trN = Self.makeTranslation(-center)
+        
+        let mat = tr * rot * trN
+        
+        if prepend {
+            return mat * self
+        }
+        
+        return self * mat
+    }
 }

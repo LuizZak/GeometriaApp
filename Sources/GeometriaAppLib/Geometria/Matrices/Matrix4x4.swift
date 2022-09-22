@@ -29,7 +29,7 @@ import RealModule
 public typealias Matrix4x4D = Matrix4x4//<Double>
 
 /// Plain 4-row 4-column Matrix with real components.
-public struct Matrix4x4: MatrixType, CustomStringConvertible {
+public struct Matrix4x4: SquareMatrixType, CustomStringConvertible {
     public typealias Scalar = Double
 
     /// Returns a 4x4 [identity matrix].
@@ -422,6 +422,20 @@ public struct Matrix4x4: MatrixType, CustomStringConvertible {
         if result.w != 0 && result.w != 1 {
             return Vector(x: result.x, y: result.y, z: result.z) / result.w
         }
+        
+        return Vector(x: result.x, y: result.y, z: result.z)
+    }
+    
+    /// Transforms a given vector, applying scaling, rotation and translation to
+    /// the vector.
+    ///
+    /// The matrix is transformed as a vector and is not normalized by the W
+    /// vector.
+    @_transparent
+    public func transformVector<Vector: Vector3FloatingPoint>(_ vec: Vector) -> Vector where Vector.Scalar == Scalar {
+        let vec4 = Vector4(vec, w: 1)
+        
+        let result = transformPoint(vec4)
         
         return Vector(x: result.x, y: result.y, z: result.z)
     }
