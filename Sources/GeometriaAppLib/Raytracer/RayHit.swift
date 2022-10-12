@@ -125,18 +125,18 @@ struct RayHit: Equatable {
     /// Rotates the components of this ray hit, returning a new ray hit that
     /// is rotated in space around the given center point by a given rotational
     /// matrix.
-    func rotated(by matrix: RRotationMatrix3D, around center: RVector3D) -> Self {
+    func rotatedBy(_ matrix: RRotationMatrix3D, around center: RVector3D) -> Self {
         var hit = self
         
         hit.pointNormal.point =
             hit.pointNormal
                 .point
-                .rotated(by: matrix, around: center)
+                .rotatedBy(matrix, around: center)
         
         hit.pointNormal.normal =
             hit.pointNormal
                 .normal
-                .rotated(by: matrix, around: .zero)
+                .rotatedBy(matrix, around: .zero)
                 .normalized()
         
         return hit

@@ -13,13 +13,14 @@ let reportingSwiftSettings: [SwiftSetting] = [
 ]
 
 var packageDependencies: [Package.Dependency] =  [
-    // TODO: When Swift properly supports -Xswiftc -cross-module-optimization, re-enable external Geometria import.
-    // TODO: For now, code is embedded directly into this repository.
-    // .package(url: "https://github.com/LuizZak/Geometria.git", branch: "main"),
     .package(url: "https://github.com/apple/swift-numerics.git", from: "1.0.0"),
     .package(url: "https://github.com/LuizZak/ImagineUI.git", .branch("master")),    //.package(url: "https://github.com/LuizZak/ImagineUI.git", branch: "master"),
     .package(name: "SwiftBlend2D", url: "https://github.com/LuizZak/swift-blend2d.git", .branch("master")), //.package(url: "https://github.com/LuizZak/swift-blend2d.git", branch: "master")
 ]
+
+var targets: [Target] = []
+
+// MARK: - Target definitions
 
 var geometriaAppTarget: Target = .executableTarget(
     name: "GeometriaApp"
@@ -28,7 +29,7 @@ var geometriaAppTarget: Target = .executableTarget(
 var geometriaAppLibTarget: Target = .target(
     name: "GeometriaAppLib",
     dependencies: [
-        // "Geometria",
+        "Geometria",
         .product(name: "Numerics", package: "swift-numerics"),
         "ImagineUI",
         .product(name: "Blend2DRenderer", package: "ImagineUI"),
@@ -50,12 +51,32 @@ var geometriaAppLibTarget: Target = .target(
         
     ]
 )
-
 if ProcessInfo.processInfo.environment["REPORT_BUILD_TIME"] == "YES" {
     geometriaAppLibTarget.swiftSettings?.append(contentsOf: reportingSwiftSettings)
 }
 
-var osTargets: [Target] = []
+// MARK: - Embedded Geometria target
+
+// TODO: When Swift properly supports -Xswiftc -cross-module-optimization, re-enable external Geometria import by default.
+// TODO: For now, code is embedded directly into this repository.
+if ProcessInfo.processInfo.environment["USE_GEOMETRIA_DEPENDENCY"] == "YES" {
+    packageDependencies.append(
+        .package(url: "https://github.com/LuizZak/Geometria.git", branch: "main")
+    )
+} else {
+    targets.append(
+        .target(
+            name: "Geometria",
+            dependencies: [
+                .product(name: "Numerics", package: "swift-numerics"),
+            ],
+            swiftSettings: []
+        )
+    )
+    geometriaAppLibTarget.swiftSettings?.append(
+        .define("GEOMETRIA_EMBEDDED")
+    )
+}
 
 #if os(Windows)
 
@@ -87,7 +108,7 @@ packageDependencies.append(
     .package(url: "https://github.com/LuizZak/ImagineUI-Win.git", .branch("main"))
 )
 
-osTargets.append(
+targets.append(
     .target(
         name: "GeometriaWindows",
         dependencies: [
@@ -111,7 +132,7 @@ geometriaAppTarget.exclude.append("main+win.swift")
 geometriaAppTarget.dependencies.append(
     "GeometriaMacOS"
 )
-osTargets.append(
+targets.append(
     .target(
         name: "GeometriaMacOS",
         dependencies: [
@@ -122,6 +143,9 @@ osTargets.append(
 )
 
 #endif
+
+targets.append(geometriaAppTarget)
+targets.append(geometriaAppLibTarget)
 
 let package = Package(
     name: "GeometriaApp",
@@ -134,8 +158,5 @@ let package = Package(
             targets: ["GeometriaApp"]),
     ],
     dependencies: packageDependencies,
-    targets: [
-        geometriaAppTarget,
-        geometriaAppLibTarget
-    ] + osTargets
+    targets: targets
 )

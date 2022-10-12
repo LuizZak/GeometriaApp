@@ -1,3 +1,7 @@
+#if canImport(Geometria)
+import Geometria
+#endif
+
 /// Encodes a 3x3 matrix and its inverse.
 public typealias Transform3x3 = TransformMatrix<RMatrix3x3>
 

@@ -102,13 +102,13 @@ struct RayQuery: Equatable {
     /// Rotates the components of this ray query, returning a new ray query that
     /// is rotated in space around the given center point by a given rotational
     /// matrix.
-    func rotated(by matrix: RRotationMatrix3D, around center: RVector3D) -> Self {
+    func rotatedBy(_ matrix: RRotationMatrix3D, around center: RVector3D) -> Self {
         var query = self
 
-        query.ray = self.ray.rotated(by: matrix, around: center)
-        query.rayAABB = self.rayAABB?.rotated(by: matrix, around: center)
-        query.lineSegment = self.lineSegment.rotated(by: matrix, around: center)
-        query.lastHit = self.lastHit?.rotated(by: matrix, around: center)
+        query.ray = self.ray.rotatedBy(matrix, around: center)
+        query.rayAABB = self.rayAABB?.rotatedBy(matrix, around: center)
+        query.lineSegment = self.lineSegment.rotatedBy(matrix, around: center)
+        query.lastHit = self.lastHit?.rotatedBy(matrix, around: center)
         
         return query
     }
@@ -116,13 +116,13 @@ struct RayQuery: Equatable {
     /// Rotates the components of this ray query, returning a new ray query that
     /// is rotated in space around the given center point by a given 3x3 transform
     /// matrix.
-    func rotated(by transform: Transform3x3, around center: RVector3D) -> Self {
+    func rotatedBy(_ transform: Transform3x3, around center: RVector3D) -> Self {
         var query = self
 
-        query.ray = self.ray.rotated(by: transform.m, around: center)
-        query.rayAABB = self.rayAABB?.rotated(by: transform.m, around: center)
-        query.lineSegment = self.lineSegment.rotated(by: transform.m, around: center)
-        query.lastHit = self.lastHit?.rotated(by: transform.m, around: center)
+        query.ray = self.ray.rotatedBy(transform.m, around: center)
+        query.rayAABB = self.rayAABB?.rotatedBy(transform.m, around: center)
+        query.lineSegment = self.lineSegment.rotatedBy(transform.m, around: center)
+        query.lastHit = self.lastHit?.rotatedBy(transform.m, around: center)
         
         return query
     }

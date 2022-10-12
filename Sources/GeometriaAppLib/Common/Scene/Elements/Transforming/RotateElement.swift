@@ -58,13 +58,7 @@ extension RotateElement: Element {
 extension RotateElement: BoundedElement where T: BoundedElement {
     @_transparent
     func makeBounds() -> ElementBounds {
-        var points = element.makeBounds().asRectangle.vertices
-
-        points = points.map {
-            rotation.m.transformPoint($0 - rotationCenter) + rotationCenter
-        }
-
-        return ElementBounds(points: points)
+        element.makeBounds().rotatedBy(rotation.m, around: rotationCenter)
     }
 }
 
@@ -72,7 +66,7 @@ extension RotateElement: BoundedElement where T: BoundedElement {
 
 extension Element {
     @_transparent
-    func rotated(by rotation: RRotationMatrix3D, around rotationCenter: RVector3D) -> RotateElement<Self> {
+    func rotatedBy(_ rotation: RRotationMatrix3D, around rotationCenter: RVector3D) -> RotateElement<Self> {
         .init(element: self, rotation: rotation, rotationCenter: rotationCenter)
     }
 }
@@ -86,19 +80,19 @@ extension BoundedElement {
 
 extension RotateElement {
     @_transparent
-    func rotated(by rotation: RRotationMatrix3D, around rotationCenter: RVector3D) -> RotateElement<T> {
+    func rotatedBy(_ rotation: RRotationMatrix3D, around rotationCenter: RVector3D) -> RotateElement<T> {
         .init(element: element, rotation: self.rotation * rotation, rotationCenter: rotationCenter)
     }
 }
 
 @_transparent
 func rotated<T: Element>(by rotation: RRotationMatrix3D, around rotationCenter: RVector3D, @ElementBuilder _ builder: () -> T) -> RotateElement<T> {
-    builder().rotated(by: rotation, around: rotationCenter)
+    builder().rotatedBy(rotation, around: rotationCenter)
 }
 
 @_transparent
 func rotated<T: Element>(by rotation: RRotationMatrix3D, around rotationCenter: RVector3D, @ElementBuilder _ builder: () -> RotateElement<T>) -> RotateElement<T> {
-    builder().rotated(by: rotation, around: rotationCenter)
+    builder().rotatedBy(rotation, around: rotationCenter)
 }
 
 @_transparent

@@ -8,7 +8,7 @@ extension RotateRaymarchingElement: RaymarchingElement {
     @inlinable
     func signedDistance(to point: RVector3D, current: RaymarchingResult) -> RaymarchingResult {
         element.signedDistance(
-            to: point.rotated(by: rotation.mInv, around: rotationCenter),
+            to: point.rotatedBy(rotation.mInv, around: rotationCenter),
             current: current
         )
     }

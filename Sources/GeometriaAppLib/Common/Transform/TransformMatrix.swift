@@ -1,3 +1,7 @@
+#if canImport(Geometria)
+import Geometria
+#endif
+
 /// Encodes a square matrix and its inverse.
 public struct TransformMatrix<Matrix: SquareMatrixType> {
     public let m: Matrix

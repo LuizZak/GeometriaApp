@@ -70,6 +70,17 @@ extension ElementBounds {
     static func makeBounds<T: BoundableType>(for value: T) -> Self where T.Vector == RVector3D {
         value.bounds
     }
+    
+    @_transparent
+    func rotated(_ transform: Transform3x3, rotationCenter: RVector3D) -> Self {
+        var points = vertices
+
+        points = points.map {
+            transform.m.transformPoint($0 - rotationCenter) + rotationCenter
+        }
+
+        return Self(points: points)
+    }
 }
 
 extension Element {

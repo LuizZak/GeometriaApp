@@ -1,0 +1,52 @@
+/// Represents a 2D ray as a pair of double-precision floating-point vectors
+/// describing where the ray starts and crosses before being projected to
+/// infinity.
+public typealias DirectionalRay2D = DirectionalRay2<Vector2D>
+
+/// Typealias for `DirectionalRay<V>`, where `V` is constrained to
+/// ``Vector2FloatingPoint``.
+public typealias DirectionalRay2<V: Vector2FloatingPoint> = DirectionalRay<V>
+
+@_specializeExtension
+extension DirectionalRay2: Line2Type {
+    /// Initializes a new Directional Ray with 2D vectors describing the start
+    /// and secondary point the ray crosses before projecting towards infinity.
+    ///
+    /// The direction will be normalized before initializing.
+    ///
+    /// - precondition: `Vector(x: x2 - x1, y: y2 - y1).length > 0`
+    @_transparent
+    @_specialize(exported: true, kind: full, where Vector == Vector2D)
+    public init(x1: Scalar, y1: Scalar, x2: Scalar, y2: Scalar) {
+        // NOTE: Doing this in separate statements to ease long compilation times in Xcode 12
+        let start = Vector(x: x1, y: y1)
+        let end = Vector(x: x2, y: y2)
+        
+        self.init(start: start, direction: end - start)
+    }
+    
+    /// Initializes a new Directional Ray with a 2D vector for its position and
+    /// another describing the direction of the ray relative to the position.
+    ///
+    /// The direction will be normalized before initializing.
+    ///
+    /// - precondition: `Vector(x: dx, y: dy).length > 0`
+    @_transparent
+    @_specialize(exported: true, kind: full, where Vector == Vector2D)
+    public init(x: Scalar, y: Scalar, dx: Scalar, dy: Scalar) {
+        self.init(start: Vector(x: x, y: y),
+                  direction: Vector(x: dx, y: dy))
+    }
+}
+
+extension DirectionalRay2: Line2FloatingPoint where Vector: Vector2FloatingPoint {
+    
+}
+
+extension DirectionalRay2: Line2Real where Vector: Vector2Real {
+    /// Returns the angle of this directional ray, in radians
+    @_transparent
+    public var angle: Vector.Scalar {
+        direction.angle
+    }
+}
