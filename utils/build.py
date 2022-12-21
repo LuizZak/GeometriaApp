@@ -320,13 +320,9 @@ def run_build(settings: BuildCommandArgs):
 
         run_manifest_patch(build_dir, target.name, manifest_path)
 
-    return
-
 def run_test(settings: TestCommandArgs):
     args = settings.swift_test_args()
     run('swift', 'test', *args)
-
-    return
 
 
 def run_target(settings: RunCommandArgs):
@@ -345,8 +341,6 @@ def run_target(settings: RunCommandArgs):
 
     run('swift', 'run', *settings.swift_run_args())
 
-    return
-
 
 def do_build_command(args: Any):
     print('Processing Build request...')
@@ -364,8 +358,6 @@ def do_build_command(args: Any):
 
     print('Success!')
 
-    return
-
 
 def do_test_command(args: Any):
     print('Processing Test request...')
@@ -376,8 +368,6 @@ def do_test_command(args: Any):
     run_test(settings)
 
     print('Success!')
-
-    return
 
 
 def do_run_command(args: Any):
@@ -395,8 +385,6 @@ def do_run_command(args: Any):
     )
 
     run_target(settings)
-
-    return
 
 
 def main() -> int:
