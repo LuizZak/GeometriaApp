@@ -1,13 +1,13 @@
-struct AnyBoundedElement {
-    var element: BoundedElement
+public struct AnyBoundedElement {
+    public var element: BoundedElement
 
-    init<T: BoundedElement>(_ element: T) {
+    public init<T: BoundedElement>(_ element: T) {
         self.element = element
     }
 }
 
 extension AnyBoundedElement: Element {
-    var id: Int {
+    public var id: Int {
         get {
             element.id
         }
@@ -17,22 +17,22 @@ extension AnyBoundedElement: Element {
     }
 
     @_transparent
-    mutating func attributeIds(_ idFactory: inout ElementIdFactory) {
+    public mutating func attributeIds(_ idFactory: inout ElementIdFactory) {
         element.attributeIds(&idFactory)
     }
 
     @_transparent
-    func queryScene(id: Element.Id) -> Element? {
+    public func queryScene(id: Element.Id) -> Element? {
         element.queryScene(id: id)
     }
 
-    func accept<Visitor: ElementVisitor>(_ visitor: Visitor) -> Visitor.ResultType {
+    public func accept<Visitor: ElementVisitor>(_ visitor: Visitor) -> Visitor.ResultType {
         element.accept(visitor)
     }
 }
 
 extension AnyBoundedElement: BoundedElement {
-    func makeBounds() -> ElementBounds {
+    public func makeBounds() -> ElementBounds {
         return element.makeBounds()
     }
 }

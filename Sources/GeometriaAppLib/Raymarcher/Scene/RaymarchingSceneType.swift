@@ -1,6 +1,6 @@
 import SwiftBlend2D
 
-protocol RaymarchingSceneType: SceneType {
+public protocol RaymarchingSceneType: SceneType {
     func signedDistance(to point: RVector3D, current: RaymarchingResult) -> RaymarchingResult
 
     /// Walks a visitor through this scene's elements.

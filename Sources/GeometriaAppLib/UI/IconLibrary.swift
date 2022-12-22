@@ -1,14 +1,14 @@
 import ImagineUI
 import Blend2DRenderer
 
-class IconLibrary {
+public class IconLibrary {
     // MARK: - Red icons (geometry primitives)
 
-    static let aabbIcon: Image = makeAABBIcon(.lightCoral)
+    public static let aabbIcon: Image = makeAABBIcon(.lightCoral)
 
-    static let cubeIcon: Image = makeAABBIcon(.lightCoral, aabbSizeScale: .init(x: 0.6, y: 0.6))
+    public static let cubeIcon: Image = makeAABBIcon(.lightCoral, aabbSizeScale: .init(x: 0.6, y: 0.6))
 
-    static let sphereIcon: Image = makeIcon(.lightCoral) { (renderer, size) in
+    public static let sphereIcon: Image = makeIcon(.lightCoral) { (renderer, size) in
         let circle = UICircle(center: size.asUIPoint / 2, radius: size.width * 0.45)
         let horizon = circle.asUIEllipse.scaledBy(x: 1.0, y: 0.3).arc(start: .zero, sweep: .pi)
         let meridian = circle.asUIEllipse.scaledBy(x: 0.3, y: 1.0).arc(start: -.pi / 2, sweep: .pi)
@@ -18,7 +18,7 @@ class IconLibrary {
         renderer.stroke(meridian)
     }
 
-    static let cylinderIcon: Image = makeIcon(.lightCoral) { (renderer, size) in
+    public static let cylinderIcon: Image = makeIcon(.lightCoral) { (renderer, size) in
         let top = UIEllipse(
             center: .init(x: size.width / 2, y: size.height * 0.25),
             radius: .init(x: size.width / 2, y: size.height * 0.2)
@@ -33,7 +33,7 @@ class IconLibrary {
         renderer.stroke(UILine(x1: top.bounds.right, y1: top.center.y, x2: top.bounds.right, y2: size.height * 0.75))
     }
 
-    static let diskIcon: Image = makeIcon(.lightCoral) { (renderer, size) in
+    public static let diskIcon: Image = makeIcon(.lightCoral) { (renderer, size) in
         let disk = UICircle(center: size.asUIPoint / 2, radius: size.width * 0.45)
             .asUIEllipse
             .scaledBy(x: 0.6, y: 1.0)
@@ -43,7 +43,7 @@ class IconLibrary {
 
     // MARK: - Blue icons (structural elements)
 
-    static let repeatTranslateIcon: Image = makeIcon(.blue) { (renderer, size) in
+    public static let repeatTranslateIcon: Image = makeIcon(.blue) { (renderer, size) in
         let circle1 = UICircle(center: size.asUIPoint * UIVector(x: 0.25, y: 0.25), radius: size.width * 0.22)
         let circle2 = circle1.offsetBy(x: size.width * 0.2, y: size.width * 0.2)
         let circle3 = circle2.offsetBy(x: size.width * 0.2, y: size.height * 0.2)
@@ -59,9 +59,9 @@ class IconLibrary {
         renderer.stroke(circle3)
     }
 
-    static let boundingBoxIcon: Image = makeAABBIcon(.cornflowerBlue)
+    public static let boundingBoxIcon: Image = makeAABBIcon(.cornflowerBlue)
 
-    static let tupleIcon: Image = makeIcon(.cornflowerBlue) { (renderer, size) in
+    public static let tupleIcon: Image = makeIcon(.cornflowerBlue) { (renderer, size) in
         let circleLeft = UICircle(
             center: .init(x: size.width, y: size.height / 2),
             radius: size.width * (10.0 / 12.0)
@@ -75,7 +75,7 @@ class IconLibrary {
         renderer.stroke(circleRight)
     }
 
-    static let intersectionIcon: Image = makeIcon(.cornflowerBlue) { (renderer, size) in
+    public static let intersectionIcon: Image = makeIcon(.cornflowerBlue) { (renderer, size) in
         let sizePoint = size.asUIPoint
         
         let square = UIRectangle(location: sizePoint * 0.2, size: size * 0.6)
@@ -91,7 +91,7 @@ class IconLibrary {
         renderer.stroke(pie: pie)
     }
 
-    static let subtractionIcon: Image = makeIcon(.cornflowerBlue) { (renderer, size) in
+    public static let subtractionIcon: Image = makeIcon(.cornflowerBlue) { (renderer, size) in
         let sizePoint = size.asUIPoint
 
         var poly = UIPolygon(vertices: [
@@ -109,7 +109,7 @@ class IconLibrary {
 
     // MARK: - Green icons (data types)
 
-    static let matrixIcon: Image = makeIcon(.green) { (renderer, size) in
+    public static let matrixIcon: Image = makeIcon(.green) { (renderer, size) in
         let sizePoint = size.asUIPoint
 
         func rounded(_ p: UIPoint) -> UIPoint {

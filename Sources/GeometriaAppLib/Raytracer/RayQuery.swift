@@ -2,33 +2,50 @@
 import Geometria
 #endif
 
-struct RayQuery: Equatable {
-    var ray: RRay3D
+public struct RayQuery: Equatable {
+    public var ray: RRay3D
     
-    var rayAABB: RAABB3D?
+    public var rayAABB: RAABB3D?
     
     /// Current magnitude of ray's hit point. Is `.infinity` for newly casted
     /// rays that did not intersect geometry yet.
-    var rayMagnitudeSquared: Double
+    public var rayMagnitudeSquared: Double
     
     /// If `rayMagnitudeSquared` is not `.infinity`, returns a line segment
     /// that represents the current magnitude of the ray.
     ///
     /// If `rayMagnitudeSquared == .infinity`, the result is undefined.
-    var lineSegment: RLineSegment3D
+    public var lineSegment: RLineSegment3D
     
-    var lastHit: RayHit?
+    public var lastHit: RayHit?
     
-    var ignoring: RayIgnore
+    public var ignoring: RayIgnore
+
+    public init(
+        ray: RRay3D,
+        rayAABB: RAABB3D? = nil,
+        rayMagnitudeSquared: Double,
+        lineSegment: RLineSegment3D,
+        lastHit: RayHit? = nil,
+        ignoring: RayIgnore
+    ) {
+        
+        self.ray = ray
+        self.rayAABB = rayAABB
+        self.rayMagnitudeSquared = rayMagnitudeSquared
+        self.lineSegment = lineSegment
+        self.lastHit = lastHit
+        self.ignoring = ignoring
+    }
 
     /// Returns a copy of this query with no hit information attributed.
     @_transparent
-    func withNilHit() -> Self {
+    public func withNilHit() -> Self {
         .init(ray: ray, ignoring: ignoring)
     }
     
     @inlinable
-    func withHit(_ rayHit: RayHit) -> Self {
+    public func withHit(_ rayHit: RayHit) -> Self {
         let point = rayHit.point
         let magnitudeSquared = point.distanceSquared(to: ray.start)
         
@@ -51,7 +68,7 @@ struct RayQuery: Equatable {
     }
 
     @_transparent
-    func withHit(
+    public func withHit(
         magnitudeSquared: Double,
         id: Int,
         point: RVector3D,
@@ -72,7 +89,7 @@ struct RayQuery: Equatable {
 
     /// Translates the components of this ray query, returning a new ray query
     /// that is shifted in space by an amount specified by `vector`.
-    func translated(by vector: RVector3D) -> Self {
+    public func translated(by vector: RVector3D) -> Self {
         var query = self
 
         query.ray = self.ray.offsetBy(vector)
@@ -86,7 +103,7 @@ struct RayQuery: Equatable {
     /// Uniformly scales the components of this ray query, returning a new ray 
     /// query that is scaled in space around the given center point by an amount 
     /// specified by `factor`.
-    func scaled(by factor: Double, around center: RVector3D) -> Self {
+    public func scaled(by factor: Double, around center: RVector3D) -> Self {
         var query = self
         let vector = RVector3D(repeating: factor)
 
@@ -102,7 +119,7 @@ struct RayQuery: Equatable {
     /// Rotates the components of this ray query, returning a new ray query that
     /// is rotated in space around the given center point by a given rotational
     /// matrix.
-    func rotatedBy(_ matrix: RRotationMatrix3D, around center: RVector3D) -> Self {
+    public func rotatedBy(_ matrix: RRotationMatrix3D, around center: RVector3D) -> Self {
         var query = self
 
         query.ray = self.ray.rotatedBy(matrix, around: center)
@@ -116,7 +133,7 @@ struct RayQuery: Equatable {
     /// Rotates the components of this ray query, returning a new ray query that
     /// is rotated in space around the given center point by a given 3x3 transform
     /// matrix.
-    func rotatedBy(_ transform: Transform3x3, around center: RVector3D) -> Self {
+    public func rotatedBy(_ transform: Transform3x3, around center: RVector3D) -> Self {
         var query = self
 
         query.ray = self.ray.rotatedBy(transform.m, around: center)
@@ -130,7 +147,7 @@ struct RayQuery: Equatable {
 
 extension RayQuery {
     @_transparent
-    init(ray: RRay3D, ignoring: RayIgnore) {
+    public init(ray: RRay3D, ignoring: RayIgnore) {
         self = RayQuery(
             ray: ray,
             rayMagnitudeSquared: .infinity,
@@ -141,7 +158,7 @@ extension RayQuery {
     }
     
     @inlinable
-    func intersect<Convex: Convex3Type>(
+    public func intersect<Convex: Convex3Type>(
         convex geometry: Convex
     ) -> RConvexLineResult3D where Convex.Vector == RVector3D {
         
@@ -168,7 +185,7 @@ extension RayQuery {
     }
     
     @inlinable
-    func intersect<Plane: LineIntersectablePlaneType>(
+    public func intersect<Plane: LineIntersectablePlaneType>(
         plane geometry: Plane
     ) -> RConvexLineResult3D where Plane.Vector == RVector3D {
         
@@ -189,7 +206,7 @@ extension RayQuery {
         return .singlePoint(PointNormal(point: inter, normal: normal))
     }
     
-    func isFullyContained<Convex: Convex3Type>(
+    public func isFullyContained<Convex: Convex3Type>(
         by convex: Convex
     ) -> Bool where Convex.Vector == RVector3D {
         
@@ -210,7 +227,7 @@ extension RayQuery {
         }
     }
 
-    func isFullyContained(by hyperplane: RHyperplane3D) -> Bool {
+    public func isFullyContained(by hyperplane: RHyperplane3D) -> Bool {
         if !hyperplane.contains(ray.a) {
             return false
         }
@@ -227,8 +244,8 @@ extension RayQuery {
         return mag >= 0.0 && mag * mag <= rayMagnitudeSquared
     }
     
-    @_transparent
-    private func intersection<Plane: LineIntersectablePlaneType>(
+    @usableFromInline
+    func intersection<Plane: LineIntersectablePlaneType>(
         plane geometry: Plane
     ) -> RVector3D? where Plane.Vector == RVector3D {
         
@@ -243,7 +260,7 @@ extension RayQuery {
 
     // MARK: Convex3Type
 
-    func intersecting<Convex: Convex3Type>(
+    public func intersecting<Convex: Convex3Type>(
         id: Int,
         material: MaterialId?,
         convex geometry: Convex
@@ -268,7 +285,7 @@ extension RayQuery {
         return self.withHit(hit)
     }
 
-    func intersectAll<Convex: Convex3Type>(
+    public func intersectAll<Convex: Convex3Type>(
         id: Int,
         material: MaterialId?,
         convex geometry: Convex,
@@ -291,7 +308,7 @@ extension RayQuery {
 
     // MARK: LineIntersectablePlaneType
 
-    func intersecting<Plane: LineIntersectablePlaneType>(
+    public func intersecting<Plane: LineIntersectablePlaneType>(
         id: Int,
         material: MaterialId?,
         plane geometry: Plane
@@ -315,7 +332,7 @@ extension RayQuery {
         return self.withHit(hit)
     }
 
-    func intersectAll<Plane: LineIntersectablePlaneType>(
+    public func intersectAll<Plane: LineIntersectablePlaneType>(
         id: Int,
         material: MaterialId?,
         plane geometry: Plane,

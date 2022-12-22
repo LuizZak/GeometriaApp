@@ -2,11 +2,11 @@
 import Geometria
 #endif
 
-typealias GeometryRaymarchingElement<T> = GeometryElement<T>
+public typealias GeometryRaymarchingElement<T> = GeometryElement<T>
 
 extension GeometryRaymarchingElement: RaymarchingElement where T: SignedDistanceMeasurableType, T.Vector == RVector3D {
     @inlinable
-    func signedDistance(to point: RVector3D, current: RaymarchingResult) -> RaymarchingResult {
+    public func signedDistance(to point: RVector3D, current: RaymarchingResult) -> RaymarchingResult {
         let distance = geometry.signedDistance(to: point)
         
         guard distance < current.distance else {
@@ -16,7 +16,7 @@ extension GeometryRaymarchingElement: RaymarchingElement where T: SignedDistance
         return .init(distance: distance, material: material)
     }
 
-    func accept<Visitor: RaymarchingElementVisitor>(_ visitor: Visitor) -> Visitor.ResultType {
+    public func accept<Visitor: RaymarchingElementVisitor>(_ visitor: Visitor) -> Visitor.ResultType {
         visitor.visit(self)
     }
 }

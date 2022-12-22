@@ -1,7 +1,7 @@
 import Foundation
 import ImagineUI
 
-protocol RaytracerUIComponent: AnyObject {
+public protocol RaytracerUIComponent: AnyObject {
     var delegate: RaytracerUIComponentDelegate? { get set }
 
     func setup(container: View)
@@ -14,7 +14,7 @@ protocol RaytracerUIComponent: AnyObject {
     func mouseMoved(event: MouseEventArgs)
 }
 
-extension RaytracerUIComponent {
+public extension RaytracerUIComponent {
     func rendererChanged<T>(_ renderer: Raytracer<T>) {
         rendererChanged(anyRenderer: renderer)
     }
@@ -24,7 +24,7 @@ extension RaytracerUIComponent {
     }
 }
 
-protocol RaytracerUIComponentDelegate: AnyObject {
+public protocol RaytracerUIComponentDelegate: AnyObject {
     /// Request that the UI open a view as a dialog, obscuring the underlying
     /// views while the view is displayed.
     ///

@@ -2,8 +2,8 @@ import Foundation
 
 /// Batcher that feeds pixel coordinates based on multiples of prime numbers,
 /// then later a sweep through the remaining pixels linearly.
-class SieveBatcher: RenderingBatcher {
-    typealias PixelCoordinates = PixelCoord
+public class SieveBatcher: RenderingBatcher {
+    public typealias PixelCoordinates = PixelCoord
     
     /// Pre-computed list of prime numbers which will be incremented later while
     /// computing prime counters
@@ -36,19 +36,19 @@ class SieveBatcher: RenderingBatcher {
     fileprivate var pixelCount: Int = 0
     fileprivate var isRunning: Bool = true
     
-    let displayName: String = "Prime Sieve"
+    public let displayName: String = "Prime Sieve"
     
-    var batchesServedProgress: Double {
+    public var batchesServedProgress: Double {
         Double(nextCounterIndex) / Double(indexCounters.count)
     }
     
-    var hasBatches: Bool = false
+    public var hasBatches: Bool = false
     
-    init() {
+    public init() {
         
     }
     
-    func initialize(viewportSize: ViewportSize) {
+    public func initialize(viewportSize: ViewportSize) {
         self.viewportSize = viewportSize
         pixelCount = viewportSize.width * viewportSize.height
         servedPixelsMap = .init(repeating: false, count: pixelCount)
@@ -57,7 +57,7 @@ class SieveBatcher: RenderingBatcher {
         hasBatches = true
     }
     
-    func nextBatch() -> RenderingBatch? {
+    public func nextBatch() -> RenderingBatch? {
         while nextCounterIndex < indexCounters.count {
             defer { nextCounterIndex += 1 }
             

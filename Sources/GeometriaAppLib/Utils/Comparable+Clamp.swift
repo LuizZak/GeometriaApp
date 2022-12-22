@@ -8,8 +8,7 @@
 /// print(clamp(a, min: 10.0, max: 15.0)) // Prints "10.0"
 /// ```
 @_transparent
-@usableFromInline
-func clamp<T: Comparable>(_ value: T, min: T, max: T) -> T {
+public func clamp<T: Comparable>(_ value: T, min: T, max: T) -> T {
     value.clamped(min: min, max: max)
 }
 
@@ -24,8 +23,7 @@ extension Comparable {
     /// print(a.clamped(min: 10.0, max: 15.0)) // Prints "10.0"
     /// ```
     @_transparent
-    @usableFromInline
-    func clamped(min: Self, max: Self) -> Self {
+    public func clamped(min: Self, max: Self) -> Self {
         if self < min {
             return min
         }

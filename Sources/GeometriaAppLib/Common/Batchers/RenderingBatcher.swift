@@ -1,12 +1,12 @@
 /// Used to produce batching of pixels to render.
-protocol RenderingBatcher {
+public protocol RenderingBatcher {
     /// Display name of this batcher for UI.
     var displayName: String { get }
     
     /// If `false`, signals that the batcher has served all the pending batches.
     var hasBatches: Bool { get }
     
-    /// Returns a value, 0-1 inclusive, specifying the number of batchs that
+    /// Returns a value, 0-1 inclusive, specifying the number of batches that
     /// where served vs the total.
     var batchesServedProgress: Double { get }
     
@@ -24,7 +24,7 @@ protocol RenderingBatcher {
 }
 
 /// A batch for a rendering thread.
-protocol RenderingBatch {
+public protocol RenderingBatch {
     /// Returns the next pixel to render from this batch.
     /// Returns `nil` in case no more pixels are available.
     mutating func nextPixel() -> PixelCoord?

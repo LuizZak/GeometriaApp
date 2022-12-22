@@ -1,3 +1,3 @@
-protocol RaymarchingBoundedElement: RaymarchingElement, BoundedElement {
+public protocol RaymarchingBoundedElement: RaymarchingElement, BoundedElement {
 
 }

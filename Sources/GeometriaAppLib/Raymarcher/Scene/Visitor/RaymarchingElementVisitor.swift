@@ -1,4 +1,4 @@
-protocol RaymarchingElementVisitor: ElementVisitor {
+public protocol RaymarchingElementVisitor: ElementVisitor {
     
     // MARK: Bounding
 

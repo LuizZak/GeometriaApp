@@ -4,9 +4,9 @@ import Geometria
 
 #if false // Sphere bounds
 
-typealias ElementBounds = RSphere3D
+public typealias ElementBounds = RSphere3D
 
-extension ElementBounds {
+public extension ElementBounds {
     @_transparent
     static func makeBounds<T: BoundableType>(for value: T) -> ElementBounds where T.Vector == RVector3D {
         let bounds = value.bounds
@@ -19,7 +19,7 @@ extension ElementBounds {
     }
 }
 
-extension RSphere3D {
+public extension RSphere3D {
     static let zero: Self = .init(center: .zero, radius: .zero)
 
     /// Returns the smallest sphere capable of containing both `self` and the 
@@ -49,13 +49,13 @@ extension RSphere3D {
     }
 }
 
-extension BoundingBoxElement {
+public extension BoundingBoxElement {
     init(element: T) where T: BoundedElement {
         self.init(element: element, boundingBox: element.makeBounds().bounds)
     }
 }
 
-extension BoundingSphereElement {
+public extension BoundingSphereElement {
     init(element: T) where T: BoundedElement {
         self.init(element: element, boundingSphere: element.makeBounds())
     }
@@ -63,9 +63,9 @@ extension BoundingSphereElement {
 
 #else // AABB
 
-typealias ElementBounds = RAABB3D
+public typealias ElementBounds = RAABB3D
 
-extension ElementBounds {
+public extension ElementBounds {
     @_transparent
     static func makeBounds<T: BoundableType>(for value: T) -> Self where T.Vector == RVector3D {
         value.bounds
@@ -83,7 +83,7 @@ extension ElementBounds {
     }
 }
 
-extension Element {
+public extension Element {
     func makeBounded(by bounds: ElementBounds) -> BoundingBoxElement<Self> {
         .init(element: self, boundingBox: bounds)
     }
@@ -93,14 +93,14 @@ extension Element {
     }
 }
 
-extension BoundingBoxElement {
+public extension BoundingBoxElement {
     @_transparent
     init(element: T) where T: BoundedElement {
         self.init(element: element, boundingBox: element.makeBounds())
     }
 }
 
-extension BoundingSphereElement {
+public extension BoundingSphereElement {
     @_transparent
     init(element: T) where T: BoundedElement {
         let bounds = element.makeBounds()

@@ -1,11 +1,11 @@
-struct AnyRaytracingElement {
-    var element: RaytracingElement
+public struct AnyRaytracingElement {
+    public var element: RaytracingElement
     
-    init<T: RaytracingElement>(_ element: T) {
+    public init<T: RaytracingElement>(_ element: T) {
         self.element = element
     }
     
-    init?(_ anyElement: AnyElement) {
+    public init?(_ anyElement: AnyElement) {
         guard let element = anyElement.element as? RaytracingElement else {
             return nil
         }
@@ -15,7 +15,7 @@ struct AnyRaytracingElement {
 }
 
 extension AnyRaytracingElement: Element {
-    var id: Int {
+    public var id: Int {
         get {
             element.id
         }
@@ -25,28 +25,28 @@ extension AnyRaytracingElement: Element {
     }
 
     @_transparent
-    mutating func attributeIds(_ idFactory: inout ElementIdFactory) {
+    public mutating func attributeIds(_ idFactory: inout ElementIdFactory) {
         element.attributeIds(&idFactory)
     }
 
     @_transparent
-    func queryScene(id: Int) -> Element? {
+    public func queryScene(id: Int) -> Element? {
         element.queryScene(id: id)
     }
 
-    func accept<Visitor: ElementVisitor>(_ visitor: Visitor) -> Visitor.ResultType {
+    public func accept<Visitor: ElementVisitor>(_ visitor: Visitor) -> Visitor.ResultType {
         element.accept(visitor)
     }
 }
 
 extension AnyRaytracingElement: RaytracingElement {
-    func raycast(query: RayQuery) -> RayQuery {
+    public func raycast(query: RayQuery) -> RayQuery {
         element.raycast(query: query)
     }
-    func raycast(query: RayQuery, results: inout [RayHit]) {
+    public func raycast(query: RayQuery, results: inout [RayHit]) {
         element.raycast(query: query, results: &results)
     }
-    func fullyContainsRay(query: RayQuery) -> Bool {
+    public func fullyContainsRay(query: RayQuery) -> Bool {
         element.fullyContainsRay(query: query)
     }
 }

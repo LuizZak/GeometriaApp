@@ -1,5 +1,5 @@
 /// Specifies ignore patterns for geometries during raytracing.
-enum RayIgnore: Equatable {
+public enum RayIgnore: Equatable {
     /// Include all geometries in ray intersection, i.e. ignore none.
     case none
     
@@ -24,7 +24,7 @@ enum RayIgnore: Equatable {
     
     /// Returns `true` iff this ``RayIgnore`` instance is `.full` case, with the
     /// given geometry assigned.
-    func shouldIgnoreFully(id: Int) -> Bool {
+    public func shouldIgnoreFully(id: Int) -> Bool {
         switch self {
         case .full(let geoId):
             return geoId == id
@@ -44,7 +44,7 @@ enum RayIgnore: Equatable {
     /// Returns `true` if this ``RayIgnore`` is configured to ignore a particular
     /// ray hit configuration based on its id, hit direction, and distance traveled
     /// by ray before the hit.
-    func shouldIgnore(hit: RayHit, rayStart: RVector3D) -> Bool {
+    public func shouldIgnore(hit: RayHit, rayStart: RVector3D) -> Bool {
         switch self {
         case .full(let geoId):
             return geoId == hit.id
@@ -92,7 +92,7 @@ enum RayIgnore: Equatable {
     /// (entrance) or singular point of intersection is returned; if no entrance
     /// is available, the exit point is returned, and if no exit point is
     /// available still, `nil` is then ultimately returned.
-    func computePointNormalOfInterest(
+    public func computePointNormalOfInterest(
         id: Int,
         intersection: RConvexLineResult3D,
         rayStart: RVector3D
@@ -122,7 +122,7 @@ enum RayIgnore: Equatable {
     /// Returns an empty array in case none of the available intersection points 
     /// are of interest, or if this ``RayIgnore`` rule instance ignores the only
     /// available intersection.
-    func computePointNormalsOfInterest(
+    public func computePointNormalsOfInterest(
         id: Int,
         intersection: RConvexLineResult3D,
         rayStart: RVector3D

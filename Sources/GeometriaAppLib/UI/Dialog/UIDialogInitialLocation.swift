@@ -1,7 +1,7 @@
 import ImagineUI
 
 /// Specifies the location that a UI dialog will initially have on screen.
-enum UIDialogInitialLocation {
+public enum UIDialogInitialLocation {
     /// The view will specify its own location according to its constraints.
     case unspecified
 

@@ -1,33 +1,40 @@
-struct ScaleElement<T: Element> {
-    var id: Element.Id = 0
-    var element: T
-    var scaling: Double
-    var scalingCenter: RVector3D
+public struct ScaleElement<T: Element> {
+    public var id: Element.Id = 0
+    public var element: T
+    public var scaling: Double
+    public var scalingCenter: RVector3D
+
+    public init(id: Element.Id = 0, element: T, scaling: Double, scalingCenter: RVector3D) {
+        self.id = id
+        self.element = element
+        self.scaling = scaling
+        self.scalingCenter = scalingCenter
+    }
 }
 
 extension ScaleElement: Element {
     @_transparent
-    mutating func attributeIds(_ idFactory: inout ElementIdFactory) {
+    public mutating func attributeIds(_ idFactory: inout ElementIdFactory) {
         id = idFactory.makeId()
 
         element.attributeIds(&idFactory)
     }
 
     @_transparent
-    func queryScene(id: Element.Id) -> Element? {
+    public func queryScene(id: Element.Id) -> Element? {
         if id == self.id { return self }
         
         return element.queryScene(id: id)
     }
 
-    func accept<Visitor: ElementVisitor>(_ visitor: Visitor) -> Visitor.ResultType {
+    public func accept<Visitor: ElementVisitor>(_ visitor: Visitor) -> Visitor.ResultType {
         visitor.visit(self)
     }
 }
 
 extension ScaleElement: BoundedElement where T: BoundedElement {
     @_transparent
-    func makeBounds() -> ElementBounds {
+    public func makeBounds() -> ElementBounds {
         element.makeBounds().scaledBy(scaling, around: scalingCenter)
     }
 }
@@ -36,36 +43,36 @@ extension ScaleElement: BoundedElement where T: BoundedElement {
 
 extension Element {
     @_transparent
-    func scaled(by factor: Double, around scalingCenter: RVector3D) -> ScaleElement<Self> {
+    public func scaled(by factor: Double, around scalingCenter: RVector3D) -> ScaleElement<Self> {
         .init(element: self, scaling: factor, scalingCenter: scalingCenter)
     }
 }
 
 extension BoundedElement {
     @_transparent
-    func scaledAroundCenter(by factor: Double) -> ScaleElement<Self> {
+    public func scaledAroundCenter(by factor: Double) -> ScaleElement<Self> {
         .init(element: self, scaling: factor, scalingCenter: makeBounds().center)
     }
 }
 
 extension ScaleElement {
     @_transparent
-    func scaled(by vector: Double, around scalingCenter: RVector3D) -> ScaleElement<T> {
+    public func scaled(by vector: Double, around scalingCenter: RVector3D) -> ScaleElement<T> {
         .init(element: element, scaling: scaling * vector, scalingCenter: scalingCenter)
     }
 }
 
 @_transparent
-func scaled<T: Element>(by scaling: Double, around scalingCenter: RVector3D, @ElementBuilder _ builder: () -> T) -> ScaleElement<T> {
+public func scaled<T: Element>(by scaling: Double, around scalingCenter: RVector3D, @ElementBuilder _ builder: () -> T) -> ScaleElement<T> {
     builder().scaled(by: scaling, around: scalingCenter)
 }
 
 @_transparent
-func scaled<T: Element>(by scaling: Double, around scalingCenter: RVector3D, @ElementBuilder _ builder: () -> ScaleElement<T>) -> ScaleElement<T> {
+public func scaled<T: Element>(by scaling: Double, around scalingCenter: RVector3D, @ElementBuilder _ builder: () -> ScaleElement<T>) -> ScaleElement<T> {
     builder().scaled(by: scaling, around: scalingCenter)
 }
 
 @_transparent
-func scaledAroundCenter<T: BoundedElement>(by scaling: Double, @ElementBuilder _ builder: () -> T) -> ScaleElement<T> {
+public func scaledAroundCenter<T: BoundedElement>(by scaling: Double, @ElementBuilder _ builder: () -> T) -> ScaleElement<T> {
     builder().scaledAroundCenter(by: scaling)
 }

@@ -1,7 +1,7 @@
 import Dispatch
 import SwiftBlend2D
 
-class Blend2DBufferWriter: RendererBufferWriter {
+public class Blend2DBufferWriter: RendererBufferWriter {
     private let imageQueue = DispatchQueue(
         label: "com.geometriaapp.rendering.buffer",
         qos: .background,
@@ -11,21 +11,21 @@ class Blend2DBufferWriter: RendererBufferWriter {
     private let image: BLImage
     private let imageData: BLImageData
     
-    var size: BLSizeI { image.size }
+    public var size: BLSizeI { image.size }
     
-    init(image: BLImage) {
+    public init(image: BLImage) {
         self.image = image
         self.imageData = image.getImageData()
     }
     
-    func clearAll(color: BLRgba32) {
+    public func clearAll(color: BLRgba32) {
         let context = BLContext(image: image)!
         context.setFillStyle(color)
         context.fillAll()
         context.end()
     }
     
-    func setPixel(x: Int, y: Int, color: BLRgba32) {
+    public func setPixel(x: Int, y: Int, color: BLRgba32) {
         assert(x >= 0 && x < size.w)
         assert(y >= 0 && y < size.h)
         

@@ -2,36 +2,43 @@
 import Geometria
 #endif
 
-struct RepeatTranslateElement<T: Element> {
-    var id: Element.Id = 0
-    var element: T
-    var translation: RVector3D
-    var count: Int
+public struct RepeatTranslateElement<T: Element> {
+    public var id: Element.Id = 0
+    public var element: T
+    public var translation: RVector3D
+    public var count: Int
+
+    public init(id: Element.Id = 0, element: T, translation: RVector3D, count: Int) {
+        self.id = id
+        self.element = element
+        self.translation = translation
+        self.count = count
+    }
 }
 
 extension RepeatTranslateElement: Element {
     @_transparent
-    mutating func attributeIds(_ idFactory: inout ElementIdFactory) {
+    public mutating func attributeIds(_ idFactory: inout ElementIdFactory) {
         id = idFactory.makeId()
 
         element.attributeIds(&idFactory)
     }
 
     @_transparent
-    func queryScene(id: Element.Id) -> Element? {
+    public func queryScene(id: Element.Id) -> Element? {
         if id == self.id { return self }
         
         return element.queryScene(id: id)
     }
 
-    func accept<Visitor: ElementVisitor>(_ visitor: Visitor) -> Visitor.ResultType {
+    public func accept<Visitor: ElementVisitor>(_ visitor: Visitor) -> Visitor.ResultType {
         visitor.visit(self)
     }
 }
 
 extension RepeatTranslateElement: BoundedElement where T: BoundedElement {
     @inlinable
-    func makeBounds() -> ElementBounds {
+    public func makeBounds() -> ElementBounds {
         let bounds = element.makeBounds()
         
         return bounds.union(bounds.offsetBy(translation * Double(count - 1)))
@@ -40,12 +47,12 @@ extension RepeatTranslateElement: BoundedElement where T: BoundedElement {
 
 extension Element {
     @_transparent
-    func repeatTranslated(count: Int, translation: RVector3D) -> RepeatTranslateElement<Self> {
+    public func repeatTranslated(count: Int, translation: RVector3D) -> RepeatTranslateElement<Self> {
         .init(element: self, translation: translation, count: count)
     }
 }
 
 @_transparent
-func repeatTranslated<T: Element>(count: Int, translation: RVector3D, @ElementBuilder _ builder: () -> T) -> RepeatTranslateElement<T> {
+public func repeatTranslated<T: Element>(count: Int, translation: RVector3D, @ElementBuilder _ builder: () -> T) -> RepeatTranslateElement<T> {
     builder().repeatTranslated(count: count, translation: translation)
 }

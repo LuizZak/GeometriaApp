@@ -1,13 +1,20 @@
-struct SubtractionElement<T0: Element, T1: Element> {
-    var id: Element.Id = 0
-    var material: Int? = nil
-    var t0: T0
-    var t1: T1
+public struct SubtractionElement<T0: Element, T1: Element> {
+    public var id: Element.Id = 0
+    public var material: Int? = nil
+    public var t0: T0
+    public var t1: T1
+
+    public init(id: Element.Id = 0, material: Int? = nil, t0: T0, t1: T1) {
+        self.id = id
+        self.material = material
+        self.t0 = t0
+        self.t1 = t1
+    }
 }
 
 extension SubtractionElement: Element {
     @inlinable
-    mutating func attributeIds(_ idFactory: inout ElementIdFactory) {
+    public mutating func attributeIds(_ idFactory: inout ElementIdFactory) {
         id = idFactory.makeId()
         
         t0.attributeIds(&idFactory)
@@ -15,7 +22,7 @@ extension SubtractionElement: Element {
     }
 
     @inlinable
-    func queryScene(id: Element.Id) -> Element? {
+    public func queryScene(id: Element.Id) -> Element? {
         if id == self.id { return self }
         
         if let el = t0.queryScene(id: id) { return el }
@@ -24,7 +31,7 @@ extension SubtractionElement: Element {
         return nil
     }
 
-    func accept<Visitor: ElementVisitor>(_ visitor: Visitor) -> Visitor.ResultType {
+    public func accept<Visitor: ElementVisitor>(_ visitor: Visitor) -> Visitor.ResultType {
         visitor.visit(self)
     }
 }
@@ -33,13 +40,13 @@ extension SubtractionElement: BoundedElement where T0: BoundedElement {
     // TODO: Bounds are guaranteed to be no bigger than t0's area but maybe there 
     // TODO: are better ways to generate a bounding box here.
     @inlinable
-    func makeBounds() -> ElementBounds {
+    public func makeBounds() -> ElementBounds {
         t0.makeBounds()
     }
 }
 
 @_transparent
-func subtraction<T0, T1>(@ElementBuilder _ builder: () -> TupleElement2<T0, T1>) -> SubtractionElement<T0, T1> {
+public func subtraction<T0, T1>(@ElementBuilder _ builder: () -> TupleElement2<T0, T1>) -> SubtractionElement<T0, T1> {
     let value = builder()
 
     return SubtractionElement(
@@ -49,7 +56,7 @@ func subtraction<T0, T1>(@ElementBuilder _ builder: () -> TupleElement2<T0, T1>)
 }
 
 @_transparent
-func subtraction<T0, T1, T2>(@ElementBuilder _ builder: () -> TupleElement3<T0, T1, T2>) -> SubtractionElement<SubtractionElement<T0, T1>, T2> {
+public func subtraction<T0, T1, T2>(@ElementBuilder _ builder: () -> TupleElement3<T0, T1, T2>) -> SubtractionElement<SubtractionElement<T0, T1>, T2> {
     let value = builder()
 
     return SubtractionElement(
@@ -62,7 +69,7 @@ func subtraction<T0, T1, T2>(@ElementBuilder _ builder: () -> TupleElement3<T0, 
 }
 
 @_transparent
-func subtraction<T0, T1, T2, T3>(@ElementBuilder _ builder: () -> TupleElement4<T0, T1, T2, T3>) -> SubtractionElement<SubtractionElement<SubtractionElement<T0, T1>, T2>, T3> {
+public func subtraction<T0, T1, T2, T3>(@ElementBuilder _ builder: () -> TupleElement4<T0, T1, T2, T3>) -> SubtractionElement<SubtractionElement<SubtractionElement<T0, T1>, T2>, T3> {
     let value = builder()
 
     return SubtractionElement(

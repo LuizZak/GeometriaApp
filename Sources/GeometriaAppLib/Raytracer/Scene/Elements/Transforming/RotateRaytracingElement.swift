@@ -1,8 +1,8 @@
-typealias RotateRaytracingElement<T: RaytracingElement> = RotateElement<T>
+public typealias RotateRaytracingElement<T: RaytracingElement> = RotateElement<T>
 
 extension RotateRaytracingElement: RaytracingElement {
     @inlinable
-    func raycast(query: RayQuery) -> RayQuery {
+    public func raycast(query: RayQuery) -> RayQuery {
         let inv = rotation.mInv
         let queryT = query.rotatedBy(inv, around: rotationCenter)
         let resultT = element.raycast(query: queryT)
@@ -15,14 +15,14 @@ extension RotateRaytracingElement: RaytracingElement {
     }
 
     @inlinable
-    func raycast(query: RayQuery, results: inout [RayHit]) {
+    public func raycast(query: RayQuery, results: inout [RayHit]) {
         let inv = rotation.mInv
         let queryT = query.rotatedBy(inv, around: rotationCenter)
 
         element.raycast(query: queryT, results: &results)
     }
     
-    func fullyContainsRay(query: RayQuery) -> Bool {
+    public func fullyContainsRay(query: RayQuery) -> Bool {
         let inv = rotation.mInv
         let queryT = query.rotatedBy(inv, around: rotationCenter)
         

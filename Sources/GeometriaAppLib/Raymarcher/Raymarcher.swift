@@ -7,21 +7,21 @@ import Geometria
 private var _attemptedDebugInMultithreadedYet = false
 
 /// Class that performs raymarching on a scene.
-final class Raymarcher<Scene: RaymarchingSceneType>: RendererType {
+public final class Raymarcher<Scene: RaymarchingSceneType>: RendererType {
     private var processingPrinter: RaytracerProcessingPrinter?
     private var materialMapCache: MaterialMap
     private var globalMarchParameters: MarchingParameters
     private var isDebugOn: Bool = false
     
-    var isMultiThreaded: Bool = false
+    public var isMultiThreaded: Bool = false
     
-    let scene: Scene
-    let camera: Camera
-    var viewportSize: ViewportSize = .zero
+    public let scene: Scene
+    public let camera: Camera
+    public var viewportSize: ViewportSize = .zero
 
-    var renderMode: RenderMode = .fullRender
+    public var renderMode: RenderMode = .fullRender
     
-    init(scene: Scene, camera: Camera) {
+    public init(scene: Scene, camera: Camera) {
         self.scene = scene
         self.camera = camera
         self.materialMapCache = scene.materialMap()
@@ -34,18 +34,18 @@ final class Raymarcher<Scene: RaymarchingSceneType>: RendererType {
             )
     }
 
-    func setupViewportSize(_ viewportSize: ViewportSize) {
+    public func setupViewportSize(_ viewportSize: ViewportSize) {
         self.viewportSize = viewportSize
     }
 
     /// Gets the scene configured on this renderer.
-    func currentScene() -> SceneType {
+    public func currentScene() -> SceneType {
         return scene
     }
     
     // MARK: - Debugging
     
-    func beginDebug() {
+    public func beginDebug() {
         if isMultiThreaded {
             if !_attemptedDebugInMultithreadedYet {
                 _attemptedDebugInMultithreadedYet = true
@@ -65,7 +65,7 @@ final class Raymarcher<Scene: RaymarchingSceneType>: RendererType {
             )
     }
     
-    func endDebug(target: ProcessingPrinterTarget?) {
+    public func endDebug(target: ProcessingPrinterTarget?) {
         isDebugOn = false
         
         processingPrinter?.printAll(target: target)
@@ -75,7 +75,7 @@ final class Raymarcher<Scene: RaymarchingSceneType>: RendererType {
     // MARK: - Ray Marching
     
     /// Does raymarching for a single pixel, returning the resulting color.
-    func render(pixelAt coord: PixelCoord) -> BLRgba32 {
+    public func render(pixelAt coord: PixelCoord) -> BLRgba32 {
         assert(coord >= .zero && coord < viewportSize, "\(coord) is not within \(PixelCoord.zero) x \(viewportSize) limits")
         
         let ray = camera.rayFromCamera(at: coord)
@@ -361,7 +361,7 @@ final class Raymarcher<Scene: RaymarchingSceneType>: RendererType {
     }
 
     /// Specifies the rendering mode of a `Raymarcher` instance.
-    enum RenderMode {
+    public enum RenderMode {
         /// Does a fully colored, textured render.
         case fullRender
 

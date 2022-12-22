@@ -2,11 +2,11 @@
 import Geometria
 #endif
 
-typealias RepeatTranslateRaytracingElement<T: RaytracingElement> = RepeatTranslateElement<T>
+public typealias RepeatTranslateRaytracingElement<T: RaytracingElement> = RepeatTranslateElement<T>
 
 extension RepeatTranslateRaytracingElement: RaytracingElement {
     @inlinable
-    func raycast(query: RayQuery) -> RayQuery {
+    public func raycast(query: RayQuery) -> RayQuery {
         var current = query
 
         var index = 0
@@ -23,7 +23,7 @@ extension RepeatTranslateRaytracingElement: RaytracingElement {
     }
 
     @inlinable
-    func raycast(query: RayQuery, results: inout [RayHit]) {
+    public func raycast(query: RayQuery, results: inout [RayHit]) {
         var current = query
 
         var index = 0
@@ -35,7 +35,7 @@ extension RepeatTranslateRaytracingElement: RaytracingElement {
         }
     }
     
-    func fullyContainsRay(query: RayQuery) -> Bool {
+    public func fullyContainsRay(query: RayQuery) -> Bool {
         if count == 0 {
             return false
         }

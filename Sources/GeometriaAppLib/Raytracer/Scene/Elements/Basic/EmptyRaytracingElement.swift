@@ -1,17 +1,17 @@
-typealias EmptyRaytracingElement = EmptyElement
+public typealias EmptyRaytracingElement = EmptyElement
 
 extension EmptyRaytracingElement: RaytracingElement {
     @_transparent
-    func raycast(query: RayQuery) -> RayQuery {
+    public func raycast(query: RayQuery) -> RayQuery {
         query
     }
 
     @_transparent
-    func raycast(query: RayQuery, results: inout [RayHit]) {
+    public func raycast(query: RayQuery, results: inout [RayHit]) {
         
     }
     
-    func fullyContainsRay(query: RayQuery) -> Bool {
+    public func fullyContainsRay(query: RayQuery) -> Bool {
         false
     }
 }

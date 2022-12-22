@@ -1,6 +1,6 @@
-typealias MaterialId = Int
+public typealias MaterialId = Int
 
 extension MaterialId {
     @_transparent
-    static var defaultMaterial: MaterialId { 0 }
+    public static var defaultMaterial: MaterialId { 0 }
 }

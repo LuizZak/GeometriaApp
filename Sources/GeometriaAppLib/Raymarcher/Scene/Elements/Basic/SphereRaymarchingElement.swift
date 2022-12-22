@@ -1,8 +1,8 @@
-typealias SphereRaymarchingElement = SphereElement
+public typealias SphereRaymarchingElement = SphereElement
 
 extension SphereRaymarchingElement: RaymarchingElement {
     @inlinable
-    func signedDistance(to point: RVector3D, current: RaymarchingResult) -> RaymarchingResult {
+    public func signedDistance(to point: RVector3D, current: RaymarchingResult) -> RaymarchingResult {
         let distance = geometry.signedDistance(to: point)
         
         guard distance < current.distance else {
@@ -12,7 +12,7 @@ extension SphereRaymarchingElement: RaymarchingElement {
         return .init(distance: distance, material: material)
     }
 
-    func accept<Visitor: RaymarchingElementVisitor>(_ visitor: Visitor) -> Visitor.ResultType {
+    public func accept<Visitor: RaymarchingElementVisitor>(_ visitor: Visitor) -> Visitor.ResultType {
         visitor.visit(self)
     }
 }

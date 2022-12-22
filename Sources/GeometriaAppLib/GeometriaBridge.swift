@@ -268,13 +268,13 @@ extension BLSizeI {
 }
 
 extension UIIntPoint {
-    var asBLPointI: BLPointI {
+    public var asBLPointI: BLPointI {
         BLPointI(x: Int32(x), y: Int32(y))
     }
 }
 
 extension UIVector {
-    var asBLPointI: BLPointI {
+    public var asBLPointI: BLPointI {
         BLPointI(x: Int32(x), y: Int32(y))
     }
 }

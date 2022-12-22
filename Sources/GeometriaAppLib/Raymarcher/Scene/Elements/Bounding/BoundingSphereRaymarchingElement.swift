@@ -1,9 +1,9 @@
-typealias BoundingSphereRaymarchingElement<T: RaymarchingElement> = 
+public typealias BoundingSphereRaymarchingElement<T: RaymarchingElement> = 
     BoundingSphereElement<T>
 
 extension BoundingSphereRaymarchingElement: RaymarchingElement & RaymarchingBoundedElement {
     @inlinable
-    func signedDistance(to point: RVector3D, current: RaymarchingResult) -> RaymarchingResult {
+    public func signedDistance(to point: RVector3D, current: RaymarchingResult) -> RaymarchingResult {
         guard boundingSphere.signedDistance(to: point) < current.distance else {
             return current
         }
@@ -11,7 +11,7 @@ extension BoundingSphereRaymarchingElement: RaymarchingElement & RaymarchingBoun
         return element.signedDistance(to: point, current: current)
     }
 
-    func accept<Visitor: RaymarchingElementVisitor>(_ visitor: Visitor) -> Visitor.ResultType {
+    public func accept<Visitor: RaymarchingElementVisitor>(_ visitor: Visitor) -> Visitor.ResultType {
         visitor.visit(self)
     }
 }

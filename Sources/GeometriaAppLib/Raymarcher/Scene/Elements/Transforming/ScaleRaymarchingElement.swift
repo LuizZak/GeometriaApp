@@ -2,11 +2,11 @@
 import Geometria
 #endif
 
-typealias ScaleRaymarchingElement<T: RaymarchingElement> = ScaleElement<T>
+public typealias ScaleRaymarchingElement<T: RaymarchingElement> = ScaleElement<T>
 
 extension ScaleRaymarchingElement: RaymarchingElement {
     @inlinable
-    func signedDistance(to point: RVector3D, current: RaymarchingResult) -> RaymarchingResult {
+    public func signedDistance(to point: RVector3D, current: RaymarchingResult) -> RaymarchingResult {
         var result = element.signedDistance(
             to: (point - scalingCenter) / scaling + scalingCenter, 
             current: .emptyResult()
@@ -19,7 +19,7 @@ extension ScaleRaymarchingElement: RaymarchingElement {
         return min(result, current)
     }
 
-    func accept<Visitor: RaymarchingElementVisitor>(_ visitor: Visitor) -> Visitor.ResultType {
+    public func accept<Visitor: RaymarchingElementVisitor>(_ visitor: Visitor) -> Visitor.ResultType {
         visitor.visit(self)
     }
 }

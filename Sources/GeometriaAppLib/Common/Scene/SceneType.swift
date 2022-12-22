@@ -1,6 +1,6 @@
 import SwiftBlend2D
 
-protocol SceneType {
+public protocol SceneType {
     var skyColor: BLRgba32 { get }
     var sunDirection: RVector3D { get }
 

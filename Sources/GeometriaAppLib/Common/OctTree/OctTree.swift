@@ -4,8 +4,8 @@ import Geometria
 
 /// From a structured set of bounded geometry laid out in space, creates subdivided
 /// AABBs to quickly query geometry that is neighboring a point or line.
-class OctTree<T: BoundableType> where T.Vector == RVector3D {
-    typealias Bounds = AABB3D
+public class OctTree<T: BoundableType> where T.Vector == RVector3D {
+    public typealias Bounds = AABB3D
 
     /// The list of geometry that is being bounded.
     private var geometryList: [T]
@@ -13,7 +13,7 @@ class OctTree<T: BoundableType> where T.Vector == RVector3D {
     private var root: Subdivision
 
     /// Initializes an empty oct tree object.
-    convenience init() {
+    public convenience init() {
         self.init([], maxSubdivisions: 0, maxElementsPerOctBeforeSplit: 0)
     }
 
@@ -27,7 +27,7 @@ class OctTree<T: BoundableType> where T.Vector == RVector3D {
     /// splitting the oct tree.
     ///   - maxElementsPerOctBeforeSplit: The maximum number of elements per oct
     /// tree subdivision before an attempt to subdivide it further is done.
-    init(_ geometryList: [T], maxSubdivisions: Int, maxElementsPerOctBeforeSplit: Int) {
+    public init(_ geometryList: [T], maxSubdivisions: Int, maxElementsPerOctBeforeSplit: Int) {
         self.geometryList = geometryList
 
         // Calculate minimum bounds
@@ -53,7 +53,7 @@ class OctTree<T: BoundableType> where T.Vector == RVector3D {
 
     /// Returns all of the geometry that are contained within this oct tree whose
     /// bounds contain a given point.
-    func queryPoint(_ point: RVector3D) -> [T] {
+    public func queryPoint(_ point: RVector3D) -> [T] {
         var result: [T] = []
 
         root.queryPointRecursive(point) { index in
@@ -69,7 +69,7 @@ class OctTree<T: BoundableType> where T.Vector == RVector3D {
 
     /// Returns all of the geometry that are contained within this oct tree whose
     /// bounds intersect a given line.
-    func queryLine<Line: LineFloatingPoint>(
+    public func queryLine<Line: LineFloatingPoint>(
         _ line: Line
     ) -> [T] where Line.Vector == RVector3D {
 

@@ -1,1 +1,1 @@
-typealias RaymarchingBounds = ElementBounds
+public typealias RaymarchingBounds = ElementBounds

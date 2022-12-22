@@ -1,13 +1,13 @@
-typealias HyperplaneRaytracingElement = HyperplaneElement
+public typealias HyperplaneRaytracingElement = HyperplaneElement
 
 extension HyperplaneRaytracingElement: RaytracingElement {
     @inlinable
-    func raycast(query: RayQuery) -> RayQuery {
+    public func raycast(query: RayQuery) -> RayQuery {
         query.intersecting(id: id, material: material, convex: geometry)
     }
 
     @inlinable
-    func raycast(query: RayQuery, results: inout [RayHit]) {
+    public func raycast(query: RayQuery, results: inout [RayHit]) {
         query.intersectAll(
             id: id,
             material: material,
@@ -16,7 +16,7 @@ extension HyperplaneRaytracingElement: RaytracingElement {
         )
     }
     
-    func fullyContainsRay(query: RayQuery) -> Bool {
+    public func fullyContainsRay(query: RayQuery) -> Bool {
         query.isFullyContained(by: geometry)
     }
 }

@@ -1,1 +1,1 @@
-typealias MaterialMap = [Material]//[MaterialId: Material]
+public typealias MaterialMap = [Material]//[MaterialId: Material]

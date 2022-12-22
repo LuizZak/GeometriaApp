@@ -1,31 +1,31 @@
 import ImagineUI
 
-class LabelControl: ControlView {
+public class LabelControl: ControlView {
     private let textInset = UIEdgeInsets(left: 5, top: 2.5, right: 5, bottom: 2.5)
     private var label: Label
     
-    var text: String {
+    public var text: String {
         get { label.text }
         set { label.text = newValue }
     }
     
-    var textColor: Color {
+    public var textColor: Color {
         get { label.textColor }
         set { label.textColor = newValue }
     }
     
-    var attributedText: AttributedText {
+    public var attributedText: AttributedText {
         get { label.attributedText }
         set { label.attributedText = newValue }
     }
 
-    convenience override init() {
+    public convenience override init() {
         let font = Fonts.defaultFont(size: 12)
         
         self.init(font: font)
     }
     
-    convenience init(text: String) {
+    public convenience init(text: String) {
         let font = Fonts.defaultFont(size: 12)
         
         self.init(font: font)
@@ -33,7 +33,7 @@ class LabelControl: ControlView {
         self.text = text
     }
     
-    init(font: Font) {
+    public init(font: Font) {
         label = Label(textColor: .white, font: font)
         
         super.init()
@@ -42,11 +42,11 @@ class LabelControl: ControlView {
         backColor = .black.withTransparency(60)
     }
     
-    override func setupHierarchy() {
+    public override func setupHierarchy() {
         addSubview(label)
     }
     
-    override func setupConstraints() {
+    public override func setupConstraints() {
         label.layout.makeConstraints { make in
             make.edges.equalTo(self, inset: textInset)
         }

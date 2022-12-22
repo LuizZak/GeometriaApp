@@ -1,5 +1,5 @@
 /// Base protocol for scene graph elements.
-protocol Element {
+public protocol Element {
     /// Type for identifiers of elements
     typealias Id = Int
 

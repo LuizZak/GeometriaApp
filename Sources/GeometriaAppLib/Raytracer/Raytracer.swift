@@ -7,7 +7,7 @@ import Geometria
 private var _attemptedDebugInMultithreadedYet = false
 
 /// Class that performs raytracing on a scene.
-final class Raytracer<Scene: RaytracingSceneType>: RendererType {
+public final class Raytracer<Scene: RaytracingSceneType>: RendererType {
     private var processingPrinter: RaytracerProcessingPrinter?
     private var materialMapCache: MaterialMap
     
@@ -16,30 +16,30 @@ final class Raytracer<Scene: RaytracingSceneType>: RendererType {
     /// Bias used when creating rays for refraction and reflection.
     private let bias: Double = 0.0001
     
-    var isMultiThreaded: Bool = false
-    var maxBounces: Int = 15
-    let scene: Scene
-    let camera: Camera
-    var viewportSize: ViewportSize = .zero
+    public var isMultiThreaded: Bool = false
+    public var maxBounces: Int = 15
+    public let scene: Scene
+    public let camera: Camera
+    public var viewportSize: ViewportSize = .zero
     
-    init(scene: Scene, camera: Camera) {
+    public init(scene: Scene, camera: Camera) {
         self.scene = scene
         self.camera = camera
         self.materialMapCache = scene.materialMap()
     }
 
-    func setupViewportSize(_ viewportSize: ViewportSize) {
+    public func setupViewportSize(_ viewportSize: ViewportSize) {
         self.viewportSize = viewportSize
     }
 
     /// Gets the scene configured on this renderer.
-    func currentScene() -> SceneType {
+    public func currentScene() -> SceneType {
         return scene
     }
     
     // MARK: - Debugging
     
-    func beginDebug() {
+    public func beginDebug() {
         if isMultiThreaded {
             if !_attemptedDebugInMultithreadedYet {
                 _attemptedDebugInMultithreadedYet = true
@@ -57,7 +57,7 @@ final class Raytracer<Scene: RaytracingSceneType>: RendererType {
         )
     }
     
-    func endDebug(target: ProcessingPrinterTarget?) {
+    public func endDebug(target: ProcessingPrinterTarget?) {
         processingPrinter?.printAll(target: target)
         processingPrinter = nil
     }
@@ -65,7 +65,7 @@ final class Raytracer<Scene: RaytracingSceneType>: RendererType {
     // MARK: - Ray Casting
     
     /// Perform raycasting for a single pixel, returning the resulting color.
-    func render(pixelAt coord: PixelCoord) -> BLRgba32 {
+    public func render(pixelAt coord: PixelCoord) -> BLRgba32 {
         assert(coord >= .zero && coord < viewportSize, "\(coord) is not within \(PixelCoord.zero) x \(viewportSize) limits")
         
         let ray = camera.rayFromCamera(at: coord)

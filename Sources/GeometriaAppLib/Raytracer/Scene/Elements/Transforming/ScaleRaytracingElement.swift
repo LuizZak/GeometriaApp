@@ -1,8 +1,8 @@
-typealias ScaleRaytracingElement<T: RaytracingElement> = ScaleElement<T>
+public typealias ScaleRaytracingElement<T: RaytracingElement> = ScaleElement<T>
 
 extension ScaleRaytracingElement: RaytracingElement {
     @inlinable
-    func raycast(query: RayQuery) -> RayQuery {
+    public func raycast(query: RayQuery) -> RayQuery {
         let inv = 1 / scaling
         let queryT = query.scaled(by: inv, around: scalingCenter)
         let resultT = element.raycast(query: queryT)
@@ -15,14 +15,14 @@ extension ScaleRaytracingElement: RaytracingElement {
     }
 
     @inlinable
-    func raycast(query: RayQuery, results: inout [RayHit]) {
+    public func raycast(query: RayQuery, results: inout [RayHit]) {
         let inv = 1 / scaling
         let queryT = query.scaled(by: inv, around: scalingCenter)
 
         element.raycast(query: queryT, results: &results)
     }
     
-    func fullyContainsRay(query: RayQuery) -> Bool {
+    public func fullyContainsRay(query: RayQuery) -> Bool {
         let inv = 1 / scaling
         let queryT = query.scaled(by: inv, around: scalingCenter)
         

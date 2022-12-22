@@ -3,14 +3,14 @@ import Geometria
 #endif
 
 /// Element that encodes a rotation in 3D space of another element.
-struct RotateElement<T: Element> {
-    var id: Element.Id = 0
-    var element: T
+public struct RotateElement<T: Element> {
+    public var id: Element.Id = 0
+    public var element: T
     
-    var rotation: Transform3x3
-    var rotationCenter: RVector3D
+    public var rotation: Transform3x3
+    public var rotationCenter: RVector3D
     
-    internal init(
+    public init(
         id: Int = 0,
         element: T,
         rotation: Transform3x3,
@@ -22,7 +22,7 @@ struct RotateElement<T: Element> {
         self.rotationCenter = rotationCenter
     }
     
-    internal init(
+    public init(
         id: Int = 0,
         element: T,
         rotation: RRotationMatrix3D,
@@ -37,27 +37,27 @@ struct RotateElement<T: Element> {
 
 extension RotateElement: Element {
     @_transparent
-    mutating func attributeIds(_ idFactory: inout ElementIdFactory) {
+    public mutating func attributeIds(_ idFactory: inout ElementIdFactory) {
         id = idFactory.makeId()
 
         element.attributeIds(&idFactory)
     }
 
     @_transparent
-    func queryScene(id: Element.Id) -> Element? {
+    public func queryScene(id: Element.Id) -> Element? {
         if id == self.id { return self }
         
         return element.queryScene(id: id)
     }
 
-    func accept<Visitor: ElementVisitor>(_ visitor: Visitor) -> Visitor.ResultType {
+    public func accept<Visitor: ElementVisitor>(_ visitor: Visitor) -> Visitor.ResultType {
         visitor.visit(self)
     }
 }
 
 extension RotateElement: BoundedElement where T: BoundedElement {
     @_transparent
-    func makeBounds() -> ElementBounds {
+    public func makeBounds() -> ElementBounds {
         element.makeBounds().rotatedBy(rotation.m, around: rotationCenter)
     }
 }
@@ -66,36 +66,36 @@ extension RotateElement: BoundedElement where T: BoundedElement {
 
 extension Element {
     @_transparent
-    func rotatedBy(_ rotation: RRotationMatrix3D, around rotationCenter: RVector3D) -> RotateElement<Self> {
+    public func rotatedBy(_ rotation: RRotationMatrix3D, around rotationCenter: RVector3D) -> RotateElement<Self> {
         .init(element: self, rotation: rotation, rotationCenter: rotationCenter)
     }
 }
 
 extension BoundedElement {
     @_transparent
-    func rotatedAroundCenter(by rotation: RRotationMatrix3D) -> RotateElement<Self> {
+    public func rotatedAroundCenter(by rotation: RRotationMatrix3D) -> RotateElement<Self> {
         .init(element: self, rotation: rotation, rotationCenter: makeBounds().center)
     }
 }
 
 extension RotateElement {
     @_transparent
-    func rotatedBy(_ rotation: RRotationMatrix3D, around rotationCenter: RVector3D) -> RotateElement<T> {
+    public func rotatedBy(_ rotation: RRotationMatrix3D, around rotationCenter: RVector3D) -> RotateElement<T> {
         .init(element: element, rotation: self.rotation * rotation, rotationCenter: rotationCenter)
     }
 }
 
 @_transparent
-func rotated<T: Element>(by rotation: RRotationMatrix3D, around rotationCenter: RVector3D, @ElementBuilder _ builder: () -> T) -> RotateElement<T> {
+public func rotated<T: Element>(by rotation: RRotationMatrix3D, around rotationCenter: RVector3D, @ElementBuilder _ builder: () -> T) -> RotateElement<T> {
     builder().rotatedBy(rotation, around: rotationCenter)
 }
 
 @_transparent
-func rotated<T: Element>(by rotation: RRotationMatrix3D, around rotationCenter: RVector3D, @ElementBuilder _ builder: () -> RotateElement<T>) -> RotateElement<T> {
+public func rotated<T: Element>(by rotation: RRotationMatrix3D, around rotationCenter: RVector3D, @ElementBuilder _ builder: () -> RotateElement<T>) -> RotateElement<T> {
     builder().rotatedBy(rotation, around: rotationCenter)
 }
 
 @_transparent
-func rotatedAroundCenter<T: BoundedElement>(by rotation: RRotationMatrix3D, @ElementBuilder _ builder: () -> T) -> RotateElement<T> {
+public func rotatedAroundCenter<T: BoundedElement>(by rotation: RRotationMatrix3D, @ElementBuilder _ builder: () -> T) -> RotateElement<T> {
     builder().rotatedAroundCenter(by: rotation)
 }

@@ -1,13 +1,13 @@
 import ImagineUI
 
-class ContextMenuView: ControlView {
+public class ContextMenuView: ControlView {
     private let dataSource: DataSource
     private let _stackView: StackView = StackView(orientation: .vertical)
 
     private var _onOpen: (() -> Void)?
     private var _onClose: (() -> Void)?
 
-    weak var dialogDelegate: UIDialogDelegate?
+    public weak var dialogDelegate: UIDialogDelegate?
 
     private init(dataSource: DataSource) {
         self.dataSource = dataSource
@@ -25,13 +25,13 @@ class ContextMenuView: ControlView {
         _populateItems()
     }
 
-    override func setupHierarchy() {
+    public override func setupHierarchy() {
         super.setupHierarchy()
 
         addSubview(_stackView)
     }
 
-    override func setupConstraints() {
+    public override func setupConstraints() {
         super.setupConstraints()
 
         areaIntoConstraintsMask = [.location]
@@ -44,16 +44,16 @@ class ContextMenuView: ControlView {
         }
     }
 
-    override func boundsForFillOrStroke() -> UIRectangle {
+    public override func boundsForFillOrStroke() -> UIRectangle {
         return bounds.insetBy(x: strokeWidth, y: strokeWidth)
     }
 
-    func opened(_ closure: @escaping () -> Void) -> ContextMenuView {
+    public func opened(_ closure: @escaping () -> Void) -> ContextMenuView {
         _onOpen = closure
         return self
     }
 
-    func closed(_ closure: @escaping () -> Void) -> ContextMenuView {
+    public func closed(_ closure: @escaping () -> Void) -> ContextMenuView {
         _onClose = closure
         return self
     }
@@ -172,7 +172,7 @@ class ContextMenuView: ControlView {
 }
 
 extension ContextMenuView: UIDialog {
-    func customBackdrop() -> View? {
+   public  func customBackdrop() -> View? {
         let view = BackdropControl()
         view.wantsToDismiss.addListener(weakOwner: self) { [weak self] in
             guard let self = self else { return }
@@ -183,11 +183,11 @@ extension ContextMenuView: UIDialog {
         return view
     }
 
-    func didOpen() {
+    public func didOpen() {
         _onOpen?()
     }
 
-    func didClose() {
+    public func didClose() {
         _onClose?()
     }
 
@@ -216,22 +216,22 @@ extension ContextMenuView: UIDialog {
 }
 
 extension ContextMenuView {
-    static func create(@ContextMenuViewBuilder _ builder: () -> [ContextMenuItemEntry]) -> ContextMenuView {
+    public static func create(@ContextMenuViewBuilder _ builder: () -> [ContextMenuItemEntry]) -> ContextMenuView {
         return create(items: builder())
     }
 
-    static func create(items: [ContextMenuItemEntry]) -> ContextMenuView {
+    public static func create(items: [ContextMenuItemEntry]) -> ContextMenuView {
         let dataSource = DataSource(items: items)
 
         return ContextMenuView(dataSource: dataSource)
     }
 
-    static func createItems(@ContextMenuViewBuilder _ builder: () -> [ContextMenuItemEntry]) -> [ContextMenuItemEntry] {
+    public static func createItems(@ContextMenuViewBuilder _ builder: () -> [ContextMenuItemEntry]) -> [ContextMenuItemEntry] {
         builder()
     }
 }
 
-enum ContextMenuItemEntry {
+public enum ContextMenuItemEntry {
     /// An item with display information.
     case item(ContextMenuItem)
 
@@ -239,9 +239,9 @@ enum ContextMenuItemEntry {
     case separator
 }
 
-struct ContextMenuItem {
-    var icon: Image?
-    var title: String
+public struct ContextMenuItem {
+    public let icon: Image?
+    public let title: String
 
     /// Event invoked when the user selects this context menu item.
     var selected: () -> Void
@@ -254,7 +254,7 @@ struct ContextMenuItem {
     /// item.
     var mouseExitedItem: (() -> Void)?
 
-    init(
+    public init(
         icon: Image? = nil,
         title: String,
         selected: @escaping () -> Void,
@@ -269,42 +269,42 @@ struct ContextMenuItem {
         self.mouseExitedItem = mouseExitedItem
     }
 
-    func mouseEnter(_ closure: @escaping () -> Void) -> Self {
+    public func mouseEnter(_ closure: @escaping () -> Void) -> Self {
         var copy = self
         copy.mouseEnteredItem = closure
         return copy
     }
 
-    func mouseExit(_ closure: @escaping () -> Void) -> Self {
+    public func mouseExit(_ closure: @escaping () -> Void) -> Self {
         var copy = self
         copy.mouseExitedItem = closure
         return copy
     }
 }
 
-struct ContextMenuItemSeparator {
+public struct ContextMenuItemSeparator {
 
 }
 
 @resultBuilder
-struct ContextMenuViewBuilder {
-    static func buildExpression(_ expression: ContextMenuItem) -> ContextMenuItemEntry {
+public struct ContextMenuViewBuilder {
+    public static func buildExpression(_ expression: ContextMenuItem) -> ContextMenuItemEntry {
         .item(expression)
     }
 
-    static func buildExpression(_ expression: ContextMenuItemSeparator) -> ContextMenuItemEntry {
+    public static func buildExpression(_ expression: ContextMenuItemSeparator) -> ContextMenuItemEntry {
         .separator
     }
 
-    static func buildBlock(_ components: ContextMenuItemEntry) -> [ContextMenuItemEntry] {
+    public static func buildBlock(_ components: ContextMenuItemEntry) -> [ContextMenuItemEntry] {
         [components]
     }
 
-    static func buildBlock(_ components: [ContextMenuItemEntry]) -> [ContextMenuItemEntry] {
+    public static func buildBlock(_ components: [ContextMenuItemEntry]) -> [ContextMenuItemEntry] {
         components
     }
 
-    static func buildBlock(_ components: ContextMenuItemEntry...) -> [ContextMenuItemEntry] {
+    public static func buildBlock(_ components: ContextMenuItemEntry...) -> [ContextMenuItemEntry] {
         components
     }
 

@@ -1,9 +1,9 @@
-typealias SubtractionRaytracingElement<T0: RaytracingElement, T1: RaytracingElement> =
+public typealias SubtractionRaytracingElement<T0: RaytracingElement, T1: RaytracingElement> =
     SubtractionElement<T0, T1>
 
 extension SubtractionRaytracingElement: RaytracingElement {
     @inlinable
-    func raycast(query: RayQuery) -> RayQuery {
+    public func raycast(query: RayQuery) -> RayQuery {
         guard !query.ignoring.shouldIgnoreFully(id: id) else {
             return query
         }
@@ -21,7 +21,7 @@ extension SubtractionRaytracingElement: RaytracingElement {
     }
 
     @inlinable
-    func raycast(query: RayQuery, results: inout [RayHit]) {
+    public func raycast(query: RayQuery, results: inout [RayHit]) {
         guard !query.ignoring.shouldIgnoreFully(id: id) else {
             return
         }
@@ -111,30 +111,7 @@ extension SubtractionRaytracingElement: RaytracingElement {
     }
     
     // TODO: Properly implement ray containment chekcs in subtraction geometry
-    func fullyContainsRay(query: RayQuery) -> Bool {
+    public func fullyContainsRay(query: RayQuery) -> Bool {
         return false
-    }
-}
-
-private enum RayHitInfo {
-    case t0(RayHit, Double)
-    case t1(RayHit, Double)
-
-    @_transparent
-    var distanceSquared: Double {
-        switch self {
-        case .t0(_, let dist), .t1(_, let dist):
-            return dist
-        }
-    }
-
-    @_transparent
-    var asRayHit: RayHit {
-        switch self {
-        case .t0(let hit, _):
-            return hit
-        case .t1(let hit, _):
-            return hit
-        }
     }
 }

@@ -2,26 +2,26 @@
 import Geometria
 #endif
 
-struct RayHit: Equatable {
+public struct RayHit: Equatable {
     /// The identifier for the element that was hit.
-    var id: Int
-    var pointNormal: PointNormal<RVector3D>
-    var hitDirection: HitDirection
-    var material: MaterialId?
+    public var id: Int
+    public var pointNormal: PointNormal<RVector3D>
+    public var hitDirection: HitDirection
+    public var material: MaterialId?
     
     /// Convenience for `pointNormal.point`
     @_transparent
-    var point: RVector3D {
+    public var point: RVector3D {
         return pointNormal.point
     }
     /// Convenience for `pointNormal.normal`
     @_transparent
-    var normal: RVector3D {
+    public var normal: RVector3D {
         return pointNormal.normal
     }
 
     /// Returns a copy of this ray hit, but with an inverted `hitDirection` value.
-    var withInvertedHitDirection: Self {
+    public var withInvertedHitDirection: Self {
         return .init(
             id: id,
             pointNormal: pointNormal,
@@ -31,7 +31,7 @@ struct RayHit: Equatable {
     }
     
     @_transparent
-    init(
+    public init(
         id: Int,
         pointNormal: PointNormal<RVector3D>,
         hitDirection: HitDirection,
@@ -45,7 +45,7 @@ struct RayHit: Equatable {
     }
 
     @_transparent
-    init(
+    public init(
         id: Int,
         pointOfInterest: (point: RPointNormal3D, hitDirection: RayHit.HitDirection),
         material: MaterialId?
@@ -58,7 +58,7 @@ struct RayHit: Equatable {
     }
     
     @_transparent
-    init?(
+    public init?(
         findingPointOfInterestOf rayIgnore: RayIgnore,
         intersection: RConvexLineResult3D,
         rayStart: RVector3D,
@@ -82,7 +82,7 @@ struct RayHit: Equatable {
     ///
     /// Returns `nil` if ``RayIgnore/computePointNormalOfInterest`` returns `nil`
     @_transparent
-    func assignPointOfInterest(
+    public func assignPointOfInterest(
         from rayIgnore: RayIgnore,
         intersection: RConvexLineResult3D,
         rayStart: RVector3D
@@ -101,7 +101,7 @@ struct RayHit: Equatable {
 
     /// Translates the components of this ray hit, returning a new hit that is 
     /// shifted in space by an amount specified by `vector`.
-    func translated(by vector: RVector3D) -> RayHit {
+    public func translated(by vector: RVector3D) -> RayHit {
         var hit = self
         
         hit.pointNormal.point += vector
@@ -112,7 +112,7 @@ struct RayHit: Equatable {
     /// Scales the components of this ray hit, returning a new hit that is 
     /// scaled in space around a given center point by an amount specified by 
     /// `factor`.
-    func scaledBy(_ factor: Double, around center: RVector3D) -> Self {
+    public func scaledBy(_ factor: Double, around center: RVector3D) -> Self {
         var hit = self
 
         // Since scaling is uniform, we don't need to scale the normal of the
@@ -125,7 +125,7 @@ struct RayHit: Equatable {
     /// Rotates the components of this ray hit, returning a new ray hit that
     /// is rotated in space around the given center point by a given rotational
     /// matrix.
-    func rotatedBy(_ matrix: RRotationMatrix3D, around center: RVector3D) -> Self {
+    public func rotatedBy(_ matrix: RRotationMatrix3D, around center: RVector3D) -> Self {
         var hit = self
         
         hit.pointNormal.point =
@@ -148,7 +148,7 @@ struct RayHit: Equatable {
     /// Ray hits with this ignore may fail to yield expected results, as hits are
     /// not discretely identified and can only be ignored based on loose
     /// inner/outer hits and geometry ID.
-    func rayIgnoreForHit(minimumRayLengthSquared: Double = 0.0) -> RayIgnore {
+    public func rayIgnoreForHit(minimumRayLengthSquared: Double = 0.0) -> RayIgnore {
         switch hitDirection {
         case .inside:
             return .entrance(id: id, minimumRayLengthSquared: minimumRayLengthSquared)
@@ -163,7 +163,7 @@ struct RayHit: Equatable {
     
     /// Specifies the direction of the ray when it hit the boundaries of 
     /// a geometry.
-    enum HitDirection {
+    public enum HitDirection {
         /// Ray hit the geometry from the inside out
         case inside
 
@@ -179,7 +179,7 @@ struct RayHit: Equatable {
         /// `.outside` if this value is `.inside`.
         ///
         /// `.singlePoint` always maps back into `.singlePoint`.
-        var inverted: Self {
+        public var inverted: Self {
             switch self {
             case .inside:
                 return .outside

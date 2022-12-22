@@ -1,13 +1,13 @@
-typealias DiskRaytracingElement = DiskElement
+public typealias DiskRaytracingElement = DiskElement
 
 extension DiskRaytracingElement: RaytracingElement {
     @inlinable
-    func raycast(query: RayQuery) -> RayQuery {
+    public func raycast(query: RayQuery) -> RayQuery {
         query.intersecting(id: id, material: material, plane: geometry)
     }
 
     @inlinable
-    func raycast(query: RayQuery, results: inout [RayHit]) {
+    public func raycast(query: RayQuery, results: inout [RayHit]) {
         query.intersectAll(
             id: id,
             material: material,
@@ -16,7 +16,7 @@ extension DiskRaytracingElement: RaytracingElement {
         )
     }
     
-    func fullyContainsRay(query: RayQuery) -> Bool {
+    public func fullyContainsRay(query: RayQuery) -> Bool {
         false // Planes cannot fully contain rays
     }
 }

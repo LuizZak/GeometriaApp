@@ -2,7 +2,7 @@ import ImagineUI
 import Geometry
 import Foundation
 
-class SidePanel: ControlView {
+public class SidePanel: ControlView {
     private let _lipSize: Double = 4.0
     private var _mouseDown: Bool = false
     private var _mouseOffset: Double = 0.0
@@ -11,10 +11,10 @@ class SidePanel: ControlView {
     private var _lastMouseDown: TimeInterval = 0
     private var _lastMouseDownPoint: UIVector = .zero
     
-    let contentBounds: LayoutGuide = LayoutGuide()
+    public let contentBounds: LayoutGuide = LayoutGuide()
 
     /// The length of the panel on its superview.
-    var length: Double {
+    public var length: Double {
         didSet {
             length = max(_lipSize, length)
 
@@ -25,7 +25,7 @@ class SidePanel: ControlView {
     }
 
     /// The side of the superview this side panel will pin to.
-    var pinSide: PinSide {
+    public var pinSide: PinSide {
         didSet {
             guard pinSide != oldValue else { return }
 
@@ -34,9 +34,9 @@ class SidePanel: ControlView {
     }
 
     /// If `true`, enable collapsing of panel with a double click.
-    var allowCollapsingOnDoubleClick: Bool = true
+    public var allowCollapsingOnDoubleClick: Bool = true
 
-    override var intrinsicSize: UISize? {
+    public override var intrinsicSize: UISize? {
         switch pinSide {
         case .left, .right:
             return UISize(width: length, height: 0)
@@ -45,7 +45,7 @@ class SidePanel: ControlView {
         }
     }
 
-    init(pinSide: PinSide, length: Double) {
+    public init(pinSide: PinSide, length: Double) {
         self.length = length
         self.pinSide = pinSide
 
@@ -55,13 +55,13 @@ class SidePanel: ControlView {
         backColor = .lightGray
     }
 
-    override func setupHierarchy() {
+    public override func setupHierarchy() {
         super.setupHierarchy()
 
         addLayoutGuide(contentBounds)
     }
 
-    override func setupConstraints() {
+    public override func setupConstraints() {
         super.setupConstraints()
 
         recreateConstraints()
@@ -114,7 +114,7 @@ class SidePanel: ControlView {
         }
     }
 
-    override func onStateChanged(_ event: ValueChangedEventArgs<ControlViewState>) {
+    public override func onStateChanged(_ event: ValueChangedEventArgs<ControlViewState>) {
         super.onStateChanged(event)
 
         switch event.newValue {
@@ -125,13 +125,13 @@ class SidePanel: ControlView {
         }
     }
 
-    override func superviewDidChange(_ newSuperview: View?) {
+    public override func superviewDidChange(_ newSuperview: View?) {
         super.superviewDidChange(newSuperview)
 
         recreateConstraints()
     }
 
-    override func onMouseEnter() {
+    public override func onMouseEnter() {
         super.onMouseEnter()
 
         switch pinSide {
@@ -142,13 +142,13 @@ class SidePanel: ControlView {
         }
     }
 
-    override func onMouseLeave() {
+    public override func onMouseLeave() {
         super.onMouseLeave()
 
         controlSystem?.setMouseCursor(.arrow)
     }
 
-    override func onMouseDown(_ event: MouseEventArgs) {
+    public override func onMouseDown(_ event: MouseEventArgs) {
         super.onMouseDown(event)
 
         _mouseDown = true
@@ -165,7 +165,7 @@ class SidePanel: ControlView {
         }
     }
 
-    override func onMouseMove(_ event: MouseEventArgs) {
+    public override func onMouseMove(_ event: MouseEventArgs) {
         super.onMouseMove(event)
 
         if _mouseDown, let superview = superview {
@@ -185,13 +185,13 @@ class SidePanel: ControlView {
         }
     }
 
-    override func onMouseUp(_ event: MouseEventArgs) {
+    public override func onMouseUp(_ event: MouseEventArgs) {
         super.onMouseUp(event)
 
         _mouseDown = false
     }
 
-    override func onMouseClick(_ event: MouseEventArgs) {
+    public override func onMouseClick(_ event: MouseEventArgs) {
         super.onMouseClick(event)
 
         if _lastMouseDownPoint.distance(to: event.location) < 10 && UISettings.timeInSeconds() - _lastMouseDown < 1 {
@@ -206,7 +206,7 @@ class SidePanel: ControlView {
     }
 
     /// The side of the container view this side panel should attach to.
-    enum PinSide {
+    public enum PinSide {
         case left
         case top
         case right

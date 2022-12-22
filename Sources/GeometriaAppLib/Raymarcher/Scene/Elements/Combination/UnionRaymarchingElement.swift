@@ -1,9 +1,9 @@
-typealias UnionRaymarchingElement<T0: RaymarchingElement, T1: RaymarchingElement> =
+public typealias UnionRaymarchingElement<T0: RaymarchingElement, T1: RaymarchingElement> =
     UnionElement<T0, T1>
 
 extension UnionRaymarchingElement: RaymarchingElement {
     @inlinable
-    func signedDistance(to point: RVector3D, current: RaymarchingResult) -> RaymarchingResult {
+    public func signedDistance(to point: RVector3D, current: RaymarchingResult) -> RaymarchingResult {
         var current = current
 
         current = t0.signedDistance(to: point, current: current)
@@ -12,7 +12,7 @@ extension UnionRaymarchingElement: RaymarchingElement {
         return current
     }
 
-    func accept<Visitor: RaymarchingElementVisitor>(_ visitor: Visitor) -> Visitor.ResultType {
+    public func accept<Visitor: RaymarchingElementVisitor>(_ visitor: Visitor) -> Visitor.ResultType {
         visitor.visit(self)
     }
 }

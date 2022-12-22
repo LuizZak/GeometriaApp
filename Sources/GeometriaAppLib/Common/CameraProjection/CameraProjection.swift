@@ -7,9 +7,9 @@ import Geometria
 /// the coordinates into pixel-coordinates to perform rasterization of the
 /// geometry on screen.
 public class CameraProjection {
-    let camera: Camera
+    public let camera: Camera
     
-    init(camera: Camera) {
+    public init(camera: Camera) {
         self.camera = camera
     }
     
@@ -18,7 +18,7 @@ public class CameraProjection {
     ///
     /// Result is an unclamped 2D line that approximates the original 3D line
     /// as a projection on the camera.
-    func projectLine(_ line: RLineSegment3D) -> RenderingShape? {
+    public func projectLine(_ line: RLineSegment3D) -> RenderingShape? {
         guard let start = camera.projectAsPixelUnclamped(line.start) else {
             return nil
         }
@@ -32,7 +32,7 @@ public class CameraProjection {
     // TODO: Support spheres that partially clip into the camera plane.
     /// Attempts to project a 3D sphere into the screen coordinates as a
     /// `RenderingShape`.
-    func projectSphere(_ sphere: RSphere3D) -> RenderingShape? {
+    public func projectSphere(_ sphere: RSphere3D) -> RenderingShape? {
         guard let projectedCenter = projectPoint(sphere.center) else {
             return nil
         }
@@ -71,7 +71,7 @@ public class CameraProjection {
     
     /// Projects an AABB as a `RenderingShape` representing each edge of the AABB
     /// as it appears when projected on screen.
-    func projectAABB<R: RectangleType>(_ aabb: R) -> RenderingShape where R.Vector == RVector3D {
+    public func projectAABB<R: RectangleType>(_ aabb: R) -> RenderingShape where R.Vector == RVector3D {
         var result: [RenderingShape] = []
         
         func addEdgeLine(endPoint: RVector3D, axis: RVector3D) {
@@ -111,7 +111,7 @@ public class CameraProjection {
     private var _lastDisk: RDisk3D?
     /// Attempts to project a 3D disk into the screen coordinates as a
     /// `RenderingShape`.
-    func projectDisk(_ disk: RDisk3D) -> RenderingShape? {
+    public func projectDisk(_ disk: RDisk3D) -> RenderingShape? {
         let processing: ProcessingPrinter?
         if _lastDisk == disk {
             _lastDisk = disk
@@ -184,7 +184,7 @@ public class CameraProjection {
         camera.projectAsPixelUnclamped(vec)
     }
 
-    enum RenderingShape {
+    public enum RenderingShape {
         case ellipse(UIEllipse)
         case line(UILine)
 
@@ -193,7 +193,7 @@ public class CameraProjection {
 
         /// Returns `true` if the contents of this rendering shape are empty and
         /// would not produce draw calls.
-        var isEmpty: Bool {
+        public var isEmpty: Bool {
             switch self {
             case .ellipse, .line:
                 return false

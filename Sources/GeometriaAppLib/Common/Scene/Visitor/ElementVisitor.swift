@@ -1,4 +1,4 @@
-protocol ElementVisitor {
+public protocol ElementVisitor {
     associatedtype ResultType
 
     // MARK: Generic elements

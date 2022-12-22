@@ -1,6 +1,6 @@
 import ImagineUI
 
-protocol UIDialog: View {
+public protocol UIDialog: View {
     var dialogDelegate: UIDialogDelegate? { get set }
 
     /// Allows this dialog to provide a custom backdrop view that will be 
@@ -17,7 +17,7 @@ protocol UIDialog: View {
     func didClose()
 }
 
-extension UIDialog {
+public extension UIDialog {
     func customBackdrop() -> View? {
         return nil
     }

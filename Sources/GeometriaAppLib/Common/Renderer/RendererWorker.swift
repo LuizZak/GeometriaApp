@@ -93,7 +93,7 @@ final class RendererWorker: CustomStringConvertible {
     }
 }
 
-protocol RendererWorkerContext: AnyObject {
+public protocol RendererWorkerContext: AnyObject {
     /// Gets the renderer object.
     func renderer() -> RendererType?
     

@@ -1,13 +1,13 @@
-struct AnyElement {
-    var element: Element
+public struct AnyElement {
+    public var element: Element
 
-    init<T: Element>(_ element: T) {
+    public init<T: Element>(_ element: T) {
         self.element = element
     }
 }
 
 extension AnyElement: Element {
-    var id: Int {
+    public var id: Int {
         get {
             element.id
         }
@@ -17,16 +17,16 @@ extension AnyElement: Element {
     }
 
     @_transparent
-    mutating func attributeIds(_ idFactory: inout ElementIdFactory) {
+    public mutating func attributeIds(_ idFactory: inout ElementIdFactory) {
         element.attributeIds(&idFactory)
     }
 
     @_transparent
-    func queryScene(id: Element.Id) -> Element? {
+    public func queryScene(id: Element.Id) -> Element? {
         element.queryScene(id: id)
     }
 
-    func accept<Visitor: ElementVisitor>(_ visitor: Visitor) -> Visitor.ResultType {
+    public func accept<Visitor: ElementVisitor>(_ visitor: Visitor) -> Visitor.ResultType {
         element.accept(visitor)
     }
 }

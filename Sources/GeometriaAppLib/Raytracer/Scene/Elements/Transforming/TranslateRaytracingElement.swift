@@ -2,11 +2,11 @@
 import Geometria
 #endif
 
-typealias TranslateRaytracingElement<T: RaytracingElement> = TranslateElement<T>
+public typealias TranslateRaytracingElement<T: RaytracingElement> = TranslateElement<T>
 
 extension TranslateRaytracingElement: RaytracingElement {
     @inlinable
-    func raycast(query: RayQuery) -> RayQuery {
+    public func raycast(query: RayQuery) -> RayQuery {
         let offsetQuery = query.translated(by: -translation)
 
         let offsetResult = element.raycast(query: offsetQuery)
@@ -19,11 +19,11 @@ extension TranslateRaytracingElement: RaytracingElement {
     }
 
     @inlinable
-    func raycast(query: RayQuery, results: inout [RayHit]) {
+    public func raycast(query: RayQuery, results: inout [RayHit]) {
         element.raycast(query: query.translated(by: -translation), results: &results)
     }
     
-    func fullyContainsRay(query: RayQuery) -> Bool {
+    public func fullyContainsRay(query: RayQuery) -> Bool {
         let offsetQuery = query.translated(by: -translation)
         
         return element.fullyContainsRay(query: offsetQuery)

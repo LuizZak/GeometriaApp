@@ -1,9 +1,9 @@
 import ImagineUI
 
 /// Splits the viewport into squares to render.
-class TiledBatcher: RenderingBatcher {
-    typealias Pixel = PixelCoord
-    typealias PixelRect = UIIntRectangle
+public class TiledBatcher: RenderingBatcher {
+    public typealias Pixel = PixelCoord
+    public typealias PixelRect = UIIntRectangle
     
     private var viewportSize: ViewportSize = .zero
     private var tiles: [Tile] = []
@@ -11,26 +11,26 @@ class TiledBatcher: RenderingBatcher {
     private var tileSize: Int
     private var shuffleOrder: Bool
     
-    var displayName: String = "Tiles/patchwork"
+    public var displayName: String = "Tiles/patchwork"
     
-    var batchesServedProgress: Double {
+    public var batchesServedProgress: Double {
         Double(nextTileIndex) / Double(tiles.count)
     }
     
-    private(set) var hasBatches: Bool = false
+    public private(set) var hasBatches: Bool = false
     
-    convenience init(splitting viewportSize: ViewportSize, estimatedThreadCount: Int, shuffleOrder: Bool = false) {
+    public convenience init(splitting viewportSize: ViewportSize, estimatedThreadCount: Int, shuffleOrder: Bool = false) {
         let tileSize = viewportSize / (estimatedThreadCount * 2)
         
         self.init(tileSize: max(tileSize.width, tileSize.height), shuffleOrder: shuffleOrder)
     }
     
-    init(tileSize: Int, shuffleOrder: Bool = false) {
+    public init(tileSize: Int, shuffleOrder: Bool = false) {
         self.tileSize = tileSize
         self.shuffleOrder = shuffleOrder
     }
     
-    func initialize(viewportSize: ViewportSize) {
+    public func initialize(viewportSize: ViewportSize) {
         self.viewportSize = viewportSize
         nextTileIndex = 0
         
@@ -38,7 +38,7 @@ class TiledBatcher: RenderingBatcher {
         hasBatches = tiles.count > 0
     }
     
-    func nextBatch() -> RenderingBatch? {
+    public func nextBatch() -> RenderingBatch? {
         guard nextTileIndex < tiles.count else {
             hasBatches = false
             return nil

@@ -1,21 +1,27 @@
-struct HyperplaneElement: GeometryElementType {
-    var id: Element.Id = 0
-    var geometry: RHyperplane3D
-    var material: MaterialId
+public struct HyperplaneElement: GeometryElementType {
+    public var id: Element.Id = 0
+    public var geometry: RHyperplane3D
+    public var material: MaterialId
+
+    public init(id: Element.Id = 0, geometry: RHyperplane3D, material: MaterialId) {
+        self.id = id
+        self.geometry = geometry
+        self.material = material
+    }
 }
 
 extension HyperplaneElement: Element {
     @_transparent
-    mutating func attributeIds(_ idFactory: inout ElementIdFactory) {
+    public mutating func attributeIds(_ idFactory: inout ElementIdFactory) {
         id = idFactory.makeId()
     }
 
     @_transparent
-    func queryScene(id: Element.Id) -> Element? {
+    public func queryScene(id: Element.Id) -> Element? {
         id == self.id ? self : nil
     }
 
-    func accept<Visitor: ElementVisitor>(_ visitor: Visitor) -> Visitor.ResultType {
+    public func accept<Visitor: ElementVisitor>(_ visitor: Visitor) -> Visitor.ResultType {
         visitor.visit(self)
     }
 }

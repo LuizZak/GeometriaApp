@@ -3,7 +3,7 @@
 import WinSDK
 
 extension System {
-    static func sleep(milliseconds: Int64) {
+    public static func sleep(milliseconds: Int64) {
         Sleep(DWORD(milliseconds))
     }
 }
@@ -17,7 +17,7 @@ import Glibc
 #endif
 
 extension System {
-    static func sleep(milliseconds: Int64) {
+    public static func sleep(milliseconds: Int64) {
         usleep(UInt32(milliseconds) * 1000)
     }
 }
@@ -25,7 +25,7 @@ extension System {
 #else
 
 extension System {
-    static func sleep(milliseconds: Int64) {
+    public static func sleep(milliseconds: Int64) {
         fatalError("Unsupported system call")
     }
 }

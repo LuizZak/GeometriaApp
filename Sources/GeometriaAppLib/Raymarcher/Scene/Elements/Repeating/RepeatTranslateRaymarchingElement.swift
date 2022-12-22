@@ -2,11 +2,11 @@
 import Geometria
 #endif
 
-typealias RepeatTranslateRaymarchingElement<T: RaymarchingElement> = RepeatTranslateElement<T>
+public typealias RepeatTranslateRaymarchingElement<T: RaymarchingElement> = RepeatTranslateElement<T>
 
 extension RepeatTranslateRaymarchingElement: RaymarchingElement {
     @inlinable
-    func signedDistance(to point: RVector3D, current: RaymarchingResult) -> RaymarchingResult {
+    public func signedDistance(to point: RVector3D, current: RaymarchingResult) -> RaymarchingResult {
         var current = current
 
         var index = 0
@@ -28,7 +28,7 @@ extension RepeatTranslateRaymarchingElement: RaymarchingElement {
         return current
     }
 
-    func accept<Visitor: RaymarchingElementVisitor>(_ visitor: Visitor) -> Visitor.ResultType {
+    public func accept<Visitor: RaymarchingElementVisitor>(_ visitor: Visitor) -> Visitor.ResultType {
         visitor.visit(self)
     }
 }

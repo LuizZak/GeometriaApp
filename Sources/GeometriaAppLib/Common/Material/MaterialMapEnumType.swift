@@ -1,8 +1,8 @@
-protocol MaterialMapEnumType: RawRepresentable where RawValue == MaterialId {
+public protocol MaterialMapEnumType: RawRepresentable where RawValue == MaterialId {
     func makeMaterial() -> Material
 }
 
-func makeMaterialMap<T: CaseIterable & MaterialMapEnumType>(_ type: T.Type) -> MaterialMap {
+public func makeMaterialMap<T: CaseIterable & MaterialMapEnumType>(_ type: T.Type) -> MaterialMap {
     let allCases = type.allCases
     guard let maximum = allCases.map({ $0.rawValue }).max() else {
         return MaterialMap()

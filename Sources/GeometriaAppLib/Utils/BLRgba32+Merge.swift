@@ -1,17 +1,17 @@
 import SwiftBlend2D
 
 @_transparent
-func mix(_ color1: BLRgba32, _ color2: BLRgba32, factor: Double) -> BLRgba32 {
+public func mix(_ color1: BLRgba32, _ color2: BLRgba32, factor: Double) -> BLRgba32 {
     return mergeColors(color1, color2, factor: Float(factor))
 }
 
 @_transparent
-func mergeColors(_ color1: BLRgba32, _ color2: BLRgba32, factor: Double) -> BLRgba32 {
+public func mergeColors(_ color1: BLRgba32, _ color2: BLRgba32, factor: Double) -> BLRgba32 {
     return mergeColors(color1, color2, factor: Float(factor))
 }
 
 @_transparent
-func mergeColors(_ color1: BLRgba32, _ color2: BLRgba32, factor: Float) -> BLRgba32 {
+public func mergeColors(_ color1: BLRgba32, _ color2: BLRgba32, factor: Float) -> BLRgba32 {
     if factor <= 0 {
         return color1
     }

@@ -1,3 +1,3 @@
-protocol BoundedElement: Element {
+public protocol BoundedElement: Element {
     func makeBounds() -> ElementBounds
 }

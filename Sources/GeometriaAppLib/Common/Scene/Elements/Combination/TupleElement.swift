@@ -19,87 +19,150 @@ extension<T0: Element, T1: Element, T2: Element> TupleElement<(T0, T1, T2: Eleme
 but do it with multiple tuples for now for performance reasons.
 */
 
-struct TupleElement2<T0: Element, T1: Element>: TupleElementType {
-    var id: Element.Id = 0
-    var t0: T0
-    var t1: T1
+public struct TupleElement2<T0: Element, T1: Element>: TupleElementType {
+    public var id: Element.Id = 0
+    public var t0: T0
+    public var t1: T1
 
-    var elements: [Element] { [t0, t1] }
+    public var elements: [Element] { [t0, t1] }
+
+    public init(id: Element.Id = 0, t0: T0, t1: T1) {
+        self.id = id
+        self.t0 = t0
+        self.t1 = t1
+    }
 }
 
-struct TupleElement3<T0: Element, T1: Element, T2: Element>: TupleElementType {
-    var id: Element.Id = 0
-    var t0: T0
-    var t1: T1
-    var t2: T2
+public struct TupleElement3<T0: Element, T1: Element, T2: Element>: TupleElementType {
+    public var id: Element.Id = 0
+    public var t0: T0
+    public var t1: T1
+    public var t2: T2
 
-    var elements: [Element] { [t0, t1, t2] }
+    public var elements: [Element] { [t0, t1, t2] }
+
+    public init(id: Element.Id = 0, t0: T0, t1: T1, t2: T2) {
+        self.id = id
+        self.t0 = t0
+        self.t1 = t1
+        self.t2 = t2
+    }
 }
 
-struct TupleElement4<T0: Element, T1: Element, T2: Element, T3: Element>: TupleElementType {
-    var id: Element.Id = 0
-    var t0: T0
-    var t1: T1
-    var t2: T2
-    var t3: T3
+public struct TupleElement4<T0: Element, T1: Element, T2: Element, T3: Element>: TupleElementType {
+    public var id: Element.Id = 0
+    public var t0: T0
+    public var t1: T1
+    public var t2: T2
+    public var t3: T3
 
-    var elements: [Element] { [t0, t1, t2, t3] }
+    public var elements: [Element] { [t0, t1, t2, t3] }
+
+    public init(id: Element.Id = 0, t0: T0, t1: T1, t2: T2, t3: T3) {
+        self.id = id
+        self.t0 = t0
+        self.t1 = t1
+        self.t2 = t2
+        self.t3 = t3
+    }
 }
 
-struct TupleElement5<T0: Element, T1: Element, T2: Element, T3: Element, T4: Element>: TupleElementType {
-    var id: Element.Id = 0
-    var t0: T0
-    var t1: T1
-    var t2: T2
-    var t3: T3
-    var t4: T4
+public struct TupleElement5<T0: Element, T1: Element, T2: Element, T3: Element, T4: Element>: TupleElementType {
+    public var id: Element.Id = 0
+    public var t0: T0
+    public var t1: T1
+    public var t2: T2
+    public var t3: T3
+    public var t4: T4
 
-    var elements: [Element] { [t0, t1, t2, t3, t4] }
+    public var elements: [Element] { [t0, t1, t2, t3, t4] }
+
+    public init(id: Element.Id = 0, t0: T0, t1: T1, t2: T2, t3: T3, t4: T4) {
+        self.id = id
+        self.t0 = t0
+        self.t1 = t1
+        self.t2 = t2
+        self.t3 = t3
+        self.t4 = t4
+    }
 }
 
-struct TupleElement6<T0: Element, T1: Element, T2: Element, T3: Element, T4: Element, T5: Element>: TupleElementType {
-    var id: Element.Id = 0
-    var t0: T0
-    var t1: T1
-    var t2: T2
-    var t3: T3
-    var t4: T4
-    var t5: T5
+public struct TupleElement6<T0: Element, T1: Element, T2: Element, T3: Element, T4: Element, T5: Element>: TupleElementType {
+    public var id: Element.Id = 0
+    public var t0: T0
+    public var t1: T1
+    public var t2: T2
+    public var t3: T3
+    public var t4: T4
+    public var t5: T5
 
-    var elements: [Element] { [t0, t1, t2, t3, t4, t5] }
+    public var elements: [Element] { [t0, t1, t2, t3, t4, t5] }
+
+    public init(id: Element.Id = 0, t0: T0, t1: T1, t2: T2, t3: T3, t4: T4, t5: T5) {
+        self.id = id
+        self.t0 = t0
+        self.t1 = t1
+        self.t2 = t2
+        self.t3 = t3
+        self.t4 = t4
+        self.t5 = t5
+    }
 }
 
-struct TupleElement7<T0: Element, T1: Element, T2: Element, T3: Element, T4: Element, T5: Element, T6: Element>: TupleElementType {
-    var id: Element.Id = 0
-    var t0: T0
-    var t1: T1
-    var t2: T2
-    var t3: T3
-    var t4: T4
-    var t5: T5
-    var t6: T6
+public struct TupleElement7<T0: Element, T1: Element, T2: Element, T3: Element, T4: Element, T5: Element, T6: Element>: TupleElementType {
+    public var id: Element.Id = 0
+    public var t0: T0
+    public var t1: T1
+    public var t2: T2
+    public var t3: T3
+    public var t4: T4
+    public var t5: T5
+    public var t6: T6
 
-    var elements: [Element] { [t0, t1, t2, t3, t4, t5, t6] }
+    public var elements: [Element] { [t0, t1, t2, t3, t4, t5, t6] }
+
+    public init(id: Element.Id = 0, t0: T0, t1: T1, t2: T2, t3: T3, t4: T4, t5: T5, t6: T6) {
+        self.id = id
+        self.t0 = t0
+        self.t1 = t1
+        self.t2 = t2
+        self.t3 = t3
+        self.t4 = t4
+        self.t5 = t5
+        self.t6 = t6
+    }
 }
 
-struct TupleElement8<T0: Element, T1: Element, T2: Element, T3: Element, T4: Element, T5: Element, T6: Element, T7: Element>: TupleElementType {
-    var id: Element.Id = 0
-    var t0: T0
-    var t1: T1
-    var t2: T2
-    var t3: T3
-    var t4: T4
-    var t5: T5
-    var t6: T6
-    var t7: T7
+public struct TupleElement8<T0: Element, T1: Element, T2: Element, T3: Element, T4: Element, T5: Element, T6: Element, T7: Element>: TupleElementType {
+    public var id: Element.Id = 0
+    public var t0: T0
+    public var t1: T1
+    public var t2: T2
+    public var t3: T3
+    public var t4: T4
+    public var t5: T5
+    public var t6: T6
+    public var t7: T7
 
-    var elements: [Element] { [t0, t1, t2, t3, t4, t5, t6, t7] }
+    public var elements: [Element] { [t0, t1, t2, t3, t4, t5, t6, t7] }
+
+    public init(id: Element.Id = 0, t0: T0, t1: T1, t2: T2, t3: T3, t4: T4, t5: T5, t6: T6, t7: T7) {
+        self.id = id
+        self.t0 = t0
+        self.t1 = t1
+        self.t2 = t2
+        self.t3 = t3
+        self.t4 = t4
+        self.t5 = t5
+        self.t6 = t6
+        self.t7 = t7
+    }
 }
 
 
 extension TupleElement2: Element {
     @inlinable
-    mutating func attributeIds(_ idFactory: inout ElementIdFactory) {
+    public mutating func attributeIds(_ idFactory: inout ElementIdFactory) {
         id = idFactory.makeId()
 
         t0.attributeIds(&idFactory)
@@ -107,7 +170,7 @@ extension TupleElement2: Element {
     }
 
     @inlinable
-    func queryScene(id: Element.Id) -> Element? {
+    public func queryScene(id: Element.Id) -> Element? {
         if id == self.id { return self }
         if let el = t0.queryScene(id: id) { return el }
         if let el = t1.queryScene(id: id) { return el }
@@ -115,14 +178,14 @@ extension TupleElement2: Element {
         return nil
     }
 
-    func accept<Visitor: ElementVisitor>(_ visitor: Visitor) -> Visitor.ResultType {
+    public func accept<Visitor: ElementVisitor>(_ visitor: Visitor) -> Visitor.ResultType {
         visitor.visit(self)
     }
 }
 
 extension TupleElement3: Element {
     @inlinable
-    mutating func attributeIds(_ idFactory: inout ElementIdFactory) {
+    public mutating func attributeIds(_ idFactory: inout ElementIdFactory) {
         id = idFactory.makeId()
 
         t0.attributeIds(&idFactory)
@@ -131,7 +194,7 @@ extension TupleElement3: Element {
     }
 
     @inlinable
-    func queryScene(id: Element.Id) -> Element? {
+    public func queryScene(id: Element.Id) -> Element? {
         if id == self.id { return self }
         if let el = t0.queryScene(id: id) { return el }
         if let el = t1.queryScene(id: id) { return el }
@@ -140,14 +203,14 @@ extension TupleElement3: Element {
         return nil
     }
 
-    func accept<Visitor: ElementVisitor>(_ visitor: Visitor) -> Visitor.ResultType {
+    public func accept<Visitor: ElementVisitor>(_ visitor: Visitor) -> Visitor.ResultType {
         visitor.visit(self)
     }
 }
 
 extension TupleElement4: Element {
     @inlinable
-    mutating func attributeIds(_ idFactory: inout ElementIdFactory) {
+    public mutating func attributeIds(_ idFactory: inout ElementIdFactory) {
         id = idFactory.makeId()
 
         t0.attributeIds(&idFactory)
@@ -157,7 +220,7 @@ extension TupleElement4: Element {
     }
 
     @inlinable
-    func queryScene(id: Element.Id) -> Element? {
+    public func queryScene(id: Element.Id) -> Element? {
         if id == self.id { return self }
         if let el = t0.queryScene(id: id) { return el }
         if let el = t1.queryScene(id: id) { return el }
@@ -167,14 +230,14 @@ extension TupleElement4: Element {
         return nil
     }
 
-    func accept<Visitor: ElementVisitor>(_ visitor: Visitor) -> Visitor.ResultType {
+    public func accept<Visitor: ElementVisitor>(_ visitor: Visitor) -> Visitor.ResultType {
         visitor.visit(self)
     }
 }
 
 extension TupleElement5: Element {
     @inlinable
-    mutating func attributeIds(_ idFactory: inout ElementIdFactory) {
+    public mutating func attributeIds(_ idFactory: inout ElementIdFactory) {
         id = idFactory.makeId()
 
         t0.attributeIds(&idFactory)
@@ -185,7 +248,7 @@ extension TupleElement5: Element {
     }
 
     @inlinable
-    func queryScene(id: Element.Id) -> Element? {
+    public func queryScene(id: Element.Id) -> Element? {
         if id == self.id { return self }
         if let el = t0.queryScene(id: id) { return el }
         if let el = t1.queryScene(id: id) { return el }
@@ -196,14 +259,14 @@ extension TupleElement5: Element {
         return nil
     }
 
-    func accept<Visitor: ElementVisitor>(_ visitor: Visitor) -> Visitor.ResultType {
+    public func accept<Visitor: ElementVisitor>(_ visitor: Visitor) -> Visitor.ResultType {
         visitor.visit(self)
     }
 }
 
 extension TupleElement6: Element {
     @inlinable
-    mutating func attributeIds(_ idFactory: inout ElementIdFactory) {
+    public mutating func attributeIds(_ idFactory: inout ElementIdFactory) {
         id = idFactory.makeId()
 
         t0.attributeIds(&idFactory)
@@ -215,7 +278,7 @@ extension TupleElement6: Element {
     }
 
     @inlinable
-    func queryScene(id: Element.Id) -> Element? {
+    public func queryScene(id: Element.Id) -> Element? {
         if id == self.id { return self }
         if let el = t0.queryScene(id: id) { return el }
         if let el = t1.queryScene(id: id) { return el }
@@ -227,14 +290,14 @@ extension TupleElement6: Element {
         return nil
     }
 
-    func accept<Visitor: ElementVisitor>(_ visitor: Visitor) -> Visitor.ResultType {
+    public func accept<Visitor: ElementVisitor>(_ visitor: Visitor) -> Visitor.ResultType {
         visitor.visit(self)
     }
 }
 
 extension TupleElement7: Element {
     @inlinable
-    mutating func attributeIds(_ idFactory: inout ElementIdFactory) {
+    public mutating func attributeIds(_ idFactory: inout ElementIdFactory) {
         id = idFactory.makeId()
 
         t0.attributeIds(&idFactory)
@@ -247,7 +310,7 @@ extension TupleElement7: Element {
     }
 
     @inlinable
-    func queryScene(id: Element.Id) -> Element? {
+    public func queryScene(id: Element.Id) -> Element? {
         if id == self.id { return self }
         if let el = t0.queryScene(id: id) { return el }
         if let el = t1.queryScene(id: id) { return el }
@@ -260,14 +323,14 @@ extension TupleElement7: Element {
         return nil
     }
 
-    func accept<Visitor: ElementVisitor>(_ visitor: Visitor) -> Visitor.ResultType {
+    public func accept<Visitor: ElementVisitor>(_ visitor: Visitor) -> Visitor.ResultType {
         visitor.visit(self)
     }
 }
 
 extension TupleElement8: Element {
     @inlinable
-    mutating func attributeIds(_ idFactory: inout ElementIdFactory) {
+    public mutating func attributeIds(_ idFactory: inout ElementIdFactory) {
         id = idFactory.makeId()
 
         t0.attributeIds(&idFactory)
@@ -281,7 +344,7 @@ extension TupleElement8: Element {
     }
 
     @inlinable
-    func queryScene(id: Element.Id) -> Element? {
+    public func queryScene(id: Element.Id) -> Element? {
         if id == self.id { return self }
         if let el = t0.queryScene(id: id) { return el }
         if let el = t1.queryScene(id: id) { return el }
@@ -295,7 +358,7 @@ extension TupleElement8: Element {
         return nil
     }
 
-    func accept<Visitor: ElementVisitor>(_ visitor: Visitor) -> Visitor.ResultType {
+    public func accept<Visitor: ElementVisitor>(_ visitor: Visitor) -> Visitor.ResultType {
         visitor.visit(self)
     }
 }

@@ -3,20 +3,21 @@ import SwiftBlend2D
 import Geometria
 #endif
 
-struct RaytracingScene<T: RaytracingElement>: RaytracingSceneType {
-    var root: T
+public struct RaytracingScene<T: RaytracingElement>: RaytracingSceneType {
+    public var root: T
     
     // Sky color for pixels that don't intersect with geometry
-    var skyColor: BLRgba32 = .cornflowerBlue
+    public var skyColor: BLRgba32 = .cornflowerBlue
     
     /// Direction an infinitely far away point light is pointed at the scene
-    @UnitVector var sunDirection: RVector3D = RVector3D(x: -20, y: 40, z: -30)
+    @UnitVector
+    public var sunDirection: RVector3D = RVector3D(x: -20, y: 40, z: -30)
 
     /// Mapping of materials and their IDs.
-    var materialIdMap: MaterialMap
+    public var materialIdMap: MaterialMap
     
     @inlinable
-    func intersect(ray: RRay3D, ignoring: RayIgnore = .none) -> RayHit? {
+    public func intersect(ray: RRay3D, ignoring: RayIgnore = .none) -> RayHit? {
         root.raycast(query: 
             .init(
                 ray: ray, 
@@ -27,7 +28,7 @@ struct RaytracingScene<T: RaytracingElement>: RaytracingSceneType {
     
     /// Returns a list of all geometry that intersects a given ray.
     @inlinable
-    func intersectAll(ray: RRay3D, ignoring: RayIgnore = .none) -> [RayHit] {
+    public func intersectAll(ray: RRay3D, ignoring: RayIgnore = .none) -> [RayHit] {
         var hits: [RayHit] = []
 
         root.raycast(query: .init(ray: ray, ignoring: ignoring), results: &hits)
@@ -36,7 +37,7 @@ struct RaytracingScene<T: RaytracingElement>: RaytracingSceneType {
     }
     
     @inlinable
-    mutating func attributeIds(_ idFactory: inout ElementIdFactory) {
+    public mutating func attributeIds(_ idFactory: inout ElementIdFactory) {
         root.attributeIds(&idFactory)
     }
 
@@ -44,31 +45,31 @@ struct RaytracingScene<T: RaytracingElement>: RaytracingSceneType {
     /// on the scene.
     /// Returns `nil` if no element with the given ID was found on this scene.
     @inlinable
-    func queryScene(id: Int) -> Element? {
+    public func queryScene(id: Int) -> Element? {
         root.queryScene(id: id)
     }
 
     /// Returns the material associated with a given element ID.
     @inlinable
-    func material(id: Int) -> Material? {
+    public func material(id: Int) -> Material? {
         materialIdMap[id]
     }
 
     /// Gets the full material map for this scene type
     @inlinable
-    func materialMap() -> MaterialMap {
+    public func materialMap() -> MaterialMap {
         materialIdMap
     }
 
     /// Walks a visitor through this scene's elements.
-    func walk<Visitor: ElementVisitor>(_ visitor: Visitor) -> Visitor.ResultType {
+    public func walk<Visitor: ElementVisitor>(_ visitor: Visitor) -> Visitor.ResultType {
         root.accept(visitor)
     }
 }
 
 extension RaytracingElementBuilder {
     @inlinable
-    static func makeScene<T>(skyColor: BLRgba32, materials: MaterialMap, @RaytracingElementBuilder _ builder: () -> T) -> RaytracingScene<T> where T: RaytracingElement {
+    public static func makeScene<T>(skyColor: BLRgba32, materials: MaterialMap, @RaytracingElementBuilder _ builder: () -> T) -> RaytracingScene<T> where T: RaytracingElement {
         var scene = RaytracingScene<T>(
             root: builder(),
             skyColor: .cornflowerBlue,

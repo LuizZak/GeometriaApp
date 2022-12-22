@@ -1,13 +1,20 @@
 // Reference for distance function modifiers:
 // https://www.iquilezles.org/www/articles/distfunctions/distfunctions.htm
-struct SmoothSubtractionElement<T0: RaymarchingElement, T1: RaymarchingElement>: RaymarchingElement {
-    var id: Int = 0
-    var t0: T0
-    var t1: T1
-    var smoothSize: Double
+public struct SmoothSubtractionElement<T0: RaymarchingElement, T1: RaymarchingElement>: RaymarchingElement {
+    public var id: Int = 0
+    public var t0: T0
+    public var t1: T1
+    public var smoothSize: Double
+
+    public init(id: Int = 0, t0: T0, t1: T1, smoothSize: Double) {
+        self.id = id
+        self.t0 = t0
+        self.t1 = t1
+        self.smoothSize = smoothSize
+    }
 
     @inlinable
-    func signedDistance(to point: RVector3D, current: RaymarchingResult) -> RaymarchingResult {
+    public func signedDistance(to point: RVector3D, current: RaymarchingResult) -> RaymarchingResult {
         let v0 = t0.signedDistance(to: point, current: current)
         let v1 = t1.signedDistance(to: point, current: current)
         
@@ -19,31 +26,31 @@ struct SmoothSubtractionElement<T0: RaymarchingElement, T1: RaymarchingElement>:
 }
 
 extension SmoothSubtractionElement: Element {
-    mutating func attributeIds(_ idFactory: inout ElementIdFactory) {
+    public mutating func attributeIds(_ idFactory: inout ElementIdFactory) {
         id = idFactory.makeId()
 
         t0.attributeIds(&idFactory)
         t1.attributeIds(&idFactory)
     }
 
-    func queryScene(id: Int) -> Element? {
+    public func queryScene(id: Int) -> Element? {
         if let el = t0.queryScene(id: id) { return el }
         if let el = t1.queryScene(id: id) { return el }
 
         return nil
     }
 
-    func accept<Visitor: ElementVisitor>(_ visitor: Visitor) -> Visitor.ResultType {
+    public func accept<Visitor: ElementVisitor>(_ visitor: Visitor) -> Visitor.ResultType {
         visitor.visit(self)
     }
 
-    func accept<Visitor: RaymarchingElementVisitor>(_ visitor: Visitor) -> Visitor.ResultType {
+    public func accept<Visitor: RaymarchingElementVisitor>(_ visitor: Visitor) -> Visitor.ResultType {
         visitor.visit(self)
     }
 }
 
 @_transparent
-func subtraction<T0, T1>(smoothSize: Double, @RaymarchingElementBuilder _ builder: () -> TupleRaymarchingElement2<T0, T1>) -> SmoothSubtractionElement<T0, T1> {
+public func subtraction<T0, T1>(smoothSize: Double, @RaymarchingElementBuilder _ builder: () -> TupleRaymarchingElement2<T0, T1>) -> SmoothSubtractionElement<T0, T1> {
     let value = builder()
     return .init(t0: value.t0, t1: value.t1, smoothSize: smoothSize)
 }

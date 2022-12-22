@@ -2,23 +2,23 @@ import Geometry
 
 /// Batcher that serves a single pixel to render.
 /// Used for debugging.
-class SinglePixelBatcher: RenderingBatcher {
-    let displayName: String = "Single pixel"
-    var viewportSize: ViewportSize = .zero
-    var batchesServedProgress: Double = 0
-    var hasBatches: Bool = true
-    var pixel: PixelCoord
+public class SinglePixelBatcher: RenderingBatcher {
+    public private(set) var viewportSize: ViewportSize = .zero
+    public private(set) var pixel: PixelCoord
+    public let displayName: String = "Single pixel"
+    public private(set) var hasBatches: Bool = true
+    public var batchesServedProgress: Double = 0
     
-    init(pixel: PixelCoord) {
+    public init(pixel: PixelCoord) {
         self.pixel = pixel
     }
     
-    func initialize(viewportSize: ViewportSize) {
+    public func initialize(viewportSize: ViewportSize) {
         self.hasBatches = true
         self.viewportSize = viewportSize
     }
     
-    func nextBatch() -> RenderingBatch? {
+    public func nextBatch() -> RenderingBatch? {
         guard hasBatches else {
             return nil
         }

@@ -1,13 +1,13 @@
-typealias EllipseRaytracingElement = EllipseElement
+public typealias EllipseRaytracingElement = EllipseElement
 
 extension EllipseRaytracingElement: RaytracingElement {
     @inlinable
-    func raycast(query: RayQuery) -> RayQuery {
+    public func raycast(query: RayQuery) -> RayQuery {
         query.intersecting(id: id, material: material, convex: geometry)
     }
 
     @inlinable
-    func raycast(query: RayQuery, results: inout [RayHit]) {
+    public func raycast(query: RayQuery, results: inout [RayHit]) {
         query.intersectAll(
             id: id,
             material: material,
@@ -16,7 +16,7 @@ extension EllipseRaytracingElement: RaytracingElement {
         )
     }
     
-    func fullyContainsRay(query: RayQuery) -> Bool {
+    public func fullyContainsRay(query: RayQuery) -> Bool {
         query.isFullyContained(by: geometry)
     }
 }

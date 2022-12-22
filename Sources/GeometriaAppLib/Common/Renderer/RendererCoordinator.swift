@@ -4,7 +4,7 @@ import Dispatch
 import ImagineUI
 
 /// Class that coordinates rendering dispatching across multi-threaded contexts.
-final class RendererCoordinator: RendererWorkerContext {
+public final class RendererCoordinator: RendererWorkerContext {
     private var _renderer: RendererType
     private var _threadCount: Int
     private var _totalPixels: Int64 = 0
@@ -28,35 +28,37 @@ final class RendererCoordinator: RendererWorkerContext {
     @ConcurrentValue private var currentPixels: Int64 = 0
     
     @ValueChangedEvent<State>
-    var stateDidChange
+    public var stateDidChange
     
-    var viewportSize: ViewportSize
-    var buffer: RendererBufferWriter
-    var hasWork: Bool = true
+    public var viewportSize: ViewportSize
+    public var buffer: RendererBufferWriter
+    public var hasWork: Bool = true
     
     /// The camera of the scene being rendered.
-    var camera: Camera {
+    public var camera: Camera {
         _renderer.camera
     }
 
     /// The current scene being rendered.
-    var scene: SceneType {
+    public var scene: SceneType {
         _renderer.currentScene()
     }
     
     /// Progress of rendering, from 0.0 to 1.0, inclusive.
     /// Based on number of remaining batchers, according to ``batcher``.
-    var progress: Double {
+    public var progress: Double {
         batcher.batchesServedProgress
     }
     
     var batcher: RenderingBatcher
     
-    init(renderer: RendererType,
-         viewportSize: ViewportSize,
-         buffer: RendererBufferWriter,
-         threadCount: Int,
-         batcher: RenderingBatcher) {
+    public init(
+        renderer: RendererType,
+        viewportSize: ViewportSize,
+        buffer: RendererBufferWriter,
+        threadCount: Int,
+        batcher: RenderingBatcher
+    ) {
         
         self._threadCount = threadCount
         self.viewportSize = viewportSize
@@ -64,11 +66,15 @@ final class RendererCoordinator: RendererWorkerContext {
         
         self._renderer = renderer
         
-        _renderingWorkerQueue = .init(label: "com.geometriaapp.rendering",
-                                      qos: .background,
-                                      attributes: .concurrent)
-        _batchRequestQueue = .init(label: "com.geometriaapp.rendering.batcher",
-                                   qos: .background)
+        _renderingWorkerQueue = .init(
+            label: "com.geometriaapp.rendering",
+            qos: .background,
+            attributes: .concurrent
+        )
+        _batchRequestQueue = .init(
+            label: "com.geometriaapp.rendering.batcher",
+            qos: .background
+        )
         
         self.batcher = batcher
     }
@@ -90,7 +96,7 @@ final class RendererCoordinator: RendererWorkerContext {
         _renderer.isMultiThreaded = !(batcher is SinglePixelBatcher)
     }
     
-    func start() {
+    public func start() {
         guard hasWork, state == .unstarted else {
             return
         }
@@ -101,7 +107,7 @@ final class RendererCoordinator: RendererWorkerContext {
         state = .running
     }
     
-    func pause() {
+    public func pause() {
         guard hasWork else {
             return
         }
@@ -113,7 +119,7 @@ final class RendererCoordinator: RendererWorkerContext {
         state = .paused
     }
     
-    func resume() {
+    public func resume() {
         guard hasWork else {
             return
         }
@@ -125,7 +131,7 @@ final class RendererCoordinator: RendererWorkerContext {
         state = .running
     }
     
-    func cancel() {
+    public func cancel() {
         guard hasWork, state == .running else {
             return
         }
@@ -188,31 +194,31 @@ final class RendererCoordinator: RendererWorkerContext {
     
     // MARK: RendererWorkerContext
     
-    func renderer() -> RendererType? {
+    public func renderer() -> RendererType? {
         return _renderer
     }
     
-    func setBufferPixel(at coord: PixelCoord, color: BLRgba32) {
+    public func setBufferPixel(at coord: PixelCoord, color: BLRgba32) {
         assert(coord >= .zero && coord < viewportSize,
                "\(coord) is not within \(PixelCoord.zero) x \(viewportSize) limits")
         
         buffer.setPixel(at: coord, color: color)
     }
     
-    func requestBatchSync() -> RenderingBatch? {
+    public func requestBatchSync() -> RenderingBatch? {
         _batchRequestQueue.sync(flags: .barrier) {
             batcher.nextBatch()
         }
     }
     
-    enum State: CustomStringConvertible {
+    public enum State: CustomStringConvertible {
         case unstarted
         case running
         case finished
         case paused
         case cancelled
         
-        var description: String {
+        public var description: String {
             switch self {
             case .unstarted:
                 return "Unstarted"

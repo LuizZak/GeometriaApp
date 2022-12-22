@@ -1,3 +1,3 @@
-protocol RaytracingBoundedElement: RaytracingElement, BoundedElement {
+public protocol RaytracingBoundedElement: RaytracingElement, BoundedElement {
 
 }

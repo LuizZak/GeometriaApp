@@ -4,9 +4,9 @@ import Geometria
 
 /// From a structured set of bounded geometry laid out in space, creates subdivided
 /// AABBs to quickly query geometry that is neighboring a point or line.
-class SpatialTree<T: BoundableType> where T.Vector: VectorDivisible & VectorComparable {
-    typealias Vector = T.Vector
-    typealias Bounds = AABB<Vector>
+public class SpatialTree<T: BoundableType> where T.Vector: VectorDivisible & VectorComparable {
+    public typealias Vector = T.Vector
+    public typealias Bounds = AABB<Vector>
 
     /// The list of geometry that is being bounded.
     private var geometryList: [T]
@@ -14,7 +14,7 @@ class SpatialTree<T: BoundableType> where T.Vector: VectorDivisible & VectorComp
     private var root: Subdivision
 
     /// Initializes an empty spatial tree object.
-    convenience init() {
+    public convenience init() {
         self.init([], maxSubdivisions: 0, maxElementsPerLevelBeforeSplit: 0)
     }
 
@@ -28,7 +28,7 @@ class SpatialTree<T: BoundableType> where T.Vector: VectorDivisible & VectorComp
     /// splitting the spatial tree.
     ///   - maxElementsPerLevelBeforeSplit: The maximum number of elements per
     /// spatial tree subdivision before an attempt to subdivide it further is done.
-    init(_ geometryList: [T], maxSubdivisions: Int, maxElementsPerLevelBeforeSplit: Int) {
+    public init(_ geometryList: [T], maxSubdivisions: Int, maxElementsPerLevelBeforeSplit: Int) {
         self.geometryList = geometryList
 
         // Calculate minimum bounds
@@ -54,7 +54,7 @@ class SpatialTree<T: BoundableType> where T.Vector: VectorDivisible & VectorComp
 
     /// Returns all of the geometry that are contained within this spatial tree
     /// whose bounds contain a given point.
-    func queryPoint(_ point: Vector) -> [T] {
+    public func queryPoint(_ point: Vector) -> [T] {
         var result: [T] = []
 
         root.queryPointRecursive(point) { index in
@@ -70,7 +70,7 @@ class SpatialTree<T: BoundableType> where T.Vector: VectorDivisible & VectorComp
 
     /// Returns all of the geometry that are contained within this spatial tree
     /// whose bounds intersect a given line.
-    func queryLine<Line: LineFloatingPoint>(
+    public func queryLine<Line: LineFloatingPoint>(
         _ line: Line
     ) -> [T] where Line.Vector == Vector {
 

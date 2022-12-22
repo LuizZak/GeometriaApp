@@ -1,27 +1,27 @@
-typealias TupleRaymarchingElement2<T0: RaymarchingElement, T1: RaymarchingElement> =
+public typealias TupleRaymarchingElement2<T0: RaymarchingElement, T1: RaymarchingElement> =
     TupleElement2<T0, T1>
 
-typealias TupleRaymarchingElement3<T0: RaymarchingElement, T1: RaymarchingElement, T2: RaymarchingElement> =
+public typealias TupleRaymarchingElement3<T0: RaymarchingElement, T1: RaymarchingElement, T2: RaymarchingElement> =
     TupleElement3<T0, T1, T2>
 
-typealias TupleRaymarchingElement4<T0: RaymarchingElement, T1: RaymarchingElement, T2: RaymarchingElement, T3: RaymarchingElement> =
+public typealias TupleRaymarchingElement4<T0: RaymarchingElement, T1: RaymarchingElement, T2: RaymarchingElement, T3: RaymarchingElement> =
     TupleElement4<T0, T1, T2, T3>
 
-typealias TupleRaymarchingElement5<T0: RaymarchingElement, T1: RaymarchingElement, T2: RaymarchingElement, T3: RaymarchingElement, T4: RaymarchingElement> =
+public typealias TupleRaymarchingElement5<T0: RaymarchingElement, T1: RaymarchingElement, T2: RaymarchingElement, T3: RaymarchingElement, T4: RaymarchingElement> =
     TupleElement5<T0, T1, T2, T3, T4>
 
-typealias TupleRaymarchingElement6<T0: RaymarchingElement, T1: RaymarchingElement, T2: RaymarchingElement, T3: RaymarchingElement, T4: RaymarchingElement, T5: RaymarchingElement> =
+public typealias TupleRaymarchingElement6<T0: RaymarchingElement, T1: RaymarchingElement, T2: RaymarchingElement, T3: RaymarchingElement, T4: RaymarchingElement, T5: RaymarchingElement> =
     TupleElement6<T0, T1, T2, T3, T4, T5>
 
-typealias TupleRaymarchingElement7<T0: RaymarchingElement, T1: RaymarchingElement, T2: RaymarchingElement, T3: RaymarchingElement, T4: RaymarchingElement, T5: RaymarchingElement, T6: RaymarchingElement> =
+public typealias TupleRaymarchingElement7<T0: RaymarchingElement, T1: RaymarchingElement, T2: RaymarchingElement, T3: RaymarchingElement, T4: RaymarchingElement, T5: RaymarchingElement, T6: RaymarchingElement> =
     TupleElement7<T0, T1, T2, T3, T4, T5, T6>
 
-typealias TupleRaymarchingElement8<T0: RaymarchingElement, T1: RaymarchingElement, T2: RaymarchingElement, T3: RaymarchingElement, T4: RaymarchingElement, T5: RaymarchingElement, T6: RaymarchingElement, T7: RaymarchingElement> =
+public typealias TupleRaymarchingElement8<T0: RaymarchingElement, T1: RaymarchingElement, T2: RaymarchingElement, T3: RaymarchingElement, T4: RaymarchingElement, T5: RaymarchingElement, T6: RaymarchingElement, T7: RaymarchingElement> =
     TupleElement8<T0, T1, T2, T3, T4, T5, T6, T7>
 
 extension TupleRaymarchingElement2: RaymarchingElement {
     @inlinable
-    func signedDistance(to point: RVector3D, current: RaymarchingResult) -> RaymarchingResult {
+    public func signedDistance(to point: RVector3D, current: RaymarchingResult) -> RaymarchingResult {
         var current = current
 
         current = t0.signedDistance(to: point, current: current)
@@ -30,14 +30,14 @@ extension TupleRaymarchingElement2: RaymarchingElement {
         return current
     }
 
-    func accept<Visitor: RaymarchingElementVisitor>(_ visitor: Visitor) -> Visitor.ResultType {
+    public func accept<Visitor: RaymarchingElementVisitor>(_ visitor: Visitor) -> Visitor.ResultType {
         visitor.visit(self)
     }
 }
 
 extension TupleRaymarchingElement3: RaymarchingElement {
     @inlinable
-    func signedDistance(to point: RVector3D, current: RaymarchingResult) -> RaymarchingResult {
+    public func signedDistance(to point: RVector3D, current: RaymarchingResult) -> RaymarchingResult {
         var current = current
 
         current = t0.signedDistance(to: point, current: current)
@@ -47,14 +47,14 @@ extension TupleRaymarchingElement3: RaymarchingElement {
         return current
     }
 
-    func accept<Visitor: RaymarchingElementVisitor>(_ visitor: Visitor) -> Visitor.ResultType {
+    public func accept<Visitor: RaymarchingElementVisitor>(_ visitor: Visitor) -> Visitor.ResultType {
         visitor.visit(self)
     }
 }
 
 extension TupleRaymarchingElement4: RaymarchingElement {
     @inlinable
-    func signedDistance(to point: RVector3D, current: RaymarchingResult) -> RaymarchingResult {
+    public func signedDistance(to point: RVector3D, current: RaymarchingResult) -> RaymarchingResult {
         var current = current
 
         current = t0.signedDistance(to: point, current: current)
@@ -65,14 +65,14 @@ extension TupleRaymarchingElement4: RaymarchingElement {
         return current
     }
 
-    func accept<Visitor: RaymarchingElementVisitor>(_ visitor: Visitor) -> Visitor.ResultType {
+    public func accept<Visitor: RaymarchingElementVisitor>(_ visitor: Visitor) -> Visitor.ResultType {
         visitor.visit(self)
     }
 }
 
 extension TupleRaymarchingElement5: RaymarchingElement {
     @inlinable
-    func signedDistance(to point: RVector3D, current: RaymarchingResult) -> RaymarchingResult {
+    public func signedDistance(to point: RVector3D, current: RaymarchingResult) -> RaymarchingResult {
         var current = current
 
         current = t0.signedDistance(to: point, current: current)
@@ -84,14 +84,14 @@ extension TupleRaymarchingElement5: RaymarchingElement {
         return current
     }
 
-    func accept<Visitor: RaymarchingElementVisitor>(_ visitor: Visitor) -> Visitor.ResultType {
+    public func accept<Visitor: RaymarchingElementVisitor>(_ visitor: Visitor) -> Visitor.ResultType {
         visitor.visit(self)
     }
 }
 
 extension TupleRaymarchingElement6: RaymarchingElement {
     @inlinable
-    func signedDistance(to point: RVector3D, current: RaymarchingResult) -> RaymarchingResult {
+    public func signedDistance(to point: RVector3D, current: RaymarchingResult) -> RaymarchingResult {
         var current = current
 
         current = t0.signedDistance(to: point, current: current)
@@ -104,14 +104,14 @@ extension TupleRaymarchingElement6: RaymarchingElement {
         return current
     }
 
-    func accept<Visitor: RaymarchingElementVisitor>(_ visitor: Visitor) -> Visitor.ResultType {
+    public func accept<Visitor: RaymarchingElementVisitor>(_ visitor: Visitor) -> Visitor.ResultType {
         visitor.visit(self)
     }
 }
 
 extension TupleRaymarchingElement7: RaymarchingElement {
     @inlinable
-    func signedDistance(to point: RVector3D, current: RaymarchingResult) -> RaymarchingResult {
+    public func signedDistance(to point: RVector3D, current: RaymarchingResult) -> RaymarchingResult {
         var current = current
 
         current = t0.signedDistance(to: point, current: current)
@@ -125,14 +125,14 @@ extension TupleRaymarchingElement7: RaymarchingElement {
         return current
     }
 
-    func accept<Visitor: RaymarchingElementVisitor>(_ visitor: Visitor) -> Visitor.ResultType {
+    public func accept<Visitor: RaymarchingElementVisitor>(_ visitor: Visitor) -> Visitor.ResultType {
         visitor.visit(self)
     }
 }
 
 extension TupleRaymarchingElement8: RaymarchingElement {
     @inlinable
-    func signedDistance(to point: RVector3D, current: RaymarchingResult) -> RaymarchingResult {
+    public func signedDistance(to point: RVector3D, current: RaymarchingResult) -> RaymarchingResult {
         var current = current
 
         current = t0.signedDistance(to: point, current: current)
@@ -147,7 +147,7 @@ extension TupleRaymarchingElement8: RaymarchingElement {
         return current
     }
 
-    func accept<Visitor: RaymarchingElementVisitor>(_ visitor: Visitor) -> Visitor.ResultType {
+    public func accept<Visitor: RaymarchingElementVisitor>(_ visitor: Visitor) -> Visitor.ResultType {
         visitor.visit(self)
     }
 }

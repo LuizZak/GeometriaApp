@@ -2,19 +2,19 @@
 import Geometria
 #endif
 
-struct BoundingSphereElement<T: Element> {
-    var id: Element.Id = 0
-    var element: T
-    var boundingSphere: RSphere3D
+public struct BoundingSphereElement<T: Element> {
+    public var id: Element.Id = 0
+    public var element: T
+    public var boundingSphere: RSphere3D
     
-    init(element: T, boundingSphere: RSphere3D) {
+    public init(element: T, boundingSphere: RSphere3D) {
         self.element = element
         self.boundingSphere = boundingSphere
     }
 }
 
 extension BoundingSphereElement {
-    init<Geometry>(geometry: Geometry, material: Int) where Geometry: BoundableType, Geometry.Vector == RVector3D, T == GeometryElement<Geometry> {
+    public init<Geometry>(geometry: Geometry, material: Int) where Geometry: BoundableType, Geometry.Vector == RVector3D, T == GeometryElement<Geometry> {
         let bounds = geometry.bounds
         let sphere = RSphere3D(center: bounds.center, radius: bounds.size.maximalComponent / 2)
         
@@ -24,44 +24,44 @@ extension BoundingSphereElement {
     }
 
     @_transparent
-    func makeBoundingSphere() -> Self {
+    public func makeBoundingSphere() -> Self {
         self
     }
 }
 
 extension BoundingSphereElement: Element {
-    mutating func attributeIds(_ idFactory: inout ElementIdFactory) {
+    public mutating func attributeIds(_ idFactory: inout ElementIdFactory) {
         id = idFactory.makeId()
 
         element.attributeIds(&idFactory)
     }
 
-    func queryScene(id: Element.Id) -> Element? {
+    public func queryScene(id: Element.Id) -> Element? {
         if id == self.id { return self }
         
         return element.queryScene(id: id)
     }
 
-    func accept<Visitor: ElementVisitor>(_ visitor: Visitor) -> Visitor.ResultType {
+    public func accept<Visitor: ElementVisitor>(_ visitor: Visitor) -> Visitor.ResultType {
         visitor.visit(self)
     }
 }
 
 extension BoundingSphereElement: BoundedElement {
     @_transparent
-    func makeBounds() -> ElementBounds {
+    public func makeBounds() -> ElementBounds {
         ElementBounds.makeBounds(for: boundingSphere)
     }
 }
 
 extension BoundedElement {
     @_transparent
-    func makeBoundingSphere() -> BoundingSphereElement<Self> {
+    public func makeBoundingSphere() -> BoundingSphereElement<Self> {
         .init(element: self)
     }
 }
 
 @_transparent
-func boundingSphere<T: BoundedElement>(@ElementBuilder _ builder: () -> T) -> BoundingSphereElement<T> {
+public func boundingSphere<T: BoundedElement>(@ElementBuilder _ builder: () -> T) -> BoundingSphereElement<T> {
     builder().makeBoundingSphere()
 }

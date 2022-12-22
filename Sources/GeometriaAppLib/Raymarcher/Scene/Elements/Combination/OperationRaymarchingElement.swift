@@ -1,11 +1,24 @@
-struct OperationRaymarchingElement<T0: RaymarchingElement, T1: RaymarchingElement>: RaymarchingElement {
-    var id: Int = 0
-    var t0: T0
-    var t1: T1
-    var operation: (RaymarchingResult, RaymarchingResult) -> RaymarchingResult
+public struct OperationRaymarchingElement<T0: RaymarchingElement, T1: RaymarchingElement>: RaymarchingElement {
+    public var id: Int = 0
+    public var t0: T0
+    public var t1: T1
+    public var operation: (RaymarchingResult, RaymarchingResult) -> RaymarchingResult
+
+    public init(
+        id: Int = 0,
+        t0: T0,
+        t1: T1,
+        operation: @escaping (RaymarchingResult, RaymarchingResult) -> RaymarchingResult
+    ) {
+
+        self.id = id
+        self.t0 = t0
+        self.t1 = t1
+        self.operation = operation
+    }
 
     @inlinable
-    func signedDistance(to point: RVector3D, current: RaymarchingResult) -> RaymarchingResult {
+    public func signedDistance(to point: RVector3D, current: RaymarchingResult) -> RaymarchingResult {
         let t0Result = t0.signedDistance(to: point, current: current)
         let t1Result = t1.signedDistance(to: point, current: current)
 
@@ -14,25 +27,25 @@ struct OperationRaymarchingElement<T0: RaymarchingElement, T1: RaymarchingElemen
 }
 
 extension OperationRaymarchingElement: Element {
-    mutating func attributeIds(_ idFactory: inout ElementIdFactory) {
+    public mutating func attributeIds(_ idFactory: inout ElementIdFactory) {
         id = idFactory.makeId()
 
         t0.attributeIds(&idFactory)
         t1.attributeIds(&idFactory)
     }
 
-    func queryScene(id: Int) -> Element? {
+    public func queryScene(id: Int) -> Element? {
         if let el = t0.queryScene(id: id) { return el }
         if let el = t1.queryScene(id: id) { return el }
 
         return nil
     }
 
-    func accept<Visitor: ElementVisitor>(_ visitor: Visitor) -> Visitor.ResultType {
+    public func accept<Visitor: ElementVisitor>(_ visitor: Visitor) -> Visitor.ResultType {
         visitor.visit(self)
     }
 
-    func accept<Visitor: RaymarchingElementVisitor>(_ visitor: Visitor) -> Visitor.ResultType {
+    public func accept<Visitor: RaymarchingElementVisitor>(_ visitor: Visitor) -> Visitor.ResultType {
         visitor.visit(self)
     }
 }

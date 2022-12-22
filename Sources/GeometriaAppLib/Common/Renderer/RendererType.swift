@@ -1,6 +1,6 @@
 import SwiftBlend2D
 
-protocol RendererType: AnyObject {
+public protocol RendererType: AnyObject {
     /// Gets or sets the camera for this renderer.
     ///
     /// Should not be set on multi-threaded contexts with potential for data
@@ -26,7 +26,7 @@ protocol RendererType: AnyObject {
 }
 
 extension RendererType {
-    func endDebug() {
+    public func endDebug() {
         endDebug(target: nil)
     }
 }

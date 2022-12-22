@@ -1,6 +1,6 @@
 import SwiftBlend2D
 
-protocol RaytracingSceneType: SceneType {
+public protocol RaytracingSceneType: SceneType {
     // Sky color for pixels that don't intersect with geometry
     var skyColor: BLRgba32 { get }
     

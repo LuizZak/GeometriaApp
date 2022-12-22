@@ -1,11 +1,16 @@
-struct TypedArrayElement<T: Element> {
-    var id: Element.Id = 0
-    var elements: [T]
+public struct TypedArrayElement<T: Element> {
+    public var id: Element.Id = 0
+    public var elements: [T]
+
+    public init(id: Element.Id = 0, elements: [T]) {
+        self.id = id
+        self.elements = elements
+    }
 }
 
 extension TypedArrayElement: Element {
     @inlinable
-    mutating func attributeIds(_ idFactory: inout ElementIdFactory) {
+    public mutating func attributeIds(_ idFactory: inout ElementIdFactory) {
         id = idFactory.makeId()
 
         elements = elements.map {
@@ -16,7 +21,7 @@ extension TypedArrayElement: Element {
     }
 
     @inlinable
-    func queryScene(id: Element.Id) -> Element? {
+    public func queryScene(id: Element.Id) -> Element? {
         if id == self.id { return self }
         
         for element in elements {
@@ -28,7 +33,7 @@ extension TypedArrayElement: Element {
         return nil
     }
 
-    func accept<Visitor: ElementVisitor>(_ visitor: Visitor) -> Visitor.ResultType {
+    public func accept<Visitor: ElementVisitor>(_ visitor: Visitor) -> Visitor.ResultType {
         visitor.visit(self)
     }
 }
