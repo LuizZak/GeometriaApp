@@ -1,4 +1,4 @@
-// swift-tools-version:5.5
+// swift-tools-version:5.7
 import PackageDescription
 import class Foundation.ProcessInfo
 
@@ -14,8 +14,8 @@ let reportingSwiftSettings: [SwiftSetting] = [
 
 var packageDependencies: [Package.Dependency] =  [
     .package(url: "https://github.com/apple/swift-numerics.git", from: "1.0.0"),
-    .package(url: "https://github.com/LuizZak/ImagineUI.git", .branch("master")),    //.package(url: "https://github.com/LuizZak/ImagineUI.git", branch: "master"),
-    .package(name: "SwiftBlend2D", url: "https://github.com/LuizZak/swift-blend2d.git", .branch("master")), //.package(url: "https://github.com/LuizZak/swift-blend2d.git", branch: "master")
+    .package(url: "https://github.com/LuizZak/ImagineUI.git", branch: "master"),    //.package(url: "https://github.com/LuizZak/ImagineUI.git", branch: "master"),
+    .package(url: "https://github.com/LuizZak/swift-blend2d.git", branch: "master"), //.package(url: "https://github.com/LuizZak/swift-blend2d.git", branch: "master")
 ]
 
 var targets: [Target] = []
@@ -29,11 +29,11 @@ var geometriaAppTarget: Target = .executableTarget(
 var geometriaAppLibTarget: Target = .target(
     name: "GeometriaAppLib",
     dependencies: [
-        "Geometria",
         .product(name: "Numerics", package: "swift-numerics"),
-        "ImagineUI",
+        .product(name: "SwiftBlend2D", package: "swift-blend2d"),
+        .product(name: "ImagineUI", package: "ImagineUI"),
         .product(name: "Blend2DRenderer", package: "ImagineUI"),
-        "SwiftBlend2D",
+        "Geometria",
     ],
     exclude: [
         "Resources/FiraCode-License.txt"
@@ -105,14 +105,14 @@ geometriaAppTarget.linkerSettings = [
 #endif
 
 packageDependencies.append(
-    .package(url: "https://github.com/LuizZak/ImagineUI-Win.git", .branch("main"))
+    .package(url: "https://github.com/LuizZak/ImagineUI-Win.git", branch: "main")
 )
 
 targets.append(
     .target(
         name: "GeometriaWindows",
         dependencies: [
-            "SwiftBlend2D",
+            .product(name: "SwiftBlend2D", package: "swift-blend2d"),
             "ImagineUI-Win",
             .product(name: "Blend2DRenderer", package: "ImagineUI"),
             "GeometriaAppLib"
@@ -136,8 +136,8 @@ targets.append(
     .target(
         name: "GeometriaMacOS",
         dependencies: [
+            .product(name: "SwiftBlend2D", package: "swift-blend2d"),
             "ImagineUI",
-            "SwiftBlend2D",
             "GeometriaAppLib"
         ])
 )

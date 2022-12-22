@@ -13,7 +13,15 @@ from enum import Enum, unique
 from typing import Any, Callable, List, Optional, TypeVar
 from os import PathLike
 
-win32_debug_args = ["-Xswiftc", "-g", "-Xswiftc", "-debug-info-format=codeview", "-Xlinker", "-debug"]
+win32_debug_args = [
+    "-Xswiftc",
+    "-g",
+    "-Xswiftc",
+    "-debug-info-format=codeview",
+    "-Xlinker",
+    "-debug",
+    "-Xlinker", "/ignore:4217", # For ignoring a very verbose set of warnings in debug builds on Windows
+]
 win32_release_args = []
 
 def make_argparser() -> argparse.ArgumentParser:

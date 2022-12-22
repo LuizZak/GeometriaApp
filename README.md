@@ -10,6 +10,12 @@ From terminal, run:
 $ make run-rel
 ```
 
+or on Windows (w/ Python 3.10 or greater):
+
+```cmd
+> python utils\build.py run -c release -t GeometriaApp -m Sources\GeometriaWindows\GeometriaApp.exe.manifest -cross-module-optimization
+```
+
 or:
 
 ```bash
