@@ -3,6 +3,7 @@ import SwiftBlend2D
 import ImagineUI
 import Text
 import Blend2DRenderer
+import GeometriaAppLib
 
 open class RaytracerGraphApp: ImagineUIContentType {
     private var _isResizing: Bool = false

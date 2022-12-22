@@ -2,7 +2,7 @@ import Foundation
 import ImagineUI
 import SwiftBlend2D
 
-class RaytracerUI: ImagineUIContentType {
+public class RaytracerUI: ImagineUIContentType {
     private let ui: ImagineUIWindowContent
     private let dialogsContainer: View = View()
     private var components: [RaytracerUIComponent] = []
@@ -21,15 +21,15 @@ class RaytracerUI: ImagineUIContentType {
     }
 
     /// The view all components are added to.
-    let componentsContainer: View = View()
+    public let componentsContainer: View = View()
 
-    var size: UIIntSize
+    public var size: UIIntSize
 
-    var preferredRenderScale: UIVector {
+    public var preferredRenderScale: UIVector {
         ui.preferredRenderScale
     }
 
-    weak var delegate: ImagineUIContentDelegate? {
+    public weak var delegate: ImagineUIContentDelegate? {
         get {
             ui.delegate
         }
@@ -41,7 +41,7 @@ class RaytracerUI: ImagineUIContentType {
     /// Gets or sets the debug draw flags.
     ///
     /// Changing this value invalidates the screen.
-    var debugDrawFlags: Set<DebugDraw.DebugDrawFlags> {
+    public var debugDrawFlags: Set<DebugDraw.DebugDrawFlags> {
         get {
            ui.debugDrawFlags
         }
@@ -50,7 +50,7 @@ class RaytracerUI: ImagineUIContentType {
         }
     }
 
-    init(uiWrapper: ImagineUIWindowContent) {
+    public init(uiWrapper: ImagineUIWindowContent) {
         self.size = uiWrapper.size
         self.ui = uiWrapper
 
@@ -65,11 +65,11 @@ class RaytracerUI: ImagineUIContentType {
         }
     }
 
-    func addComponent(_ component: RaytracerUIComponent) {
+    public func addComponent(_ component: RaytracerUIComponent) {
         _addComponent(component, container: componentsContainer)
     }
 
-    func addComponentInReservedView(_ component: RaytracerUIComponent) -> View {
+    public func addComponentInReservedView(_ component: RaytracerUIComponent) -> View {
         let container = View()
         componentsContainer.addSubview(container)
 
@@ -85,25 +85,25 @@ class RaytracerUI: ImagineUIContentType {
         components.append(component)
     }
     
-    func rendererCoordinatorChanged(_ coordinator: RendererCoordinator?) {
+    public func rendererCoordinatorChanged(_ coordinator: RendererCoordinator?) {
         for component in components {
             component.rendererCoordinatorChanged(coordinator)
         }
     }
     
-    func rendererChanged<T: RendererType>(anyRenderer: T) {
+    public func rendererChanged<T: RendererType>(anyRenderer: T) {
         for component in components {
             component.rendererChanged(anyRenderer: anyRenderer)
         }
     }
 
-    func rendererChanged<T>(_ renderer: Raytracer<T>) {
+    public func rendererChanged<T>(_ renderer: Raytracer<T>) {
         for component in components {
             component.rendererChanged(renderer)
         }
     }
 
-    func rendererChanged<T>(_ renderer: Raymarcher<T>) {
+    public func rendererChanged<T>(_ renderer: Raymarcher<T>) {
         for component in components {
             component.rendererChanged(renderer)
         }
@@ -111,39 +111,39 @@ class RaytracerUI: ImagineUIContentType {
 
     // MARK: Event forwarding
 
-    func didCloseWindow() {
+    public func didCloseWindow() {
         ui.didCloseWindow()
     }
     
-    func willStartLiveResize() {
+    public func willStartLiveResize() {
         ui.willStartLiveResize()
     }
 
-    func didEndLiveResize() {
+    public func didEndLiveResize() {
         ui.didEndLiveResize()
     }
 
-    func resize(_ size: UIIntSize) {
+    public func resize(_ size: UIIntSize) {
         ui.resize(size)
     }
     
-    func performLayout() {
+    public func performLayout() {
         ui.performLayout()
     }
 
-    func update(_ time: TimeInterval) {
+    public func update(_ time: TimeInterval) {
         ui.update(time)
     }
 
-    func render(renderer: Renderer, renderScale: UIVector, clipRegion: ClipRegionType) {
+    public func render(renderer: Renderer, renderScale: UIVector, clipRegion: ClipRegionType) {
         ui.render(renderer: renderer, renderScale: renderScale, clipRegion: clipRegion)
     }
     
-    func mouseDown(event: MouseEventArgs) {
+    public func mouseDown(event: MouseEventArgs) {
         ui.mouseDown(event: event)
     }
 
-    func mouseMoved(event: MouseEventArgs) {
+    public func mouseMoved(event: MouseEventArgs) {
         ui.mouseMoved(event: event)
 
         for component in components {
@@ -151,23 +151,23 @@ class RaytracerUI: ImagineUIContentType {
         }
     }
 
-    func mouseUp(event: MouseEventArgs) {
+    public func mouseUp(event: MouseEventArgs) {
         ui.mouseUp(event: event)
     }
 
-    func mouseScroll(event: MouseEventArgs) {
+    public func mouseScroll(event: MouseEventArgs) {
         ui.mouseScroll(event: event)
     }
     
-    func keyDown(event: KeyEventArgs) {
+    public func keyDown(event: KeyEventArgs) {
         ui.keyDown(event: event)
     }
 
-    func keyUp(event: KeyEventArgs) {
+    public func keyUp(event: KeyEventArgs) {
         ui.keyUp(event: event)
     }
 
-    func keyPress(event: KeyPressEventArgs) {
+    public func keyPress(event: KeyPressEventArgs) {
         ui.keyPress(event: event)
     }
 
@@ -437,13 +437,13 @@ class RaytracerUI: ImagineUIContentType {
 }
 
 extension RaytracerUI: RaytracerUIComponentDelegate {
-    func openDialog(_ view: UIDialog, location: UIDialogInitialLocation) -> Bool {
+    public func openDialog(_ view: UIDialog, location: UIDialogInitialLocation) -> Bool {
         return _openDialog(view, location: location)
     }
 }
 
 extension RaytracerUI: UIDialogDelegate {
-    func dialogWantsToClose(_ dialog: UIDialog) {
+    public func dialogWantsToClose(_ dialog: UIDialog) {
         guard dialog === dialogState?.dialog else { return }
 
         _removeDialog()

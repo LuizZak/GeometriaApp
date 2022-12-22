@@ -1,3 +1,5 @@
+import GeometriaAppLib
+
 public class RaymarcherNode: SceneGraphNode, InitializableSceneGraphNode {
     public override var displayInformation: DisplayInformation {
         .init(

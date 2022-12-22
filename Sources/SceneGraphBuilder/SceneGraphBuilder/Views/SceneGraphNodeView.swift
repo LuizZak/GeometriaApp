@@ -1,5 +1,6 @@
 import ImagineUI
 import Blend2DRenderer
+import GeometriaAppLib
 
 class SceneGraphNodeView: RootView {
     private let _headerView: HeaderView = HeaderView()
@@ -27,9 +28,6 @@ class SceneGraphNodeView: RootView {
     private func initialize() {
         cacheAsBitmap = false
         
-        backColor = Color(red: 37, green: 37, blue: 38)
-
-        strokeColor = Color(red: 9, green: 71, blue: 113)
         strokeWidth = 2
         cornerRadius = 4
 
@@ -38,6 +36,29 @@ class SceneGraphNodeView: RootView {
 
         _inputsStackView.alignment = .leading
         _outputsStackView.alignment = .trailing
+
+        updateColors()
+    }
+
+    private func updateColors() {
+        backColor = Color(red: 37, green: 37, blue: 38)
+
+        switch controlState {
+        case .normal:
+            strokeColor = Color(red: 9, green: 71, blue: 113)
+
+        case .highlighted:
+            strokeColor = Color(red: 9, green: 71, blue: 113).faded(towards: .white, factor: 0.1)
+
+        default:
+            break
+        }
+    }
+
+    override func onStateChanged(_ change: ValueChangedEventArgs<ControlViewState>) {
+        super.onStateChanged(change)
+
+        updateColors()
     }
 
     override func setupHierarchy() {
@@ -422,7 +443,7 @@ private struct FormattedInterpolatedString: ExpressibleByStringInterpolation {
     static var monoFont: Font = {
         // TODO: Make this font loading renderer-agnostic
         let context = Blend2DRendererContext()
-        let fontPath = Resources.bundle.path(forResource: "FiraCode-Bold", ofType: "ttf")!
+        let fontPath = GeometriaAppLib.Resources.bundle.path(forResource: "FiraCode-Bold", ofType: "ttf")!
 
         let fontFace = try! context.fontManager.loadFontFace(fromPath: fontPath)
 

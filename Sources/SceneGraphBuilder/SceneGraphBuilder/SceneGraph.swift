@@ -1,3 +1,5 @@
+import GeometriaAppLib
+
 /// Class for scene graphs.
 class SceneGraph: DirectedGraph {
     typealias Node = SceneGraphDirectedNodeElement

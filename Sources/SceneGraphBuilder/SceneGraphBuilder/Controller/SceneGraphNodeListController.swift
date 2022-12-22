@@ -1,4 +1,5 @@
 import ImagineUI
+import GeometriaAppLib
 
 public typealias NodeInstantiationClosure = (NodeInstantiationContext) throws -> SceneGraphNode
 

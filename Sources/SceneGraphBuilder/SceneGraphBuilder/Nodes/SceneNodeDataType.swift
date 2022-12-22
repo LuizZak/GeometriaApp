@@ -1,4 +1,5 @@
 import ImagineUI
+import GeometriaAppLib
 
 public enum SceneNodeDataType: Hashable {
     /// Generic 'any' type

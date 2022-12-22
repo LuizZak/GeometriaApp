@@ -1,4 +1,5 @@
 import ImagineUI
+import GeometriaAppLib
 
 /// Controls UI interactions with a scene graph builder interface.
 class SceneGraphBuilderController {
@@ -42,8 +43,11 @@ class SceneGraphBuilderController {
                 case .output(let view, let output, let node, _):
                     beginOutputDrag(view, output: output, node: node)
                 
-                case .connection:
-                    break
+                case .connection(let element, _):
+                    uiDelegate?.sceneGraphBuilderController(
+                        self,
+                        bringEdgeToFront: element
+                    )
                 }
             } else {
                 withNodeContainer { container in

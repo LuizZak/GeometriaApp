@@ -1,3 +1,5 @@
+import GeometriaAppLib
+
 public class AABBGraphNode: GeometryGraphNode {
     public override var displayInformation: DisplayInformation {
         .init(

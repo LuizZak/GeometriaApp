@@ -55,6 +55,17 @@ if ProcessInfo.processInfo.environment["REPORT_BUILD_TIME"] == "YES" {
     geometriaAppLibTarget.swiftSettings?.append(contentsOf: reportingSwiftSettings)
 }
 
+var sceneGraphBuilderTarget: Target = .target(
+    name: "SceneGraphBuilder",
+    dependencies: [
+        "GeometriaAppLib",
+        "Geometria",
+    ],
+    swiftSettings: [
+        
+    ]
+)
+
 // MARK: - Embedded Geometria target
 
 // TODO: When Swift properly supports -Xswiftc -cross-module-optimization, re-enable external Geometria import by default.
@@ -115,7 +126,8 @@ targets.append(
             .product(name: "SwiftBlend2D", package: "swift-blend2d"),
             "ImagineUI-Win",
             .product(name: "Blend2DRenderer", package: "ImagineUI"),
-            "GeometriaAppLib"
+            "GeometriaAppLib",
+            "SceneGraphBuilder"
         ],
         exclude: [
             "GeometriaApp.exe.manifest"
@@ -138,7 +150,8 @@ targets.append(
         dependencies: [
             .product(name: "SwiftBlend2D", package: "swift-blend2d"),
             "ImagineUI",
-            "GeometriaAppLib"
+            "GeometriaAppLib",
+            "SceneGraphBuilder"
         ])
 )
 
@@ -146,6 +159,7 @@ targets.append(
 
 targets.append(geometriaAppTarget)
 targets.append(geometriaAppLibTarget)
+targets.append(sceneGraphBuilderTarget)
 
 let package = Package(
     name: "GeometriaApp",
@@ -155,7 +169,8 @@ let package = Package(
     products: [
         .executable(
             name: "GeometriaApp",
-            targets: ["GeometriaApp"]),
+            targets: ["GeometriaApp"]
+        ),
     ],
     dependencies: packageDependencies,
     targets: targets

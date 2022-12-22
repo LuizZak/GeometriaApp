@@ -1,4 +1,5 @@
 import ImagineUI
+import GeometriaAppLib
 
 class SceneGraphBuilderView: RootView {
     private var _sidePanel: SidePanel = SidePanel(pinSide: .left, length: 250)
@@ -93,7 +94,11 @@ class SceneGraphBuilderView: RootView {
             endAnchor = .output(endNode, index: output.index)
         }
 
-        return _createConnectionElement(startAnchor: startAnchor, endAnchor: endAnchor)
+        return _createConnectionElement(
+            startAnchor: startAnchor,
+            endAnchor: endAnchor,
+            graphEdge: edge
+        )
     }
 
     private func _moveNodeViewToFront(_ nodeView: SceneGraphNodeView) {
@@ -110,6 +115,19 @@ class SceneGraphBuilderView: RootView {
         _connectionViewsManager.updateZIndices(connectedTo: nodeView)
     }
 
+    private func _moveConnectionViewToFront(_ element: SceneGraphConnectionElement) {
+        if let startNode = _nodeViewForStartAnchor(element) {
+            startNode.bringToFrontOfSuperview()
+
+            _connectionViewsManager.updateZIndices(connectedTo: startNode)
+        }
+        if let endNode = _nodeViewForEndAnchor(element) {
+            endNode.bringToFrontOfSuperview()
+
+            _connectionViewsManager.updateZIndices(connectedTo: endNode)
+        }
+    }
+    
     private func _removeNodeView(_ nodeView: SceneGraphNodeView) {
         guard let index = _nodeViews.firstIndex(of: nodeView) else { return }
 
@@ -119,14 +137,15 @@ class SceneGraphBuilderView: RootView {
 
     private func _createConnectionElement(
         startAnchor: SceneGraphConnectionElement.AnchorElement? = nil,
-        endAnchor: SceneGraphConnectionElement.AnchorElement? = nil
+        endAnchor: SceneGraphConnectionElement.AnchorElement? = nil,
+        graphEdge: SceneGraphEdge? = nil
     ) -> SceneGraphConnectionElement {
 
         let element = SceneGraphConnectionElement(
             startAnchor: startAnchor,
             endAnchor: endAnchor
         )
-        let info = ConnectionViewInfo(element: element)
+        let info = ConnectionViewInfo(element: element, graphEdge: graphEdge)
 
         _connections.append(info)
 
@@ -213,6 +232,32 @@ class SceneGraphBuilderView: RootView {
 
     private func _viewForNode(_ node: SceneGraphNode) -> SceneGraphNodeView? {
         _nodeViews.first { $0.node === node }
+    }
+
+    private func _nodeViewForStartAnchor(_ element: SceneGraphConnectionElement) -> SceneGraphNodeView? {
+        switch element.startAnchor {
+        case nil:
+            return nil
+        case .input(let view, _), .output(let view, _):
+            return view
+        case .view(let view, _):
+            return view as? SceneGraphNodeView
+        case .globalLocation:
+            return nil
+        }
+    }
+
+    private func _nodeViewForEndAnchor(_ element: SceneGraphConnectionElement) -> SceneGraphNodeView? {
+        switch element.endAnchor {
+        case nil:
+            return nil
+        case .input(let view, _), .output(let view, _):
+            return view
+        case .view(let view, _):
+            return view as? SceneGraphNodeView
+        case .globalLocation:
+            return nil
+        }
     }
 
     private class ConnectionViewsManager {
@@ -313,12 +358,20 @@ class SceneGraphBuilderView: RootView {
         }
 
         override func renderForeground(in renderer: Renderer, screenRegion: ClipRegionType) {
-            if let state {
-                renderer.setStroke(.orange)
-                renderer.setStrokeWidth(_stokeWidth * strokeScale)
-
-                renderer.stroke(state.bezier)
+            guard let state else {
+                return
             }
+
+            let finalStrokeWidth = _stokeWidth * strokeScale
+
+            // Stroke shadow
+            renderer.setStrokeWidth(finalStrokeWidth + 2)
+            renderer.setStroke(.black.withTransparency(factor: 0.6))
+            renderer.stroke(state.bezier)
+
+            renderer.setStrokeWidth(finalStrokeWidth)
+            renderer.setStroke(.orange)
+            renderer.stroke(state.bezier)
         }
 
         override func boundsForRedraw() -> UIRectangle {
@@ -411,6 +464,10 @@ class SceneGraphBuilderView: RootView {
                 invalidate(bounds: area)
 
                 _boundsForRedraw = area
+                bounds = _boundsForRedraw
+            } else {
+                _boundsForRedraw = .zero
+                bounds = .zero
             }
         }
 
@@ -623,6 +680,14 @@ extension SceneGraphBuilderView: SceneGraphBuilderControllerUIDelegate {
     ) {
 
         _moveNodeViewToFront(nodeView)
+    }
+
+    func sceneGraphBuilderController(
+        _ controller: SceneGraphBuilderController,
+        bringEdgeToFront element: SceneGraphConnectionElement
+    ) {
+
+        _moveConnectionViewToFront(element)
     }
 
     /// Requests that a new connection element be created and added to the

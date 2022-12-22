@@ -1,6 +1,7 @@
 import Foundation
 import ImagineUI
 import Blend2DRenderer
+import GeometriaAppLib
 
 class SceneGraphBuilderComponent: RaytracerUIComponent {
     private let _builderView: SceneGraphBuilderView = SceneGraphBuilderView()

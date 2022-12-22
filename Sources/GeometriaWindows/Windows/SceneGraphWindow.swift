@@ -4,6 +4,7 @@ import ImagineUI
 import ImagineUI_Win
 import Blend2DRenderer
 import GeometriaAppLib
+import SceneGraphBuilder
 
 class SceneGraphWindow: RaytracerGraphApp {
     override func didCloseWindow() {

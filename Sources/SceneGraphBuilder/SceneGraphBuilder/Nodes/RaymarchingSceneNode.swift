@@ -1,4 +1,5 @@
 import SwiftBlend2D
+import GeometriaAppLib
 
 public class RaymarchingSceneNode: GeometryGraphNode, InitializableSceneGraphNode {
     public override var displayInformation: DisplayInformation {

@@ -1,3 +1,5 @@
+import GeometriaAppLib
+
 public class CameraNode: SceneGraphNode, InitializableSceneGraphNode {
     @SceneGraphNodeInputsBuilder
     public override var inputs: [SceneGraphNodeInput] {

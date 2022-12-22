@@ -1,4 +1,5 @@
 import ImagineUI
+import GeometriaAppLib
 
 /// Encapsulates a scene graph element from a scene graph that can be manipulated
 /// by the mouse by a user.
@@ -83,6 +84,11 @@ protocol SceneGraphBuilderControllerUIDelegate: AnyObject {
     func sceneGraphBuilderController(
         _ controller: SceneGraphBuilderController,
         bringNodeViewToFront nodeView: SceneGraphNodeView
+    )
+
+    func sceneGraphBuilderController(
+        _ controller: SceneGraphBuilderController,
+        bringEdgeToFront element: SceneGraphConnectionElement
     )
 
     /// Requests that a new connection element be created and added to the
