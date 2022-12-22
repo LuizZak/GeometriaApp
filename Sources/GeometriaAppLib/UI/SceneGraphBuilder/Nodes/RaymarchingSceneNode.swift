@@ -1,14 +1,14 @@
 import SwiftBlend2D
 
-class RaymarchingSceneNode: GeometryGraphNode {
-    override var displayInformation: DisplayInformation {
+public class RaymarchingSceneNode: GeometryGraphNode, InitializableSceneGraphNode {
+    public override var displayInformation: DisplayInformation {
         .init(
             title: "Raymarching Scene"
         )
     }
 
     @SceneGraphNodeInputsBuilder
-    override var inputs: [SceneGraphNodeInput] {
+    public override var inputs: [SceneGraphNodeInput] {
         rootNode
         skyColor
         sunDirection
@@ -16,7 +16,7 @@ class RaymarchingSceneNode: GeometryGraphNode {
     }
 
     @SceneGraphNodeOutputsBuilder
-    override var outputs: [SceneGraphNodeOutput] {
+    public override var outputs: [SceneGraphNodeOutput] {
         output
     }
 
@@ -42,7 +42,11 @@ class RaymarchingSceneNode: GeometryGraphNode {
         index: 0
     )
 
-    override func makeElement(_ delegate: SceneGraphDelegate) throws -> Any {
+    public override required init() {
+        super.init()
+    }
+
+    public override func makeElement(_ delegate: SceneGraphDelegate) throws -> Any {
         return AnyRaymarchingScene(
             root: try delegate.getTypedValue(for: self, input: rootNode),
             skyColor: try delegate.getTypedValue(for: self, input: skyColor),
@@ -53,19 +57,19 @@ class RaymarchingSceneNode: GeometryGraphNode {
 }
 
 extension RaymarchingScene: SceneNodeDataTypeRepresentable {
-    static var staticDataType: SceneNodeDataType {
+    public static var staticDataType: SceneNodeDataType {
         .raymarchingScene
     }
 }
 
 extension AnyRaymarchingScene: SceneNodeDataTypeRepresentable {
-    static var staticDataType: SceneNodeDataType {
+    public static var staticDataType: SceneNodeDataType {
         .raymarchingScene
     }
 }
 
 extension MaterialMap: SceneNodeDataTypeRepresentable {
-    static var staticDataType: SceneNodeDataType {
+    public static var staticDataType: SceneNodeDataType {
         .materialMap
     }
 }

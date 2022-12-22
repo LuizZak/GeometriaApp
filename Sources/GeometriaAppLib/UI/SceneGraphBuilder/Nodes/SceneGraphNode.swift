@@ -1,39 +1,50 @@
 import ImagineUI
 
 /// Base class for scene graph nodes.
-class SceneGraphNode {
-    var displayInformation: DisplayInformation {
+public class SceneGraphNode {
+    /// Static display information that is generic across all instances of this
+    /// particular `SceneGraphNode`'s type.
+    public class var staticDisplayInformation: DisplayInformation {
+        DisplayInformation(title: "Generic node")
+    }
+
+    public var displayInformation: DisplayInformation {
         DisplayInformation(title: "Generic node")
     }
     
-    var inputs: [SceneGraphNodeInput] { [] }
-    var outputs: [SceneGraphNodeOutput] { [] }
+    public var inputs: [SceneGraphNodeInput] { [] }
+    public var outputs: [SceneGraphNodeOutput] { [] }
 
     init() {
 
     }
 
-    func makeElement(_ delegate: SceneGraphDelegate) throws -> Any {
+    public func makeElement(_ delegate: SceneGraphDelegate) throws -> Any {
         throw MakeElementError.notImplemented
     }
 
     /// Errors raised when calling `SceneGraphNode.makeElement()`
-    enum MakeElementError: Error {
+    public enum MakeElementError: Error {
         case notImplemented
     }
 
-    struct DisplayInformation {
-        var icon: Image?
+    public struct DisplayInformation {
         var title: String
+        var icon: Image?
     }
 
-    struct Input<T: SceneNodeDataTypeRepresentable>: SceneGraphNodeInput {
-        var name: String
-        var index: Int
-        var type: SceneNodeDataType
-        var required: Bool = true
+    public struct Input<T: SceneNodeDataTypeRepresentable>: SceneGraphNodeInput {
+        public var name: String
+        public var index: Int
+        public var type: SceneNodeDataType
+        public var required: Bool = true
 
-        init(name: String, index: Int, type: SceneNodeDataType = T.staticDataType, required: Bool = true) {
+        public init(
+            name: String, index: Int,
+            type: SceneNodeDataType = T.staticDataType,
+            required: Bool = true
+        ) {
+            
             self.name = name
             self.index = index
             self.type = type
@@ -41,32 +52,37 @@ class SceneGraphNode {
         }
     }
 
-    struct Output<T: SceneNodeDataTypeRepresentable>: SceneGraphNodeOutput {
-        var name: String
-        var index: Int
-        var type: SceneNodeDataType
+    public struct Output<T: SceneNodeDataTypeRepresentable>: SceneGraphNodeOutput {
+        public var name: String
+        public var index: Int
+        public var type: SceneNodeDataType
 
-        init(name: String, index: Int, type: SceneNodeDataType = T.staticDataType) {
+        public init(
+            name: String,
+            index: Int,
+            type: SceneNodeDataType = T.staticDataType
+        ) {
+
             self.name = name
             self.index = index
             self.type = type
         }
     }
 
-    enum Connection {
+    public enum Connection {
         case node(from: SceneGraphNode, outputIndex: Int, inputIndex: Int)
         case `static`(SceneNodeDataTypeRepresentable, inputIndex: Int)
     }
 }
 
-protocol SceneGraphNodeInput {
+public protocol SceneGraphNodeInput {
     var name: String { get }
     var index: Int { get }
     var type: SceneNodeDataType { get }
     var required: Bool { get }
 }
 
-protocol SceneGraphNodeOutput {
+public protocol SceneGraphNodeOutput {
     var name: String { get }
     var index: Int { get }
     var type: SceneNodeDataType { get }

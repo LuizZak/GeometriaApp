@@ -487,11 +487,23 @@ extension SceneGraphBuilderController {
 
         return createNodeView(for: node)
     }
+
+    /// Returns whether a particular scene graph node can be removed from the
+    /// graph.
+    func canRemoveNode(_ node: SceneGraphNode) -> Bool {
+        return true
+    }
 }
 
 // MARK: - Node connections
 
 extension SceneGraphBuilderController {
+    /// Returns whether a particular scene graph edge can be removed from the
+    /// graph.
+    func canRemoveEdge(_ edge: SceneGraphEdge) -> Bool {
+        return true
+    }
+
     /// Commits a connection represented by a given visual connection element
     /// to the graph.
     private func commitConnectionElement(_ element: SceneGraphConnectionElement) {

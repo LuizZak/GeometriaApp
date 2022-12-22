@@ -1,26 +1,26 @@
 @resultBuilder
 struct SceneGraphNodeOutputsBuilder {
-    static func buildExpression<T: SceneNodeDataTypeRepresentable>(_ expression: (T.Type, name: String)) -> OutputBuilderStep {
+    public static func buildExpression<T: SceneNodeDataTypeRepresentable>(_ expression: (T.Type, name: String)) -> OutputBuilderStep {
         OutputBuilderStep { index in
             SceneGraphNode.Output<T>(name: expression.name, index: index)
         }
     }
 
-    static func buildExpression<T: SceneNodeDataTypeRepresentable>(_ expression: (SceneGraphNode.Output<T>)) -> OutputBuilderStep {
+    public static func buildExpression<T: SceneNodeDataTypeRepresentable>(_ expression: (SceneGraphNode.Output<T>)) -> OutputBuilderStep {
         OutputBuilderStep { _ in
             expression
         }
     }
 
-    static func buildBlock() -> [OutputBuilderStep] {
+    public static func buildBlock() -> [OutputBuilderStep] {
         []
     }
 
-    static func buildBlock(_ components: OutputBuilderStep...) -> [OutputBuilderStep] {
+    public static func buildBlock(_ components: OutputBuilderStep...) -> [OutputBuilderStep] {
         components
     }
 
-    static func buildFinalResult(_ component: [OutputBuilderStep]) -> [SceneGraphNodeOutput] {
+    public static func buildFinalResult(_ component: [OutputBuilderStep]) -> [SceneGraphNodeOutput] {
         component.enumerated().map { (index, builder) in
             builder.build(index: index)
         }

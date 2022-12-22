@@ -1,34 +1,34 @@
-class AABBGraphNode: GeometryGraphNode {
-    override var displayInformation: DisplayInformation {
+public class AABBGraphNode: GeometryGraphNode {
+    public override var displayInformation: DisplayInformation {
         .init(
-            icon: IconLibrary.aabbIcon,
-            title: "AABB"
+            title: "AABB",
+            icon: IconLibrary.aabbIcon
         )
     }
 
-    override var outputs: [SceneGraphNodeOutput] {
+    public override var outputs: [SceneGraphNodeOutput] {
         [
             Output<AABBElement>(name: "AABB", index: 0, type: .geometry)
         ]
     }
 
-    var aabb: RAABB3D
-    var material: MaterialId
+    public var aabb: RAABB3D
+    public var material: MaterialId
 
-    init(aabb: RAABB3D, material: MaterialId) {
+    public init(aabb: RAABB3D, material: MaterialId) {
         self.aabb = aabb
         self.material = material
 
         super.init()
     }
 
-    override func makeElement(_ delegate: SceneGraphDelegate) throws -> Any {
+    public override func makeElement(_ delegate: SceneGraphDelegate) throws -> Any {
         AnyElement(AABBElement(geometry: aabb, material: material))
     }
 }
 
 extension AABBElement: SceneNodeDataTypeRepresentable {
-    static var staticDataType: SceneNodeDataType {
+    public static var staticDataType: SceneNodeDataType {
         .geometry
     }
 }

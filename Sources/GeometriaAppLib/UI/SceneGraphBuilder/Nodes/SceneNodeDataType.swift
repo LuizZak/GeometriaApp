@@ -1,6 +1,6 @@
 import ImagineUI
 
-enum SceneNodeDataType: Hashable {
+public enum SceneNodeDataType: Hashable {
     /// Generic 'any' type
     case any
 
@@ -32,7 +32,7 @@ enum SceneNodeDataType: Hashable {
     /// 3-dimensional vector type, in `RVector3D` format.
     case vector3
 
-    static func areAssignable(source: Self, target: Self) -> Bool {
+    public static func areAssignable(source: Self, target: Self) -> Bool {
         switch (source, target) {
         // General coercions
         case (let a, let b) where a == b:
@@ -54,7 +54,7 @@ enum SceneNodeDataType: Hashable {
 }
 
 extension SceneNodeDataType: CustomStringConvertible {
-    var description: String {
+    public var description: String {
         switch self {
         case .any:
             return "Any"
@@ -80,7 +80,7 @@ extension SceneNodeDataType: CustomStringConvertible {
     }
 }
 
-protocol SceneNodeDataTypeRepresentable {
+public protocol SceneNodeDataTypeRepresentable {
     /// Gets the static data type for this scene node data representable type.
     static var staticDataType: SceneNodeDataType { get }
 
@@ -93,17 +93,17 @@ protocol SceneNodeDataTypeRepresentable {
 }
 
 extension SceneNodeDataTypeRepresentable {
-    var dynamicDataType: SceneNodeDataType {
+    public var dynamicDataType: SceneNodeDataType {
         Self.staticDataType
     }
 }
 
 extension AnyElement: SceneNodeDataTypeRepresentable {
-    static var staticDataType: SceneNodeDataType {
+    public static var staticDataType: SceneNodeDataType {
         return .anyElement
     }
 
-    var dynamicDataType: SceneNodeDataType {
+    public var dynamicDataType: SceneNodeDataType {
         if let representable = element as? SceneNodeDataTypeRepresentable {
             return representable.dynamicDataType
         }
@@ -113,11 +113,11 @@ extension AnyElement: SceneNodeDataTypeRepresentable {
 }
 
 extension AnyRaymarchingElement: SceneNodeDataTypeRepresentable {
-    static var staticDataType: SceneNodeDataType {
+    public static var staticDataType: SceneNodeDataType {
         return .anyRaymarchingElement
     }
 
-    var dynamicDataType: SceneNodeDataType { 
+    public var dynamicDataType: SceneNodeDataType { 
         if let representable = element as? SceneNodeDataTypeRepresentable {
             return representable.dynamicDataType
         }
@@ -127,13 +127,13 @@ extension AnyRaymarchingElement: SceneNodeDataTypeRepresentable {
 }
 
 extension UIIntSize: SceneNodeDataTypeRepresentable {
-    static var staticDataType: SceneNodeDataType {
+    public static var staticDataType: SceneNodeDataType {
         .size
     }
 }
 
 extension RVector3D: SceneNodeDataTypeRepresentable {
-    static var staticDataType: SceneNodeDataType {
+    public static var staticDataType: SceneNodeDataType {
         .vector3
     }
 }

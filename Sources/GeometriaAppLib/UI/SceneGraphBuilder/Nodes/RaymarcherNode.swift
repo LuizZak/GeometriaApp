@@ -1,18 +1,18 @@
-class RaymarcherNode: SceneGraphNode {
-    override var displayInformation: DisplayInformation {
+public class RaymarcherNode: SceneGraphNode, InitializableSceneGraphNode {
+    public override var displayInformation: DisplayInformation {
         .init(
             title: "Raymarching Renderer"
         )
     }
 
     @SceneGraphNodeInputsBuilder
-    override var inputs: [SceneGraphNodeInput] {
+    public override var inputs: [SceneGraphNodeInput] {
         scene
         camera
     }
 
     @SceneGraphNodeOutputsBuilder
-    override var outputs: [SceneGraphNodeOutput] {
+    public override var outputs: [SceneGraphNodeOutput] {
         output
     }
 
@@ -30,7 +30,11 @@ class RaymarcherNode: SceneGraphNode {
         index: 0
     )
 
-    override func makeElement(_ delegate: SceneGraphDelegate) throws -> Any {
+    public override required init() {
+        super.init()
+    }
+
+    public override func makeElement(_ delegate: SceneGraphDelegate) throws -> Any {
         return Raymarcher<AnyRaymarchingScene>(
             scene: try delegate.getTypedValue(for: self, input: scene),
             camera: try delegate.getTypedValue(for: self, input: camera)
@@ -39,7 +43,7 @@ class RaymarcherNode: SceneGraphNode {
 }
 
 extension Raymarcher: SceneNodeDataTypeRepresentable {
-    static var staticDataType: SceneNodeDataType {
+    public static var staticDataType: SceneNodeDataType {
         .raymarchingScene
     }
 }

@@ -1,12 +1,12 @@
-class CameraNode: SceneGraphNode {
+public class CameraNode: SceneGraphNode, InitializableSceneGraphNode {
     @SceneGraphNodeInputsBuilder
-    override var inputs: [SceneGraphNodeInput] {
+    public override var inputs: [SceneGraphNodeInput] {
         viewportSize
         viewportCenter
     }
 
     @SceneGraphNodeOutputsBuilder
-    override var outputs: [SceneGraphNodeOutput] {
+    public override var outputs: [SceneGraphNodeOutput] {
         output
     }
 
@@ -25,7 +25,11 @@ class CameraNode: SceneGraphNode {
         index: 1
     )
 
-    override func makeElement(_ delegate: SceneGraphDelegate) throws -> Any {
+    public override required init() {
+        super.init()
+    }
+
+    public override func makeElement(_ delegate: SceneGraphDelegate) throws -> Any {
         Camera(
             viewportSize: try delegate.getTypedValue(for: self, input: viewportSize),
             viewportCenter: try delegate.getTypedValue(for: self, input: viewportCenter)
@@ -34,7 +38,7 @@ class CameraNode: SceneGraphNode {
 }
 
 extension Camera: SceneNodeDataTypeRepresentable {
-    static var staticDataType: SceneNodeDataType {
+    public static var staticDataType: SceneNodeDataType {
         .camera
     }
 }

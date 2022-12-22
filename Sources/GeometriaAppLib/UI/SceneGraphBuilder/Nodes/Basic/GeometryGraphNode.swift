@@ -1,3 +1,3 @@
-class GeometryGraphNode: SceneGraphNode {
+public class GeometryGraphNode: SceneGraphNode {
 
 }
