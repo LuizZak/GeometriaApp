@@ -284,7 +284,7 @@ def default_manifest_path(target_name: str) -> Path:
 def run_post_build(settings: PostBuildSettings):
     run('mt', '-nologo', '-manifest', settings.manifest_path, f'-outputresource:{settings.exe_path}')
 
-def run_manifest_patch(build_dir: Path, target_name: str, manifest_path: str):
+def run_manifest_patch(build_dir: Path, target_name: str, manifest_path: str) -> Path:
     exe_path = build_dir.joinpath(target_name).with_suffix('.exe')
 
     manifest_path = manifest_path
@@ -292,6 +292,8 @@ def run_manifest_patch(build_dir: Path, target_name: str, manifest_path: str):
         manifest_path = default_manifest_path(target_name)
 
     run_post_build(PostBuildSettings(exe_path, manifest_path))
+
+    return exe_path
 
 def run_build(settings: BuildCommandArgs):
     run('swift', '--version', silent=False)
@@ -337,9 +339,11 @@ def run_target(settings: RunCommandArgs):
         if manifest_path is None:
             manifest_path = default_manifest_path(settings.target_name)
 
-        run_manifest_patch(build_dir, settings.target_name, manifest_path)
+        exe_path = run_manifest_patch(build_dir, settings.target_name, manifest_path)
 
-    run('swift', 'run', *settings.swift_run_args())
+        run(str(exe_path))
+    else:
+        run('swift', 'run', *settings.swift_run_args())
 
 
 def do_build_command(args: Any):

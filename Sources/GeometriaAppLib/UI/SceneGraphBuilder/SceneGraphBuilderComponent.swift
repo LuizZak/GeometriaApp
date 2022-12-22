@@ -12,6 +12,7 @@ class SceneGraphBuilderComponent: RaytracerUIComponent {
         _builderView.delegate = self
 
         _controller.uiDelegate = _builderView
+        _controller.initialize()
     }
 
     func setup(container: View) {

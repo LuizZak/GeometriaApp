@@ -85,6 +85,52 @@ class SceneGraphNodeView: RootView {
         return super.canHandle(eventRequest)
     }
 
+    /// Returns the view for the connection point of an input at a specified index
+    /// on the underlying graph node.
+    ///
+    /// - precondition: `index >= 0 && index < node.inputs.count`
+    func inputViewConnection(forInputIndex index: Int) -> (View, SceneGraphNodeInput) {
+        let view = _inputViews[index]
+
+        return (view.connectionView, view.input)
+    }
+
+    /// Returns the view for the connection point of an output at a specified
+    /// index on the underlying graph node.
+    ///
+    /// - precondition: `output >= 0 && output < node.outputs.count`
+    func outputViewConnection(forOutputIndex index: Int) -> (View, SceneGraphNodeOutput) {
+        let view = _outputViews[index]
+
+        return (view.connectionView, view.output)
+    }
+
+    func inputViewConnection(under point: UIPoint) -> (View, SceneGraphNodeInput)? {
+        for input in _inputViews {
+            let view = input.connectionView
+
+            let converted = view.convert(point: point, from: self)
+            if view.contains(point: converted) {
+                return (view, input.input)
+            }
+        }
+
+        return nil
+    }
+
+    func outputViewConnection(under point: UIPoint) -> (View, SceneGraphNodeOutput)? {
+        for output in _outputViews {
+            let view = output.connectionView
+
+            let converted = view.convert(point: point, from: self)
+            if view.contains(point: converted) {
+                return (view, output.output)
+            }
+        }
+
+        return nil
+    }
+
     private func reloadDisplay() {
         _headerView.icon = node.displayInformation.icon
         _headerView.title = node.displayInformation.title
@@ -138,8 +184,8 @@ class SceneGraphNodeView: RootView {
     }
 
     private class InputView: View {
-        private let _label: Label = Label(textColor: .white)
-        private let _connectionView: ConnectionView = ConnectionView()
+        let label: Label = Label(textColor: .white)
+        let connectionView: ConnectionView = ConnectionView()
 
         var input: SceneGraphNodeInput
 
@@ -154,39 +200,39 @@ class SceneGraphNodeView: RootView {
         override func setupHierarchy() {
             super.setupHierarchy()
 
-            addSubview(_label)
-            addSubview(_connectionView)
+            addSubview(label)
+            addSubview(connectionView)
         }
 
         override func setupConstraints() {
             super.setupConstraints()
 
-            _connectionView.layout.makeConstraints { make in
+            connectionView.layout.makeConstraints { make in
                 make.left == self + 2
                 make.centerY == self
                 make.height <= self
             }
-            _label.layout.makeConstraints { make in
+            label.layout.makeConstraints { make in
                 make.top == self + 2
-                make.left == _connectionView.layout.right + 4
+                make.left == connectionView.layout.right + 4
                 make.right == self - 2
                 make.bottom == self - 2
             }
         }
 
         func reloadDisplay() {
-            _label.text = input.name
+            label.text = input.name
             if !input.required {
-                _connectionView.tooltip = formatTooltip("\(symbol: input.name): \(input.type) \(muted: "optional")")
+                connectionView.tooltip = formatTooltip("\(symbol: input.name): \(input.type) \(muted: "optional")")
             } else {
-                _connectionView.tooltip = formatTooltip("\(symbol: input.name): \(input.type)")
+                connectionView.tooltip = formatTooltip("\(symbol: input.name): \(input.type)")
             }
         }
     }
 
     private class OutputView: View {
-        private let _label: Label = Label(textColor: .white)
-        private let _connectionView: ConnectionView = ConnectionView()
+        let label: Label = Label(textColor: .white)
+        let connectionView: ConnectionView = ConnectionView()
 
         var output: SceneGraphNodeOutput
 
@@ -201,29 +247,29 @@ class SceneGraphNodeView: RootView {
         override func setupHierarchy() {
             super.setupHierarchy()
 
-            addSubview(_label)
-            addSubview(_connectionView)
+            addSubview(label)
+            addSubview(connectionView)
         }
 
         override func setupConstraints() {
             super.setupConstraints()
 
-            _connectionView.layout.makeConstraints { make in
+            connectionView.layout.makeConstraints { make in
                 make.right == self - 2
                 make.centerY == self
                 make.height <= self
             }
-            _label.layout.makeConstraints { make in
+            label.layout.makeConstraints { make in
                 make.top == self + 2
                 make.left == self + 2
-                make.right == _connectionView.layout.left - 4
+                make.right == connectionView.layout.left - 4
                 make.bottom == self - 2
             }
         }
 
         func reloadDisplay() {
-            _label.text = output.name
-            _connectionView.tooltip = formatTooltip("\(symbol: output.name): \(output.type)")
+            label.text = output.name
+            connectionView.tooltip = formatTooltip("\(symbol: output.name): \(output.type)")
         }
     }
 
@@ -264,6 +310,19 @@ class SceneGraphNodeView: RootView {
             super.onStateChanged(change)
 
             updateColors()
+        }
+
+        override func canHandle(_ eventRequest: EventRequest) -> Bool {
+            if let mouseEvent = eventRequest as? MouseEventRequest {
+                switch mouseEvent.eventType {
+                case .mouseDown, .mouseUp, .mouseClick, .mouseDoubleClick:
+                    return false
+                default:
+                    break
+                }
+            }
+
+            return super.canHandle(eventRequest)
         }
 
         private func updateColors() {
