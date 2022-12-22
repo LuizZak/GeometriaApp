@@ -7,7 +7,7 @@ class SceneGraphBuilderView: RootView {
 
     /// - note: Must be ordered in the same order as they are rendered on screen.
     private var _nodeViews: [SceneGraphNodeView] = []
-    private var _connections: [SceneGraphConnectionElement] = [] {
+    private var _connections: [ConnectionViewInfo] = [] {
         didSet {
             _updateConnectionElements()
         }
@@ -62,6 +62,40 @@ class SceneGraphBuilderView: RootView {
         return view
     }
 
+    @discardableResult
+    private func _addEdge(_ edge: SceneGraphEdge) -> SceneGraphConnectionElement? {
+        // Find end points to create connection view
+        guard let startNode = _viewForNode(edge.start.sceneGraphNode) else {
+            return nil
+        }
+        guard let endNode = _viewForNode(edge.end.sceneGraphNode) else {
+            return nil
+        }
+
+        let startAnchor: SceneGraphConnectionElement.AnchorElement
+        let endAnchor: SceneGraphConnectionElement.AnchorElement
+
+        switch edge.start.element {
+        case .node:
+            return nil
+        case .input(_, let input):
+            startAnchor = .input(startNode, index: input.index)
+        case .output(_, let output):
+            startAnchor = .output(startNode, index: output.index)
+        }
+
+        switch edge.end.element {
+        case .node:
+            return nil
+        case .input(_, let input):
+            endAnchor = .input(endNode, index: input.index)
+        case .output(_, let output):
+            endAnchor = .output(endNode, index: output.index)
+        }
+
+        return _createConnectionElement(startAnchor: startAnchor, endAnchor: endAnchor)
+    }
+
     private func _moveNodeViewToFront(_ nodeView: SceneGraphNodeView) {
         nodeView.bringToFrontOfSuperview()
 
@@ -83,16 +117,24 @@ class SceneGraphBuilderView: RootView {
         _nodeViews.remove(at: index)
     }
 
-    private func _addConnectionElement() -> SceneGraphConnectionElement {
-        let element = SceneGraphConnectionElement()
+    private func _createConnectionElement(
+        startAnchor: SceneGraphConnectionElement.AnchorElement? = nil,
+        endAnchor: SceneGraphConnectionElement.AnchorElement? = nil
+    ) -> SceneGraphConnectionElement {
 
-        _connections.append(element)
+        let element = SceneGraphConnectionElement(
+            startAnchor: startAnchor,
+            endAnchor: endAnchor
+        )
+        let info = ConnectionViewInfo(element: element)
+
+        _connections.append(info)
 
         return element
     }
 
     private func _removeConnectionElement(_ element: SceneGraphConnectionElement) {
-        _connections.removeAll { $0 === element }
+        _connections.removeAll { $0.element === element }
     }
 
     private func _updateConnectionElements() {
@@ -102,13 +144,9 @@ class SceneGraphBuilderView: RootView {
         )
     }
 
-    private func _openContextMenu(for view: SceneGraphNodeView, location: UIPoint) {
+    private func _openContextMenu(items: [ContextMenuItemEntry], location: UIPoint) {
         delegate?.openDialog(
-            ContextMenuView.create {
-                ContextMenuItem(title: "Delete") {
-                    self._removeNodeView(view)
-                }
-            },
+            ContextMenuView.create(items: items),
             location: .topLeft(location)
         )
     }
@@ -125,25 +163,56 @@ class SceneGraphBuilderView: RootView {
     }
 
     private func _elementUnder(point: UIPoint) -> SceneGraphMouseElementKind? {
-        for node in _nodeViews.reversed() {
-            let converted = node.convert(point: point, from: self)
-            guard node.contains(point: converted) else {
-                continue
+        let iterator = _iteratorForElementsUnder(point: point)
+
+        return iterator.next()
+    }
+
+    private func _allElementsUnder(point: UIPoint) -> [SceneGraphMouseElementKind] {
+        let iterator = _iteratorForElementsUnder(point: point)
+        
+        return Array(iterator)
+    }
+
+    private func _iteratorForElementsUnder(point: UIPoint) -> AnyIterator<SceneGraphMouseElementKind> {
+        let viewElements = _nodesContainer.subviews
+
+        var viewIterator = viewElements.reversed().makeIterator()
+
+        return AnyIterator {
+            while let view = viewIterator.next() {
+                let converted = view.convert(point: point, from: self)
+                guard view.contains(point: converted) else {
+                    continue
+                }
+
+                if let node = view as? SceneGraphNodeView {
+                    // Check if mouse overlaps an input or output node
+                    if let (view, input) = node.inputViewConnection(under: converted) {
+                        return .input(view, input, node: node.node, node)
+                    }
+                    if let (view, output) = node.outputViewConnection(under: converted) {
+                        return .output(view, output, node: node.node, node)
+                    }
+
+                    // If no inner overlap is found, return the node view itself.
+                    return .node(node: node.node, node)
+                }
+                if let connection = view as? ConnectionView {
+                    guard let edge = connection.graphEdge else {
+                        continue
+                    }
+
+                    return .connection(connection.visualConnection, edge: edge)
+                }
             }
 
-            // Check if mouse overlaps an input or output node
-            if let (view, input) = node.inputViewConnection(under: converted) {
-                return .input(view, input, node: node.node, node)
-            }
-            if let (view, output) = node.outputViewConnection(under: converted) {
-                return .output(view, output, node: node.node, node)
-            }
-
-            // If no inner overlap is found, return the node view itself.
-            return .node(node: node.node, node)
+            return nil
         }
+    }
 
-        return nil
+    private func _viewForNode(_ node: SceneGraphNode) -> SceneGraphNodeView? {
+        _nodeViews.first { $0.node === node }
     }
 
     private class ConnectionViewsManager {
@@ -151,21 +220,13 @@ class SceneGraphBuilderView: RootView {
 
         let container: View
 
-        var strokeScale = 1.0 {
-            didSet {
-                connectionViews.forEach {
-                    $0.strokeScale = strokeScale
-                }
-            }
-        }
-
         init(container: View) {
             self.container = container
         }
 
         func updateZIndices(connectedTo nodeView: SceneGraphNodeView) {
             for view in connectionViews {
-                guard view.connection.isAssociatedWith(nodeView) else {
+                guard view.visualConnection.isAssociatedWith(nodeView) else {
                     continue
                 }
 
@@ -174,17 +235,17 @@ class SceneGraphBuilderView: RootView {
         }
 
         func updateConnectionViews(
-            _ connections: [SceneGraphConnectionElement],
+            _ infoList: [ConnectionViewInfo],
             globalSpatialReference: SpatialReferenceType
         ) {
 
             var oldViews = connectionViews
 
-            for connection in connections {
-                oldViews.removeAll(where: { $0.connection === connection })
+            for info in infoList {
+                oldViews.removeAll(where: { $0.visualConnection === info.element })
 
                 self._createOrUpdate(
-                    connection,
+                    info,
                     globalSpatialReference: globalSpatialReference
                 )
             }
@@ -196,27 +257,29 @@ class SceneGraphBuilderView: RootView {
 
         @discardableResult
         private func _createOrUpdate(
-            _ connection: SceneGraphConnectionElement,
+            _ info: ConnectionViewInfo,
             globalSpatialReference: SpatialReferenceType
         ) -> ConnectionView? {
 
+            let connection = info.element
+            
             for existing in connectionViews {
-                if existing.connection === connection {
+                if existing.visualConnection === connection {
                     existing.updateConnectionView(
                         globalSpatialReference: globalSpatialReference
                     )
+                    existing.graphEdge = info.graphEdge
 
                     return existing
                 }
             }
 
-            let view = ConnectionView(connection: connection)
+            let view = ConnectionView(visualConnection: connection)
             view.updateConnectionView(
                 globalSpatialReference: globalSpatialReference
             )
+            view.graphEdge = info.graphEdge
             
-            view.strokeScale = strokeScale
-
             connectionViews.append(view)
             container.addSubview(view)
 
@@ -224,34 +287,55 @@ class SceneGraphBuilderView: RootView {
         }
     }
 
-    private class ConnectionView: View {
+    private class ConnectionView: ControlView {
         private var _stokeWidth: Double = 2.0
         private var _boundsForRedraw: UIRectangle = .zero
         private var state: _State?
 
-        let connection: SceneGraphConnectionElement
+        let visualConnection: SceneGraphConnectionElement
 
-        var strokeScale = 1.0
+        /// An associated scene graph edge for this connection, if it represents
+        /// one.
+        var graphEdge: SceneGraphEdge?
 
-        init(connection: SceneGraphConnectionElement) {
-            self.connection = connection
+        var strokeScale = 1.0 {
+            didSet {
+                invalidate()
+            }
+        }
+
+        init(visualConnection: SceneGraphConnectionElement) {
+            self.visualConnection = visualConnection
 
             super.init()
 
             clipToBounds = false
         }
 
-        override func render(in context: Renderer, screenRegion: ClipRegionType) {
+        override func renderForeground(in renderer: Renderer, screenRegion: ClipRegionType) {
             if let state {
-                context.setStroke(.orange)
-                context.setStrokeWidth(_stokeWidth * strokeScale)
+                renderer.setStroke(.orange)
+                renderer.setStrokeWidth(_stokeWidth * strokeScale)
 
-                context.stroke(state.bezier)
+                renderer.stroke(state.bezier)
             }
         }
 
         override func boundsForRedraw() -> UIRectangle {
             _boundsForRedraw
+        }
+
+        override func canHandle(_ eventRequest: EventRequest) -> Bool {
+            if let mouseEvent = eventRequest as? MouseEventRequest {
+                switch mouseEvent.eventType {
+                case .mouseDown, .mouseUp, .mouseClick, .mouseDoubleClick:
+                    return false
+                default:
+                    break
+                }
+            }
+
+            return super.canHandle(eventRequest)
         }
 
         func updateConnectionView(globalSpatialReference: SpatialReferenceType) {
@@ -273,11 +357,11 @@ class SceneGraphBuilderView: RootView {
             guard let bezier = makeBezier(
                 globalSpatialReference: globalSpatialReference
             ) else {
-                connection.bezier = nil
+                visualConnection.bezier = nil
                 return nil
             }
 
-            connection.bezier = bezier
+            visualConnection.bezier = bezier
             
             if let state {
                 state.bezier = bezier
@@ -286,6 +370,37 @@ class SceneGraphBuilderView: RootView {
             }
 
             return _State(bezier: bezier)
+        }
+
+        override func onStateChanged(_ change: ValueChangedEventArgs<ControlViewState>) {
+            super.onStateChanged(change)
+
+            updateColors()
+        }
+
+        override func contains(point: UIVector, inflatingArea: UIVector = .zero) -> Bool {
+            if let state {
+                return state.bezier.distance(to: point) < 5
+            }
+
+            return false
+        }
+
+        override func intersects(area: UIRectangle, inflatingArea: UIVector = .zero) -> Bool {
+            _boundsForRedraw
+                .insetBy(x: -inflatingArea.x, y: -inflatingArea.y)
+                .intersects(area)
+        }
+
+        private func updateColors() {
+            switch controlState {
+            case .normal:
+                strokeScale = 1
+            case .highlighted:
+                strokeScale = 2
+            default:
+                break
+            }
         }
 
         private func _invalidateBezierArea() {
@@ -303,10 +418,10 @@ class SceneGraphBuilderView: RootView {
             globalSpatialReference: SpatialReferenceType
         ) -> UIBezier? {
 
-            guard let startAnchor = connection.startAnchor else {
+            guard let startAnchor = visualConnection.startAnchor else {
                 return nil
             }
-            guard let endAnchor = connection.endAnchor else {
+            guard let endAnchor = visualConnection.endAnchor else {
                 return nil
             }
 
@@ -346,15 +461,29 @@ class SceneGraphBuilderView: RootView {
 
                 return self.convert(point: center, from: view)
             }
+            func forViewRight(_ view: View) -> UIPoint {
+                let point =
+                    view.bounds.center
+                    + UIPoint(x: view.size.width / 2, y: 0)
+
+                return self.convert(point: point, from: view)
+            }
+            func forViewLeft(_ view: View) -> UIPoint {
+                let point =
+                    view.bounds.center
+                    - UIPoint(x: view.size.width / 2, y: 0)
+
+                return self.convert(point: point, from: view)
+            }
 
             switch anchor {
             case .input(let nodeView, let index):
                 let (view, _) = nodeView.inputViewConnection(forInputIndex: index)
-                return forViewCenter(view)
+                return forViewLeft(view)
 
             case .output(let nodeView, let index):
                 let (view, _) = nodeView.outputViewConnection(forOutputIndex: index)
-                return forViewCenter(view)
+                return forViewRight(view)
 
             case .view(let view, let localOffset):
                 return self.convert(point: localOffset, from: view)
@@ -371,6 +500,11 @@ class SceneGraphBuilderView: RootView {
                 self.bezier = bezier
             }
         }
+    }
+
+    private struct ConnectionViewInfo {
+        var element: SceneGraphConnectionElement
+        var graphEdge: SceneGraphEdge?
     }
 }
 
@@ -398,6 +532,14 @@ extension SceneGraphBuilderView: SceneGraphBuilderControllerUIDelegate {
     ) -> SceneGraphMouseElementKind? {
 
         _elementUnder(point: point)
+    }
+
+    func sceneGraphBuilderController(
+        _ controller: SceneGraphBuilderController,
+        allElementsUnder point: UIPoint
+    ) -> [SceneGraphMouseElementKind] {
+
+        _allElementsUnder(point: point)
     }
 
     func sceneGraphBuilderControllerNodesContainer(
@@ -433,6 +575,14 @@ extension SceneGraphBuilderView: SceneGraphBuilderControllerUIDelegate {
     ) -> SceneGraphNodeView {
 
         _addNode(node)
+    }
+
+    func sceneGraphBuilderController(
+        _ controller: SceneGraphBuilderController,
+        createViewForEdge edge: SceneGraphEdge
+    ) {
+
+        _addEdge(edge)
     }
 
     func sceneGraphBuilderController(
@@ -481,7 +631,7 @@ extension SceneGraphBuilderView: SceneGraphBuilderControllerUIDelegate {
         _ controller: SceneGraphBuilderController
     ) -> SceneGraphConnectionElement {
 
-        return _addConnectionElement()
+        return _createConnectionElement()
     }
 
     /// Requests that a connection element be removed from the interface.
@@ -521,11 +671,11 @@ extension SceneGraphBuilderView: SceneGraphBuilderControllerUIDelegate {
 
     func sceneGraphBuilderController(
         _ controller: SceneGraphBuilderController,
-        openContextMenuFor view: SceneGraphNodeView,
+        openContextMenu items: [ContextMenuItemEntry],
         location: UIPoint
     ) {
 
-        self._openContextMenu(for: view, location: location)
+        self._openContextMenu(items: items, location: location)
     }
 }
 

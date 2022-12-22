@@ -10,6 +10,11 @@ class SceneGraphConnectionElement {
     /// illustrate the connection.
     var bezier: UIBezier?
 
+    init(startAnchor: AnchorElement? = nil, endAnchor: AnchorElement? = nil) {
+        self.startAnchor = startAnchor
+        self.endAnchor = endAnchor
+    }
+
     /// Returns `true` if this visual connection element references a given view
     /// object either as its start or end anchors.
     func isAssociatedWith(_ view: View) -> Bool {

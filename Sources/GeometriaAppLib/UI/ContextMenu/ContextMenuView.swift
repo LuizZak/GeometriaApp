@@ -217,9 +217,17 @@ extension ContextMenuView: UIDialog {
 
 extension ContextMenuView {
     static func create(@ContextMenuViewBuilder _ builder: () -> [ContextMenuItemEntry]) -> ContextMenuView {
-        let dataSource = DataSource(items: builder())
+        return create(items: builder())
+    }
+
+    static func create(items: [ContextMenuItemEntry]) -> ContextMenuView {
+        let dataSource = DataSource(items: items)
 
         return ContextMenuView(dataSource: dataSource)
+    }
+
+    static func createItems(@ContextMenuViewBuilder _ builder: () -> [ContextMenuItemEntry]) -> [ContextMenuItemEntry] {
+        builder()
     }
 }
 

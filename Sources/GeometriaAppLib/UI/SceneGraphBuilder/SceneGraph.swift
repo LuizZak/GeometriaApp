@@ -343,7 +343,15 @@ extension SceneGraph {
 
 /// Encapsulates a scene graph's representation in a `SceneGraph` type.
 class SceneGraphDirectedNodeElement: DirectedGraphNode {
-    var element: Element
+    let element: Element
+
+    /// Gets the scene graph node associated with this node element
+    var sceneGraphNode: SceneGraphNode {
+        switch element {
+        case .node(let node), .input(let node, _), .output(let node, _):
+            return node
+        }
+    }
 
     init(element: SceneGraphDirectedNodeElement.Element) {
         self.element = element
@@ -418,8 +426,8 @@ class SceneGraphDirectedNodeElement: DirectedGraphNode {
 }
 
 class SceneGraphEdge: DirectedGraphBaseEdgeType {
-    var start: SceneGraphDirectedNodeElement
-    var end: SceneGraphDirectedNodeElement
+    let start: SceneGraphDirectedNodeElement
+    let end: SceneGraphDirectedNodeElement
 
     internal init(start: SceneGraphDirectedNodeElement, end: SceneGraphDirectedNodeElement) {
         self.start = start

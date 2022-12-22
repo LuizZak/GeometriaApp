@@ -1,15 +1,35 @@
 import ImagineUI
 
 enum SceneNodeDataType: Hashable {
+    /// Generic 'any' type
     case any
+
+    /// Generic 'any element' type, for assigning any scene graph element to.
     case anyElement
+
+    /// Generic 'any raymarching element' type, for assigning any raymarching
+    /// scene graph element to.
     case anyRaymarchingElement
+
+    /// Geometry type.
     case geometry
+
+    /// Raymarching scene type.
     case raymarchingScene
+
+    /// Color type, in `BLRgba32` format.
     case color
+
+    /// Material map type.
     case materialMap
+
+    /// Scene camera type.
     case camera
+
+    /// 2-dimensional size type, in `UIIntSize` format.
     case size
+
+    /// 3-dimensional vector type, in `RVector3D` format.
     case vector3
 
     static func areAssignable(source: Self, target: Self) -> Bool {

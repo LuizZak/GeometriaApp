@@ -17,17 +17,16 @@ class SceneGraphBuilderController {
     }
 
     private func createMockGraph() {
-        let node1 = AABBGraphNode(aabb: .init(minimum: .zero, maximum: .one), material: .defaultMaterial)
+        let node1 = AABBGraphNode(
+            aabb: .init(minimum: .zero, maximum: .one),
+            material: .defaultMaterial
+        )
         let node2 = RaymarchingSceneNode()
         let node3 = RaymarcherNode()
 
-        sceneGraph.addNode(node1)
-        sceneGraph.addNode(node2)
-        sceneGraph.addNode(node3)
-
-        createNodeView(for: node1)?.location = .init(x: 300, y: 100)
-        createNodeView(for: node2)?.location = .init(x: 350, y: 200)
-        createNodeView(for: node3)?.location = .init(x: 550, y: 210)
+        addNode(node1)?.location = .init(x: 300, y: 100)
+        addNode(node2)?.location = .init(x: 350, y: 200)
+        addNode(node3)?.location = .init(x: 550, y: 210)
     }
     
     func onMouseDown(_ event: MouseEventArgs) {
@@ -42,6 +41,9 @@ class SceneGraphBuilderController {
                 
                 case .output(let view, let output, let node, _):
                     beginOutputDrag(view, output: output, node: node)
+                
+                case .connection:
+                    break
                 }
             } else {
                 withNodeContainer { container in
@@ -60,8 +62,21 @@ class SceneGraphBuilderController {
     }
 
     func onMouseClick(_ event: MouseEventArgs) {
-        if event.buttons == .right, let node = nodeUnder(point: event.location) {
-            openContextMenu(for: node, location: convert(point: event.location, to: nil))
+        rightButton:
+        if event.buttons == .right {
+            guard let uiElement = elementUnder(point: event.location) else {
+                break rightButton
+            }
+
+            switch uiElement {
+            case .node(_, let view):
+                openContextMenu(
+                    for: view,
+                    location: convert(point: event.location, to: nil)
+                )
+            default:
+                break
+            }
         }
     }
 
@@ -257,6 +272,12 @@ class SceneGraphBuilderController {
         return uiDelegate.sceneGraphBuilderController(self, elementUnder: point)
     }
 
+    private func allElementsUnder(point: UIPoint) -> [SceneGraphMouseElementKind] {
+        guard let uiDelegate else { return [] }
+
+        return uiDelegate.sceneGraphBuilderController(self, allElementsUnder: point)
+    }
+
     private func withNodeContainer(_ closure: (SceneGraphBuilderNodeContainer) -> Void) {
         guard let uiDelegate else { return }
 
@@ -317,9 +338,15 @@ class SceneGraphBuilderController {
     private func openContextMenu(for view: SceneGraphNodeView, location: UIPoint) {
         guard let uiDelegate else { return }
 
+        let items = ContextMenuView.createItems {
+            ContextMenuItem(title: "Delete") {
+                //self._removeNodeView(view)
+            }
+        }
+        
         uiDelegate.sceneGraphBuilderController(
             self,
-            openContextMenuFor: view,
+            openContextMenu: items,
             location: location
         )
     }
@@ -364,10 +391,13 @@ class SceneGraphBuilderController {
             in controller: SceneGraphBuilderController
         ) -> SceneGraphConnectionElement.AnchorElement {
 
-            if let element = controller.elementUnder(point: mouseLocation) {
+            let elements = controller.allElementsUnder(point: mouseLocation)
+
+            outerLoop:
+            for element in elements {
                 switch element {
                 case .node, .input:
-                    break
+                    break outerLoop
                 
                 case .output(_, let output, let graphNode, let nodeView):
                     if controller.canConnect(
@@ -378,6 +408,9 @@ class SceneGraphBuilderController {
                     ) {
                         return .output(nodeView, index: output.index)
                     }
+                
+                case .connection:
+                    continue
                 }
             }
 
@@ -404,7 +437,10 @@ class SceneGraphBuilderController {
             in controller: SceneGraphBuilderController
         ) -> SceneGraphConnectionElement.AnchorElement {
 
-            if let element = controller.elementUnder(point: mouseLocation) {
+            let elements = controller.allElementsUnder(point: mouseLocation)
+
+            outerLoop:
+            for element in elements {
                 switch element {
                 case .node(let graphNode, let nodeView),
                     .output(_, _, let graphNode, let nodeView):
@@ -416,6 +452,8 @@ class SceneGraphBuilderController {
                     ) {
                         return .input(nodeView, index: input.index)
                     }
+
+                    break outerLoop
                 
                 case .input(_, let input, let graphNode, let nodeView):
                     if controller.canConnect(
@@ -426,12 +464,28 @@ class SceneGraphBuilderController {
                     ) {
                         return .input(nodeView, index: input.index)
                     }
+
+                    break outerLoop
+                
+                case .connection:
+                    continue
                 }
             }
 
             let global = controller.convert(point: mouseLocation, to: nil)
             return .globalLocation(global)
         }
+    }
+}
+
+// MARK: - Node management
+
+extension SceneGraphBuilderController {
+    @discardableResult
+    func addNode(_ node: SceneGraphNode) -> SceneGraphNodeView? {
+        sceneGraph.addNode(node)
+
+        return createNodeView(for: node)
     }
 }
 
@@ -443,8 +497,6 @@ extension SceneGraphBuilderController {
     private func commitConnectionElement(_ element: SceneGraphConnectionElement) {
         guard let uiDelegate else { return }
 
-        var shouldRemove = true
-
         switch (element.startAnchor, element.endAnchor) {
         case (.output(let startView, let outputIndex), .input(let endView, let inputIndex)):
             guard let (start, output) = getNodeAndOutput(startView, index: outputIndex) else {
@@ -454,20 +506,21 @@ extension SceneGraphBuilderController {
                 break
             }
             
-            if connect(start: start, output: output, end: end, input: input) != nil {
-                shouldRemove = false
+            if let edge = connect(start: start, output: output, end: end, input: input) {
+                uiDelegate.sceneGraphBuilderController(
+                    self,
+                    createViewForEdge: edge
+                )
             }
         
         default:
             break
         }
         
-        if shouldRemove {
-            uiDelegate.sceneGraphBuilderController(
-                self,
-                removeConnectionElement: element
-            )
-        }
+        uiDelegate.sceneGraphBuilderController(
+            self,
+            removeConnectionElement: element
+        )
     }
 
     /// Returns `true` if a combination of start/end nodes can be connected by

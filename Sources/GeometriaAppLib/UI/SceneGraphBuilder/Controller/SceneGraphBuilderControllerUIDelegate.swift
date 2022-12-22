@@ -6,6 +6,7 @@ enum SceneGraphMouseElementKind {
     case node(node: SceneGraphNode, SceneGraphNodeView)
     case input(View, SceneGraphNodeInput, node: SceneGraphNode, SceneGraphNodeView)
     case output(View, SceneGraphNodeOutput, node: SceneGraphNode, SceneGraphNodeView)
+    case connection(SceneGraphConnectionElement, edge: SceneGraphEdge)
 }
 
 /// Delegate for UI interactions of a scene graph builder controller.
@@ -22,10 +23,18 @@ protocol SceneGraphBuilderControllerUIDelegate: AnyObject {
         viewForGraphNode node: SceneGraphNode
     ) -> SceneGraphNodeView?
 
+    /// Returns the top-most UI element that is mouse-interactive at a given point.
     func sceneGraphBuilderController(
         _ controller: SceneGraphBuilderController,
         elementUnder point: UIPoint
     ) -> SceneGraphMouseElementKind?
+
+    /// Returns all UI elements that are mouse-interactive at a given point,
+    /// ordered from top-most to bottom-most, in terms of rendering order.
+    func sceneGraphBuilderController(
+        _ controller: SceneGraphBuilderController,
+        allElementsUnder point: UIPoint
+    ) -> [SceneGraphMouseElementKind]
 
     func sceneGraphBuilderControllerNodesContainer(
         _ controller: SceneGraphBuilderController
@@ -49,6 +58,11 @@ protocol SceneGraphBuilderControllerUIDelegate: AnyObject {
         _ controller: SceneGraphBuilderController,
         createViewForNode node: SceneGraphNode
     ) -> SceneGraphNodeView
+
+    func sceneGraphBuilderController(
+        _ controller: SceneGraphBuilderController,
+        createViewForEdge edge: SceneGraphEdge
+    )
 
     func sceneGraphBuilderController(
         _ controller: SceneGraphBuilderController,
@@ -101,7 +115,7 @@ protocol SceneGraphBuilderControllerUIDelegate: AnyObject {
 
     func sceneGraphBuilderController(
         _ controller: SceneGraphBuilderController,
-        openContextMenuFor view: SceneGraphNodeView,
+        openContextMenu items: [ContextMenuItemEntry],
         location: UIPoint
     )
 }

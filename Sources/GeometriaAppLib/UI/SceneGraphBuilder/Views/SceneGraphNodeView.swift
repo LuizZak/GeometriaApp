@@ -78,8 +78,13 @@ class SceneGraphNodeView: RootView {
     }
 
     override func canHandle(_ eventRequest: EventRequest) -> Bool {
-        if eventRequest is MouseEventRequest {
-            return false
+        if let mouseEvent = eventRequest as? MouseEventRequest {
+            switch mouseEvent.eventType {
+            case .mouseDown, .mouseUp, .mouseClick, .mouseDoubleClick:
+                return false
+            default:
+                break
+            }
         }
 
         return super.canHandle(eventRequest)

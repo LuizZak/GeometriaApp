@@ -13,37 +13,29 @@ public protocol DirectedGraph {
     
     /// Returns `true` iff two node references represent the same underlying node
     /// in this graph.
-    @inlinable
     func areNodesEqual(_ node1: Node, _ node2: Node) -> Bool
     
     /// Returns `true` iff two edges are equivalent (i.e. have the same start/end
     /// nodes).
-    @inlinable
     func areEdgesEqual(_ edge1: Edge, _ edge2: Edge) -> Bool
     
     /// Returns the starting edge for a given node on this graph.
-    @inlinable
     func startNode(for edge: Edge) -> Node
     
     /// Returns the ending edge for a given node on this graph.
-    @inlinable
     func endNode(for edge: Edge) -> Node
     
     /// Returns all ingoing and outgoing edges for a given directed graph node.
-    @inlinable
     func allEdges(for node: Node) -> [Edge]
     
     /// Returns all outgoing edges for a given directed graph node.
-    @inlinable
     func edges(from node: Node) -> [Edge]
     
     /// Returns all ingoing edges for a given directed graph node.
-    @inlinable
     func edges(towards node: Node) -> [Edge]
     
     /// Returns an existing edge between two nodes, or `nil`, if no edges between
     /// them currently exist.
-    @inlinable
     func edge(from start: Node, to end: Node) -> Edge?
 
     /// Returns `true` if the two given nodes are connected with an edge.
@@ -51,17 +43,14 @@ public protocol DirectedGraph {
     
     /// Returns all graph nodes that are connected from a given directed graph
     /// node.
-    @inlinable
     func nodesConnected(from node: Node) -> [Node]
     
     /// Returns all graph nodes that are connected towards a given directed graph
     /// node.
-    @inlinable
     func nodesConnected(towards node: Node) -> [Node]
     
     /// Returns all graph nodes that are connected towards and from the given
     /// graph node.
-    @inlinable
     func allNodesConnected(to node: Node) -> [Node]
 
     /// Returns `true` if the directed graph has a path between the two given nodes.
@@ -74,7 +63,6 @@ public protocol DirectedGraph {
     ///
     /// In case the two nodes are not connected, or are connected in the opposite
     /// direction, `nil` is returned.
-    @inlinable
     func shortestDistance(from start: Node, to end: Node) -> Int?
     
     /// Returns any of the shortest paths found between two nodes.
@@ -83,17 +71,14 @@ public protocol DirectedGraph {
     ///
     /// In case the two nodes are not connected, or are connected in the opposite
     /// direction, `nil` is returned.
-    @inlinable
     func shortestPath(from start: Node, to end: Node) -> [Node]?
     
     /// Performs a depth-first visiting of this directed graph, finishing once
     /// all nodes are visited, or when `visitor` returns false.
-    @inlinable
     func depthFirstVisit(start: Node, _ visitor: (VisitElement) -> Bool)
     
     /// Performs a breadth-first visiting of this directed graph, finishing once
     /// all nodes are visited, or when `visitor` returns false.
-    @inlinable
     func breadthFirstVisit(start: Node, _ visitor: (VisitElement) -> Bool)
 }
 
