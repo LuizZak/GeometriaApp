@@ -37,11 +37,11 @@ class SceneGraphBuilderController {
                 case .node(_, let node):
                     beginNodeDrag(node, mouseLocation: event.location)
                 
-                case .input(let view, let input, let node, _):
-                    beginInputDrag(view, input: input, node: node)
+                case .input(let info, let node, _):
+                    beginInputDrag(info, node: node)
                 
-                case .output(let view, let output, let node, _):
-                    beginOutputDrag(view, output: output, node: node)
+                case .output(let info, let node, _):
+                    beginOutputDrag(info, node: node)
                 
                 case .connection(let element, _):
                     uiDelegate?.sceneGraphBuilderController(
@@ -124,8 +124,7 @@ class SceneGraphBuilderController {
     }
 
     private func beginInputDrag(
-        _ view: View,
-        input: SceneGraphNodeInput,
+        _ info: SceneGraphNodeView.InputViewInfo,
         node: SceneGraphNode
     ) {
         guard let uiDelegate else { return }
@@ -134,15 +133,16 @@ class SceneGraphBuilderController {
         ) else { return }
 
         let connection = uiDelegate.sceneGraphBuilderControllerCreateConnectionElement(self)
+
         uiDelegate.sceneGraphBuilderController(
             self,
             updateStartAnchorFor: connection,
-            .input(nodeView, index: input.index)
+            .input(nodeView, info)
         )
 
         let operation = InputDragOperation(
-            view: view,
-            input: input,
+            view: info.connectionView,
+            input: info.input,
             node: node,
             connection: connection
         )
@@ -151,8 +151,7 @@ class SceneGraphBuilderController {
     }
 
     private func beginOutputDrag(
-        _ view: View,
-        output: SceneGraphNodeOutput,
+        _ info: SceneGraphNodeView.OutputViewInfo,
         node: SceneGraphNode
     ) {
         guard let uiDelegate else { return }
@@ -164,12 +163,12 @@ class SceneGraphBuilderController {
         uiDelegate.sceneGraphBuilderController(
             self,
             updateStartAnchorFor: connection,
-            .output(nodeView, index: output.index)
+            .output(nodeView, info)
         )
 
         let operation = OutputDragOperation(
-            view: view,
-            output: output,
+            view: info.connectionView,
+            output: info.output,
             node: node,
             connection: connection
         )
@@ -403,14 +402,14 @@ class SceneGraphBuilderController {
                 case .node, .input:
                     break outerLoop
                 
-                case .output(_, let output, let graphNode, let nodeView):
+                case .output(let info, let graphNode, let nodeView):
                     if controller.canConnect(
                         start: graphNode,
-                        output: output,
+                        output: info.output,
                         end: node,
                         input: input
                     ) {
-                        return .output(nodeView, index: output.index)
+                        return .output(nodeView, info)
                     }
                 
                 case .connection:
@@ -447,26 +446,28 @@ class SceneGraphBuilderController {
             for element in elements {
                 switch element {
                 case .node(let graphNode, let nodeView),
-                    .output(_, _, let graphNode, let nodeView):
+                    .output(_, let graphNode, let nodeView):
 
                     if let input = controller.suggestInput(
                         start: node,
                         output: output,
                         end: graphNode
                     ) {
-                        return .input(nodeView, index: input.index)
+                        let info = nodeView.inputViewConnection(forInputIndex: input.index)
+
+                        return .input(nodeView, info)
                     }
 
                     break outerLoop
                 
-                case .input(_, let input, let graphNode, let nodeView):
+                case .input(let info, let graphNode, let nodeView):
                     if controller.canConnect(
                         start: node,
                         output: output,
                         end: graphNode,
-                        input: input
+                        input: info.input
                     ) {
-                        return .input(nodeView, index: input.index)
+                        return .input(nodeView, info)
                     }
 
                     break outerLoop
@@ -514,11 +515,11 @@ extension SceneGraphBuilderController {
         guard let uiDelegate else { return }
 
         switch (element.startAnchor, element.endAnchor) {
-        case (.output(let startView, let outputIndex), .input(let endView, let inputIndex)):
-            guard let (start, output) = getNodeAndOutput(startView, index: outputIndex) else {
+        case (.output(let startView, let outputInfo), .input(let endView, let inputInfo)):
+            guard let (start, output) = getNodeAndOutput(startView, index: outputInfo.index) else {
                 break
             }
-            guard let (end, input) = getNodeAndInput(endView, index: inputIndex) else {
+            guard let (end, input) = getNodeAndInput(endView, index: inputInfo.index) else {
                 break
             }
             

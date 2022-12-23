@@ -5,8 +5,8 @@ import GeometriaAppLib
 /// by the mouse by a user.
 enum SceneGraphMouseElementKind {
     case node(node: SceneGraphNode, SceneGraphNodeView)
-    case input(View, SceneGraphNodeInput, node: SceneGraphNode, SceneGraphNodeView)
-    case output(View, SceneGraphNodeOutput, node: SceneGraphNode, SceneGraphNodeView)
+    case input(SceneGraphNodeView.InputViewInfo, node: SceneGraphNode, SceneGraphNodeView)
+    case output(SceneGraphNodeView.OutputViewInfo, node: SceneGraphNode, SceneGraphNodeView)
     case connection(SceneGraphConnectionElement, edge: SceneGraphEdge)
 }
 

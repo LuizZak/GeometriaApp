@@ -73,32 +73,44 @@ class SceneGraphBuilderView: RootView {
             return nil
         }
 
-        let startAnchor: SceneGraphConnectionElement.AnchorElement
-        let endAnchor: SceneGraphConnectionElement.AnchorElement
+        func anchorForElement(
+            _ nodeView: SceneGraphNodeView,
+            _ element: SceneGraphDirectedNodeElement.Element
+        ) -> SceneGraphConnectionElement.AnchorElement? {
 
-        switch edge.start.element {
-        case .node:
-            return nil
-        case .input(_, let input):
-            startAnchor = .input(startNode, index: input.index)
-        case .output(_, let output):
-            startAnchor = .output(startNode, index: output.index)
+            switch element {
+            case .node:
+                return nil
+            case .input(_, let input):
+                let info = nodeView.inputViewConnection(forInputIndex: input.index)
+                return .input(nodeView, info)
+
+            case .output(_, let output):
+                let info = nodeView.outputViewConnection(forOutputIndex: output.index)
+                return .output(nodeView, info)
+            }
         }
 
-        switch edge.end.element {
-        case .node:
+        guard let startAnchor = anchorForElement(startNode, edge.start.element) else {
             return nil
-        case .input(_, let input):
-            endAnchor = .input(endNode, index: input.index)
-        case .output(_, let output):
-            endAnchor = .output(endNode, index: output.index)
         }
+        guard let endAnchor = anchorForElement(endNode, edge.end.element) else {
+            return nil
+        }
+
+        _incrementConnectionCount(startAnchor)
+        _incrementConnectionCount(endAnchor)
 
         return _createConnectionElement(
             startAnchor: startAnchor,
             endAnchor: endAnchor,
             graphEdge: edge
         )
+    }
+
+    private func _incrementConnectionCount(_ anchor: SceneGraphConnectionElement.AnchorElement) {
+        anchor.inputViewInfo?.state.connectionAdded()
+        anchor.outputViewInfo?.state.connectionAdded()
     }
 
     private func _moveNodeViewToFront(_ nodeView: SceneGraphNodeView) {
@@ -207,11 +219,11 @@ class SceneGraphBuilderView: RootView {
 
                 if let node = view as? SceneGraphNodeView {
                     // Check if mouse overlaps an input or output node
-                    if let (view, input) = node.inputViewConnection(under: converted) {
-                        return .input(view, input, node: node.node, node)
+                    if let info = node.inputViewConnection(under: converted) {
+                        return .input(info, node: node.node, node)
                     }
-                    if let (view, output) = node.outputViewConnection(under: converted) {
-                        return .output(view, output, node: node.node, node)
+                    if let info = node.outputViewConnection(under: converted) {
+                        return .output(info, node: node.node, node)
                     }
 
                     // If no inner overlap is found, return the node view itself.
@@ -534,13 +546,11 @@ class SceneGraphBuilderView: RootView {
             }
 
             switch anchor {
-            case .input(let nodeView, let index):
-                let (view, _) = nodeView.inputViewConnection(forInputIndex: index)
-                return forViewLeft(view)
+            case .input(_, let info):
+                return forViewLeft(info.connectionView)
 
-            case .output(let nodeView, let index):
-                let (view, _) = nodeView.outputViewConnection(forOutputIndex: index)
-                return forViewRight(view)
+            case .output(_, let info):
+                return forViewRight(info.connectionView)
 
             case .view(let view, let localOffset):
                 return self.convert(point: localOffset, from: view)

@@ -121,42 +121,58 @@ class SceneGraphNodeView: RootView {
     /// on the underlying graph node.
     ///
     /// - precondition: `index >= 0 && index < node.inputs.count`
-    func inputViewConnection(forInputIndex index: Int) -> (View, SceneGraphNodeInput) {
+    func inputViewConnection(forInputIndex index: Int) -> InputViewInfo {
         let view = _inputViews[index]
 
-        return (view.connectionView, view.input)
+        return InputViewInfo(
+            connectionView: view.connectionView,
+            state: view.state,
+            input: view.input
+        )
     }
 
     /// Returns the view for the connection point of an output at a specified
     /// index on the underlying graph node.
     ///
     /// - precondition: `output >= 0 && output < node.outputs.count`
-    func outputViewConnection(forOutputIndex index: Int) -> (View, SceneGraphNodeOutput) {
+    func outputViewConnection(forOutputIndex index: Int) -> OutputViewInfo {
         let view = _outputViews[index]
 
-        return (view.connectionView, view.output)
+        return OutputViewInfo(
+            connectionView: view.connectionView,
+            state: view.state,
+            output: view.output
+        )
     }
 
-    func inputViewConnection(under point: UIPoint) -> (View, SceneGraphNodeInput)? {
-        for input in _inputViews {
-            let view = input.connectionView
+    func inputViewConnection(under point: UIPoint) -> InputViewInfo? {
+        for view in _inputViews {
+            let connection = view.connectionView
 
-            let converted = view.convert(point: point, from: self)
-            if view.contains(point: converted) {
-                return (view, input.input)
+            let converted = connection.convert(point: point, from: self)
+            if connection.contains(point: converted) {
+                return InputViewInfo(
+                    connectionView: connection,
+                    state: view.state,
+                    input: view.input
+                )
             }
         }
 
         return nil
     }
 
-    func outputViewConnection(under point: UIPoint) -> (View, SceneGraphNodeOutput)? {
-        for output in _outputViews {
-            let view = output.connectionView
+    func outputViewConnection(under point: UIPoint) -> OutputViewInfo? {
+        for view in _outputViews {
+            let connection = view.connectionView
 
-            let converted = view.convert(point: point, from: self)
-            if view.contains(point: converted) {
-                return (view, output.output)
+            let converted = connection.convert(point: point, from: self)
+            if connection.contains(point: converted) {
+                return OutputViewInfo(
+                    connectionView: connection,
+                    state: view.state,
+                    output: view.output
+                )
             }
         }
 
@@ -215,6 +231,26 @@ class SceneGraphNodeView: RootView {
         }
     }
 
+    public struct InputViewInfo {
+        public var connectionView: View
+        public var state: InputViewState
+        public var input: SceneGraphNodeInput
+
+        public var index: Int {
+            input.index
+        }
+    }
+
+    public struct OutputViewInfo {
+        public var connectionView: View
+        public var state: OutputViewState
+        public var output: SceneGraphNodeOutput
+
+        public var index: Int {
+            output.index
+        }
+    }
+
     /// Allows interacting with the underlying UI state of an input of a node view.
     public class InputViewState {
         @Observable
@@ -261,6 +297,14 @@ class SceneGraphNodeView: RootView {
             super.init()
 
             reloadDisplay()
+
+            setupEvents()
+        }
+
+        func setupEvents() {
+            state.$connectionCount.addWeakListener(self) { (owner, count) in
+                owner.connectionView.connectionState = count > 0 ? .connected : .disconnected
+            }
         }
 
         override func setupHierarchy() {
@@ -310,6 +354,13 @@ class SceneGraphNodeView: RootView {
             super.init()
 
             reloadDisplay()
+            setupEvents()
+        }
+
+        func setupEvents() {
+            state.$connectionCount.addWeakListener(self) { (owner, count) in
+                owner.connectionView.connectionState = count > 0 ? .connected : .disconnected
+            }
         }
 
         override func setupHierarchy() {
@@ -349,9 +400,30 @@ class SceneGraphNodeView: RootView {
             return .init(repeating: _circleRadius) * 2 + .init(width: _leadingLineLength, height: 0.0)
         }
 
-        var connectionState: ConnectionState = .none {
+        var disconnectedLeadingLineStyle: LeadingLineStyle = LeadingLineStyle(strokeColor: .gray) {
+            didSet {
+                invalidate()
+            }
+        }
+        var connectedLeadingLineStyle: LeadingLineStyle = LeadingLineStyle(strokeColor: .orange) {
+            didSet {
+                invalidate()
+            }
+        }
+
+        /// Controls the display state of the connection being represented.
+        var connectionState: ConnectionState = .disconnected {
             didSet {
                 invalidateControlGraphics()
+            }
+        }
+
+        var isConnected: Bool {
+            switch connectionState {
+            case .disconnected:
+                return false
+            case .connected:
+                return true
             }
         }
 
@@ -398,9 +470,17 @@ class SceneGraphNodeView: RootView {
             renderer.setStrokeWidth(strokeWidth)
             renderer.stroke(circle)
 
+            if isConnected {
+                renderer.setFill(strokeColor)
+                renderer.fill(circle.expanded(by: -_circleRadius / 3))
+            }
+
             // Stroke connection line
-            renderer.setStroke(strokeColor)
-            renderer.setStrokeWidth(strokeWidth)
+            if isConnected {
+                connectedLeadingLineStyle.apply(to: renderer)
+            } else {
+                disconnectedLeadingLineStyle.apply(to: renderer)
+            }
             renderer.stroke(leadingLine)
         }
 
@@ -435,13 +515,23 @@ class SceneGraphNodeView: RootView {
         }
 
         enum ConnectionState {
-            case none
-            case connected(SceneGraphNode.Connection)
+            case disconnected
+            case connected
         }
 
         enum ConnectionDirection {
             case left
             case right
+        }
+
+        struct LeadingLineStyle {
+            var strokeWidth: Double = 2.0
+            var strokeColor: Color = .gray
+
+            func apply(to renderer: Renderer) {
+                renderer.setStrokeWidth(strokeWidth)
+                renderer.setStroke(strokeColor)
+            }
         }
     }
 

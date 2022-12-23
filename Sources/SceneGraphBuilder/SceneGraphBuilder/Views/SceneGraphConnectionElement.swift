@@ -25,10 +25,10 @@ class SceneGraphConnectionElement {
     /// view.
     enum AnchorElement {
         /// Anchor is the input of a graph node view.
-        case input(SceneGraphNodeView, index: Int)
+        case input(SceneGraphNodeView, SceneGraphNodeView.InputViewInfo)
 
         /// Anchor is the output of a graph node view.
-        case output(SceneGraphNodeView, index: Int)
+        case output(SceneGraphNodeView, SceneGraphNodeView.OutputViewInfo)
 
         /// Anchors to a view object in another hierarchy, with a given offset
         /// that is relative to view itself.
@@ -43,6 +43,32 @@ class SceneGraphConnectionElement {
                 return view
             case .view(let view, _):
                 return view
+            case .globalLocation:
+                return nil
+            }
+        }
+
+        var inputViewInfo: SceneGraphNodeView.InputViewInfo? {
+            switch self {
+            case .input(_, let info):
+                return info
+            case .output:
+                return nil
+            case .view:
+                return nil
+            case .globalLocation:
+                return nil
+            }
+        }
+
+        var outputViewInfo: SceneGraphNodeView.OutputViewInfo? {
+            switch self {
+            case .output(_, let info):
+                return info
+            case .input:
+                return nil
+            case .view:
+                return nil
             case .globalLocation:
                 return nil
             }
