@@ -7,11 +7,11 @@ class SceneGraphNodeView: RootView {
     private let _contentsLayoutGuide: LayoutGuide = LayoutGuide()
 
     private let _inputsStackView: StackView = StackView(orientation: .vertical)
-    private let _inputsLabel: Label = Label(textColor: .gray)
+    private let _inputsLabel: LabelControl = LabelControl(textColor: .gray)
     private var _inputViews: [InputView] = []
 
     private let _outputsStackView: StackView = StackView(orientation: .vertical)
-    private let _outputsLabel: Label = Label(textColor: .gray)
+    private let _outputsLabel: LabelControl = LabelControl(textColor: .gray)
     private var _outputViews: [OutputView] = []
 
     var node: SceneGraphNode
@@ -42,7 +42,7 @@ class SceneGraphNodeView: RootView {
 
     private func updateColors() {
         backColor = Color(red: 37, green: 37, blue: 38)
-
+        
         switch controlState {
         case .normal:
             strokeColor = Color(red: 9, green: 71, blue: 113)
@@ -53,6 +53,9 @@ class SceneGraphNodeView: RootView {
         default:
             break
         }
+
+        _inputsLabel.backColor = .transparentBlack
+        _outputsLabel.backColor = .transparentBlack
     }
 
     override func onStateChanged(_ change: ValueChangedEventArgs<ControlViewState>) {
@@ -75,6 +78,9 @@ class SceneGraphNodeView: RootView {
 
         areaIntoConstraintsMask = [.location]
 
+        _inputsLabel.textInset = UIEdgeInsets(left: 5)
+        _outputsLabel.textInset = UIEdgeInsets(right: 5)
+
         _headerView.layout.makeConstraints { make in
             make.left == self + 4
             make.top == self + 4
@@ -82,8 +88,8 @@ class SceneGraphNodeView: RootView {
         }
         _contentsLayoutGuide.layout.makeConstraints { make in
             make.top == _headerView.layout.bottom + 4
-            make.left == self + 4
-            make.right == self - 4
+            make.left == self
+            make.right == self
             make.bottom == self - 4
         }
         _inputsStackView.layout.makeConstraints { make in
@@ -209,9 +215,43 @@ class SceneGraphNodeView: RootView {
         }
     }
 
+    /// Allows interacting with the underlying UI state of an input of a node view.
+    public class InputViewState {
+        @Observable
+        fileprivate var connectionCount: Int = 0
+
+        /// Reports that a connection has been made visually.
+        public func connectionAdded() {
+            connectionCount += 1
+        }
+
+        /// Reports that a connection has been removed visually.
+        public func connectionRemoved() {
+            connectionCount -= 1
+        }
+    }
+
+    /// Allows interacting with the underlying UI state of an output of a node view.
+    public class OutputViewState {
+        @Observable
+        fileprivate var connectionCount: Int = 0
+
+        /// Reports that a connection has been made visually.
+        public func connectionAdded() {
+            connectionCount += 1
+        }
+
+        /// Reports that a connection has been removed visually.
+        public func connectionRemoved() {
+            connectionCount -= 1
+        }
+    }
+
     private class InputView: View {
         let label: Label = Label(textColor: .white)
-        let connectionView: ConnectionView = ConnectionView()
+        let connectionView: ConnectionView = ConnectionView(connectionDirection: .left)
+
+        var state: InputViewState = InputViewState()
 
         var input: SceneGraphNodeInput
 
@@ -234,7 +274,7 @@ class SceneGraphNodeView: RootView {
             super.setupConstraints()
 
             connectionView.layout.makeConstraints { make in
-                make.left == self + 2
+                make.left == self
                 make.centerY == self
                 make.height <= self
             }
@@ -258,7 +298,9 @@ class SceneGraphNodeView: RootView {
 
     private class OutputView: View {
         let label: Label = Label(textColor: .white)
-        let connectionView: ConnectionView = ConnectionView()
+        let connectionView: ConnectionView = ConnectionView(connectionDirection: .right)
+
+        var state: OutputViewState = OutputViewState()
 
         var output: SceneGraphNodeOutput
 
@@ -281,7 +323,7 @@ class SceneGraphNodeView: RootView {
             super.setupConstraints()
 
             connectionView.layout.makeConstraints { make in
-                make.right == self - 2
+                make.right == self
                 make.centerY == self
                 make.height <= self
             }
@@ -301,9 +343,10 @@ class SceneGraphNodeView: RootView {
 
     private class ConnectionView: ControlView {
         private let _circleRadius: Double = 6.0
+        private let _leadingLineLength: Double = 5.0
 
         override var intrinsicSize: UISize? {
-            return .init(repeating: _circleRadius) * 2
+            return .init(repeating: _circleRadius) * 2 + .init(width: _leadingLineLength, height: 0.0)
         }
 
         var connectionState: ConnectionState = .none {
@@ -312,7 +355,11 @@ class SceneGraphNodeView: RootView {
             }
         }
 
-        override init() {
+        var connectionDirection: ConnectionDirection
+
+        init(connectionDirection: ConnectionDirection) {
+            self.connectionDirection = connectionDirection
+
             super.init()
 
             initialize()
@@ -325,11 +372,36 @@ class SceneGraphNodeView: RootView {
         }
 
         override func renderBackground(in renderer: Renderer, screenRegion: ClipRegionType) {
-            let circle = UICircle(center: size.asUIPoint / 2, radius: _circleRadius)
+            // Compute geometry
+            var circle = UICircle(center: .init(x: 0, y: size.height / 2), radius: _circleRadius)
 
+            var leadingLine = UILine(
+                x1: 0,
+                y1: circle.center.y,
+                x2: 0,
+                y2: circle.center.y
+            )
+            
+            switch connectionDirection {
+            case .left:
+                circle.center.x = size.width - _circleRadius
+                leadingLine.start.x = 0
+                leadingLine.end.x = _leadingLineLength
+            case .right:
+                circle.center.x = _circleRadius
+                leadingLine.start.x = size.width - _leadingLineLength
+                leadingLine.end.x = size.width
+            }
+
+            // Stroke circle
             renderer.setStroke(strokeColor)
             renderer.setStrokeWidth(strokeWidth)
             renderer.stroke(circle)
+
+            // Stroke connection line
+            renderer.setStroke(strokeColor)
+            renderer.setStrokeWidth(strokeWidth)
+            renderer.stroke(leadingLine)
         }
 
         override func onStateChanged(_ change: ValueChangedEventArgs<ControlViewState>) {
@@ -365,6 +437,11 @@ class SceneGraphNodeView: RootView {
         enum ConnectionState {
             case none
             case connected(SceneGraphNode.Connection)
+        }
+
+        enum ConnectionDirection {
+            case left
+            case right
         }
     }
 
