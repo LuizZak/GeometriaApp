@@ -401,14 +401,10 @@ class SceneGraphNodeView: RootView {
         }
 
         var disconnectedLeadingLineStyle: LeadingLineStyle = LeadingLineStyle(strokeColor: .gray) {
-            didSet {
-                invalidate()
-            }
+            didSet { invalidate() }
         }
         var connectedLeadingLineStyle: LeadingLineStyle = LeadingLineStyle(strokeColor: .orange) {
-            didSet {
-                invalidate()
-            }
+            didSet { invalidate() }
         }
 
         /// Controls the display state of the connection being represented.
@@ -471,7 +467,7 @@ class SceneGraphNodeView: RootView {
             renderer.stroke(circle)
 
             if isConnected {
-                renderer.setFill(strokeColor)
+                renderer.setFill(.orange)
                 renderer.fill(circle.expanded(by: -_circleRadius / 3))
             }
 
@@ -524,6 +520,7 @@ class SceneGraphNodeView: RootView {
             case right
         }
 
+        // MARK: Styling structures
         struct LeadingLineStyle {
             var strokeWidth: Double = 2.0
             var strokeColor: Color = .gray
