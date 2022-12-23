@@ -32,7 +32,9 @@ class SceneGraphNodeView: RootView {
         cornerRadius = 4
 
         _inputsLabel.text = "inputs:"
+        _inputsLabel.isInteractiveEnabled = false
         _outputsLabel.text = "outputs:"
+        _outputsLabel.isInteractiveEnabled = false
 
         _inputsStackView.alignment = .leading
         _outputsStackView.alignment = .trailing
