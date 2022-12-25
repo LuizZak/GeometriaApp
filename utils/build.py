@@ -14,6 +14,7 @@ from typing import Any, Callable, List, Optional, TypeVar
 from os import PathLike
 
 win32_debug_args = [
+    # "-Xswiftc", "-DDUMP_CONSTRAINTS_TO_DESKTOP", # For debugging constraint resolution problems
     "-Xswiftc",
     "-g",
     "-Xswiftc",

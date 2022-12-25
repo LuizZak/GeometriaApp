@@ -129,7 +129,8 @@ class SceneGraphNodeView: RootView {
         return InputViewInfo(
             connectionView: view.connectionView,
             state: view.state,
-            input: view.input
+            input: view.input,
+            tooltipProvider: view.connectionView
         )
     }
 
@@ -143,7 +144,8 @@ class SceneGraphNodeView: RootView {
         return OutputViewInfo(
             connectionView: view.connectionView,
             state: view.state,
-            output: view.output
+            output: view.output,
+            tooltipProvider: view.connectionView
         )
     }
 
@@ -156,7 +158,8 @@ class SceneGraphNodeView: RootView {
                 return InputViewInfo(
                     connectionView: connection,
                     state: view.state,
-                    input: view.input
+                    input: view.input,
+                    tooltipProvider: connection
                 )
             }
         }
@@ -173,7 +176,8 @@ class SceneGraphNodeView: RootView {
                 return OutputViewInfo(
                     connectionView: connection,
                     state: view.state,
-                    output: view.output
+                    output: view.output,
+                    tooltipProvider: connection
                 )
             }
         }
@@ -237,6 +241,7 @@ class SceneGraphNodeView: RootView {
         public var connectionView: View
         public var state: InputViewState
         public var input: SceneGraphNodeInput
+        public var tooltipProvider: TooltipProvider
 
         public var index: Int {
             input.index
@@ -247,6 +252,7 @@ class SceneGraphNodeView: RootView {
         public var connectionView: View
         public var state: OutputViewState
         public var output: SceneGraphNodeOutput
+        public var tooltipProvider: TooltipProvider
 
         public var index: Int {
             output.index

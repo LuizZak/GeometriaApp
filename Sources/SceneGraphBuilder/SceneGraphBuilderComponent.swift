@@ -62,4 +62,8 @@ extension SceneGraphBuilderComponent: SceneGraphBuilderViewDelegate {
     func openDialog(_ view: UIDialog, location: UIDialogInitialLocation) -> Bool {
         delegate?.openDialog(view, location: location) ?? false
     }
+
+    public func beginCustomTooltipLifetime() -> CustomTooltipHandlerType? {
+        delegate?.beginCustomTooltipLifetime()
+    }
 }

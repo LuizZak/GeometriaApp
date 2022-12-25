@@ -124,4 +124,8 @@ protocol SceneGraphBuilderControllerUIDelegate: AnyObject {
         openContextMenu items: [ContextMenuItemEntry],
         location: UIPoint
     )
+
+    func sceneGraphBuilderBeginCustomTooltipLifetime(
+        _ controller: SceneGraphBuilderController
+    ) -> CustomTooltipHandlerType?
 }

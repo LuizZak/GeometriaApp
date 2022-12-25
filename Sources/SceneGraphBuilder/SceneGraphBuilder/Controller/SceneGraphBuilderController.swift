@@ -144,7 +144,8 @@ class SceneGraphBuilderController {
             view: info.connectionView,
             input: info.input,
             node: node,
-            connection: connection
+            connection: connection,
+            tooltipHandler: beginCustomTooltipLifetime()
         )
 
         _mouseState = .draggingInput(operation)
@@ -170,7 +171,8 @@ class SceneGraphBuilderController {
             view: info.connectionView,
             output: info.output,
             node: node,
-            connection: connection
+            connection: connection,
+            tooltipHandler: beginCustomTooltipLifetime()
         )
 
         _mouseState = .draggingOutput(operation)
@@ -204,6 +206,8 @@ class SceneGraphBuilderController {
                 in: self
             )
 
+            updateTooltipForConnectionAnchor(operation.tooltipHandler, endAnchor)
+
             uiDelegate.sceneGraphBuilderController(
                 self,
                 updateEndAnchorFor: operation.connection,
@@ -215,6 +219,8 @@ class SceneGraphBuilderController {
                 mouseLocation: location,
                 in: self
             )
+
+            updateTooltipForConnectionAnchor(operation.tooltipHandler, endAnchor)
             
             uiDelegate.sceneGraphBuilderController(
                 self,
@@ -231,6 +237,8 @@ class SceneGraphBuilderController {
         
         switch _mouseState {
         case .draggingInput(let operation):
+            operation.tooltipHandler?.endTooltipLifetime()
+
             let endAnchor = operation.suggestedDragEndAnchor(
                 mouseLocation: location,
                 in: self
@@ -244,6 +252,8 @@ class SceneGraphBuilderController {
             commitConnectionElement(operation.connection)
         
         case .draggingOutput(let operation):
+            operation.tooltipHandler?.endTooltipLifetime()
+            
             let endAnchor = operation.suggestedDragEndAnchor(
                 mouseLocation: location,
                 in: self
@@ -354,6 +364,36 @@ class SceneGraphBuilderController {
         )
     }
 
+    private func updateTooltipForConnectionAnchor(
+        _ tooltipHandler: CustomTooltipHandlerType?,
+        _ anchor: SceneGraphConnectionElement.AnchorElement
+    ) {
+
+        switch anchor {
+        case .input(_, let info):
+            tooltipHandler?.showTooltip(for: info.tooltipProvider, location: .left)
+        case .output(_, let info):
+            tooltipHandler?.showTooltip(for: info.tooltipProvider, location: .right)
+        default:
+            tooltipHandler?.hideTooltip()
+        }
+    }
+
+    private func showTooltip(
+        _ tooltipHandler: CustomTooltipHandlerType?,
+        _ provider: TooltipProvider,
+        location: PreferredTooltipLocation?
+    ) {
+
+        tooltipHandler?.showTooltip(for: provider, location: location)
+    }
+
+    private func beginCustomTooltipLifetime() -> CustomTooltipHandlerType? {
+        uiDelegate?.sceneGraphBuilderBeginCustomTooltipLifetime(
+            self
+        )
+    }
+
     // MARK: - Types
 
     private enum MouseState {
@@ -388,6 +428,10 @@ class SceneGraphBuilderController {
 
         /// The UI element representing the connection being dragged.
         var connection: SceneGraphConnectionElement
+
+        /// For displaying custom tooltips as the user interacts with other
+        /// UI elements while the dragging operation is ongoing.
+        var tooltipHandler: CustomTooltipHandlerType?
 
         func suggestedDragEndAnchor(
             mouseLocation: UIPoint,
@@ -434,6 +478,10 @@ class SceneGraphBuilderController {
 
         /// The UI element representing the connection being dragged.
         var connection: SceneGraphConnectionElement
+
+        /// For displaying custom tooltips as the user interacts with other
+        /// UI elements while the dragging operation is ongoing.
+        var tooltipHandler: CustomTooltipHandlerType?
 
         func suggestedDragEndAnchor(
             mouseLocation: UIPoint,

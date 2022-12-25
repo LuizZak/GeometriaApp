@@ -256,6 +256,22 @@ public class RaytracerUI: ImagineUIContentType {
         state.dialog.didClose()
     }
 
+    private func _showTooltip(
+        _ provider: TooltipProvider,
+        location: PreferredTooltipLocation? = nil
+    ) {
+        
+        ui.controlSystem.showTooltip(for: provider, location: location)
+    }
+
+    private func _hideTooltips() {
+        ui.controlSystem.hideTooltip(stopTimers: true)
+    }
+
+    private func _beginCustomTooltipLifetime() -> CustomTooltipHandlerType? {
+        ui.controlSystem.beginCustomTooltipLifetime()
+    }
+
     /// Wraps the state of a displayed dialog.
     private struct DialogState {
         /// The dialog window currently opened.
@@ -439,6 +455,10 @@ public class RaytracerUI: ImagineUIContentType {
 extension RaytracerUI: RaytracerUIComponentDelegate {
     public func openDialog(_ view: UIDialog, location: UIDialogInitialLocation) -> Bool {
         return _openDialog(view, location: location)
+    }
+
+    public func beginCustomTooltipLifetime() -> CustomTooltipHandlerType? {
+        _beginCustomTooltipLifetime()
     }
 }
 

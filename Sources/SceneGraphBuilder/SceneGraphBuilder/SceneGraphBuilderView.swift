@@ -529,11 +529,14 @@ extension SceneGraphBuilderView: SceneGraphBuilderControllerUIDelegate {
     }
 }
 
-protocol SceneGraphBuilderViewDelegate: AnyObject {
-    /// Request that the UI open a view as a dialog, obscuring the underlying
-    /// views while the view is displayed.
-    ///
-    /// Returns a boolean value indicating whether the view was successfully opened.
-    @discardableResult
-    func openDialog(_ view: UIDialog, location: UIDialogInitialLocation) -> Bool
+
+    func sceneGraphBuilderBeginCustomTooltipLifetime(
+        _ controller: SceneGraphBuilderController
+    ) -> CustomTooltipHandlerType? {
+        delegate?.beginCustomTooltipLifetime()
+    }
+}
+
+protocol SceneGraphBuilderViewDelegate: RaytracerUIComponentDelegate {
+    
 }

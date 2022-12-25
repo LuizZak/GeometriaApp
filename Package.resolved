@@ -24,7 +24,7 @@
       "location" : "https://github.com/LuizZak/swift-blend2d.git",
       "state" : {
         "branch" : "master",
-        "revision" : "fd318406fbdce6d47771722e84e70f6745d28191"
+        "revision" : "5704db8276f1e06ba50a36dbbc7d0a945f37db4a"
       }
     },
     {
@@ -42,7 +42,7 @@
       "location" : "https://github.com/apple/swift-log.git",
       "state" : {
         "branch" : "main",
-        "revision" : "5db2bc495a05be4f00270506e4a0a0e4f2fbdc71"
+        "revision" : "e979c6945c31c27b5c1ed6c8432aa75d4cd53221"
       }
     },
     {

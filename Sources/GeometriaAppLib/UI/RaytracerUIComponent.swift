@@ -31,4 +31,8 @@ public protocol RaytracerUIComponentDelegate: AnyObject {
     /// Returns a boolean value indicating whether the view was successfully opened.
     @discardableResult
     func openDialog(_ view: UIDialog, location: UIDialogInitialLocation) -> Bool
+
+    /// Requests that a custom tooltip lifetime be started, if one is not already
+    /// running.
+    func beginCustomTooltipLifetime() -> CustomTooltipHandlerType?
 }
