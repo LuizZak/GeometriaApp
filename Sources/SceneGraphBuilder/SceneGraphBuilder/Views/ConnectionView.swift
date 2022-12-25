@@ -23,6 +23,7 @@ class ConnectionView: ControlView {
         super.init()
 
         clipToBounds = false
+        areaIntoConstraintsMask = []
     }
 
     override func renderForeground(in renderer: Renderer, screenRegion: ClipRegionType) {
