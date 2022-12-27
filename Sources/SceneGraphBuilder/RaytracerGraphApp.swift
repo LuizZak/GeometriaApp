@@ -6,8 +6,6 @@ import Blend2DRenderer
 import GeometriaAppLib
 
 open class RaytracerGraphApp: ImagineUIContentType {
-    private var _isResizing: Bool = false
-    
     private var ui: RaytracerUI
 
     private(set) public var size: UIIntSize
@@ -52,14 +50,10 @@ open class RaytracerGraphApp: ImagineUIContentType {
     
     public func willStartLiveResize() {
         ui.willStartLiveResize()
-        
-        _isResizing = true
     }
     
     public func didEndLiveResize() {
         ui.didEndLiveResize()
-        
-        _isResizing = false
     }
     
     public func resize(_ size: UIIntSize) {
