@@ -16,6 +16,7 @@ open class RaytracerApp: RaytracerUI {
     
     // Components
     private let statusMessages: StatusMessageStackComponent = StatusMessageStackComponent()
+    private let statusLabels: StatusLabelsComponent = StatusLabelsComponent()
     private let uiProjection: UIProjectionComponent = UIProjectionComponent()
     
     var rendererCoordinator: RendererCoordinator?
@@ -23,6 +24,23 @@ open class RaytracerApp: RaytracerUI {
     var buffer: Blend2DBufferWriter?
     
     public var time: TimeInterval = 0
+
+    public private(set) var dpiScalingMode: DpiScalingMode = .useDpiScale {
+        didSet {
+            statusLabels.updateDpiScalingModeLabel(
+                dpiScalingMode,
+                currentScale: delegate?.windowDpiScalingFactor(self) ?? 1.0
+            )
+
+            guard let delegate, dpiScalingMode != oldValue else {
+                return
+            }
+
+            if delegate.windowDpiScalingFactor(self) != 1.0 {
+                restartRendering()
+            }
+        }
+    }
     
     public override init(size: UIIntSize) {
         super.init(size: size)
@@ -49,7 +67,7 @@ open class RaytracerApp: RaytracerUI {
         addComponent(sceneGraph)
 
         // Status labels
-        let labelsContainer = addComponentInReservedView(StatusLabelsComponent())
+        let labelsContainer = addComponentInReservedView(statusLabels)
         labelsContainer.layout.makeConstraints { make in
             (make.top, make.right, make.bottom) == componentsContainer
             make.right(of: sceneGraph.sidePanel)
@@ -76,7 +94,7 @@ open class RaytracerApp: RaytracerUI {
         
         _isResizing = false
         
-        recreateRenderer()
+        restartRendering()
     }
     
     open override func resize(_ size: UIIntSize) {
@@ -99,6 +117,11 @@ open class RaytracerApp: RaytracerUI {
         }
         
         recreateRenderer()
+
+        statusLabels.updateDpiScalingModeLabel(
+            dpiScalingMode,
+            currentScale: delegate?.windowDpiScalingFactor(self) ?? 1.0
+        )
     }
     
     func recreateRenderer() {
@@ -106,7 +129,21 @@ open class RaytracerApp: RaytracerUI {
             return
         }
         
-        let image = BLImage(width: width, height: height, format: .prgb32)
+        let scaleFactor: Double
+
+        switch dpiScalingMode {
+        case .useDpiScale:
+            scaleFactor = delegate?.windowDpiScalingFactor(self) ?? 1.0
+        case .ignoreDpi:
+            scaleFactor = 1.0
+        }
+        
+        let image = BLImage(
+            width: Int(Double(width) * scaleFactor),
+            height: Int(Double(height) * scaleFactor),
+            format: .prgb32
+        )
+        
         let viewportSize = image.size.asViewportSize
         
         let buffer = Blend2DBufferWriter(image: image)
@@ -224,6 +261,15 @@ open class RaytracerApp: RaytracerUI {
         }
     }
 
+    func toggleDpiScalingMode() {
+        switch dpiScalingMode {
+        case .ignoreDpi:
+            dpiScalingMode = .useDpiScale
+        case .useDpiScale:
+            dpiScalingMode = .ignoreDpi
+        }
+    }
+
     func debugAtMousePointer() {
         guard let rendererCoordinator = rendererCoordinator else {
             return
@@ -281,6 +327,10 @@ open class RaytracerApp: RaytracerUI {
             restartRendering()
             event.handled = true
         }
+        if event.keyCode == .s {
+            toggleDpiScalingMode()
+            event.handled = true
+        }
         if event.keyCode == .o {
             debugAtMousePointer()
             event.handled = true
@@ -314,11 +364,13 @@ open class RaytracerApp: RaytracerUI {
     }
     
     open override func render(renderer: Renderer, renderScale: UIVector, clipRegion: ClipRegionType) {
+        renderer.clear(.black)
+
         if let buffer = buffer {
             buffer.usingImage { img in
                 let img = Blend2DImage(image: img)
 
-                if renderScale == .one {
+                if renderScale == .one || dpiScalingMode == .useDpiScale {
                     renderer.drawImage(img, at: .zero)
                 } else {
                     let rect = UIRectangle(
@@ -331,11 +383,21 @@ open class RaytracerApp: RaytracerUI {
                     renderer.drawImageScaled(img, area: rect)
                 }
             }
-        } else {
-            renderer.clear(.white)
         }
         
         super.render(renderer: renderer, renderScale: renderScale, clipRegion: clipRegion)
+    }
+
+    /// Specifies how DPI scaling of underlying OS window affects the size of the
+    /// backbuffer image being rendered upon.
+    public enum DpiScalingMode {
+        /// Ignore DPI scaling and use logical size of content window for backbuffer.
+        /// May lead to scaling artifacts when DPI scaling is not 1:1.
+        case ignoreDpi
+
+        /// Scale logical size of content window by DPI to scale the backbuffer
+        /// accordingly.
+        case useDpiScale
     }
 }
 

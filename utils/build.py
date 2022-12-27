@@ -23,7 +23,9 @@ win32_debug_args = [
     "-debug",
     "-Xlinker", "/ignore:4217", # For ignoring a very verbose set of warnings in debug builds on Windows
 ]
-win32_release_args = []
+win32_release_args = [
+    "-Xlinker", "/ignore:4217", # For ignoring a very verbose set of warnings in debug builds on Windows
+]
 
 def make_argparser() -> argparse.ArgumentParser:
     # Argument parser with support for specifying default subcommand parser
