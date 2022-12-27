@@ -7,14 +7,12 @@ import Blend2DRenderer
 private let instructions: String = """
 """
 
-open class RaytracerApp: ImagineUIContentType {
+open class RaytracerApp: RaytracerUI {
     private var _updateTimer: SchedulerTimerType?
     private var _isResizing: Bool = false
     private var _mouseLocation: BLPointI = .zero
     
     private var threadCount: Int = 12
-    
-    private var ui: RaytracerUI
     
     // Components
     private let statusMessages: StatusMessageStackComponent = StatusMessageStackComponent()
@@ -24,32 +22,14 @@ open class RaytracerApp: ImagineUIContentType {
     var renderer: RendererType?
     var buffer: Blend2DBufferWriter?
     
-    private(set) public var size: UIIntSize
-    public var width: Int {
-        size.width
-    }
-    public var height: Int {
-        size.height
-    }
-    
-    public var preferredRenderScale: UIVector = .one
     public var time: TimeInterval = 0
     
-    public weak var delegate: ImagineUIContentDelegate? {
-        get {
-            ui.delegate
-        }
-        set {
-            ui.delegate = newValue
-        }
-    }
-    
-    public init(size: UIIntSize) {
-        self.size = size
+    public override init(size: UIIntSize) {
+        super.init(size: size)
+
         time = 0
         
-        ui = RaytracerUI(size: size)
-        ui.backgroundColor = nil
+        backgroundColor = nil
 
         restartRendering()
         createUI()
@@ -61,46 +41,46 @@ open class RaytracerApp: ImagineUIContentType {
     
     func createUI() {
         // UI projection
-        ui.addComponent(uiProjection)
+        addComponent(uiProjection)
         
         // Scene graph tree view
         let sceneGraph = SceneGraphTreeComponent(width: 250.0)
         sceneGraph.treeComponentDelegate = self
-        ui.addComponent(sceneGraph)
+        addComponent(sceneGraph)
 
         // Status labels
-        let labelsContainer = ui.addComponentInReservedView(StatusLabelsComponent())
+        let labelsContainer = addComponentInReservedView(StatusLabelsComponent())
         labelsContainer.layout.makeConstraints { make in
-            (make.top, make.right, make.bottom) == ui.componentsContainer
+            (make.top, make.right, make.bottom) == componentsContainer
             make.right(of: sceneGraph.sidePanel)
         }
 
         // Status messages
-        ui.addComponent(statusMessages)
+        addComponent(statusMessages)
     }
 
-    open func didCloseWindow() {
-        
+    open override func didCloseWindow() {
+        super.didCloseWindow()
+
+        rendererCoordinator?.cancel()
     }
     
-    public func willStartLiveResize() {
-        ui.willStartLiveResize()
+    open override func willStartLiveResize() {
+        super.willStartLiveResize()
         
         _isResizing = true
     }
     
-    public func didEndLiveResize() {
-        ui.didEndLiveResize()
+    open override func didEndLiveResize() {
+        super.didEndLiveResize()
         
         _isResizing = false
         
         recreateRenderer()
     }
     
-    public func resize(_ size: UIIntSize) {
-        self.size = size
-
-        ui.resize(size)
+    open override func resize(_ size: UIIntSize) {
+        super.resize(size)
 
         restartRendering()
     }
@@ -199,8 +179,8 @@ open class RaytracerApp: ImagineUIContentType {
             batcher: batcher
         )
 
-        ui.rendererCoordinatorChanged(rendererCoordinator)
-        ui.rendererChanged(renderer)
+        rendererCoordinatorChanged(rendererCoordinator)
+        rendererChanged(renderer)
         
         rendererCoordinator?.stateDidChange.addListener(weakOwner: self) { [weak self] (change) in
             DispatchQueue.main.async {
@@ -292,11 +272,7 @@ open class RaytracerApp: ImagineUIContentType {
     
     // MARK: - UI
     
-    public func performLayout() {
-        ui.performLayout()
-    }
-    
-    public func keyDown(event: KeyEventArgs) {
+    open override func keyDown(event: KeyEventArgs) {
         if event.keyCode == .space {
             togglePause()
             event.handled = true
@@ -311,55 +287,33 @@ open class RaytracerApp: ImagineUIContentType {
         }
         
         if !event.handled {
-            ui.keyDown(event: event)
+            super.keyDown(event: event)
         }
     }
     
-    public func keyUp(event: KeyEventArgs) {
-        ui.keyUp(event: event)
-    }
-
-    public func keyPress(event: KeyPressEventArgs) {
-        ui.keyPress(event: event)
-    }
-    
-    public func mouseScroll(event: MouseEventArgs) {
-        ui.mouseScroll(event: event)
-    }
-    
-    public func mouseMoved(event: MouseEventArgs) {
+    open override func mouseMoved(event: MouseEventArgs) {
         _mouseLocation = event.location.asBLPointI
 
-        ui.mouseMoved(event: event)
+        super.mouseMoved(event: event)
         
         invalidateAll()
     }
     
-    public func mouseDown(event: MouseEventArgs) {
-        ui.mouseDown(event: event)
-    }
-    
-    public func mouseUp(event: MouseEventArgs) {
-        ui.mouseUp(event: event)
-    }
-    
     // MARK: -
     
-    public func update(_ time: TimeInterval) {
-        self.time = time
-        
+    open override func update(_ time: TimeInterval) {
         if let renderer = rendererCoordinator, renderer.state == .running {
             invalidateAll()
         }
         
-        ui.update(time)
+        super.update(time)
     }
     
     func invalidateAll() {
         delegate?.invalidate(self, bounds: .init(location: .zero, size: UISize(size)))
     }
     
-    public func render(renderer: Renderer, renderScale: UIVector, clipRegion: ClipRegionType) {
+    open override func render(renderer: Renderer, renderScale: UIVector, clipRegion: ClipRegionType) {
         if let buffer = buffer {
             buffer.usingImage { img in
                 let img = Blend2DImage(image: img)
@@ -381,7 +335,7 @@ open class RaytracerApp: ImagineUIContentType {
             renderer.clear(.white)
         }
         
-        ui.render(renderer: renderer, renderScale: renderScale, clipRegion: clipRegion)
+        super.render(renderer: renderer, renderScale: renderScale, clipRegion: clipRegion)
     }
 }
 

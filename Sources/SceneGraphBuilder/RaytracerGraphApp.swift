@@ -5,32 +5,9 @@ import Text
 import Blend2DRenderer
 import GeometriaAppLib
 
-open class RaytracerGraphApp: ImagineUIContentType {
-    private var ui: RaytracerUI
-
-    private(set) public var size: UIIntSize
-    public var width: Int {
-        size.width
-    }
-    public var height: Int {
-        size.height
-    }
-
-    public var preferredRenderScale: UIVector = .init(repeating: 2)
-
-    public weak var delegate: ImagineUIContentDelegate? {
-        get {
-            ui.delegate
-        }
-        set {
-            ui.delegate = newValue
-        }
-    }
-    
-    public init(size: UIIntSize) {
-        self.size = size
-
-        ui = RaytracerUI(size: size)
+open class RaytracerGraphApp: RaytracerUI {
+    public override init(size: UIIntSize) {
+        super.init(size: size)
 
         createUI()
     }
@@ -40,72 +17,6 @@ open class RaytracerGraphApp: ImagineUIContentType {
         Label.globallyCacheAsBitmap = false
 
         let sceneGraph = SceneGraphBuilderComponent()
-        ui.addComponent(sceneGraph)
-    }
-
-    open func didCloseWindow() {
-        
-    }
-    
-    public func willStartLiveResize() {
-        ui.willStartLiveResize()
-    }
-    
-    public func didEndLiveResize() {
-        ui.didEndLiveResize()
-    }
-    
-    public func resize(_ size: UIIntSize) {
-        self.size = size
-
-        ui.resize(size)
-    }
-    
-    // MARK: - UI
-    
-    public func performLayout() {
-        ui.performLayout()
-    }
-    
-    public func keyDown(event: KeyEventArgs) {
-        ui.keyDown(event: event)
-    }
-    
-    public func keyUp(event: KeyEventArgs) {
-        ui.keyUp(event: event)
-    }
-
-    public func keyPress(event: KeyPressEventArgs) {
-        ui.keyPress(event: event)
-    }
-    
-    public func mouseScroll(event: MouseEventArgs) {
-        ui.mouseScroll(event: event)
-    }
-    
-    public func mouseMoved(event: MouseEventArgs) {
-        ui.mouseMoved(event: event)
-    }
-    
-    public func mouseDown(event: MouseEventArgs) {
-        ui.mouseDown(event: event)
-    }
-    
-    public func mouseUp(event: MouseEventArgs) {
-        ui.mouseUp(event: event)
-    }
-    
-    // MARK: -
-    
-    public func update(_ time: TimeInterval) {
-        ui.update(time)
-    }
-    
-    func invalidateAll() {
-        delegate?.invalidate(self, bounds: .init(location: .zero, size: UISize(size)))
-    }
-
-    public func render(renderer: Renderer, renderScale: UIVector, clipRegion: ClipRegionType) {
-        ui.render(renderer: renderer, renderScale: renderScale, clipRegion: clipRegion)
+        addComponent(sceneGraph)
     }
 }

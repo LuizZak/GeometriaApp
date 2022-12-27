@@ -2,7 +2,8 @@ import Foundation
 import ImagineUI
 import SwiftBlend2D
 
-public class RaytracerUI: ImagineUIWindowContent {
+/// Base class for GeometriaApp UI windows.
+open class RaytracerUI: ImagineUIWindowContent {
     private let dialogsContainer: View = View()
     private var components: [RaytracerUIComponent] = []
 
@@ -26,7 +27,7 @@ public class RaytracerUI: ImagineUIWindowContent {
         super.init(size: size)
     }
 
-    public override func initialize() {
+    open override func initialize() {
         super.initialize()
 
         rootView.addSubview(componentsContainer)
@@ -56,25 +57,25 @@ public class RaytracerUI: ImagineUIWindowContent {
         components.append(component)
     }
     
-    public func rendererCoordinatorChanged(_ coordinator: RendererCoordinator?) {
+    open func rendererCoordinatorChanged(_ coordinator: RendererCoordinator?) {
         for component in components {
             component.rendererCoordinatorChanged(coordinator)
         }
     }
     
-    public func rendererChanged<T: RendererType>(anyRenderer: T) {
+    open func rendererChanged<T: RendererType>(anyRenderer: T) {
         for component in components {
             component.rendererChanged(anyRenderer: anyRenderer)
         }
     }
 
-    public func rendererChanged<T>(_ renderer: Raytracer<T>) {
+    open func rendererChanged<T>(_ renderer: Raytracer<T>) {
         for component in components {
             component.rendererChanged(renderer)
         }
     }
 
-    public func rendererChanged<T>(_ renderer: Raymarcher<T>) {
+    open func rendererChanged<T>(_ renderer: Raymarcher<T>) {
         for component in components {
             component.rendererChanged(renderer)
         }
@@ -82,7 +83,7 @@ public class RaytracerUI: ImagineUIWindowContent {
 
     // MARK: Event forwarding
 
-    public override func mouseMoved(event: MouseEventArgs) {
+    open override func mouseMoved(event: MouseEventArgs) {
         super.mouseMoved(event: event)
 
         for component in components {
