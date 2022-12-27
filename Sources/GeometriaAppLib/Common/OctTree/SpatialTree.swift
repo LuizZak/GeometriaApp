@@ -160,7 +160,7 @@ public class SpatialTree<T: BoundableType> where T.Vector: VectorDivisible & Vec
         }
     }
 
-    private enum Subdivision {
+    private indirect enum Subdivision {
         /// Creates and returns an empty leaf subdivision with the given boundaries.
         static func empty(bounds: Bounds) -> Self {
             .empty(state: .empty(bounds: bounds))
@@ -175,7 +175,7 @@ public class SpatialTree<T: BoundableType> where T.Vector: VectorDivisible & Vec
             state: SubdivisionState
         )
 
-        indirect case subdivision(
+        case subdivision(
             state: SubdivisionState,
             subdivisions: [Self]
         )

@@ -10,7 +10,30 @@ public class SidePanel: ControlView {
     // TODO: Make double clicking be handled by `DefaultControlSystem`.
     private var _lastMouseDown: TimeInterval = 0
     private var _lastMouseDownPoint: UIVector = .zero
+
+    private var isMouseOverLip: Bool = false {
+        didSet {
+            guard isMouseOverLip != oldValue else { return }
+
+            if isMouseOverLip {
+                isHighlighted = true
+
+                switch pinSide {
+                case .left, .right:
+                    controlSystem?.setMouseCursor(.resizeLeftRight)
+                case .top, .bottom:
+                    controlSystem?.setMouseCursor(.resizeUpDown)
+                }
+            } else {
+                isHighlighted = false
+
+                controlSystem?.setMouseCursor(.arrow)
+            }
+        }
+    }
     
+    /// The bounds that contents of this side panel should occupy in order to
+    /// fit the draggable side panel handle area.
     public let contentBounds: LayoutGuide = LayoutGuide()
 
     /// The length of the panel on its superview.
@@ -51,6 +74,7 @@ public class SidePanel: ControlView {
 
         super.init()
 
+        mouseOverHighlight = false
         clipToBounds = false
         backColor = .lightGray
     }
@@ -117,12 +141,7 @@ public class SidePanel: ControlView {
     public override func onStateChanged(_ event: ValueChangedEventArgs<ControlViewState>) {
         super.onStateChanged(event)
 
-        switch event.newValue {
-        case .highlighted, .selected:
-            backColor = .lightGray.faded(towards: .white, factor: 0.5)
-        default:
-            backColor = .lightGray
-        }
+        invalidate(bounds: lipArea())
     }
 
     public override func superviewDidChange(_ newSuperview: View?) {
@@ -131,57 +150,40 @@ public class SidePanel: ControlView {
         recreateConstraints()
     }
 
-    public override func onMouseEnter() {
-        super.onMouseEnter()
-
-        switch pinSide {
-        case .left, .right:
-            controlSystem?.setMouseCursor(.resizeLeftRight)
-        case .top, .bottom:
-            controlSystem?.setMouseCursor(.resizeUpDown)
-        }
-    }
-
     public override func onMouseLeave() {
         super.onMouseLeave()
 
-        controlSystem?.setMouseCursor(.arrow)
+        isMouseOverLip = false
     }
 
     public override func onMouseDown(_ event: MouseEventArgs) {
         super.onMouseDown(event)
 
-        _mouseDown = true
-        
-        switch pinSide {
-        case .left:
-            _mouseOffset = event.location.x - bounds.width
-        case .top:
-            _mouseOffset = event.location.y - bounds.height
-        case .right:
-            _mouseOffset = event.location.x
-        case .bottom:
-            _mouseOffset = event.location.y
+        if isMouseOverLip {
+            _mouseDown = true
+            
+            switch pinSide {
+            case .left:
+                _mouseOffset = event.location.x - bounds.width
+            case .top:
+                _mouseOffset = event.location.y - bounds.height
+            case .right:
+                _mouseOffset = event.location.x
+            case .bottom:
+                _mouseOffset = event.location.y
+            }
         }
     }
 
     public override func onMouseMove(_ event: MouseEventArgs) {
         super.onMouseMove(event)
 
-        if _mouseDown, let superview = superview {
-            let mousePoint = convert(point: event.location, to: superview)
+        if _mouseDown {
+            let mouseOnSuperview = convert(point: event.location, to: superview)
 
-            switch pinSide {
-            case .left:
-                length = min(superview.size.width, mousePoint.x - _mouseOffset)
-            case .top:
-                length = min(superview.size.height, mousePoint.y - _mouseOffset)
-
-            case .right:
-                length = min(superview.size.width, superview.size.width - (mousePoint.x - _mouseOffset))
-            case .bottom:
-                length = min(superview.size.height, superview.size.height - (mousePoint.y - _mouseOffset))
-            }
+            mouseDragLip(mouseOnSuperview: mouseOnSuperview)
+        } else {
+            isMouseOverLip = isInLipArea(event.location)
         }
     }
 
@@ -194,15 +196,79 @@ public class SidePanel: ControlView {
     public override func onMouseClick(_ event: MouseEventArgs) {
         super.onMouseClick(event)
 
-        if _lastMouseDownPoint.distance(to: event.location) < 10 && UISettings.timeInSeconds() - _lastMouseDown < 1 {
-            _mouseDown = false
-            length = 0.0
+        if isMouseOverLip {
+            if _lastMouseDownPoint.distance(to: event.location) < 10 && UISettings.timeInSeconds() - _lastMouseDown < 1 {
+                _mouseDown = false
+                length = 0.0
 
-            _lastMouseDown = 0.0
-        } else {
-            _lastMouseDownPoint = event.location
-            _lastMouseDown = UISettings.timeInSeconds()
+                _lastMouseDown = 0.0
+            } else {
+                _lastMouseDownPoint = event.location
+                _lastMouseDown = UISettings.timeInSeconds()
+            }
         }
+    }
+
+    public override func renderBackground(in renderer: Renderer, screenRegion: ClipRegionType) {
+        super.renderBackground(in: renderer, screenRegion: screenRegion)
+
+        renderLipArea(in: renderer, screenRegion: screenRegion)
+    }
+
+    func renderLipArea(in renderer: Renderer, screenRegion: ClipRegionType) {
+        let lipRect = lipArea()
+
+        if isHighlighted {
+            renderer.setFill(.cornflowerBlue)
+        } else {
+            renderer.setFill(.lightGray.faded(towards: .black, factor: 0.15))
+        }
+
+        renderer.fill(lipRect)
+    }
+
+    func mouseDragLip(mouseOnSuperview: UIPoint) {
+        guard let superview = superview else {
+            return
+        }
+        
+        switch pinSide {
+        case .left:
+            length = min(superview.size.width, mouseOnSuperview.x - _mouseOffset)
+        case .top:
+            length = min(superview.size.height, mouseOnSuperview.y - _mouseOffset)
+
+        case .right:
+            length = min(superview.size.width, superview.size.width - (mouseOnSuperview.x - _mouseOffset))
+        case .bottom:
+            length = min(superview.size.height, superview.size.height - (mouseOnSuperview.y - _mouseOffset))
+        }
+    }
+
+    func isInLipArea(_ point: UIPoint) -> Bool {
+        return lipArea().contains(point)
+    }
+
+    /// Bounds in this side panel that the draggable lip is placed.
+    /// Depends on `_lipSize` and `pinSide`.
+    func lipArea() -> UIRectangle {
+        var area = bounds
+
+        switch pinSide {
+        case .left:
+            area = area.stretchingLeft(to: area.right - _lipSize)
+
+        case .top:
+            area = area.stretchingTop(to: area.bottom - _lipSize)
+
+        case .right:
+            area = area.stretchingRight(to: area.left + _lipSize)
+
+        case .bottom:
+            area = area.stretchingBottom(to: area.top + _lipSize)
+        }
+
+        return area
     }
 
     /// The side of the container view this side panel should attach to.

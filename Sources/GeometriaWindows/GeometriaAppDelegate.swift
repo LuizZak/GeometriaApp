@@ -8,8 +8,8 @@ class GeometriaAppDelegate: ImagineUIAppDelegate {
     func appDidLaunch() {
         GeometriaLogger.logger = WinLoggerWrapper()
 
-        let main = GeometriaWindow(size: .init(width: 1000, height: 750))
-        //let main = SceneGraphWindow(size: .init(width: 1000, height: 750))
+        //let main = GeometriaWindow(size: .init(width: 1000, height: 750))
+        let main = SceneGraphWindow(size: .init(width: 1000, height: 750))
         app.show(content: main)
 
         self.main = main

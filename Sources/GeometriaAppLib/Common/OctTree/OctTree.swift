@@ -159,7 +159,7 @@ public class OctTree<T: BoundableType> where T.Vector == RVector3D {
         }
     }
 
-    private enum Subdivision {
+    private indirect enum Subdivision {
         /// Creates and returns an empty leaf subdivision with the given boundaries.
         static func empty(bounds: Bounds) -> Self {
             .empty(state: .empty(bounds: bounds))
@@ -174,7 +174,7 @@ public class OctTree<T: BoundableType> where T.Vector == RVector3D {
             state: SubdivisionState
         )
 
-        indirect case subdivision(
+        case subdivision(
             state: SubdivisionState,
             octant1: Self,
             octant2: Self,
