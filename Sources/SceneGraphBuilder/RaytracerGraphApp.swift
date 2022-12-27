@@ -30,8 +30,7 @@ open class RaytracerGraphApp: ImagineUIContentType {
     public init(size: UIIntSize) {
         self.size = size
 
-        let uiWrapper = ImagineUIWindowContent(size: size)
-        ui = RaytracerUI(uiWrapper: uiWrapper)
+        ui = RaytracerUI(size: size)
 
         createUI()
     }

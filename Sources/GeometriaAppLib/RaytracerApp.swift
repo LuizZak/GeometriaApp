@@ -48,9 +48,8 @@ open class RaytracerApp: ImagineUIContentType {
         self.size = size
         time = 0
         
-        let uiWrapper = ImagineUIWindowContent(size: size)
-        uiWrapper.backgroundColor = nil
-        ui = RaytracerUI(uiWrapper: uiWrapper)
+        ui = RaytracerUI(size: size)
+        ui.backgroundColor = nil
 
         restartRendering()
         createUI()

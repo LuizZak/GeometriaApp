@@ -2,8 +2,7 @@ import Foundation
 import ImagineUI
 import SwiftBlend2D
 
-public class RaytracerUI: ImagineUIContentType {
-    private let ui: ImagineUIWindowContent
+public class RaytracerUI: ImagineUIWindowContent {
     private let dialogsContainer: View = View()
     private var components: [RaytracerUIComponent] = []
 
@@ -17,51 +16,23 @@ public class RaytracerUI: ImagineUIContentType {
 
     /// The root view container for the UI.
     private var rootContainer: RootView {
-        return ui.rootView
+        return rootView
     }
 
     /// The view all components are added to.
     public let componentsContainer: View = View()
 
-    public var size: UIIntSize
-
-    public var preferredRenderScale: UIVector {
-        ui.preferredRenderScale
+    override public init(size: UIIntSize) {
+        super.init(size: size)
     }
 
-    public weak var delegate: ImagineUIContentDelegate? {
-        get {
-            ui.delegate
-        }
-        set {
-            ui.delegate = newValue
-        }
-    }
+    public override func initialize() {
+        super.initialize()
 
-    /// Gets or sets the debug draw flags.
-    ///
-    /// Changing this value invalidates the screen.
-    public var debugDrawFlags: Set<DebugDraw.DebugDrawFlags> {
-        get {
-           ui.debugDrawFlags
-        }
-        set {
-           ui.debugDrawFlags = newValue
-        }
-    }
-
-    public init(uiWrapper: ImagineUIWindowContent) {
-        self.size = uiWrapper.size
-        self.ui = uiWrapper
-
-        initialize()
-    }
-
-    private func initialize() {
-        ui.rootView.addSubview(componentsContainer)
+        rootView.addSubview(componentsContainer)
 
         componentsContainer.layout.makeConstraints { make in
-            make.edges == ui.rootView
+            make.edges == rootView
         }
     }
 
@@ -111,71 +82,19 @@ public class RaytracerUI: ImagineUIContentType {
 
     // MARK: Event forwarding
 
-    public func didCloseWindow() {
-        ui.didCloseWindow()
-    }
-    
-    public func willStartLiveResize() {
-        ui.willStartLiveResize()
-    }
-
-    public func didEndLiveResize() {
-        ui.didEndLiveResize()
-    }
-
-    public func resize(_ size: UIIntSize) {
-        ui.resize(size)
-    }
-    
-    public func performLayout() {
-        ui.performLayout()
-    }
-
-    public func update(_ time: TimeInterval) {
-        ui.update(time)
-    }
-
-    public func render(renderer: Renderer, renderScale: UIVector, clipRegion: ClipRegionType) {
-        ui.render(renderer: renderer, renderScale: renderScale, clipRegion: clipRegion)
-    }
-    
-    public func mouseDown(event: MouseEventArgs) {
-        ui.mouseDown(event: event)
-    }
-
-    public func mouseMoved(event: MouseEventArgs) {
-        ui.mouseMoved(event: event)
+    public override func mouseMoved(event: MouseEventArgs) {
+        super.mouseMoved(event: event)
 
         for component in components {
             component.mouseMoved(event: event)
         }
     }
 
-    public func mouseUp(event: MouseEventArgs) {
-        ui.mouseUp(event: event)
-    }
-
-    public func mouseScroll(event: MouseEventArgs) {
-        ui.mouseScroll(event: event)
-    }
-    
-    public func keyDown(event: KeyEventArgs) {
-        ui.keyDown(event: event)
-    }
-
-    public func keyUp(event: KeyEventArgs) {
-        ui.keyUp(event: event)
-    }
-
-    public func keyPress(event: KeyPressEventArgs) {
-        ui.keyPress(event: event)
-    }
-
     private func _setupDialogsContainer() {
-        ui.rootView.addSubview(dialogsContainer)
+        rootView.addSubview(dialogsContainer)
         
         dialogsContainer.layout.makeConstraints { make in
-            make.edges == ui.rootView
+            make.edges == rootView
         }
     }
 
@@ -261,15 +180,15 @@ public class RaytracerUI: ImagineUIContentType {
         location: PreferredTooltipLocation? = nil
     ) {
         
-        ui.controlSystem.showTooltip(for: provider, location: location)
+        controlSystem.showTooltip(for: provider, location: location)
     }
 
     private func _hideTooltips() {
-        ui.controlSystem.hideTooltip(stopTimers: true)
+        controlSystem.hideTooltip(stopTimers: true)
     }
 
     private func _beginCustomTooltipLifetime() -> CustomTooltipHandlerType? {
-        ui.controlSystem.beginCustomTooltipLifetime()
+        controlSystem.beginCustomTooltipLifetime()
     }
 
     /// Wraps the state of a displayed dialog.
