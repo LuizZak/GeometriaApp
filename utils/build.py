@@ -29,7 +29,7 @@ def make_argparser() -> argparse.ArgumentParser:
     # Argument parser with support for specifying default subcommand parser
     # https://stackoverflow.com/a/37593636
     class DefaultSubcommandArgParse(argparse.ArgumentParser):
-        __default_subparser = None
+        __default_subparser: argparse.ArgumentParser | None = None
 
         def set_default_subparser(self, name):
             self.__default_subparser = name
@@ -293,7 +293,7 @@ def default_manifest_path(target_name: str) -> Path:
 def run_post_build(settings: PostBuildSettings):
     run('mt', '-nologo', '-manifest', settings.manifest_path, f'-outputresource:{settings.exe_path}')
 
-def run_manifest_patch(build_dir: Path, target_name: str, manifest_path: str) -> Path:
+def run_manifest_patch(build_dir: Path, target_name: str, manifest_path: Path) -> Path:
     exe_path = build_dir.joinpath(target_name).with_suffix('.exe')
 
     manifest_path = manifest_path

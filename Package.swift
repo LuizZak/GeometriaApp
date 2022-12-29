@@ -151,6 +151,11 @@ targets.append(
         ])
 )
 
+#else
+
+geometriaAppTarget.exclude.append("main+macOS.swift")
+geometriaAppTarget.exclude.append("main+win.swift")
+
 #endif
 
 targets.append(geometriaAppTarget)

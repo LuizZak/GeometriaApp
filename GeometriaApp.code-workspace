@@ -32,16 +32,18 @@
             {
 				"label": "Build Win32 (debug)",
 				"type": "shell",
-				"command": "python utils\\build.py",
+				"command": "python",
 				"args": [
+					"utils\\build.py",
 					"-c", "debug",
 				]
 			},
             {
 				"label": "Run Win32 (debug)",
 				"type": "shell",
-				"command": "python utils\\build.py",
+				"command": "python",
 				"args": [
+					"utils\\build.py",
 					"run",
 					"-c", "debug",
 					"-t", "GeometriaApp",
@@ -51,8 +53,9 @@
             {
 				"label": "Run Win32 (release)",
 				"type": "shell",
-				"command": "python utils\\build.py",
+				"command": "python",
 				"args": [
+					"utils\\build.py",
 					"run",
 					"-c", "release",
 					"-t", "GeometriaApp",

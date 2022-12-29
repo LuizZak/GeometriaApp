@@ -1,3 +1,5 @@
+#if os(macOS)
+
 import GeometriaMacOS
 
 @main
@@ -6,3 +8,5 @@ enum Main {
         startApp()
     }
 }
+
+#endif

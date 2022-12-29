@@ -4,6 +4,10 @@ import ImagineUI
 import Geometria
 #endif
 
+#if os(Linux)
+import Glibc
+#endif
+
 private var _attemptedDebugInMultithreadedYet = false
 
 /// Class that performs raytracing on a scene.
@@ -398,13 +402,13 @@ func fresnel(_ I: RVector3D, _ N: RVector3D, _ ior: Double) -> (reflection: Doub
     }
     
     // Compute sint using Snell's law
-    let sint: Double = etai / etat * sqrt(max(0.0, 1 - cosi * cosi))
+    let sint: Double = etai / etat * max(0.0, 1 - cosi * cosi).squareRoot()
     
     // Total internal reflection
     if sint >= 1 {
         return (1, 0)
     } else {
-        let cost: Double = sqrt(max(0.0, 1 - sint * sint))
+        let cost: Double = max(0.0, 1 - sint * sint).squareRoot()
         cosi = abs(cosi)
         let Rs: Double = ((etat * cosi) - (etai * cost)) / ((etat * cosi) + (etai * cost))
         let Rp: Double = ((etai * cosi) - (etat * cost)) / ((etai * cosi) + (etat * cost))

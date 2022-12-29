@@ -258,7 +258,7 @@ public final class Raymarcher<Scene: RaymarchingSceneType>: RendererType {
             }
 
             let y = signedDistance * signedDistance / (2.0 * ph)
-            let d = sqrt(signedDistance * signedDistance - y * y)
+            let d = (signedDistance * signedDistance - y * y).squareRoot()
             res = min(res, softShadowSizeFactor * d / max(0.0, traveled - y))
             ph = signedDistance
             traveled += signedDistance
