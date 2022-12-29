@@ -15,12 +15,10 @@ from os import PathLike
 
 win32_debug_args = [
     # "-Xswiftc", "-DDUMP_CONSTRAINTS_TO_DESKTOP", # For debugging constraint resolution problems
-    "-Xswiftc",
-    "-g",
-    "-Xswiftc",
-    "-debug-info-format=codeview",
-    "-Xlinker",
-    "-debug",
+    "-Xswiftc", "-g",
+    # "-Xswiftc", "-debug-info-format=codeview",
+    "-Xlinker", "-debug",
+    "-Xlinker", "/DEBUG",
     "-Xlinker", "/ignore:4217", # For ignoring a very verbose set of warnings in debug builds on Windows
 ]
 win32_release_args = [

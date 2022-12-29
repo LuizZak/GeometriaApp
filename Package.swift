@@ -105,10 +105,6 @@ geometriaAppTarget.linkerSettings = [
     .linkedLibrary("ComCtl32"),
     .unsafeFlags([
         "-Xlinker",
-        "/DEBUG",
-    ], .when(configuration: .debug)),
-    .unsafeFlags([
-        "-Xlinker",
         "/SUBSYSTEM:WINDOWS",
     ])
 ]
