@@ -1,7 +1,14 @@
 import MinWin32
+import ImagineUI
 import GeometriaAppLib
 
-public class WinLoggerWrapper: LoggerType {
+public class WinLoggerWrapper: ImagineUILoggerType {
+    static let instance: WinLoggerWrapper = WinLoggerWrapper()
+
+    private init() {
+
+    }
+
     public func info(
         _ message: @autoclosure () -> String,
         file: String,

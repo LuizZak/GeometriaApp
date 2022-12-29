@@ -1,5 +1,7 @@
+import ImagineUI
+
 public enum GeometriaLogger {
-    public static var logger: LoggerType?
+    public static var logger: ImagineUILoggerType?
 
     public static func info(
         _ message: @autoclosure () -> CustomStringConvertible,
