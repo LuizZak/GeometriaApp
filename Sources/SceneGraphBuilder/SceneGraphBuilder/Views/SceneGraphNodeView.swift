@@ -418,7 +418,7 @@ class SceneGraphNodeView: RootView {
         /// Controls the display state of the connection being represented.
         var connectionState: ConnectionState = .disconnected {
             didSet {
-                invalidateControlGraphics()
+                invalidate()
             }
         }
 
