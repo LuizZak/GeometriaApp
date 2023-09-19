@@ -1,3 +1,7 @@
+#if canImport(Geometria)
+import Geometria
+#endif
+
 public typealias PlaneRaytracingElement = PlaneElement
 
 extension PlaneRaytracingElement: RaytracingElement {

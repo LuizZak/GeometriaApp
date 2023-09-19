@@ -1,3 +1,7 @@
+#if canImport(Geometria)
+import Geometria
+#endif
+
 public struct UnionElement<T0: Element, T1: Element> {
     public var id: Element.Id = 0
     public var material: Int? = nil

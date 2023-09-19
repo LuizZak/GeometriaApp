@@ -1,3 +1,7 @@
+#if canImport(Geometria)
+import Geometria
+#endif
+
 public struct LineSegmentElement: GeometryElementType {
     public var id: Element.Id = 0
     public var geometry: RLineSegment3D

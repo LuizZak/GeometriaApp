@@ -1,3 +1,7 @@
+#if canImport(Geometria)
+import Geometria
+#endif
+
 public struct ScaleElement<T: Element> {
     public var id: Element.Id = 0
     public var element: T

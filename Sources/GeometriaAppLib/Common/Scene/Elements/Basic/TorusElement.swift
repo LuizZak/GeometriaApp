@@ -1,3 +1,7 @@
+#if canImport(Geometria)
+import Geometria
+#endif
+
 public struct TorusElement: GeometryElementType {
     public var id: Element.Id = 0
     public var geometry: RTorus3D

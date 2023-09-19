@@ -1,3 +1,7 @@
+#if canImport(Geometria)
+import Geometria
+#endif
+
 public typealias UnionRaytracingElement<T0: RaytracingElement, T1: RaytracingElement> =
     UnionElement<T0, T1>
 

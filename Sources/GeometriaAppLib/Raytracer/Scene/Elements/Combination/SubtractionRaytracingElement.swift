@@ -1,3 +1,7 @@
+#if canImport(Geometria)
+import Geometria
+#endif
+
 public typealias SubtractionRaytracingElement<T0: RaytracingElement, T1: RaytracingElement> =
     SubtractionElement<T0, T1>
 

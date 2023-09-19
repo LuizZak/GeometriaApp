@@ -1,3 +1,7 @@
+#if canImport(Geometria)
+import Geometria
+#endif
+
 public typealias TranslateRaymarchingElement<T: RaymarchingElement> = TranslateElement<T>
 
 extension TranslateRaymarchingElement: RaymarchingElement {

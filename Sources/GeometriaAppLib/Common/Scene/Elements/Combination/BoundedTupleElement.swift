@@ -1,3 +1,7 @@
+#if canImport(Geometria)
+import Geometria
+#endif
+
 public typealias BoundedTupleElement2<T0: BoundedElement, T1: BoundedElement> =
     TupleElement2<T0, T1>
 

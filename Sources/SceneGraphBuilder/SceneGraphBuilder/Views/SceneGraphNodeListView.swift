@@ -1,10 +1,13 @@
 import ImagineUI
 
-public class SceneGraphNodeListView {
+public class SceneGraphNodeListView: View {
+    private var _scrollView: ScrollView = .init(scrollBarsMode: .vertical)
+
     weak var dataSource: SceneGraphNodeListViewDataSource?
 
-    func reloadData() {
 
+    func reloadData() {
+        
     }
 }
 

@@ -9,8 +9,8 @@ class GeometriaAppDelegate: ImagineUIAppDelegate {
         GeometriaLogger.logger = WinLoggerWrapper.instance
         ImagineUILogger.logger = WinLoggerWrapper.instance
 
-        //let main = GeometriaWindow(size: .init(width: 1000, height: 750))
-        let main = SceneGraphWindow(size: .init(width: 1000, height: 750))
+        let main = GeometriaWindow(size: .init(width: 1000, height: 750))
+        //let main = SceneGraphWindow(size: .init(width: 1000, height: 750))
         app.show(content: main)
 
         self.main = main

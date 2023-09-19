@@ -1,3 +1,7 @@
+#if canImport(Geometria)
+import Geometria
+#endif
+
 public typealias BoundingBoxRaymarchingElement<T: RaymarchingElement> = 
     BoundingBoxElement<T>
 

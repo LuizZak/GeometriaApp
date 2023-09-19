@@ -1,3 +1,7 @@
+#if canImport(Geometria)
+import Geometria
+#endif
+
 public typealias BoundedTypedArrayElement<T: BoundedElement> = TypedArrayElement<T>
 
 extension BoundedTypedArrayElement: BoundedElement {

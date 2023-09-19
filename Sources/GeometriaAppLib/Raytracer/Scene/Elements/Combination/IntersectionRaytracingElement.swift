@@ -1,3 +1,7 @@
+#if canImport(Geometria)
+import Geometria
+#endif
+
 public typealias IntersectionRaytracingElement<T0: RaytracingElement, T1: RaytracingElement> =
     IntersectionElement<T0, T1>
 

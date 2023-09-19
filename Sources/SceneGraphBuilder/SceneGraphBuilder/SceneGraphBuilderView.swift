@@ -6,6 +6,8 @@ class SceneGraphBuilderView: RootView {
     private var _nodesContainer: SceneGraphBuilderNodeContainer = SceneGraphBuilderNodeContainer()
     private var _connectionViewsManager: ConnectionViewsManager
 
+    private var _nodeListView: SceneGraphNodeListView = .init()
+
     /// - note: Must be ordered in the same order as they are rendered on screen.
     private var _nodeViews: [SceneGraphNodeView] = []
     private var _connections: [ConnectionViewInfo] = [] {
@@ -35,6 +37,8 @@ class SceneGraphBuilderView: RootView {
 
         addSubview(_nodesContainer)
         addSubview(_sidePanel)
+
+        _sidePanel.addSubview(_nodeListView)
     }
 
     override func setupConstraints() {
@@ -42,6 +46,10 @@ class SceneGraphBuilderView: RootView {
 
         _nodesContainer.layout.makeConstraints { layout in
             layout.edges == self
+        }
+
+        _nodeListView.layout.makeConstraints { layout in
+            layout.edges == _nodesContainer
         }
     }
 

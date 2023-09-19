@@ -1,3 +1,7 @@
+#if canImport(Geometria)
+import Geometria
+#endif
+
 public struct CylinderElement: GeometryElementType {
     public var id: Element.Id = 0
     public var geometry: RCylinder3D

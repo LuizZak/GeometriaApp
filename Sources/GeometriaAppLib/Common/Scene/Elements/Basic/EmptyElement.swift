@@ -1,3 +1,7 @@
+#if canImport(Geometria)
+import Geometria
+#endif
+
 public struct EmptyElement {
     public var id: Element.Id = 0
 

@@ -1,3 +1,7 @@
+#if canImport(Geometria)
+import Geometria
+#endif
+
 public typealias AABBRaytracingElement = AABBElement
 
 extension AABBRaytracingElement: RaytracingElement {

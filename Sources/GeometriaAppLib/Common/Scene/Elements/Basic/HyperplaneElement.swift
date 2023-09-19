@@ -1,3 +1,7 @@
+#if canImport(Geometria)
+import Geometria
+#endif
+
 public struct HyperplaneElement: GeometryElementType {
     public var id: Element.Id = 0
     public var geometry: RHyperplane3D
