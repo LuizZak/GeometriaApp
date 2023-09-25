@@ -198,6 +198,7 @@ extension Cylinder3: SignedDistanceMeasurableType where Vector: VectorFloatingPo
 extension Cylinder3: Convex3Type where Vector: Vector3Real {
     /// Returns the intersection points of a given line along this cylinder's
     /// surface.
+    @inlinable
     @_specialize(exported: true, kind: full, where Line == LineSegment3D)
     @_specialize(exported: true, kind: full, where Line == DirectionalRay3D)
     public func intersection<Line>(with line: Line) -> ConvexLineIntersection<Vector> where Line: Line3FloatingPoint, Vector == Line.Vector {
