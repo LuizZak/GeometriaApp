@@ -37,7 +37,7 @@ extension SubtractionElement: Element {
 }
 
 extension SubtractionElement: BoundedElement where T0: BoundedElement {
-    // TODO: Bounds are guaranteed to be no bigger than t0's area but maybe there 
+    // TODO: Bounds are guaranteed to be no bigger than t0's area but maybe there
     // TODO: are better ways to generate a bounding box here.
     @inlinable
     public func makeBounds() -> ElementBounds {

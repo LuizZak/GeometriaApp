@@ -19,6 +19,57 @@ extension<T0: Element, T1: Element, T2: Element> TupleElement<(T0, T1, T2: Eleme
 but do it with multiple tuples for now for performance reasons.
 */
 
+/*
+#if VARIADIC_TUPLE_ELEMENT
+
+// TODO: Workaround for https://github.com/apple/swift/issues/66917 and lack of
+// pack iteration (https://github.com/apple/swift-evolution/blob/main/proposals/0408-pack-iteration.md)
+// in Swift 5.9
+fileprivate struct _IterationStop: Error {
+}
+
+public struct TupleElement<each T: Element>: TupleElementType {
+    public var id: Element.Id = 0
+    var t: (repeat each T)
+
+    public var elements: [Element] {
+        var result: Array<Element> = []
+        repeat result.append(each t)
+        return result
+    }
+
+    public mutating func attributeIds(_ idFactory: inout ElementIdFactory) {
+        t = (repeat (each t).withAttributedIds(&idFactory))
+    }
+
+    public func queryScene(id: Int) -> Element? {
+        if id == self.id { return self }
+
+        var result: Element?
+        func visit<U: Element>(_ element: U) throws {
+            if result != nil {
+                throw _IterationStop()
+            }
+
+            result = element.queryScene(id: id)
+        }
+        
+        do {
+            repeat try visit(each t)
+        } catch {
+        }
+
+        return result
+    }
+
+    public func accept<Visitor>(_ visitor: Visitor) -> Visitor.ResultType where Visitor : ElementVisitor {
+        visitor.visit(self)
+    }
+}
+
+#endif
+*/
+
 public struct TupleElement2<T0: Element, T1: Element>: TupleElementType {
     public var id: Element.Id = 0
     public var t0: T0

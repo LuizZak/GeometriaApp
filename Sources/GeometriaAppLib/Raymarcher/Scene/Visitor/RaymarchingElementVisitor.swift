@@ -24,6 +24,17 @@ public protocol RaymarchingElementVisitor: ElementVisitor {
     func visit<T: RaymarchingElement>(_ element: TranslateElement<T>) -> ResultType
 
     // MARK: Tuple Elements
+
+    #if VARIADIC_TUPLE_ELEMENT
+    
+    func visit<T>(_ element: T) -> ResultType where T: TupleElementType & RaymarchingElement
+
+    /* TODO: Currently crashing compiler (possibly https://github.com/apple/swift/issues/67906) 
+    func visit<each T>(_ element: repeat TupleRaymarchingElement<each T>) -> ResultType
+    func visit<each T>(_ element: repeat BoundedTupleElement<each T>) -> ResultType
+    */
+
+    #endif
     
     func visit<T0, T1>(_ element: TupleRaymarchingElement2<T0, T1>) -> ResultType
     func visit<T0, T1>(_ element: BoundedTupleElement2<T0, T1>) -> ResultType where T0: RaymarchingElement, T1: RaymarchingElement

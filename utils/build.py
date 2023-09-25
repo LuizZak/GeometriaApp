@@ -14,7 +14,7 @@ from typing import Any, Callable, List, Optional, TypeVar
 from os import PathLike
 
 win32_debug_args = [
-    # "-Xswiftc", "-DDUMP_CONSTRAINTS_TO_DESKTOP", # For debugging constraint resolution problems
+    # "-Xswiftc", "-DDUMP_CONSTRAINTS_TO_DESKTOP", # For debugging UI constraint resolution problems
     "-Xswiftc", "-g",
     # "-Xswiftc", "-debug-info-format=codeview",
     "-Xlinker", "-debug",
@@ -22,6 +22,7 @@ win32_debug_args = [
     "-Xlinker", "/ignore:4217", # For ignoring a very verbose set of warnings in debug builds on Windows
 ]
 win32_release_args = [
+    "-Xswiftc", "-whole-module-optimization",
     "-Xlinker", "/ignore:4217", # For ignoring a very verbose set of warnings in debug builds on Windows
 ]
 
