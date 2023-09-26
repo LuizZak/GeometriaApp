@@ -7,7 +7,7 @@ public typealias SubtractionRaytracingElement<T0: RaytracingElement, T1: Raytrac
 
 extension SubtractionRaytracingElement: RaytracingElement {
     @inlinable
-    public func raycast(query: RayQuery) -> RayQuery {
+    public func raycast(query: consuming RayQuery) -> RayQuery {
         guard !query.ignoring.shouldIgnoreFully(id: id) else {
             return query
         }
@@ -114,7 +114,7 @@ extension SubtractionRaytracingElement: RaytracingElement {
         }
     }
     
-    // TODO: Properly implement ray containment chekcs in subtraction geometry
+    // TODO: Properly implement ray containment checks in subtraction geometry
     public func fullyContainsRay(query: RayQuery) -> Bool {
         return false
     }

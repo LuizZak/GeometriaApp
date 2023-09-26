@@ -34,18 +34,24 @@ extension AnyRaytracingElement: Element {
         element.queryScene(id: id)
     }
 
+    @inlinable
     public func accept<Visitor: ElementVisitor>(_ visitor: Visitor) -> Visitor.ResultType {
         element.accept(visitor)
     }
 }
 
 extension AnyRaytracingElement: RaytracingElement {
+    @inlinable
     public func raycast(query: RayQuery) -> RayQuery {
         element.raycast(query: query)
     }
+    
+    @inlinable
     public func raycast(query: RayQuery, results: inout [RayHit]) {
         element.raycast(query: query, results: &results)
     }
+
+    @inlinable
     public func fullyContainsRay(query: RayQuery) -> Bool {
         element.fullyContainsRay(query: query)
     }

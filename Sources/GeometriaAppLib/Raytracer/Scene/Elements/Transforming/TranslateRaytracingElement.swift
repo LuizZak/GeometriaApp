@@ -23,6 +23,7 @@ extension TranslateRaytracingElement: RaytracingElement {
         element.raycast(query: query.translated(by: -translation), results: &results)
     }
     
+    @inlinable
     public func fullyContainsRay(query: RayQuery) -> Bool {
         let offsetQuery = query.translated(by: -translation)
         

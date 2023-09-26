@@ -6,7 +6,7 @@ public typealias CubeRaytracingElement = CubeElement
 
 extension CubeRaytracingElement: RaytracingElement {
     @inlinable
-    public func raycast(query: RayQuery) -> RayQuery {
+    public func raycast(query: consuming RayQuery) -> RayQuery {
         query.intersecting(id: id, material: material, convex: geometry)
     }
 
@@ -20,6 +20,7 @@ extension CubeRaytracingElement: RaytracingElement {
         )
     }
     
+    @inlinable
     public func fullyContainsRay(query: RayQuery) -> Bool {
         query.isFullyContained(by: geometry)
     }

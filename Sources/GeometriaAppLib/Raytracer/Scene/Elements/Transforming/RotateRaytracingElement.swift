@@ -22,6 +22,7 @@ extension RotateRaytracingElement: RaytracingElement {
         element.raycast(query: queryT, results: &results)
     }
     
+    @inlinable
     public func fullyContainsRay(query: RayQuery) -> Bool {
         let inv = rotation.mInv
         let queryT = query.rotatedBy(inv, around: rotationCenter)

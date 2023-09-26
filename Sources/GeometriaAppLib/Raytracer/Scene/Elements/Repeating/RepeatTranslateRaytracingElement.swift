@@ -6,7 +6,7 @@ public typealias RepeatTranslateRaytracingElement<T: RaytracingElement> = Repeat
 
 extension RepeatTranslateRaytracingElement: RaytracingElement {
     @inlinable
-    public func raycast(query: RayQuery) -> RayQuery {
+    public func raycast(query: consuming RayQuery) -> RayQuery {
         var current = query
 
         var index = 0
@@ -35,6 +35,7 @@ extension RepeatTranslateRaytracingElement: RaytracingElement {
         }
     }
     
+    @inlinable
     public func fullyContainsRay(query: RayQuery) -> Bool {
         if count == 0 {
             return false

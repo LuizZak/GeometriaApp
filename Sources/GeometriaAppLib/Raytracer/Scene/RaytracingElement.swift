@@ -1,5 +1,5 @@
 public protocol RaytracingElement: Element {
-    func raycast(query: RayQuery) -> RayQuery
+    func raycast(query: consuming RayQuery) -> RayQuery
     func raycast(query: RayQuery, results: inout [RayHit])
     
     // If this raytracing element is volumetric, returns whether the ray of the

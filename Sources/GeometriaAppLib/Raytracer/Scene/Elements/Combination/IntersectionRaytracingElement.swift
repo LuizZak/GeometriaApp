@@ -7,7 +7,7 @@ public typealias IntersectionRaytracingElement<T0: RaytracingElement, T1: Raytra
 
 extension IntersectionRaytracingElement: RaytracingElement {
     @inlinable
-    public func raycast(query: RayQuery) -> RayQuery {
+    public func raycast(query: consuming RayQuery) -> RayQuery {
         guard !query.ignoring.shouldIgnoreFully(id: id) else {
             return query
         }
@@ -110,6 +110,7 @@ extension IntersectionRaytracingElement: RaytracingElement {
         }
     }
     
+    @inlinable
     public func fullyContainsRay(query: RayQuery) -> Bool {
         t0.fullyContainsRay(query: query) && t1.fullyContainsRay(query: query)
     }

@@ -40,12 +40,12 @@ public struct RayQuery: Equatable {
 
     /// Returns a copy of this query with no hit information attributed.
     @_transparent
-    public func withNilHit() -> Self {
+    public consuming func withNilHit() -> Self {
         .init(ray: ray, ignoring: ignoring)
     }
     
     @inlinable
-    public func withHit(_ rayHit: RayHit) -> Self {
+    public consuming func withHit(_ rayHit: RayHit) -> Self {
         let point = rayHit.point
         let magnitudeSquared = point.distanceSquared(to: ray.start)
         
@@ -68,7 +68,7 @@ public struct RayQuery: Equatable {
     }
 
     @_transparent
-    public func withHit(
+    public consuming func withHit(
         magnitudeSquared: Double,
         id: Int,
         point: RVector3D,
@@ -89,13 +89,13 @@ public struct RayQuery: Equatable {
 
     /// Translates the components of this ray query, returning a new ray query
     /// that is shifted in space by an amount specified by `vector`.
-    public func translated(by vector: RVector3D) -> Self {
+    public consuming func translated(by vector: RVector3D) -> Self {
         var query = self
 
-        query.ray = self.ray.offsetBy(vector)
-        query.rayAABB = self.rayAABB?.offsetBy(vector)
-        query.lineSegment = self.lineSegment.offsetBy(vector)
-        query.lastHit = self.lastHit?.translated(by: vector)
+        query.ray = query.ray.offsetBy(vector)
+        query.rayAABB = query.rayAABB?.offsetBy(vector)
+        query.lineSegment = query.lineSegment.offsetBy(vector)
+        query.lastHit = query.lastHit?.translated(by: vector)
         
         return query
     }
@@ -103,15 +103,15 @@ public struct RayQuery: Equatable {
     /// Uniformly scales the components of this ray query, returning a new ray 
     /// query that is scaled in space around the given center point by an amount 
     /// specified by `factor`.
-    public func scaled(by factor: Double, around center: RVector3D) -> Self {
+    public consuming func scaled(by factor: Double, around center: RVector3D) -> Self {
         var query = self
         let vector = RVector3D(repeating: factor)
 
-        query.ray = self.ray.withPointsScaledBy(vector, around: center)
-        query.rayMagnitudeSquared = self.rayMagnitudeSquared * factor
-        query.rayAABB = self.rayAABB?.scaledBy(factor, around: center)
-        query.lineSegment = self.lineSegment.withPointsScaledBy(vector, around: center)
-        query.lastHit = self.lastHit?.scaledBy(factor, around: center)
+        query.ray = query.ray.withPointsScaledBy(vector, around: center)
+        query.rayMagnitudeSquared = query.rayMagnitudeSquared * factor
+        query.rayAABB = query.rayAABB?.scaledBy(factor, around: center)
+        query.lineSegment = query.lineSegment.withPointsScaledBy(vector, around: center)
+        query.lastHit = query.lastHit?.scaledBy(factor, around: center)
         
         return query
     }
@@ -119,13 +119,13 @@ public struct RayQuery: Equatable {
     /// Rotates the components of this ray query, returning a new ray query that
     /// is rotated in space around the given center point by a given rotational
     /// matrix.
-    public func rotatedBy(_ matrix: RRotationMatrix3D, around center: RVector3D) -> Self {
+    public consuming func rotatedBy(_ matrix: RRotationMatrix3D, around center: RVector3D) -> Self {
         var query = self
 
-        query.ray = self.ray.rotatedBy(matrix, around: center)
-        query.rayAABB = self.rayAABB?.rotatedBy(matrix, around: center)
-        query.lineSegment = self.lineSegment.rotatedBy(matrix, around: center)
-        query.lastHit = self.lastHit?.rotatedBy(matrix, around: center)
+        query.ray = query.ray.rotatedBy(matrix, around: center)
+        query.rayAABB = query.rayAABB?.rotatedBy(matrix, around: center)
+        query.lineSegment = query.lineSegment.rotatedBy(matrix, around: center)
+        query.lastHit = query.lastHit?.rotatedBy(matrix, around: center)
         
         return query
     }
@@ -133,13 +133,13 @@ public struct RayQuery: Equatable {
     /// Rotates the components of this ray query, returning a new ray query that
     /// is rotated in space around the given center point by a given 3x3 transform
     /// matrix.
-    public func rotatedBy(_ transform: Transform3x3, around center: RVector3D) -> Self {
+    public consuming func rotatedBy(_ transform: Transform3x3, around center: RVector3D) -> Self {
         var query = self
 
-        query.ray = self.ray.rotatedBy(transform.m, around: center)
-        query.rayAABB = self.rayAABB?.rotatedBy(transform.m, around: center)
-        query.lineSegment = self.lineSegment.rotatedBy(transform.m, around: center)
-        query.lastHit = self.lastHit?.rotatedBy(transform.m, around: center)
+        query.ray = query.ray.rotatedBy(transform.m, around: center)
+        query.rayAABB = query.rayAABB?.rotatedBy(transform.m, around: center)
+        query.lineSegment = query.lineSegment.rotatedBy(transform.m, around: center)
+        query.lastHit = query.lastHit?.rotatedBy(transform.m, around: center)
         
         return query
     }
@@ -159,7 +159,7 @@ extension RayQuery {
     
     @inlinable
     public func intersect<Convex: Convex3Type>(
-        convex geometry: Convex
+        convex geometry: borrowing Convex
     ) -> RConvexLineResult3D where Convex.Vector == RVector3D {
         
         let intersection = 
@@ -188,7 +188,7 @@ extension RayQuery {
     public func intersect<Plane: LineIntersectablePlaneType>(
         plane geometry: Plane
     ) -> RConvexLineResult3D where Plane.Vector == RVector3D {
-        
+
         guard let inter = intersection(plane: geometry) else {
             return .noIntersection
         }
@@ -260,10 +260,10 @@ extension RayQuery {
 
     // MARK: Convex3Type
 
-    public func intersecting<Convex: Convex3Type>(
+    public consuming func intersecting<Convex: Convex3Type>(
         id: Int,
         material: MaterialId?,
-        convex geometry: Convex
+        convex geometry: borrowing Convex
     ) -> Self where Convex.Vector == RVector3D {
         
         guard !ignoring.shouldIgnoreFully(id: id) else {
@@ -288,7 +288,7 @@ extension RayQuery {
     public func intersectAll<Convex: Convex3Type>(
         id: Int,
         material: MaterialId?,
-        convex geometry: Convex,
+        convex geometry: borrowing Convex,
         results: inout [RayHit]
     ) where Convex.Vector == RVector3D {
         
@@ -311,7 +311,7 @@ extension RayQuery {
     public func intersecting<Plane: LineIntersectablePlaneType>(
         id: Int,
         material: MaterialId?,
-        plane geometry: Plane
+        plane geometry: borrowing Plane
     ) -> Self where Plane.Vector == RVector3D {
         
         guard !ignoring.shouldIgnoreFully(id: id) else {
@@ -335,7 +335,7 @@ extension RayQuery {
     public func intersectAll<Plane: LineIntersectablePlaneType>(
         id: Int,
         material: MaterialId?,
-        plane geometry: Plane,
+        plane geometry: borrowing Plane,
         results: inout [RayHit]
     ) where Plane.Vector == RVector3D {
         

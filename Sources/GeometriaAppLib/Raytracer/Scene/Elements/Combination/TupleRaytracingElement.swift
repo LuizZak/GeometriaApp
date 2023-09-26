@@ -21,7 +21,7 @@ public typealias TupleRaytracingElement8<T0: RaytracingElement, T1: RaytracingEl
 
 extension TupleRaytracingElement2: RaytracingElement {
     @inlinable
-    public func raycast(query: RayQuery) -> RayQuery {
+    public func raycast(query: consuming RayQuery) -> RayQuery {
         var query = query
         
         query = t0.raycast(query: query)
@@ -36,6 +36,7 @@ extension TupleRaytracingElement2: RaytracingElement {
         t1.raycast(query: query, results: &results)
     }
     
+    @inlinable
     public func fullyContainsRay(query: RayQuery) -> Bool {
         return t0.fullyContainsRay(query: query)
             && t1.fullyContainsRay(query: query)
@@ -44,7 +45,7 @@ extension TupleRaytracingElement2: RaytracingElement {
 
 extension TupleRaytracingElement3: RaytracingElement {
     @inlinable
-    public func raycast(query: RayQuery) -> RayQuery {
+    public func raycast(query: consuming RayQuery) -> RayQuery {
         var query = query
 
         query = t0.raycast(query: query)
@@ -61,6 +62,7 @@ extension TupleRaytracingElement3: RaytracingElement {
         t2.raycast(query: query, results: &results)
     }
     
+    @inlinable
     public func fullyContainsRay(query: RayQuery) -> Bool {
         return t0.fullyContainsRay(query: query)
             && t1.fullyContainsRay(query: query)
@@ -70,7 +72,7 @@ extension TupleRaytracingElement3: RaytracingElement {
 
 extension TupleRaytracingElement4: RaytracingElement {
     @inlinable
-    public func raycast(query: RayQuery) -> RayQuery {
+    public func raycast(query: consuming RayQuery) -> RayQuery {
         var query = query
 
         query = t0.raycast(query: query)
@@ -99,7 +101,7 @@ extension TupleRaytracingElement4: RaytracingElement {
 
 extension TupleRaytracingElement5: RaytracingElement {
     @inlinable
-    public func raycast(query: RayQuery) -> RayQuery {
+    public func raycast(query: consuming RayQuery) -> RayQuery {
         var query = query
 
         query = t0.raycast(query: query)
@@ -120,6 +122,7 @@ extension TupleRaytracingElement5: RaytracingElement {
         t4.raycast(query: query, results: &results)
     }
     
+    @inlinable
     public func fullyContainsRay(query: RayQuery) -> Bool {
         return t0.fullyContainsRay(query: query)
             && t1.fullyContainsRay(query: query)
@@ -131,7 +134,7 @@ extension TupleRaytracingElement5: RaytracingElement {
 
 extension TupleRaytracingElement6: RaytracingElement {
     @inlinable
-    public func raycast(query: RayQuery) -> RayQuery {
+    public func raycast(query: consuming RayQuery) -> RayQuery {
         var query = query
 
         query = t0.raycast(query: query)
@@ -154,6 +157,7 @@ extension TupleRaytracingElement6: RaytracingElement {
         t5.raycast(query: query, results: &results)
     }
     
+    @inlinable
     public func fullyContainsRay(query: RayQuery) -> Bool {
         return t0.fullyContainsRay(query: query)
             && t1.fullyContainsRay(query: query)
@@ -166,7 +170,7 @@ extension TupleRaytracingElement6: RaytracingElement {
 
 extension TupleRaytracingElement7: RaytracingElement {
     @inlinable
-    public func raycast(query: RayQuery) -> RayQuery {
+    public func raycast(query: consuming RayQuery) -> RayQuery {
         var query = query
 
         query = t0.raycast(query: query)
@@ -191,6 +195,7 @@ extension TupleRaytracingElement7: RaytracingElement {
         t6.raycast(query: query, results: &results)
     }
     
+    @inlinable
     public func fullyContainsRay(query: RayQuery) -> Bool {
         return t0.fullyContainsRay(query: query)
             && t1.fullyContainsRay(query: query)
@@ -204,7 +209,7 @@ extension TupleRaytracingElement7: RaytracingElement {
 
 extension TupleRaytracingElement8: RaytracingElement {
     @inlinable
-    public func raycast(query: RayQuery) -> RayQuery {
+    public func raycast(query: consuming RayQuery) -> RayQuery {
         var query = query
 
         query = t0.raycast(query: query)
@@ -231,6 +236,7 @@ extension TupleRaytracingElement8: RaytracingElement {
         t7.raycast(query: query, results: &results)
     }
     
+    @inlinable
     public func fullyContainsRay(query: RayQuery) -> Bool {
         return t0.fullyContainsRay(query: query)
             && t1.fullyContainsRay(query: query)

@@ -6,7 +6,7 @@ public typealias PlaneRaytracingElement = PlaneElement
 
 extension PlaneRaytracingElement: RaytracingElement {
     @inlinable
-    public func raycast(query: RayQuery) -> RayQuery {
+    public func raycast(query: consuming RayQuery) -> RayQuery {
         query.intersecting(id: id, material: material, plane: geometry)
     }
 
@@ -20,6 +20,7 @@ extension PlaneRaytracingElement: RaytracingElement {
         )
     }
     
+    @inlinable
     public func fullyContainsRay(query: RayQuery) -> Bool {
         false // Planes cannot fully contain rays
     }

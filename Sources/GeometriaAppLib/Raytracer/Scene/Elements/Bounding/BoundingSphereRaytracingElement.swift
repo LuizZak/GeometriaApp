@@ -7,7 +7,7 @@ public typealias BoundingSphereRaytracingElement<T: RaytracingElement> =
 
 extension BoundingSphereRaytracingElement: RaytracingElement & RaytracingBoundedElement {
     @inlinable
-    public func raycast(query: RayQuery) -> RayQuery {
+    public func raycast(query: consuming RayQuery) -> RayQuery {
         guard intersects(query: query) else {
             return query
         }
@@ -24,6 +24,7 @@ extension BoundingSphereRaytracingElement: RaytracingElement & RaytracingBounded
         element.raycast(query: query, results: &results)
     }
     
+    @inlinable
     public func fullyContainsRay(query: RayQuery) -> Bool {
         guard intersects(query: query) && query.isFullyContained(by: boundingSphere) else {
             return false

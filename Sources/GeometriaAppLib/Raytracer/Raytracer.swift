@@ -76,11 +76,13 @@ public final class Raytracer<Scene: RaytracingSceneType>: RendererType {
         
         processingPrinter?.add(ray: ray, comment: "Raycast @ pixel (x: \(coord.x), y: \(coord.y))")
 
-        return raytrace(ray: ray).color
+        var rayStats = RayStats(bounceCount: 0, maxBounces: maxBounces)
+
+        return raytrace(ray: ray, rayStats: &rayStats).color
     }
     
-    private func raytrace(ray: RRay3D, ignoring: RayIgnore = .none, bounceCount: Int = 0) -> RaytraceResult {
-        if bounceCount > maxBounces {
+    private func raytrace(ray: RRay3D, ignoring: RayIgnore = .none, rayStats: inout RayStats) -> RaytraceResult {
+        if rayStats.bounceCount > rayStats.maxBounces {
             return RaytraceResult(color: BLRgba32.transparentBlack, dotSunDirection: 0.0)
         }
         
@@ -96,7 +98,7 @@ public final class Raytracer<Scene: RaytracingSceneType>: RendererType {
             return RaytraceResult(color: scene.skyColor, dotSunDirection: 0.0)
         }
         
-        return computeColor(materialId: material, ray: ray, hit: hit, bounceCount: bounceCount)
+        return computeColor(materialId: material, ray: ray, hit: hit, rayStats: &rayStats)
     }
     
     private func computeColor(
@@ -104,10 +106,12 @@ public final class Raytracer<Scene: RaytracingSceneType>: RendererType {
         ray: RRay3D,
         hit: RayHit,
         ignoring: RayIgnore = .none,
-        bounceCount: Int = 0
+        rayStats: inout RayStats
     ) -> RaytraceResult {
         
         let material = materialMapCache[materialId]
+
+        let canBounce = rayStats.bounceCount < rayStats.maxBounces
         
         // Detect short distances that should avoid re-bounces
         var canRebound = true
@@ -179,17 +183,18 @@ public final class Raytracer<Scene: RaytracingSceneType>: RendererType {
                     rayThroughObject = innerRay
                 }
                 
+                rayStats.addBounce()
                 let backHit = raytrace(
                     ray: rayThroughObject,
                     ignoring: rayIgnore,
-                    bounceCount: bounceCount + 1
+                    rayStats: &rayStats
                 )
 
                 color = mergeColors(color, backHit.color, factor: material.transparency * trans)
             }
             
             // Reflectivity
-            if material.reflectivity > 0.0 && bounceCount < maxBounces && canRebound {
+            if material.reflectivity > 0.0 && canBounce && canRebound {
                 // Raycast from normal and fade in the reflected color
                 let ignoring: RayIgnore = hit.rayIgnoreForHit(minimumRayLengthSquared: minimumRayToleranceSq)
                 
@@ -198,10 +203,11 @@ public final class Raytracer<Scene: RaytracingSceneType>: RendererType {
                 
                 processingPrinter?.add(ray: normRay, comment: "Reflection (direction: \(normRay.direction))")
 
+                rayStats.addBounce()
                 let secondHit = raytrace(
                     ray: normRay,
                     ignoring: ignoring,
-                    bounceCount: bounceCount + 1
+                    rayStats: &rayStats
                 )
                 
                 var factor: Double
