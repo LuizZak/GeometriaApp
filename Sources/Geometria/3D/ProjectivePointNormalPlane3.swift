@@ -95,6 +95,7 @@ public extension ProjectivePointNormalPlane3 {
     
     /// Returns a point normal plane with the same point and normal as this
     /// plane's.
+    @inlinable
     var asPointNormalPlane: PointNormalPlane3<Vector> {
         return PointNormalPlane3(self)
     }
@@ -107,6 +108,7 @@ extension ProjectivePointNormalPlane3: ProjectiveSpace {
     /// resulting intersection vector into this projective plane.
     ///
     /// Returns `nil` if this plane and the given line do not intersect.
+    @inlinable
     public func projectLineIntersection<Line: Line3FloatingPoint>(_ line: Line) -> Coordinates? where Line.Vector == Vector {
         let plane = asPointNormalPlane
         guard let point = plane.intersection(with: line) else {
@@ -117,6 +119,7 @@ extension ProjectivePointNormalPlane3: ProjectiveSpace {
     }
    
     /// Performs a projection of a given vector onto this plane.
+    @inlinable
     public func project2D(_ vector: Vector) -> Coordinates {
         // Mathematical reference:
         // https://stackoverflow.com/a/23474396

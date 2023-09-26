@@ -30,12 +30,14 @@ extension NSphere: Decodable where Vector: Decodable { }
 public extension NSphere {
     /// Returns an ellipsoid with the same center point and radius parameters as
     /// this N-sphere.
+    @inlinable
     var asEllipsoid: Ellipsoid<Vector> {
         Ellipsoid(center: center, radius: .init(repeating: radius))
     }
 }
 
 extension NSphere: BoundableType where Vector: VectorAdditive {
+    @inlinable
     public var bounds: AABB<Vector> {
         AABB(minimum: center - radius, maximum: center + radius)
     }
@@ -83,6 +85,7 @@ public extension NSphere where Vector: VectorMultiplicative {
 
 @_specializeExtension
 extension NSphere: SignedDistanceMeasurableType where Vector: VectorFloatingPoint {
+    @inlinable
     @_specialize(exported: true, kind: full, where Vector == Vector3D)
     public func signedDistance(to point: Vector) -> Vector.Scalar {
         (center - point).length - radius

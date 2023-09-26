@@ -1,3 +1,5 @@
+import RealModule
+
 // TODO: Consider relaxing validity checks to allow definition of cylinders where
 // TODO: start == end (and project as a disk, like a 2-Stadium can be a sphere.)
 
