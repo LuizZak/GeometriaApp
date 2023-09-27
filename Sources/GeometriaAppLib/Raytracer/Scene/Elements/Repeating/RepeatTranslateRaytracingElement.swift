@@ -23,7 +23,7 @@ extension RepeatTranslateRaytracingElement: RaytracingElement {
     }
 
     @inlinable
-    public func raycast(query: RayQuery, results: inout [RayHit]) {
+    public func raycast(query: RayQuery, results: inout SortedRayHits) {
         var current = query
 
         var index = 0

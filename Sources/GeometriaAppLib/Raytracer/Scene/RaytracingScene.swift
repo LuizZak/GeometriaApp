@@ -28,8 +28,8 @@ public struct RaytracingScene<T: RaytracingElement>: RaytracingSceneType {
     
     /// Returns a list of all geometry that intersects a given ray.
     @inlinable
-    public func intersectAll(ray: RRay3D, ignoring: RayIgnore = .none) -> [RayHit] {
-        var hits: [RayHit] = []
+    public func intersectAll(ray: RRay3D, ignoring: RayIgnore = .none) -> SortedRayHits {
+        var hits: SortedRayHits = []
 
         root.raycast(query: .init(ray: ray, ignoring: ignoring), results: &hits)
 
@@ -69,7 +69,12 @@ public struct RaytracingScene<T: RaytracingElement>: RaytracingSceneType {
 
 extension RaytracingElementBuilder {
     @inlinable
-    public static func makeScene<T>(skyColor: BLRgba32, materials: MaterialMap, @RaytracingElementBuilder _ builder: () -> T) -> RaytracingScene<T> where T: RaytracingElement {
+    public static func makeScene<T>(
+        skyColor: BLRgba32,
+        materials: MaterialMap,
+        @RaytracingElementBuilder _ builder: () -> T
+    ) -> RaytracingScene<T> where T: RaytracingElement {
+        
         var scene = RaytracingScene<T>(
             root: builder(),
             skyColor: .cornflowerBlue,

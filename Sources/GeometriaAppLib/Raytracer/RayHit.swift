@@ -5,8 +5,18 @@ import Geometria
 public struct RayHit: Equatable {
     /// The identifier for the element that was hit.
     public var id: Int
+
+    /// The point at which the intersection occurred.
     public var pointNormal: PointNormal<RVector3D>
+
+    /// Whether the hit came from an internal, external, or flat-plane direction.
     public var hitDirection: HitDirection
+
+    /// The squared distance from the origin point of the ray to `pointNormal.point`,
+    /// computed at the hit point.
+    public var distanceSquared: Double
+
+    /// The ID of the material that was hit, computed at the hit point.
     public var material: MaterialId?
     
     /// Convenience for `pointNormal.point`
@@ -26,6 +36,7 @@ public struct RayHit: Equatable {
             id: id,
             pointNormal: pointNormal,
             hitDirection: hitDirection.inverted,
+            distanceSquared: distanceSquared,
             material: material
         )
     }
@@ -35,12 +46,14 @@ public struct RayHit: Equatable {
         id: Int,
         pointNormal: PointNormal<RVector3D>,
         hitDirection: HitDirection,
+        distanceSquared: Double,
         material: MaterialId?
     ) {
         
         self.id = id
         self.pointNormal = pointNormal
         self.hitDirection = hitDirection
+        self.distanceSquared = distanceSquared
         self.material = material
     }
 
@@ -48,12 +61,14 @@ public struct RayHit: Equatable {
     public init(
         id: Int,
         pointOfInterest: (point: RPointNormal3D, hitDirection: RayHit.HitDirection),
+        distanceSquared: Double,
         material: MaterialId?
     ) {
         
         self.id = id
         self.pointNormal = pointOfInterest.point
         self.hitDirection = pointOfInterest.hitDirection
+        self.distanceSquared = distanceSquared
         self.material = material
     }
     
@@ -74,7 +89,13 @@ public struct RayHit: Equatable {
             return nil
         }
         
-        self.init(id: id, pointNormal: poi.point, hitDirection: poi.hitDirection, material: material)
+        self.init(
+            id: id,
+            pointNormal: poi.point,
+            hitDirection: poi.hitDirection,
+            distanceSquared: poi.point.point.distanceSquared(to: rayStart),
+            material: material
+        )
     }
     
     /// Computes a new ``RayHit`` from the parameters of this instance, while
@@ -85,7 +106,8 @@ public struct RayHit: Equatable {
     public func assignPointOfInterest(
         from rayIgnore: RayIgnore,
         intersection: RConvexLineResult3D,
-        rayStart: RVector3D
+        rayStart: RVector3D,
+        distanceSquared: Double
     ) -> RayHit? {
 
         guard let poi = rayIgnore.computePointNormalOfInterest(
@@ -96,11 +118,22 @@ public struct RayHit: Equatable {
             return nil
         }
         
-        return RayHit(id: id, pointNormal: poi.point, hitDirection: poi.hitDirection, material: material)
+        return RayHit(
+            id: id,
+            pointNormal: poi.point,
+            hitDirection: poi.hitDirection,
+            distanceSquared: poi.point.point.distanceSquared(to: rayStart),
+            material: material
+        )
     }
 
     /// Translates the components of this ray hit, returning a new hit that is 
     /// shifted in space by an amount specified by `vector`.
+    ///
+    /// - note: `distanceSquared` is relative to the original ray origin and
+    /// cannot be recomputed by this method alone, and thus is left unchanged.
+    /// This may lead to incorrect results depending on how the `distanceSquared`
+    /// of this structure is used post-translation.
     public func translated(by vector: RVector3D) -> RayHit {
         var hit = self
         
@@ -109,9 +142,14 @@ public struct RayHit: Equatable {
         return hit
     }
 
-    /// Scales the components of this ray hit, returning a new hit that is 
-    /// scaled in space around a given center point by an amount specified by 
+    /// Uniformly scales the components of this ray hit, returning a new hit that
+    /// is scaled in space around a given center point by an amount specified by
     /// `factor`.
+    ///
+    /// - note: `distanceSquared` is relative to the original ray origin and
+    /// cannot be recomputed by this method alone, and thus is left unchanged.
+    /// This may lead to incorrect results depending on how the `distanceSquared`
+    /// of this structure is used post-scaling.
     public func scaledBy(_ factor: Double, around center: RVector3D) -> Self {
         var hit = self
 
@@ -125,6 +163,11 @@ public struct RayHit: Equatable {
     /// Rotates the components of this ray hit, returning a new ray hit that
     /// is rotated in space around the given center point by a given rotational
     /// matrix.
+    ///
+    /// - note: `distanceSquared` is relative to the original ray origin and
+    /// cannot be recomputed by this method alone, and thus is left unchanged.
+    /// This may lead to incorrect results depending on how the `distanceSquared`
+    /// of this structure is used post-rotation.
     public func rotatedBy(_ matrix: RRotationMatrix3D, around center: RVector3D) -> Self {
         var hit = self
         

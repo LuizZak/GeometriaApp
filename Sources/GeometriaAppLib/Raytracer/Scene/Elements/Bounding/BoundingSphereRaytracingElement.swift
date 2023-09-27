@@ -16,7 +16,7 @@ extension BoundingSphereRaytracingElement: RaytracingElement & RaytracingBounded
     }
 
     @inlinable
-    public func raycast(query: RayQuery, results: inout [RayHit]) {
+    public func raycast(query: RayQuery, results: inout SortedRayHits) {
         guard intersects(query: query) else {
             return
         }

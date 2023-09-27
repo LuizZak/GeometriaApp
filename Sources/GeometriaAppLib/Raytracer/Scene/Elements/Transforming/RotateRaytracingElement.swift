@@ -15,7 +15,7 @@ extension RotateRaytracingElement: RaytracingElement {
     }
 
     @inlinable
-    public func raycast(query: RayQuery, results: inout [RayHit]) {
+    public func raycast(query: RayQuery, results: inout SortedRayHits) {
         let inv = rotation.mInv
         let queryT = query.rotatedBy(inv, around: rotationCenter)
 

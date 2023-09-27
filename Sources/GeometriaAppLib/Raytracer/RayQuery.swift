@@ -49,8 +49,7 @@ public struct RayQuery: Equatable {
         let point = rayHit.point
         let magnitudeSquared = point.distanceSquared(to: ray.start)
         
-        let lineSegment =
-        RLineSegment3D(
+        let lineSegment = RLineSegment3D(
             start: ray.start,
             end: ray.projectedMagnitude(magnitudeSquared.squareRoot())
         )
@@ -81,6 +80,7 @@ public struct RayQuery: Equatable {
             id: id,
             pointNormal: .init(point: point, normal: normal),
             hitDirection: hitDirection,
+            distanceSquared: magnitudeSquared,
             material: material
         )
         
@@ -289,7 +289,7 @@ extension RayQuery {
         id: Int,
         material: MaterialId?,
         convex geometry: borrowing Convex,
-        results: inout [RayHit]
+        results: inout SortedRayHits
     ) where Convex.Vector == RVector3D {
         
         guard !ignoring.shouldIgnoreFully(id: id) else {
@@ -336,7 +336,7 @@ extension RayQuery {
         id: Int,
         material: MaterialId?,
         plane geometry: borrowing Plane,
-        results: inout [RayHit]
+        results: inout SortedRayHits
     ) where Plane.Vector == RVector3D {
         
         guard !ignoring.shouldIgnoreFully(id: id) else {
@@ -357,21 +357,56 @@ extension RayQuery {
         _ intersection: RConvexLineResult3D,
         id: Int,
         material: MaterialId?,
-        to results: inout [RayHit]
+        to results: inout SortedRayHits
     ) {
         switch intersection {
         case .enterExit(let enter, let exit):
-            results.append(.init(id: id, pointOfInterest: (enter, .outside), material: material))
-            results.append(.init(id: id, pointOfInterest: (exit, .inside), material: material))
+            results.insert(
+                .init(
+                    id: id,
+                    pointOfInterest: (enter, .outside),
+                    distanceSquared: enter.point.distanceSquared(to: ray.start),
+                    material: material
+                )
+            )
+            results.insert(
+                .init(
+                    id: id,
+                    pointOfInterest: (exit, .inside),
+                    distanceSquared: exit.point.distanceSquared(to: ray.start),
+                    material: material
+                )
+            )
         
         case .enter(let enter):
-            results.append(.init(id: id, pointOfInterest: (enter, .outside), material: material))
+            results.insert(
+                .init(
+                    id: id,
+                    pointOfInterest: (enter, .outside),
+                    distanceSquared: enter.point.distanceSquared(to: ray.start),
+                    material: material
+                )
+            )
 
         case .exit(let exit):
-            results.append(.init(id: id, pointOfInterest: (exit, .inside), material: material))
+            results.insert(
+                .init(
+                    id: id,
+                    pointOfInterest: (exit, .inside),
+                    distanceSquared: exit.point.distanceSquared(to: ray.start),
+                    material: material
+                )
+            )
 
         case .singlePoint(let point):
-            results.append(.init(id: id, pointOfInterest: (point, .singlePoint), material: material))
+            results.insert(
+                .init(
+                    id: id,
+                    pointOfInterest: (point, .singlePoint),
+                    distanceSquared: point.point.distanceSquared(to: ray.start),
+                    material: material
+                )
+            )
 
         case .contained, .noIntersection:
             break

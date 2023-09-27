@@ -10,5 +10,5 @@ public protocol RaytracingSceneType: SceneType {
     func intersect(ray: RRay3D, ignoring: RayIgnore) -> RayHit?
     
     /// Returns a list of all geometry that intersects a given ray.
-    func intersectAll(ray: RRay3D, ignoring: RayIgnore) -> [RayHit]
+    func intersectAll(ray: RRay3D, ignoring: RayIgnore) -> SortedRayHits
 }

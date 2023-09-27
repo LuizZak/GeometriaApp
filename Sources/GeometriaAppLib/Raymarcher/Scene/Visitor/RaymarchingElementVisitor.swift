@@ -36,26 +36,54 @@ public protocol RaymarchingElementVisitor: ElementVisitor {
 
     #endif
     
-    func visit<T0, T1>(_ element: TupleRaymarchingElement2<T0, T1>) -> ResultType
-    func visit<T0, T1>(_ element: BoundedTupleElement2<T0, T1>) -> ResultType where T0: RaymarchingElement, T1: RaymarchingElement
+    func visit<T0, T1>(
+        _ element: TupleRaymarchingElement2<T0, T1>
+    ) -> ResultType
+    func visit<T0, T1>(
+        _ element: BoundedTupleElement2<T0, T1>
+    ) -> ResultType where T0: RaymarchingElement, T1: RaymarchingElement
     
-    func visit<T0, T1, T2>(_ element: TupleRaymarchingElement3<T0, T1, T2>) -> ResultType
-    func visit<T0, T1, T2>(_ element: BoundedTupleElement3<T0, T1, T2>) -> ResultType where T0: RaymarchingElement, T1: RaymarchingElement, T2: RaymarchingElement
+    func visit<T0, T1, T2>(
+        _ element: TupleRaymarchingElement3<T0, T1, T2>
+    ) -> ResultType
+    func visit<T0, T1, T2>(
+        _ element: BoundedTupleElement3<T0, T1, T2>
+    ) -> ResultType where T0: RaymarchingElement, T1: RaymarchingElement, T2: RaymarchingElement
     
-    func visit<T0, T1, T2, T3>(_ element: TupleRaymarchingElement4<T0, T1, T2, T3>) -> ResultType
-    func visit<T0, T1, T2, T3>(_ element: BoundedTupleElement4<T0, T1, T2, T3>) -> ResultType where T0: RaymarchingElement, T1: RaymarchingElement, T2: RaymarchingElement, T3: RaymarchingElement
+    func visit<T0, T1, T2, T3>(
+        _ element: TupleRaymarchingElement4<T0, T1, T2, T3>
+    ) -> ResultType
+    func visit<T0, T1, T2, T3>(
+        _ element: BoundedTupleElement4<T0, T1, T2, T3>
+    ) -> ResultType where T0: RaymarchingElement, T1: RaymarchingElement, T2: RaymarchingElement, T3: RaymarchingElement
 
-    func visit<T0, T1, T2, T3, T4>(_ element: TupleRaymarchingElement5<T0, T1, T2, T3, T4>) -> ResultType
-    func visit<T0, T1, T2, T3, T4>(_ element: BoundedTupleElement5<T0, T1, T2, T3, T4>) -> ResultType where T0: RaymarchingElement, T1: RaymarchingElement, T2: RaymarchingElement, T3: RaymarchingElement, T4: RaymarchingElement
+    func visit<T0, T1, T2, T3, T4>(
+        _ element: TupleRaymarchingElement5<T0, T1, T2, T3, T4>
+    ) -> ResultType
+    func visit<T0, T1, T2, T3, T4>(
+        _ element: BoundedTupleElement5<T0, T1, T2, T3, T4>
+    ) -> ResultType where T0: RaymarchingElement, T1: RaymarchingElement, T2: RaymarchingElement, T3: RaymarchingElement, T4: RaymarchingElement
     
-    func visit<T0, T1, T2, T3, T4, T5>(_ element: TupleRaymarchingElement6<T0, T1, T2, T3, T4, T5>) -> ResultType
-    func visit<T0, T1, T2, T3, T4, T5>(_ element: BoundedTupleElement6<T0, T1, T2, T3, T4, T5>) -> ResultType where T0: RaymarchingElement, T1: RaymarchingElement, T2: RaymarchingElement, T3: RaymarchingElement, T4: RaymarchingElement, T5: RaymarchingElement
+    func visit<T0, T1, T2, T3, T4, T5>(
+        _ element: TupleRaymarchingElement6<T0, T1, T2, T3, T4, T5>
+    ) -> ResultType
+    func visit<T0, T1, T2, T3, T4, T5>(
+        _ element: BoundedTupleElement6<T0, T1, T2, T3, T4, T5>
+    ) -> ResultType where T0: RaymarchingElement, T1: RaymarchingElement, T2: RaymarchingElement, T3: RaymarchingElement, T4: RaymarchingElement, T5: RaymarchingElement
     
-    func visit<T0, T1, T2, T3, T4, T5, T6>(_ element: TupleRaymarchingElement7<T0, T1, T2, T3, T4, T5, T6>) -> ResultType
-    func visit<T0, T1, T2, T3, T4, T5, T6>(_ element: BoundedTupleElement7<T0, T1, T2, T3, T4, T5, T6>) -> ResultType where T0: RaymarchingElement, T1: RaymarchingElement, T2: RaymarchingElement, T3: RaymarchingElement, T4: RaymarchingElement, T5: RaymarchingElement, T6: RaymarchingElement
+    func visit<T0, T1, T2, T3, T4, T5, T6>(
+        _ element: TupleRaymarchingElement7<T0, T1, T2, T3, T4, T5, T6>
+    ) -> ResultType
+    func visit<T0, T1, T2, T3, T4, T5, T6>(
+        _ element: BoundedTupleElement7<T0, T1, T2, T3, T4, T5, T6>
+    ) -> ResultType where T0: RaymarchingElement, T1: RaymarchingElement, T2: RaymarchingElement, T3: RaymarchingElement, T4: RaymarchingElement, T5: RaymarchingElement, T6: RaymarchingElement
     
-    func visit<T0, T1, T2, T3, T4, T5, T6, T7>(_ element: TupleRaymarchingElement8<T0, T1, T2, T3, T4, T5, T6, T7>) -> ResultType
-    func visit<T0, T1, T2, T3, T4, T5, T6, T7>(_ element: BoundedTupleElement8<T0, T1, T2, T3, T4, T5, T6, T7>) -> ResultType where T0: RaymarchingElement, T1: RaymarchingElement, T2: RaymarchingElement, T3: RaymarchingElement, T4: RaymarchingElement, T5: RaymarchingElement, T7: RaymarchingElement
+    func visit<T0, T1, T2, T3, T4, T5, T6, T7>(
+        _ element: TupleRaymarchingElement8<T0, T1, T2, T3, T4, T5, T6, T7>
+    ) -> ResultType
+    func visit<T0, T1, T2, T3, T4, T5, T6, T7>(
+        _ element: BoundedTupleElement8<T0, T1, T2, T3, T4, T5, T6, T7>
+    ) -> ResultType where T0: RaymarchingElement, T1: RaymarchingElement, T2: RaymarchingElement, T3: RaymarchingElement, T4: RaymarchingElement, T5: RaymarchingElement, T7: RaymarchingElement
     
     // MARK: Combination
 

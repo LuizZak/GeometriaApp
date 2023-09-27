@@ -31,7 +31,7 @@ extension TupleRaytracingElement2: RaytracingElement {
     }
 
     @inlinable
-    public func raycast(query: RayQuery, results: inout [RayHit]) {
+    public func raycast(query: RayQuery, results: inout SortedRayHits) {
         t0.raycast(query: query, results: &results)
         t1.raycast(query: query, results: &results)
     }
@@ -56,7 +56,7 @@ extension TupleRaytracingElement3: RaytracingElement {
     }
 
     @inlinable
-    public func raycast(query: RayQuery, results: inout [RayHit]) {
+    public func raycast(query: RayQuery, results: inout SortedRayHits) {
         t0.raycast(query: query, results: &results)
         t1.raycast(query: query, results: &results)
         t2.raycast(query: query, results: &results)
@@ -84,7 +84,7 @@ extension TupleRaytracingElement4: RaytracingElement {
     }
 
     @inlinable
-    public func raycast(query: RayQuery, results: inout [RayHit]) {
+    public func raycast(query: RayQuery, results: inout SortedRayHits) {
         t0.raycast(query: query, results: &results)
         t1.raycast(query: query, results: &results)
         t2.raycast(query: query, results: &results)
@@ -114,7 +114,7 @@ extension TupleRaytracingElement5: RaytracingElement {
     }
 
     @inlinable
-    public func raycast(query: RayQuery, results: inout [RayHit]) {
+    public func raycast(query: RayQuery, results: inout SortedRayHits) {
         t0.raycast(query: query, results: &results)
         t1.raycast(query: query, results: &results)
         t2.raycast(query: query, results: &results)
@@ -148,7 +148,7 @@ extension TupleRaytracingElement6: RaytracingElement {
     }
 
     @inlinable
-    public func raycast(query: RayQuery, results: inout [RayHit]) {
+    public func raycast(query: RayQuery, results: inout SortedRayHits) {
         t0.raycast(query: query, results: &results)
         t1.raycast(query: query, results: &results)
         t2.raycast(query: query, results: &results)
@@ -185,7 +185,7 @@ extension TupleRaytracingElement7: RaytracingElement {
     }
 
     @inlinable
-    public func raycast(query: RayQuery, results: inout [RayHit]) {
+    public func raycast(query: RayQuery, results: inout SortedRayHits) {
         t0.raycast(query: query, results: &results)
         t1.raycast(query: query, results: &results)
         t2.raycast(query: query, results: &results)
@@ -225,7 +225,7 @@ extension TupleRaytracingElement8: RaytracingElement {
     }
 
     @inlinable
-    public func raycast(query: RayQuery, results: inout [RayHit]) {
+    public func raycast(query: RayQuery, results: inout SortedRayHits) {
         t0.raycast(query: query, results: &results)
         t1.raycast(query: query, results: &results)
         t2.raycast(query: query, results: &results)

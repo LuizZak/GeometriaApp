@@ -7,7 +7,7 @@ extension EmptyRaytracingElement: RaytracingElement {
     }
 
     @_transparent
-    public func raycast(query: RayQuery, results: inout [RayHit]) {
+    public func raycast(query: RayQuery, results: inout SortedRayHits) {
         
     }
     

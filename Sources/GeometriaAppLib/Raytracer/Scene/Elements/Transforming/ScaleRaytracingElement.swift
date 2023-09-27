@@ -15,7 +15,7 @@ extension ScaleRaytracingElement: RaytracingElement {
     }
 
     @inlinable
-    public func raycast(query: RayQuery, results: inout [RayHit]) {
+    public func raycast(query: RayQuery, results: inout SortedRayHits) {
         let inv = 1 / scaling
         let queryT = query.scaled(by: inv, around: scalingCenter)
 

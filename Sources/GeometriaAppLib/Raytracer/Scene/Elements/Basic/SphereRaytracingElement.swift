@@ -11,7 +11,7 @@ extension SphereRaytracingElement: RaytracingElement {
     }
 
     @inlinable
-    public func raycast(query: RayQuery, results: inout [RayHit]) {
+    public func raycast(query: RayQuery, results: inout SortedRayHits) {
         query.intersectAll(
             id: id,
             material: material,

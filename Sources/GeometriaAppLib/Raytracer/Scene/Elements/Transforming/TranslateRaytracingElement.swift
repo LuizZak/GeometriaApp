@@ -19,7 +19,7 @@ extension TranslateRaytracingElement: RaytracingElement {
     }
 
     @inlinable
-    public func raycast(query: RayQuery, results: inout [RayHit]) {
+    public func raycast(query: RayQuery, results: inout SortedRayHits) {
         element.raycast(query: query.translated(by: -translation), results: &results)
     }
     

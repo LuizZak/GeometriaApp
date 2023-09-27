@@ -91,7 +91,7 @@ public enum RayIgnore: Equatable {
     /// For most intersections where the geometry is not ignored, the first
     /// (entrance) or singular point of intersection is returned; if no entrance
     /// is available, the exit point is returned, and if no exit point is
-    /// available still, `nil` is then ultimately returned.
+    /// available, `nil` is then ultimately returned.
     public func computePointNormalOfInterest(
         id: Int,
         intersection: RConvexLineResult3D,
@@ -119,9 +119,9 @@ public enum RayIgnore: Equatable {
     /// Using a given geometry intersection result, specified which of the
     /// points on the intersection are the points-of-interest for the intersection.
     ///
-    /// Returns an empty array in case none of the available intersection points 
-    /// are of interest, or if this ``RayIgnore`` rule instance ignores the only
-    /// available intersection.
+    /// Returns an convex intersection in case none of the available intersection
+    /// points  are of interest, or if this ``RayIgnore`` rule instance ignores
+    /// the only available intersection.
     public func computePointNormalsOfInterest(
         id: Int,
         intersection: RConvexLineResult3D,
