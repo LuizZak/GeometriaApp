@@ -114,8 +114,20 @@ extension SubtractionRaytracingElement: RaytracingElement {
         }
     }
     
-    // TODO: Properly implement ray containment checks in subtraction geometry
+    /// Performs a ray containment check on this subtraction raytracing element.
+    ///
+    /// Rays are fully contained by the subtracted geometry if they are fully
+    /// contained by t0 (the base geometry) and do not intersect t1 (the geometry
+    /// to subtract) at any point.
     public func fullyContainsRay(query: RayQuery) -> Bool {
-        return false
+        guard t0.fullyContainsRay(query: query) else {
+            return false
+        }
+
+        if t1.raycast(query: query) != query {
+            return false
+        }
+
+        return true
     }
 }
