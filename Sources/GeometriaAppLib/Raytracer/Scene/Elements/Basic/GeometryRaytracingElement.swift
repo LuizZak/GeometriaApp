@@ -20,6 +20,12 @@ extension GeometryRaytracingElement: RaytracingElement {
         )
     }
     
+    // TODO: Handle point containment for geometry that supports it
+    @inlinable
+    public func contains(point: RVector3D) -> Bool {
+        return false
+    }
+    
     @inlinable
     public func fullyContainsRay(query: RayQuery) -> Bool {
         query.isFullyContained(by: geometry)

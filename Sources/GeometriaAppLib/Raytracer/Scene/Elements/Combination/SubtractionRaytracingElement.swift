@@ -30,21 +30,21 @@ extension SubtractionRaytracingElement: RaytracingElement {
             return
         }
         
-        var noHitQuery = query.withNilHit()
-        noHitQuery.ignoring = .none
+        var noIgnoreQuery = query
+        noIgnoreQuery.ignoring = .none
 
         var t0Hits: SortedRayHits = []
-        t0.raycast(query: noHitQuery, results: &t0Hits)
+        t0.raycast(query: noIgnoreQuery, results: &t0Hits)
 
         // If t0 is not intersected by the ray and does not fully contain it, it
         // means we are no longer within its bounds and thus there's no geometry
         // left to subtract.
-        if t0Hits.isEmpty && !t0.fullyContainsRay(query: noHitQuery) {
+        if t0Hits.isEmpty && !t0.fullyContainsRay(query: noIgnoreQuery) && !t0.contains(point: noIgnoreQuery.ray.start) {
             return
         }
 
         var t1Hits: SortedRayHits = []
-        t1.raycast(query: noHitQuery, results: &t1Hits)
+        t1.raycast(query: noIgnoreQuery, results: &t1Hits)
 
         var zipped = SortedRayHitsZipper(s0: t0Hits, s1: t1Hits)
 
@@ -92,6 +92,11 @@ extension SubtractionRaytracingElement: RaytracingElement {
                 }
             }
         }
+    }
+    
+    @inlinable
+    public func contains(point: RVector3D) -> Bool {
+        t0.contains(point: point) && !t1.contains(point: point)
     }
     
     /// Performs a ray containment check on this subtraction raytracing element.

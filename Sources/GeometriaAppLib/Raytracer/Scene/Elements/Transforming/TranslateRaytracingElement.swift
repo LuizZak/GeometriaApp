@@ -24,6 +24,11 @@ extension TranslateRaytracingElement: RaytracingElement {
     }
     
     @inlinable
+    public func contains(point: RVector3D) -> Bool {
+        return element.contains(point: point - translation)
+    }
+    
+    @inlinable
     public func fullyContainsRay(query: RayQuery) -> Bool {
         let offsetQuery = query.translated(by: -translation)
         

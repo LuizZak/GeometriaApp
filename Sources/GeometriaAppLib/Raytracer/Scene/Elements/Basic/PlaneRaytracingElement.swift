@@ -21,6 +21,11 @@ extension PlaneRaytracingElement: RaytracingElement {
     }
     
     @inlinable
+    public func contains(point: RVector3D) -> Bool {
+        return false
+    }
+    
+    @inlinable
     public func fullyContainsRay(query: RayQuery) -> Bool {
         false // Planes cannot fully contain rays
     }

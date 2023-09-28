@@ -30,28 +30,30 @@ extension IntersectionRaytracingElement: RaytracingElement {
             return
         }
         
-        var noHitQuery = query.withNilHit()
-        noHitQuery.ignoring = .none
+        var noIgnoreQuery = query
+        noIgnoreQuery.ignoring = .none
 
         var t0Hits: SortedRayHits = []
-        var t1Hits: SortedRayHits = []
-        t0.raycast(query: noHitQuery, results: &t0Hits)
-        t1.raycast(query: noHitQuery, results: &t1Hits)
+        t0.raycast(query: noIgnoreQuery, results: &t0Hits)
         
+        // Must have at least one hit of (or be fully contained by) each geometry
+        // type to be able to form an intersection geometry
+        if t0Hits.isEmpty && !t0.fullyContainsRay(query: noIgnoreQuery) && !t0.contains(point: noIgnoreQuery.ray.start) {
+            return
+        }
+
+        var t1Hits: SortedRayHits = []
+        t1.raycast(query: noIgnoreQuery, results: &t1Hits)
+
+        if t1Hits.isEmpty && !t1.fullyContainsRay(query: noIgnoreQuery) && !t1.contains(point: noIgnoreQuery.ray.start) {
+            return
+        }
+
         // Skip fully empty hits
         if t0Hits.isEmpty && t1Hits.isEmpty {
             return
         }
         
-        // Must have at least one hit of (or be fully contained by) each geometry
-        // type to be able to form an intersection geometry
-        if (t0Hits.isEmpty && !t0.fullyContainsRay(query: noHitQuery)) ||
-            (t1Hits.isEmpty && !t1.fullyContainsRay(query: noHitQuery))
-        {
-            return
-        }
-
-        // TODO: Attempt to perform the intersection boolean logic without first combining all hit points into one list; the combined list is discarded after the work is done and leads to unnecessary memory allocations.
         var zipped = SortedRayHitsZipper(s0: t0Hits, s1: t1Hits)
         
         // Hit point criteria:
@@ -94,6 +96,11 @@ extension IntersectionRaytracingElement: RaytracingElement {
                 }
             }
         }
+    }
+    
+    @inlinable
+    public func contains(point: RVector3D) -> Bool {
+        t0.contains(point: point) && t1.contains(point: point)
     }
     
     @inlinable

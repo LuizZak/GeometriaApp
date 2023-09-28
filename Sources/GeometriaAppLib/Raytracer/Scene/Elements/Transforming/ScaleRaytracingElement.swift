@@ -1,3 +1,7 @@
+#if canImport(Geometria)
+import Geometria
+#endif
+
 public typealias ScaleRaytracingElement<T: RaytracingElement> = ScaleElement<T>
 
 extension ScaleRaytracingElement: RaytracingElement {
@@ -20,6 +24,14 @@ extension ScaleRaytracingElement: RaytracingElement {
         let queryT = query.scaled(by: inv, around: scalingCenter)
 
         element.raycast(query: queryT, results: &results)
+    }
+    
+    @inlinable
+    public func contains(point: RVector3D) -> Bool {
+        let inv = 1 / scaling
+        let pointT = (point - scalingCenter) * inv + scalingCenter
+        
+        return element.contains(point: pointT)
     }
     
     @inlinable

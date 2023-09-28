@@ -25,6 +25,11 @@ extension BoundingBoxRaytracingElement: RaytracingElement & RaytracingBoundedEle
     }
     
     @inlinable
+    public func contains(point: RVector3D) -> Bool {
+        return element.contains(point: point)
+    }
+    
+    @inlinable
     public func fullyContainsRay(query: RayQuery) -> Bool {
         guard intersects(query: query) && query.isFullyContained(by: boundingBox) else {
             return false

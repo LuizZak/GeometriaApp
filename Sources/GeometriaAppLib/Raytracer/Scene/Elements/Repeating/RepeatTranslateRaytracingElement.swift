@@ -36,6 +36,29 @@ extension RepeatTranslateRaytracingElement: RaytracingElement {
     }
     
     @inlinable
+    public func contains(point: RVector3D) -> Bool {
+        if count == 0 {
+            return false
+        }
+        
+        var current = point
+
+        var index = 0
+        while index < count {
+            defer { index += 1 }
+            
+            if element.contains(point: point) {
+                return true
+            }
+            
+            current = current - translation
+        }
+        
+        return false
+    }
+    
+    // TODO: Handle cases where the ray intersects a single instance of the geometry but stays within the overall overlapped volume when repetition is applied.
+    @inlinable
     public func fullyContainsRay(query: RayQuery) -> Bool {
         if count == 0 {
             return false
@@ -47,13 +70,13 @@ extension RepeatTranslateRaytracingElement: RaytracingElement {
         while index < count {
             defer { index += 1 }
             
-            if !element.fullyContainsRay(query: query) {
-                return false
+            if element.fullyContainsRay(query: query) {
+                return true
             }
             
             current = current.translated(by: -translation)
         }
         
-        return true
+        return false
     }
 }

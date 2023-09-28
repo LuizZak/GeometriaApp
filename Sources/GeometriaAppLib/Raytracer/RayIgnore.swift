@@ -22,8 +22,8 @@ public enum RayIgnore: Equatable {
     /// ignored.
     indirect case allButSingleId(id: Int, RayIgnore)
     
-    /// Returns `true` iff this ``RayIgnore`` instance is `.full` case, with the
-    /// given geometry assigned.
+    /// Returns `true` iff this ``RayIgnore`` instance is `.full` or ´.allButSingleId´
+    /// cases, with the given geometry assigned.
     public func shouldIgnoreFully(id: Int) -> Bool {
         switch self {
         case .full(let geoId):

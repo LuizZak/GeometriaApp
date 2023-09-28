@@ -43,7 +43,9 @@ extension SortedRayHits: ExpressibleByArrayLiteral {
     public init(arrayLiteral: RayHit...) {
         self.hits = arrayLiteral
 
-        sort()
+        if !arrayLiteral.isEmpty {
+            sort()
+        }
     }
 }
 

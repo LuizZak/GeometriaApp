@@ -30,13 +30,13 @@ extension UnionRaytracingElement: RaytracingElement {
             return
         }
         
-        var noHitQuery = query.withNilHit()
-        noHitQuery.ignoring = .none
+        var noIgnoreQuery = query
+        noIgnoreQuery.ignoring = .none
 
         var t0Hits: SortedRayHits = []
         var t1Hits: SortedRayHits = []
-        t0.raycast(query: noHitQuery, results: &t0Hits)
-        t1.raycast(query: noHitQuery, results: &t1Hits)
+        t0.raycast(query: noIgnoreQuery, results: &t0Hits)
+        t1.raycast(query: noIgnoreQuery, results: &t1Hits)
 
         var zipped = SortedRayHitsZipper(s0: t0Hits, s1: t1Hits)
         
@@ -83,7 +83,13 @@ extension UnionRaytracingElement: RaytracingElement {
     }
     
     @inlinable
+    public func contains(point: RVector3D) -> Bool {
+        return t0.contains(point: point) || t1.contains(point: point)
+    }
+    
+    // TODO: Handle ray containment when the ray crosses the boundaries of both geometries but stays within the overall volume of the union
+    @inlinable
     public func fullyContainsRay(query: RayQuery) -> Bool {
-        t0.fullyContainsRay(query: query) && t1.fullyContainsRay(query: query)
+        t0.fullyContainsRay(query: query) || t1.fullyContainsRay(query: query)
     }
 }
