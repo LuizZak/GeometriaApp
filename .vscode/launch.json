@@ -16,5 +16,20 @@
                 "preLaunchTask": "Build Win32 (debug)",
             }
         },
+        {
+            "type": "lldb",
+            "request": "launch",
+            "name": "Launch Release",
+            "program": "${workspaceFolder:GeometriaApp}/.build/release/GeometriaApp",
+            "args": [],
+            "env": {},
+            "cwd": "${workspaceFolder:GeometriaApp}/.build/release",
+            "linux": {
+                "preLaunchTask": "Build Linux (release)",
+            },
+            "windows": {
+                "preLaunchTask": "Build Win32 (release)",
+            }
+        },
     ]
 }

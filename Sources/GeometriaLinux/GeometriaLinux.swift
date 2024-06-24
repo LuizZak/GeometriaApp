@@ -79,7 +79,7 @@ class GeometriaWindow: ImagineUIContentType {
     }
 
     func keyPress(event: KeyPressEventArgs) {
-        //
+        raytracer.keyPress(event: event)
     }
 
     func keyDown(event: KeyEventArgs) {

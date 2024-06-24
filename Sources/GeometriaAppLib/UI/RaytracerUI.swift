@@ -48,13 +48,13 @@ class RaytracerUI {
 
         components.append(component)
     }
-    
+
     func rendererCoordinatorChanged(_ coordinator: RendererCoordinator?) {
         for component in components {
             component.rendererCoordinatorChanged(coordinator)
         }
     }
-    
+
     func rendererChanged<T: RendererType>(anyRenderer: T) {
         for component in components {
             component.rendererChanged(anyRenderer: anyRenderer)
@@ -74,7 +74,7 @@ class RaytracerUI {
     }
 
     // MARK: Event forwarding
-    
+
     func willStartLiveResize() {
         ui.willStartLiveResize()
     }
@@ -86,7 +86,7 @@ class RaytracerUI {
     func resize(width: Int, height: Int) {
         ui.resize(width: width, height: height)
     }
-    
+
     func performLayout() {
         ui.performLayout()
     }
@@ -98,7 +98,7 @@ class RaytracerUI {
     func render(context ctx: BLContext, scale: BLPoint) {
         ui.render(context: ctx, scale: scale)
     }
-    
+
     func mouseDown(event: MouseEventArgs) {
         ui.mouseDown(event: event)
     }
@@ -118,9 +118,13 @@ class RaytracerUI {
     func mouseScroll(event: MouseEventArgs) {
         ui.mouseScroll(event: event)
     }
-    
+
     func keyDown(event: KeyEventArgs) {
         ui.keyDown(event: event)
+    }
+
+    func keyPress(event: KeyPressEventArgs) {
+        ui.keyPress(event: event)
     }
 
     func keyUp(event: KeyEventArgs) {
@@ -149,7 +153,7 @@ class RaytracerUI {
         switch location {
         case .unspecified:
             break
-        
+
         case .topLeft(let location, nil):
             view.location = location
 

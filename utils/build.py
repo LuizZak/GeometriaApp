@@ -6,6 +6,7 @@ import argparse
 import subprocess
 import json
 import inspect
+import platform
 
 from pathlib import Path
 from dataclasses import dataclass
@@ -100,7 +101,7 @@ def make_argparser() -> argparse.ArgumentParser:
     return argparser
 
 
-def toSwiftCDefList(definitions: list[str] | None) -> list[str]:
+def toSwiftCDefList(definitions: list[str] | None):
     if definitions is None:
         return []
 
@@ -122,7 +123,10 @@ class BuildCommandArgs:
         if self.target_name is not None:
             args.extend(['--target', self.target_name])
 
-        args.extend(['--configuration', self.config, *win32_debug_args, *toSwiftCDefList(self.definitions)])
+        args.extend(['--configuration', self.config])
+        if platform.system() == "Windows":
+            args.extend(win32_debug_args)
+        args.extend([*toSwiftCDefList(self.definitions)])
 
         return args
 
@@ -139,7 +143,10 @@ class RunCommandArgs:
     def swift_build_args(self) -> List[str]:
         args = []
 
-        args.extend(['--configuration', self.config, *win32_debug_args, *toSwiftCDefList(self.definitions)])
+        args.extend(['--configuration', self.config])
+        if platform.system() == "Windows":
+            args.extend(win32_debug_args)
+        args.extend([*toSwiftCDefList(self.definitions)])
 
         return args
 
@@ -149,7 +156,10 @@ class RunCommandArgs:
         if self.executable_name is not None:
             args.append(self.executable_name)
 
-        args.extend(['--configuration', self.config, *win32_debug_args, *toSwiftCDefList(self.definitions)])
+        args.extend(['--configuration', self.config])
+        if platform.system() == "Windows":
+            args.extend(win32_debug_args)
+        args.extend([*toSwiftCDefList(self.definitions)])
 
         return args
 
@@ -161,7 +171,14 @@ class TestCommandArgs:
     definitions: list[str] | None
 
     def swift_test_args(self) -> List[str]:
-        return ['--configuration', self.config, *win32_debug_args, *toSwiftCDefList(self.definitions)]
+        args = []
+
+        args.extend(['--configuration', self.config])
+        if platform.system() == "Windows":
+            args.extend(win32_debug_args)
+        args.extend([*toSwiftCDefList(self.definitions)])
+
+        return args
 
 
 # Settings for post-build process.
@@ -244,14 +261,14 @@ def default_manifest_path(target_name: str) -> Path:
 def run_post_build(settings: PostBuildSettings):
     run('mt', '-nologo', '-manifest', settings.manifest_path, f'-outputresource:{settings.exe_path}')
 
-def run_manifest_patch(build_dir: Path, target_name: str, manifest_path: str):
+def run_manifest_patch(build_dir: Path, target_name: str, manifest_path: Path):
     exe_path = build_dir.joinpath(target_name).with_suffix('.exe')
 
     manifest_path = manifest_path
     if manifest_path is None:
         manifest_path = default_manifest_path(target_name)
 
-    run_post_build(PostBuildSettings(exe_path, manifest_path))
+    run_post_build(PostBuildSettings(exe_path, Path(manifest_path)))
 
 def run_build(settings: BuildCommandArgs):
     run('swift', '--version', silent=False)
@@ -271,14 +288,15 @@ def run_build(settings: BuildCommandArgs):
 
     target = SwiftTarget(target_json)
 
-    if target.type == SwiftTargetType.EXECUTABLE:
-        build_dir = Path(run_output('swift', 'build', "--show-bin-path", *args).decode('UTF8').strip())
+    if platform.system() == "Windows":
+        if target.type == SwiftTargetType.EXECUTABLE:
+            build_dir = Path(run_output('swift', 'build', "--show-bin-path", *args).decode('UTF8').strip())
 
-        manifest_path = settings.manifest_path
-        if manifest_path is None:
-            manifest_path = default_manifest_path(target.name)
+            manifest_path = settings.manifest_path
+            if manifest_path is None:
+                manifest_path = default_manifest_path(target.name)
 
-        run_manifest_patch(build_dir, target.name, manifest_path)
+            run_manifest_patch(build_dir, target.name, manifest_path)
 
     return
 
@@ -294,14 +312,15 @@ def run_target(settings: RunCommandArgs):
 
     run('swift', 'build', *args)
 
-    if settings.target_name is not None:
-        build_dir = Path(run_output('swift', 'build', "--show-bin-path", *args).decode('UTF8').strip())
+    if platform.system() == "Windows":
+        if settings.target_name is not None:
+            build_dir = Path(run_output('swift', 'build', "--show-bin-path", *args).decode('UTF8').strip())
 
-        manifest_path = settings.manifest_path
-        if manifest_path is None:
-            manifest_path = default_manifest_path(settings.target_name)
+            manifest_path = settings.manifest_path
+            if manifest_path is None:
+                manifest_path = default_manifest_path(settings.target_name)
 
-        run_manifest_patch(build_dir, settings.target_name, manifest_path)
+            run_manifest_patch(build_dir, settings.target_name, Path(manifest_path))
 
     run('swift', 'run', '--skip-build', *settings.swift_run_args())
 

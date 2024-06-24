@@ -130,6 +130,10 @@ class ImagineUIWrapper {
         controlSystem.onKeyDown(event)
     }
 
+    func keyPress(event: KeyPressEventArgs) {
+        controlSystem.onKeyPress(event)
+    }
+
     func keyUp(event: KeyEventArgs) {
         controlSystem.onKeyUp(event)
     }

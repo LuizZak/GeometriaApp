@@ -15,7 +15,7 @@
         "repositoryURL": "https://github.com/LuizZak/ImagineUI-X11.git",
         "state": {
           "branch": "main",
-          "revision": "274fc788d1c4e03e8c91ea2f2122ed312eb059cf",
+          "revision": "8722782ab1210feb8ff526ff7523baf733718fd7",
           "version": null
         }
       },
@@ -51,7 +51,7 @@
         "repositoryURL": "https://github.com/apple/swift-log.git",
         "state": {
           "branch": "main",
-          "revision": "b3a637307772d20291d78a5b7a0d4204d9b1e981",
+          "revision": "9cb486020ebf03bfa5b5df985387a14a98744537",
           "version": null
         }
       },

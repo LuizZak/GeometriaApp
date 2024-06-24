@@ -48,7 +48,7 @@ class GeometriaWindow: Blend2DWindowContentType {
     func performLayout() {
         raytracer.performLayout()
     }
-    
+
     func mouseDown(event: MouseEventArgs) {
         raytracer.mouseDown(event: event)
     }
@@ -63,9 +63,9 @@ class GeometriaWindow: Blend2DWindowContentType {
     }
 
     func keyPress(event: KeyPressEventArgs) {
-        // 
+        raytracer.keyPress(event: event)
     }
-    
+
     func keyDown(event: KeyEventArgs) {
         raytracer.keyDown(event: event)
     }

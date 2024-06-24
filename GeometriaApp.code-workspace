@@ -47,6 +47,15 @@
 				]
 			},
             {
+				"label": "Build Linux (release)",
+				"type": "shell",
+				"command": "swift",
+				"args": [
+					"build",
+					"-c", "release",
+				]
+			},
+            {
 				"label": "Run Win32 (debug)",
 				"type": "shell",
 				"command": "python",
@@ -67,6 +76,15 @@
 				]
 			},
             {
+				"label": "Run Linux (release)",
+				"type": "shell",
+				"command": "swift",
+				"args": [
+					"run",
+					"-c", "release",
+				]
+			},
+            {
 				"label": "Run Win32 (release)",
 				"type": "shell",
 				"command": "python",
@@ -75,7 +93,7 @@
 					"run",
 					"-c", "release",
 					"-t", "GeometriaApp",
-					"-m", "Sources\\GeometriaWindows\\GeometriaApp.exe.manifest"
+					"-m", "Sources/GeometriaWindows/GeometriaApp.exe.manifest"
 				]
 			},
 		]

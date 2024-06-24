@@ -131,7 +131,7 @@ public class RaytracerApp: Blend2DApp {
 
         // TODO: Derive camera configuration from the demo scene builders.
 
-        #if false
+        #if true
 
         let scene = RaytracingDemoScene3.makeScene()
 
@@ -212,6 +212,21 @@ public class RaytracerApp: Blend2DApp {
 
     public func performLayout() {
         ui.performLayout()
+    }
+
+    public func keyPress(event: KeyPressEventArgs) {
+        if event.keyChar == " " {
+            togglePause()
+            event.handled = true
+        }
+        if event.keyChar == "r" {
+            restartRendering()
+            event.handled = true
+        }
+
+        if !event.handled {
+            ui.keyPress(event: event)
+        }
     }
 
     public func keyDown(event: KeyEventArgs) {
