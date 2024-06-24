@@ -13,127 +13,133 @@ class ImagineUIWrapper {
     private var rootViews: [RootView]
     private var currentRedrawRegion: UIRectangle? = nil
     private var debugDrawFlags: Set<DebugDraw.DebugDrawFlags> = [] // '.viewBounds', '.layoutGuideBounds', and/or '.constraints'.
-    
+    private var tooltipManager: ImagineUITooltipsManager
+
     /// The main root view hierarchy where all other UI views are added to.
     let rootView = RootView()
-    
+
     weak var delegate: Blend2DAppDelegate?
-    
+
     init(size: BLSizeI) {
         width = Int(size.w)
         height = Int(size.h)
         bounds = BLRect(location: .zero, size: BLSize(w: Double(size.w), h: Double(size.h)))
         rootViews = []
+        tooltipManager = ImagineUITooltipsManager(container: rootView)
         controlSystem.delegate = self
-        
+
         addRootView(rootView)
     }
-    
+
     func addRootView(_ view: RootView) {
         view.invalidationDelegate = self
         view.rootControlSystem = controlSystem
         rootViews.append(view)
     }
-    
+
     func removeRootView(_ view: RootView) {
         view.invalidationDelegate = nil
         view.rootControlSystem = nil
         rootViews.removeAll { $0 === view }
     }
-    
+
     func willStartLiveResize() {
-        
+
     }
-    
+
     func didEndLiveResize() {
-        
+
     }
-    
+
     func resize(width: Int, height: Int) {
         self.width = width
         self.height = height
-        
+
         rootView.location = .zero
         rootView.size = .init(width: Double(width), height: Double(height))
-        
+
         bounds = BLRect(location: .zero, size: BLSize(w: Double(width), h: Double(height)))
         currentRedrawRegion = bounds.asRectangle
-        
+
         for case let window as Window in rootViews where window.windowState == .maximized {
             window.setNeedsLayout()
         }
     }
-    
+
     func invalidateScreen() {
         currentRedrawRegion = bounds.asRectangle
         delegate?.invalidate(bounds: bounds.asRectangle)
     }
-    
+
     func update(_ time: TimeInterval) {
         // Fixed-frame update
         let delta = time - lastFrame
         lastFrame = time
         Scheduler.instance.onFixedFrame(delta)
     }
-    
+
     func performLayout() {
         // Layout loop
         for rootView in rootViews {
             rootView.performLayout()
         }
     }
-    
+
     func render(context ctx: BLContext, scale: BLPoint) {
         guard let rect = currentRedrawRegion else {
             return
         }
-        
+
         ctx.scale(by: scale)
 //        ctx.setFillStyle(BLRgba32.cornflowerBlue)
-        
-        let redrawRegion = BLRegion(rectangle: BLRectI(rounding: rect.asBLRect))
-        
+
+        let redrawRegion = UIRegion(rectangle: rect)
+
 //        ctx.fillRect(rect.asBLRect)
-        
+
         let renderer = Blend2DRenderer(context: ctx)
-        
+
         // Redraw loop
         for rootView in rootViews {
-            rootView.renderRecursive(in: renderer, screenRegion: Blend2DClipRegion(region: redrawRegion))
+            rootView.renderRecursive(in: renderer, screenRegion: UIRegionClipRegion(region: redrawRegion))
         }
-        
+
         // Debug render
         for rootView in rootViews {
             DebugDraw.debugDrawRecursive(rootView, flags: debugDrawFlags, in: renderer)
         }
     }
-    
+
     func mouseDown(event: MouseEventArgs) {
         controlSystem.onMouseDown(event)
     }
-    
+
     func mouseMoved(event: MouseEventArgs) {
         controlSystem.onMouseMove(event)
     }
-    
+
     func mouseUp(event: MouseEventArgs) {
         controlSystem.onMouseUp(event)
     }
-    
+
     func mouseScroll(event: MouseEventArgs) {
         controlSystem.onMouseWheel(event)
     }
-    
+
     func keyDown(event: KeyEventArgs) {
         controlSystem.onKeyDown(event)
     }
-    
+
     func keyUp(event: KeyEventArgs) {
         controlSystem.onKeyUp(event)
     }
 }
 
-extension ImagineUIWrapper: DefaultControlSystemDelegate {
+extension ImagineUIWrapper: BaseControlSystemDelegate {
+    func tooltipsManager() -> (any TooltipsManagerType)? {
+        tooltipManager
+    }
+
     func firstResponderChanged(_ newFirstResponder: KeyboardEventHandler?) {
 
     }
@@ -141,10 +147,10 @@ extension ImagineUIWrapper: DefaultControlSystemDelegate {
     func bringRootViewToFront(_ rootView: RootView) {
         rootViews.removeAll(where: { $0 == rootView })
         rootViews.append(rootView)
-        
+
         rootView.invalidate()
     }
-    
+
     func controlViewUnder(point: UIVector, enabledOnly: Bool) -> ControlView? {
         for window in rootViews.reversed() {
             let converted = window.convertFromScreen(point)
@@ -152,14 +158,45 @@ extension ImagineUIWrapper: DefaultControlSystemDelegate {
                 return view
             }
         }
-        
+
         return nil
     }
-    
+
+    func controlViewUnder(
+        point: UIVector,
+        controlKinds: ControlKinds
+    ) -> ControlView? {
+        for window in rootViews.reversed() {
+            let converted = window.convertFromScreen(point)
+            let enabledOnly = !controlKinds.contains(.disabledFlag)
+            if let view = window.hitTestControl(converted, enabledOnly: enabledOnly) {
+                return view
+            }
+        }
+
+        return nil
+    }
+
+    func controlViewUnder(
+        point: UIVector,
+        forEventRequest eventRequest: any EventRequest,
+        controlKinds: ControlKinds
+    ) -> ControlView? {
+        for window in rootViews.reversed() {
+            let converted = window.convertFromScreen(point)
+            let enabledOnly = !controlKinds.contains(.disabledFlag)
+            if let view = window.hitTestControl(converted, forEventRequest: eventRequest, enabledOnly: enabledOnly) {
+                return view
+            }
+        }
+
+        return nil
+    }
+
     func setMouseCursor(_ cursor: MouseCursorKind) {
         delegate?.setMouseCursor(cursor)
     }
-    
+
     func setMouseHiddenUntilMouseMoves() {
         delegate?.setMouseHiddenUntilMouseMoves()
     }
@@ -174,13 +211,13 @@ extension ImagineUIWrapper: RootViewRedrawInvalidationDelegate {
         guard let intersectedRect = rect.intersection(bounds.asRectangle) else {
             return
         }
-        
+
         if let current = currentRedrawRegion {
             currentRedrawRegion = current.union(intersectedRect)
         } else {
             currentRedrawRegion = intersectedRect
         }
-        
+
         delegate?.invalidate(bounds: intersectedRect)
     }
 }
@@ -192,21 +229,21 @@ extension ImagineUIWrapper: WindowDelegate {
             invalidateScreen()
         }
     }
-    
+
     func windowWantsToMaximize(_ window: Window) {
         switch window.windowState {
         case .maximized:
             window.setWindowState(.normal)
-            
+
         case .normal, .minimized:
             window.setWindowState(.maximized)
         }
     }
-    
+
     func windowWantsToMinimize(_ window: Window) {
         window.setWindowState(.minimized)
     }
-    
+
     func windowSizeForFullscreen(_ window: Window) -> UISize {
         return bounds.asRectangle.size
     }

@@ -32,16 +32,26 @@
             {
 				"label": "Build Win32 (debug)",
 				"type": "shell",
-				"command": "python utils\\build.py",
+				"command": "python",
 				"args": [
+					"utils/build.py",
 					"-c", "debug"
+				]
+			},
+            {
+				"label": "Build Linux (debug)",
+				"type": "shell",
+				"command": "swift",
+				"args": [
+					"build",
 				]
 			},
             {
 				"label": "Run Win32 (debug)",
 				"type": "shell",
-				"command": "python utils\\build.py",
+				"command": "python",
 				"args": [
+					"utils/build.py",
 					"run",
 					"-c", "debug",
 					"-t", "GeometriaApp",
@@ -49,10 +59,19 @@
 				]
 			},
             {
+				"label": "Run Linux (debug)",
+				"type": "shell",
+				"command": "swift",
+				"args": [
+					"run",
+				]
+			},
+            {
 				"label": "Run Win32 (release)",
 				"type": "shell",
-				"command": "python utils\\build.py",
+				"command": "python",
 				"args": [
+					"utils/build.py",
 					"run",
 					"-c", "release",
 					"-t", "GeometriaApp",
@@ -63,7 +82,8 @@
 	},
 	"folders": [
 		{
-			"path": "."
+			"path": ".",
+            "name": "GeometriaApp"
 		},
 		{
 			"name": "Swift Package Dependencies",
@@ -84,32 +104,28 @@
 			"**/.DS_Store": true
 		},
 		"commentAnchors.workspace.excludeFiles": "**/{node_modules,.git,.idea,target,out,build,vendor,.build,.swiftpm}/**/*",
-		"commentAnchors.tags.list": [
-			{
-				"tag": "MARK",
-				"iconColor": "default",
-				"highlightColor": "#A8C023",
-				"scope": "file"
-			},
-			{
-				"tag": "TODO",
-				"iconColor": "blue",
-				"highlightColor": "#3ea8ff",
-				"scope": "workspace"
-			},
-			{
-				"tag": "FIXME",
-				"iconColor": "red",
-				"highlightColor": "#F44336",
-				"scope": "workspace"
-			},
-			{
-				"tag": "NOTE",
-				"iconColor": "orange",
-				"highlightColor": "#FFB300",
-				"scope": "file"
-			},
-		],
+		"commentAnchors.tags.anchors": {
+            "MARK:": {
+                "iconColor": "default",
+                "highlightColor": "#A8C023",
+                "scope": "file",
+            },
+            "TODO:": {
+                "iconColor": "blue",
+                "highlightColor": "#3ea8ff",
+                "scope": "workspace",
+            },
+            "FIXME:": {
+                "iconColor": "red",
+                "highlightColor": "#F44336",
+                "scope": "workspace",
+            },
+            "NOTE:": {
+                "iconColor": "orange",
+                "highlightColor": "#FFB300",
+                "scope": "file",
+            },
+        },
 		"ShortcutMenuBar.userButton01Command": "workbench.action.tasks.runTask|Build Win32 (debug)",
 		"ShortcutMenuBar.userButton02Command": "workbench.action.tasks.runTask|Run Win32 (debug)",
 		"ShortcutMenuBar.userButton03Command": "workbench.action.tasks.runTask|Run Win32 (release)",

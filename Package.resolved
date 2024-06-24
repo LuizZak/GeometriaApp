@@ -6,16 +6,25 @@
         "repositoryURL": "https://github.com/LuizZak/CassowarySwift.git",
         "state": {
           "branch": "cassowary-swift-optimizations",
-          "revision": "c1e6e8a7d00d22ac686845e1652d2245b097c16e",
+          "revision": "b2377a0bb3c0cb43f63278f1a2ef85384d370861",
           "version": null
         }
       },
       {
-        "package": "ImagineUI-Win",
-        "repositoryURL": "https://github.com/LuizZak/ImagineUI-Win.git",
+        "package": "ImagineUI-X11",
+        "repositoryURL": "https://github.com/LuizZak/ImagineUI-X11.git",
         "state": {
           "branch": "main",
-          "revision": "d035cd31cbc53dd14a584c38eccca395e8c57f82",
+          "revision": "274fc788d1c4e03e8c91ea2f2122ed312eb059cf",
+          "version": null
+        }
+      },
+      {
+        "package": "swift-bezier",
+        "repositoryURL": "https://github.com/LuizZak/swift-bezier.git",
+        "state": {
+          "branch": "main",
+          "revision": "84c8d4614e90fbb39a083bb7463242890ad0e475",
           "version": null
         }
       },
@@ -24,16 +33,16 @@
         "repositoryURL": "https://github.com/LuizZak/swift-blend2d.git",
         "state": {
           "branch": "master",
-          "revision": "b053f1a559d1d8864e91ca75e9a5fa3e0bc6ce07",
+          "revision": "9a0287fd7b9bdda025c383b6f6c48eb90d00a658",
           "version": null
         }
       },
       {
-        "package": "SwiftCOM",
-        "repositoryURL": "https://github.com/compnerd/swift-com.git",
+        "package": "LibPNG",
+        "repositoryURL": "https://github.com/LuizZak/swift-libpng.git",
         "state": {
-          "branch": "main",
-          "revision": "8b2a7b50d9bcec07f0ae84d2be7f9909e73223d3",
+          "branch": "master",
+          "revision": "1d5b94c822dde80c4c2d7d742cd50d1d83c5abb1",
           "version": null
         }
       },
@@ -42,7 +51,7 @@
         "repositoryURL": "https://github.com/apple/swift-log.git",
         "state": {
           "branch": "main",
-          "revision": "4e75f88c6ab63bf47a8780ac4adfce830e8478a6",
+          "revision": "b3a637307772d20291d78a5b7a0d4204d9b1e981",
           "version": null
         }
       },

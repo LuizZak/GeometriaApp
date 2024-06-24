@@ -36,6 +36,7 @@ var osTargets: [Target] = []
 #if true
 
 geometriaAppTarget.exclude.append("main+macOS.swift")
+geometriaAppTarget.exclude.append("main+linux.swift")
 geometriaAppTarget.swiftSettings = [
     .unsafeFlags([
         "-parse-as-library",
@@ -81,6 +82,7 @@ geometriaAppTarget.dependencies.append(
 #elseif os(macOS)
 
 geometriaAppTarget.exclude.append("main+win.swift")
+geometriaAppTarget.exclude.append("main+linux.swift")
 geometriaAppTarget.dependencies.append(
     "GeometriaMacOS"
 )
@@ -88,6 +90,27 @@ osTargets.append(
     .target(
         name: "GeometriaMacOS",
         dependencies: [
+            "ImagineUI",
+            "SwiftBlend2D",
+            "GeometriaAppLib"
+        ])
+)
+
+#elseif os(Linux)
+
+geometriaAppTarget.exclude.append("main+win.swift")
+geometriaAppTarget.exclude.append("main+macOS.swift")
+geometriaAppTarget.dependencies.append(
+    "GeometriaLinux"
+)
+packageDependencies.append(
+    .package(url: "https://github.com/LuizZak/ImagineUI-X11.git", .branch("main"))
+)
+osTargets.append(
+    .target(
+        name: "GeometriaLinux",
+        dependencies: [
+            .product(name: "ImagineUI-X11", package: "ImagineUI-X11"),
             "ImagineUI",
             "SwiftBlend2D",
             "GeometriaAppLib"

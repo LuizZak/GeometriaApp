@@ -14,19 +14,19 @@ public protocol Blend2DApp: AnyObject {
     var width: Int { get }
     var height: Int { get }
     var appRenderScale: BLPoint { get }
-    
+
     func willStartLiveResize()
     func didEndLiveResize()
     func resize(width: Int, height: Int)
-    
+
     func performLayout()
-    func render(context ctx: BLContext, scale: BLPoint, clipRegion: ClipRegion)
-    
+    func render(context ctx: BLContext, scale: BLPoint, clipRegion: ClipRegionType)
+
     func mouseDown(event: MouseEventArgs)
     func mouseMoved(event: MouseEventArgs)
     func mouseUp(event: MouseEventArgs)
     func mouseScroll(event: MouseEventArgs)
-    
+
     func keyDown(event: KeyEventArgs)
     func keyUp(event: KeyEventArgs)
 }
@@ -34,12 +34,12 @@ public protocol Blend2DApp: AnyObject {
 public extension Blend2DApp {
     func willStartLiveResize() { }
     func didEndLiveResize() { }
-    
+
     func mouseDown(event: MouseEventArgs) { }
     func mouseMoved(event: MouseEventArgs) { }
     func mouseUp(event: MouseEventArgs) { }
     func mouseScroll(event: MouseEventArgs) { }
-    
+
     func keyDown(event: KeyEventArgs) { }
     func keyUp(event: KeyEventArgs) { }
 }

@@ -174,7 +174,7 @@ extension SceneGraphUINode {
             .addingProperty(name: "Radius", value: element.geometry.radius)
     }
 
-    
+
     func addingProperties<T>(for element: BoundingBoxElement<T>) -> SceneGraphUINode {
         self.addingProperty(name: "Bounds", value: element.boundingBox)
     }
@@ -293,7 +293,7 @@ extension SceneGraphUINode {
             let circle3 = circle2.offsetBy(x: size.width * 0.2, y: size.height * 0.2)
 
             renderer.setFill(.white)
-            
+
             renderer.stroke(circle1)
 
             renderer.fill(circle2)
@@ -321,11 +321,11 @@ extension SceneGraphUINode {
 
         static let intersectionIcon: Image = makeIcon(.cornflowerBlue) { (renderer, size) in
             let sizePoint = size.asUIPoint
-            
+
             let square = UIRectangle(location: sizePoint * 0.2, size: size * 0.6)
             let circle = UICircle(center: square.bottomRight, radius: square.width * 0.65)
             let pie = circle.arc(start: -.pi / 2, sweep: -.pi / 2)
-        
+
             renderer.withTemporaryState {
                 renderer.setStroke(.lightGray.withTransparency(30))
                 renderer.stroke(square)
@@ -382,12 +382,13 @@ extension SceneGraphUINode {
         private static func makeIcon(_ color: Color, rendering closure: (Renderer, UISize) -> Void) -> Image {
             let size = UIIntSize(width: 12, height: 12)
             let context = Blend2DRendererContext().createImageRenderer(width: size.width, height: size.height)
-            context.renderer.clear()
-            context.renderer.setStroke(color)
 
-            closure(context.renderer, UISize(size))
+            return context.withRenderer { ctx in
+                ctx.clear()
+                ctx.setStroke(color)
 
-            return context.renderedImage()
+                closure(ctx, UISize(size))
+            }
         }
     }
 }
@@ -544,7 +545,7 @@ class SceneGraphVisitor: ElementVisitor {
     }
 
     // MARK: Tuple Elements
-    
+
     func visit<T0, T1>(_ element: TupleElement2<T0, T1>) -> ResultType {
         SceneGraphUINode(element: element, title: "2 Elements Tuple")
             .addingIcon(for: element)
@@ -559,7 +560,7 @@ class SceneGraphVisitor: ElementVisitor {
             .addingSubNode(self, mutating: element, \.t0)
             .addingSubNode(self, mutating: element, \.t1)
     }
-    
+
     func visit<T0, T1, T2>(_ element: TupleElement3<T0, T1, T2>) -> ResultType {
         SceneGraphUINode(element: element, title: "3 Elements Tuple")
             .addingIcon(for: element)
@@ -576,7 +577,7 @@ class SceneGraphVisitor: ElementVisitor {
             .addingSubNode(self, mutating: element, \.t1)
             .addingSubNode(self, mutating: element, \.t2)
     }
-    
+
     func visit<T0, T1, T2, T3>(_ element: TupleElement4<T0, T1, T2, T3>) -> ResultType {
         SceneGraphUINode(element: element, title: "4 Elements Tuple")
             .addingIcon(for: element)
@@ -616,7 +617,7 @@ class SceneGraphVisitor: ElementVisitor {
             .addingSubNode(self, mutating: element, \.t3)
             .addingSubNode(self, mutating: element, \.t4)
     }
-    
+
     func visit<T0, T1, T2, T3, T4, T5>(_ element: TupleElement6<T0, T1, T2, T3, T4, T5>) -> ResultType {
         SceneGraphUINode(element: element, title: "6 Elements Tuple")
             .addingIcon(for: element)
@@ -639,7 +640,7 @@ class SceneGraphVisitor: ElementVisitor {
             .addingSubNode(self, mutating: element, \.t4)
             .addingSubNode(self, mutating: element, \.t5)
     }
-    
+
     func visit<T0, T1, T2, T3, T4, T5, T6>(_ element: TupleElement7<T0, T1, T2, T3, T4, T5, T6>) -> ResultType {
         SceneGraphUINode(element: element, title: "7 Elements Tuple")
             .addingIcon(for: element)
@@ -664,7 +665,7 @@ class SceneGraphVisitor: ElementVisitor {
             .addingSubNode(self, mutating: element, \.t5)
             .addingSubNode(self, mutating: element, \.t6)
     }
-    
+
     func visit<T0, T1, T2, T3, T4, T5, T6, T7>(_ element: TupleElement8<T0, T1, T2, T3, T4, T5, T6, T7>) -> ResultType {
         SceneGraphUINode(element: element, title: "8 Elements Tuple")
             .addingIcon(for: element)
@@ -769,7 +770,7 @@ extension SceneGraphVisitor: RaymarchingElementVisitor {
     }
 
     // MARK: Tuple Elements
-    
+
     func visit<T0, T1>(_ element: TupleRaymarchingElement2<T0, T1>) -> ResultType {
         SceneGraphUINode(element: element, title: "2 Elements Tuple")
             .addingIcon(for: element)
@@ -784,7 +785,7 @@ extension SceneGraphVisitor: RaymarchingElementVisitor {
             .addingSubNode(self, mutating: element, \.t0)
             .addingSubNode(self, mutating: element, \.t1)
     }
-    
+
     func visit<T0, T1, T2>(_ element: TupleRaymarchingElement3<T0, T1, T2>) -> ResultType {
         SceneGraphUINode(element: element, title: "3 Elements Tuple")
             .addingIcon(for: element)
@@ -801,7 +802,7 @@ extension SceneGraphVisitor: RaymarchingElementVisitor {
             .addingSubNode(self, mutating: element, \.t1)
             .addingSubNode(self, mutating: element, \.t2)
     }
-    
+
     func visit<T0, T1, T2, T3>(_ element: TupleRaymarchingElement4<T0, T1, T2, T3>) -> ResultType {
         SceneGraphUINode(element: element, title: "4 Elements Tuple")
             .addingIcon(for: element)
@@ -841,7 +842,7 @@ extension SceneGraphVisitor: RaymarchingElementVisitor {
             .addingSubNode(self, mutating: element, \.t3)
             .addingSubNode(self, mutating: element, \.t4)
     }
-    
+
     func visit<T0, T1, T2, T3, T4, T5>(_ element: TupleRaymarchingElement6<T0, T1, T2, T3, T4, T5>) -> ResultType {
         SceneGraphUINode(element: element, title: "6 Elements Tuple")
             .addingIcon(for: element)
@@ -864,7 +865,7 @@ extension SceneGraphVisitor: RaymarchingElementVisitor {
             .addingSubNode(self, mutating: element, \.t4)
             .addingSubNode(self, mutating: element, \.t5)
     }
-    
+
     func visit<T0, T1, T2, T3, T4, T5, T6>(_ element: TupleRaymarchingElement7<T0, T1, T2, T3, T4, T5, T6>) -> ResultType {
         SceneGraphUINode(element: element, title: "7 Elements Tuple")
             .addingIcon(for: element)
@@ -889,7 +890,7 @@ extension SceneGraphVisitor: RaymarchingElementVisitor {
             .addingSubNode(self, mutating: element, \.t5)
             .addingSubNode(self, mutating: element, \.t6)
     }
-    
+
     func visit<T0, T1, T2, T3, T4, T5, T6, T7>(_ element: TupleRaymarchingElement8<T0, T1, T2, T3, T4, T5, T6, T7>) -> ResultType {
         SceneGraphUINode(element: element, title: "8 Elements Tuple")
             .addingIcon(for: element)

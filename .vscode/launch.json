@@ -2,13 +2,19 @@
     "version": "0.2.0",
     "configurations": [
         {
-            "type": "lldb-vscode",
+            "type": "lldb",
             "request": "launch",
             "name": "Launch",
-            "program": "${workspaceFolder:Build}/debug/GeometriaApp.exe",
+            "program": "${workspaceFolder:GeometriaApp}/.build/debug/GeometriaApp",
             "args": [],
-            "env": [],
-            "cwd": "${workspaceFolder:Build}/debug"
-        }
+            "env": {},
+            "cwd": "${workspaceFolder:GeometriaApp}/.build/debug",
+            "linux": {
+                "preLaunchTask": "Build Linux (debug)",
+            },
+            "windows": {
+                "preLaunchTask": "Build Win32 (debug)",
+            }
+        },
     ]
 }
