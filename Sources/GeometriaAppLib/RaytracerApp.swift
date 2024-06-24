@@ -12,8 +12,6 @@ public class RaytracerApp: Blend2DApp {
     private var _updateTimer: SchedulerTimerType?
     private let _font: Font
     private var _isResizing: Bool = false
-    private var _timeStarted: TimeInterval = 0.0
-    private var _timeEnded: TimeInterval = 0.0
     private var _mouseLocation: BLPointI = .zero
 
     private var threadCount: Int = 12
@@ -133,7 +131,7 @@ public class RaytracerApp: Blend2DApp {
 
         #if true
 
-        let scene = RaytracingDemoScene3.makeScene()
+        let scene = RaytracingDemoScene1.makeScene()
 
         let renderer = Raytracer(
             scene: scene,
@@ -169,16 +167,12 @@ public class RaytracerApp: Blend2DApp {
                 guard let self = self else { return }
 
                 if change.newValue == .finished {
-                    self._timeEnded = UISettings.timeInSeconds()
                     self.invalidateAll()
                 }
             }
         }
         rendererCoordinator?.initialize()
         rendererCoordinator?.start()
-
-        _timeStarted = UISettings.timeInSeconds()
-        _timeEnded = 0.0
     }
 
     func pause() {
@@ -255,7 +249,7 @@ public class RaytracerApp: Blend2DApp {
     public func mouseMoved(event: MouseEventArgs) {
         ui.mouseMoved(event: event)
 
-        invalidateAll()
+        //invalidateAll()
     }
 
     public func mouseDown(event: MouseEventArgs) {
@@ -285,20 +279,22 @@ public class RaytracerApp: Blend2DApp {
     public func render(context ctx: BLContext, scale: BLPoint, clipRegion: ClipRegionType) {
         if let buffer = buffer {
             buffer.usingImage { img in
+                let unscaledBounds = clipRegion.bounds().asBLRect
+                let bounds = clipRegion.bounds().scaled(by: scale).asBLRect
+
                 ctx.save()
-                ctx.clipToRect(clipRegion.bounds().scaled(by: scale).asBLRect)
+                ctx.clipToRect(bounds)
 
                 if scale == .one {
-                    ctx.blitImage(img, at: BLPointI.zero)
+                    ctx.blitImage(img, at: unscaledBounds.location)
                 } else {
-                    let rect = BLRect(
-                        x: 0,
-                        y: 0,
-                        w: Double(width) * scale.x,
-                        h: Double(height) * scale.y
-                    )
+                    var imageArea = unscaledBounds
+                    imageArea.x = max(0, imageArea.x)
+                    imageArea.y = max(0, imageArea.y)
+                    imageArea.w = min(Double(img.width), imageArea.right) - imageArea.x
+                    imageArea.h = min(Double(img.height), imageArea.bottom) - imageArea.y
 
-                    ctx.blitScaledImage(img, rectangle: rect, imageArea: nil)
+                    ctx.blitScaledImage(img, rectangle: bounds, imageArea: .init(rounding: imageArea))
                 }
 
                 ctx.restore()
@@ -308,7 +304,8 @@ public class RaytracerApp: Blend2DApp {
             ctx.fillAll()
         }
 
-        ui.render(context: ctx, scale: scale)
+        let renderer = Blend2DRenderer(context: ctx)
+        ui.render(renderer: renderer, scale: scale, clipRegion: clipRegion)
 
 //        ctx.setFillStyle(BLRgba32.red)
 //        ctx.setStrokeStyle(BLRgba32.red)

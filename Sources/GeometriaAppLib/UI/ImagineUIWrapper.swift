@@ -11,9 +11,15 @@ class ImagineUIWrapper {
     private let rendererContext = Blend2DRendererContext()
     private var controlSystem = DefaultControlSystem()
     private var rootViews: [RootView]
-    private var currentRedrawRegion: UIRectangle? = nil
     private var debugDrawFlags: Set<DebugDraw.DebugDrawFlags> = [] // '.viewBounds', '.layoutGuideBounds', and/or '.constraints'.
-    private var tooltipManager: ImagineUITooltipsManager
+
+    private var allRootViews: [RootView] {
+        rootViews + [tooltipRootView]
+    }
+
+    /// A root view for tooltips that must always be kept above other root views.
+    private let tooltipRootView = RootView()
+    private let tooltipManager: ImagineUITooltipsManager
 
     /// The main root view hierarchy where all other UI views are added to.
     let rootView = RootView()
@@ -25,15 +31,21 @@ class ImagineUIWrapper {
         height = Int(size.h)
         bounds = BLRect(location: .zero, size: BLSize(w: Double(size.w), h: Double(size.h)))
         rootViews = []
-        tooltipManager = ImagineUITooltipsManager(container: rootView)
+        tooltipManager = ImagineUITooltipsManager(container: tooltipRootView)
         controlSystem.delegate = self
 
         addRootView(rootView)
+        configureRootView(tooltipRootView)
+        tooltipRootView.passthroughMouseCapture = true
+    }
+
+    func configureRootView(_ view: RootView) {
+        view.invalidationDelegate = self
+        view.rootControlSystem = controlSystem
     }
 
     func addRootView(_ view: RootView) {
-        view.invalidationDelegate = self
-        view.rootControlSystem = controlSystem
+        configureRootView(view)
         rootViews.append(view)
     }
 
@@ -55,19 +67,22 @@ class ImagineUIWrapper {
         self.width = width
         self.height = height
 
-        rootView.location = .zero
-        rootView.size = .init(width: Double(width), height: Double(height))
+        func _resizeRootView(_ view: RootView) {
+            view.location = .zero
+            view.size = .init(width: Double(width), height: Double(height))
+        }
+
+        _resizeRootView(rootView)
+        _resizeRootView(tooltipRootView)
 
         bounds = BLRect(location: .zero, size: BLSize(w: Double(width), h: Double(height)))
-        currentRedrawRegion = bounds.asRectangle
 
-        for case let window as Window in rootViews where window.windowState == .maximized {
+        for case let window as Window in allRootViews where window.windowState == .maximized {
             window.setNeedsLayout()
         }
     }
 
     func invalidateScreen() {
-        currentRedrawRegion = bounds.asRectangle
         delegate?.invalidate(bounds: bounds.asRectangle)
     }
 
@@ -80,32 +95,21 @@ class ImagineUIWrapper {
 
     func performLayout() {
         // Layout loop
-        for rootView in rootViews {
+        for rootView in allRootViews {
             rootView.performLayout()
         }
     }
 
-    func render(context ctx: BLContext, scale: BLPoint) {
-        guard let rect = currentRedrawRegion else {
-            return
-        }
-
-        ctx.scale(by: scale)
-//        ctx.setFillStyle(BLRgba32.cornflowerBlue)
-
-        let redrawRegion = UIRegion(rectangle: rect)
-
-//        ctx.fillRect(rect.asBLRect)
-
-        let renderer = Blend2DRenderer(context: ctx)
+    func render(renderer: any Renderer, scale: BLPoint, clipRegion: any ClipRegionType) {
+        renderer.scale(by: scale.asUIVector)
 
         // Redraw loop
-        for rootView in rootViews {
-            rootView.renderRecursive(in: renderer, screenRegion: UIRegionClipRegion(region: redrawRegion))
+        for rootView in allRootViews {
+            rootView.renderRecursive(in: renderer, screenRegion: clipRegion)
         }
 
         // Debug render
-        for rootView in rootViews {
+        for rootView in allRootViews {
             DebugDraw.debugDrawRecursive(rootView, flags: debugDrawFlags, in: renderer)
         }
     }
@@ -156,7 +160,7 @@ extension ImagineUIWrapper: BaseControlSystemDelegate {
     }
 
     func controlViewUnder(point: UIVector, enabledOnly: Bool) -> ControlView? {
-        for window in rootViews.reversed() {
+        for window in allRootViews.reversed() {
             let converted = window.convertFromScreen(point)
             if let view = window.hitTestControl(converted, enabledOnly: enabledOnly) {
                 return view
@@ -170,7 +174,7 @@ extension ImagineUIWrapper: BaseControlSystemDelegate {
         point: UIVector,
         controlKinds: ControlKinds
     ) -> ControlView? {
-        for window in rootViews.reversed() {
+        for window in allRootViews.reversed() {
             let converted = window.convertFromScreen(point)
             let enabledOnly = !controlKinds.contains(.disabledFlag)
             if let view = window.hitTestControl(converted, enabledOnly: enabledOnly) {
@@ -186,7 +190,7 @@ extension ImagineUIWrapper: BaseControlSystemDelegate {
         forEventRequest eventRequest: any EventRequest,
         controlKinds: ControlKinds
     ) -> ControlView? {
-        for window in rootViews.reversed() {
+        for window in allRootViews.reversed() {
             let converted = window.convertFromScreen(point)
             let enabledOnly = !controlKinds.contains(.disabledFlag)
             if let view = window.hitTestControl(converted, forEventRequest: eventRequest, enabledOnly: enabledOnly) {
@@ -214,12 +218,6 @@ extension ImagineUIWrapper: RootViewRedrawInvalidationDelegate {
     func rootView(_ rootView: RootView, invalidateRect rect: UIRectangle) {
         guard let intersectedRect = rect.intersection(bounds.asRectangle) else {
             return
-        }
-
-        if let current = currentRedrawRegion {
-            currentRedrawRegion = current.union(intersectedRect)
-        } else {
-            currentRedrawRegion = intersectedRect
         }
 
         delegate?.invalidate(bounds: intersectedRect)

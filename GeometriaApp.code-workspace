@@ -93,6 +93,7 @@
 					"run",
 					"-c", "release",
 					"-t", "GeometriaApp",
+					// "-x=-Xswiftc", "-x=-cross-module-optimization",
 					"-m", "Sources/GeometriaWindows/GeometriaApp.exe.manifest"
 				]
 			},

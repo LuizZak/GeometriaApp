@@ -73,6 +73,12 @@ def make_argparser() -> argparse.ArgumentParser:
                             default='debug',
                             help="Build configuration to use. Can either be 'debug' or 'release'. Defaults to 'debug'.")
 
+        parser.add_argument('-x', '-Xswift',
+                            action='append',
+                            type=str,
+                            dest='swift_args',
+                            help="A set of arguments that are passed as-is to the swift invocation during build and run operations.")
+
         parser.add_argument('-d',
                             action='append',
                             type=str,
@@ -115,6 +121,7 @@ class BuildCommandArgs:
     target_name: str | None
     config: str
     manifest_path: Path | None
+    swift_args: list[str] | None
     definitions: list[str] | None
 
     def swift_build_args(self) -> List[str]:
@@ -126,6 +133,8 @@ class BuildCommandArgs:
         args.extend(['--configuration', self.config])
         if platform.system() == "Windows":
             args.extend(win32_debug_args)
+        if self.swift_args:
+            args.extend(self.swift_args)
         args.extend([*toSwiftCDefList(self.definitions)])
 
         return args
@@ -138,6 +147,7 @@ class RunCommandArgs:
     executable_name: str | None
     config: str
     manifest_path: Path | None
+    swift_args: list[str] | None
     definitions: list[str] | None
 
     def swift_build_args(self) -> List[str]:
@@ -146,6 +156,8 @@ class RunCommandArgs:
         args.extend(['--configuration', self.config])
         if platform.system() == "Windows":
             args.extend(win32_debug_args)
+        if self.swift_args:
+            args.extend(self.swift_args)
         args.extend([*toSwiftCDefList(self.definitions)])
 
         return args
@@ -159,6 +171,8 @@ class RunCommandArgs:
         args.extend(['--configuration', self.config])
         if platform.system() == "Windows":
             args.extend(win32_debug_args)
+        if self.swift_args:
+            args.extend(self.swift_args)
         args.extend([*toSwiftCDefList(self.definitions)])
 
         return args
@@ -168,6 +182,7 @@ class RunCommandArgs:
 @dataclass
 class TestCommandArgs:
     config: str
+    swift_args: list[str] | None
     definitions: list[str] | None
 
     def swift_test_args(self) -> List[str]:
@@ -176,6 +191,8 @@ class TestCommandArgs:
         args.extend(['--configuration', self.config])
         if platform.system() == "Windows":
             args.extend(win32_debug_args)
+        if self.swift_args:
+            args.extend(self.swift_args)
         args.extend([*toSwiftCDefList(self.definitions)])
 
         return args
@@ -328,7 +345,13 @@ def run_target(settings: RunCommandArgs):
 
 
 def do_build_command(args: Any):
-    settings = BuildCommandArgs(args.target, args.configuration, args.manifest_path, args.definitions)
+    settings = BuildCommandArgs(
+        args.target,
+        args.configuration,
+        args.manifest_path,
+        args.swift_args,
+        args.definitions,
+    )
     run_build(settings)
 
     print('Success!')
@@ -337,7 +360,11 @@ def do_build_command(args: Any):
 
 
 def do_test_command(args: Any):
-    settings = TestCommandArgs(args.configuration, args.definitions)
+    settings = TestCommandArgs(
+        args.configuration,
+        args.swift_args,
+        args.definitions,
+    )
     run_test(settings)
 
     print('Success!')
@@ -346,7 +373,14 @@ def do_test_command(args: Any):
 
 
 def do_run_command(args: Any):
-    settings = RunCommandArgs(args.target, args.executable, args.configuration, args.manifest_path, args.definitions)
+    settings = RunCommandArgs(
+        args.target,
+        args.executable,
+        args.configuration,
+        args.manifest_path,
+        args.swift_args,
+        args.definitions,
+    )
     run_target(settings)
     return
 

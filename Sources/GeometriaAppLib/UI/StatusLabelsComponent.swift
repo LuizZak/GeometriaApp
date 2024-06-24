@@ -82,6 +82,7 @@ class StatusLabelsComponent: RaytracerUIComponent {
         if old == .unstarted || old == .cancelled || old == .finished {
             if new == .running {
                 self._timeStarted = UISettings.timeInSeconds()
+                self._timeEnded = 0
             }
         }
         if new == .finished {
