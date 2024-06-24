@@ -10,6 +10,15 @@
       }
     },
     {
+      "identity" : "imagineui-x11",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/LuizZak/ImagineUI-X11.git",
+      "state" : {
+        "branch" : "main",
+        "revision" : "7d6d71c2b1ce252c6b3999bc42f648a01f01cb8a"
+      }
+    },
+    {
       "identity" : "swift-bezier",
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/LuizZak/swift-bezier.git",
@@ -28,12 +37,12 @@
       }
     },
     {
-      "identity" : "swift-com",
+      "identity" : "swift-libpng",
       "kind" : "remoteSourceControl",
-      "location" : "https://github.com/compnerd/swift-com.git",
+      "location" : "https://github.com/LuizZak/swift-libpng.git",
       "state" : {
-        "branch" : "main",
-        "revision" : "8b2a7b50d9bcec07f0ae84d2be7f9909e73223d3"
+        "branch" : "master",
+        "revision" : "1d5b94c822dde80c4c2d7d742cd50d1d83c5abb1"
       }
     },
     {
@@ -42,7 +51,7 @@
       "location" : "https://github.com/apple/swift-log.git",
       "state" : {
         "branch" : "main",
-        "revision" : "e979c6945c31c27b5c1ed6c8432aa75d4cd53221"
+        "revision" : "9cb486020ebf03bfa5b5df985387a14a98744537"
       }
     },
     {

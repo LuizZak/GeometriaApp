@@ -48,7 +48,7 @@ var geometriaAppLibTarget: Target = .target(
         .copy("Resources/NotoSans-Regular.ttf"),
     ],
     swiftSettings: [
-        
+
     ]
 )
 if ProcessInfo.processInfo.environment["REPORT_BUILD_TIME"] == "YES" {
@@ -62,7 +62,7 @@ var sceneGraphBuilderTarget: Target = .target(
         "Geometria",
     ],
     swiftSettings: [
-        
+
     ]
 )
 
@@ -95,6 +95,7 @@ if ProcessInfo.processInfo.environment["USE_GEOMETRIA_DEPENDENCY"] == "YES" {
 #if true
 
 geometriaAppTarget.exclude.append("main+macOS.swift")
+geometriaAppTarget.exclude.append("main+linux.swift")
 geometriaAppTarget.swiftSettings = [
     .unsafeFlags([
         "-parse-as-library",
@@ -137,6 +138,7 @@ geometriaAppTarget.dependencies.append(
 #elseif os(macOS)
 
 geometriaAppTarget.exclude.append("main+win.swift")
+geometriaAppTarget.exclude.append("main+linux.swift")
 geometriaAppTarget.dependencies.append(
     "GeometriaMacOS"
 )
@@ -151,10 +153,26 @@ targets.append(
         ])
 )
 
-#else
+#elseif os(Linux)
 
-geometriaAppTarget.exclude.append("main+macOS.swift")
 geometriaAppTarget.exclude.append("main+win.swift")
+geometriaAppTarget.exclude.append("main+macOS.swift")
+geometriaAppTarget.dependencies.append(
+    "GeometriaLinux"
+)
+packageDependencies.append(
+    .package(url: "https://github.com/LuizZak/ImagineUI-X11.git", branch: "main")
+)
+targets.append(
+    .target(
+        name: "GeometriaLinux",
+        dependencies: [
+            .product(name: "ImagineUI-X11", package: "ImagineUI-X11"),
+            .product(name: "SwiftBlend2D", package: "swift-blend2d"),
+            "GeometriaAppLib",
+            "SceneGraphBuilder"
+        ])
+)
 
 #endif
 

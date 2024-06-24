@@ -34,8 +34,25 @@
 				"type": "shell",
 				"command": "python",
 				"args": [
-					"utils\\build.py",
-					"-c", "debug",
+					"utils/build.py",
+					"-c", "debug"
+				]
+			},
+            {
+				"label": "Build Linux (debug)",
+				"type": "shell",
+				"command": "swift",
+				"args": [
+					"build",
+				]
+			},
+            {
+				"label": "Build Linux (release)",
+				"type": "shell",
+				"command": "swift",
+				"args": [
+					"build",
+					"-c", "release",
 				]
 			},
             {
@@ -43,7 +60,7 @@
 				"type": "shell",
 				"command": "python",
 				"args": [
-					"utils\\build.py",
+					"utils/build.py",
 					"run",
 					"-c", "debug",
 					"-t", "GeometriaApp",
@@ -51,15 +68,34 @@
 				]
 			},
             {
-				"label": "Run Win32 (release)",
+				"label": "Run Linux (debug)",
 				"type": "shell",
-				"command": "python",
+				"command": "swift",
+				"args": [
+					"run",
+				]
+			},
+            {
+				"label": "Run Linux (release)",
+				"type": "shell",
+				"command": "swift",
 				"args": [
 					"utils\\build.py",
 					"run",
 					"-c", "release",
+				]
+			},
+            {
+				"label": "Run Win32 (release)",
+				"type": "shell",
+				"command": "python",
+				"args": [
+					"utils/build.py",
+					"run",
+					"-c", "release",
 					"-t", "GeometriaApp",
-					"-m", "Sources\\GeometriaWindows\\GeometriaApp.exe.manifest",
+					// "-x=-Xswiftc", "-x=-cross-module-optimization",
+					"-m", "Sources/GeometriaWindows/GeometriaApp.exe.manifest",
 					"-cross-module-optimization", // TODO: Validate whether cross-module-optimization offers performance advantages
 				]
 			},
@@ -67,14 +103,6 @@
 	},
 	"launch": {
 		"configurations": [
-			{
-				"type": "lldb-vscode",
-				"request": "launch",
-				"name": "Launch",
-				"program": "${workspaceFolder:Build}/debug/GeometriaApp.exe",
-				"args": [],
-				"cwd": "${workspaceFolder:Build}/debug",
-			},
 			{
 				"type": "lldb",
 				"request": "launch",
@@ -110,7 +138,8 @@
 	},
 	"folders": [
 		{
-			"path": "."
+			"path": ".",
+            "name": "GeometriaApp"
 		},
 		{
 			"name": "Swift Package Dependencies",

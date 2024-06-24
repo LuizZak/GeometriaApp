@@ -11,18 +11,18 @@ open class RaytracerApp: RaytracerUI {
     private var _updateTimer: SchedulerTimerType?
     private var _isResizing: Bool = false
     private var _mouseLocation: BLPointI = .zero
-    
+
     private var threadCount: Int = 12
-    
+
     // Components
     private let statusMessages: StatusMessageStackComponent = StatusMessageStackComponent()
     private let statusLabels: StatusLabelsComponent = StatusLabelsComponent()
     private let uiProjection: UIProjectionComponent = UIProjectionComponent()
-    
+
     var rendererCoordinator: RendererCoordinator?
     var renderer: RendererType?
     var buffer: Blend2DBufferWriter?
-    
+
     public var time: TimeInterval = 0
 
     public private(set) var dpiScalingMode: DpiScalingMode = .useDpiScale {
@@ -41,12 +41,12 @@ open class RaytracerApp: RaytracerUI {
             }
         }
     }
-    
+
     public override init(size: UIIntSize) {
         super.init(size: size)
 
         time = 0
-        
+
         backgroundColor = nil
 
         restartRendering()
@@ -56,11 +56,11 @@ open class RaytracerApp: RaytracerUI {
     deinit {
         _updateTimer?.invalidate()
     }
-    
+
     func createUI() {
         // UI projection
         addComponent(uiProjection)
-        
+
         // Scene graph tree view
         let sceneGraph = SceneGraphTreeComponent(width: 250.0)
         sceneGraph.treeComponentDelegate = self
@@ -82,40 +82,40 @@ open class RaytracerApp: RaytracerUI {
 
         rendererCoordinator?.cancel()
     }
-    
+
     open override func willStartLiveResize() {
         super.willStartLiveResize()
-        
+
         _isResizing = true
     }
-    
+
     open override func didEndLiveResize() {
         super.didEndLiveResize()
-        
+
         _isResizing = false
-        
+
         restartRendering()
     }
-    
+
     open override func resize(_ size: UIIntSize) {
         super.resize(size)
 
         restartRendering()
     }
-    
+
     func restartRendering() {
         _updateTimer = Scheduler.instance.scheduleTimer(interval: 1 / 60.0, repeats: true) { [weak self] in
             self?.update(UISettings.timeInSeconds())
         }
 
         rendererCoordinator?.cancel()
-        
+
         guard !_isResizing && width > 0 && height > 0 else {
             buffer = nil
             rendererCoordinator = nil
             return
         }
-        
+
         recreateRenderer()
 
         statusLabels.updateDpiScalingModeLabel(
@@ -123,12 +123,12 @@ open class RaytracerApp: RaytracerUI {
             currentScale: delegate?.windowDpiScalingFactor(self) ?? 1.0
         )
     }
-    
+
     func recreateRenderer() {
         guard width > 0 && height > 0 else {
             return
         }
-        
+
         let scaleFactor: Double
 
         switch dpiScalingMode {
@@ -137,15 +137,15 @@ open class RaytracerApp: RaytracerUI {
         case .ignoreDpi:
             scaleFactor = 1.0
         }
-        
+
         let image = BLImage(
             width: Int(Double(width) * scaleFactor),
             height: Int(Double(height) * scaleFactor),
             format: .prgb32
         )
-        
+
         let viewportSize = image.size.asViewportSize
-        
+
         let buffer = Blend2DBufferWriter(image: image)
         self.buffer = buffer
 
@@ -177,7 +177,7 @@ open class RaytracerApp: RaytracerUI {
         // */
 //        let batcher = SieveBatcher()
 //        let batcher = LinearBatcher()
-        
+
         // TODO: Derive camera configuration from the demo scene builders.
 
         let camera = Camera(
@@ -186,28 +186,28 @@ open class RaytracerApp: RaytracerUI {
         )
 
         #if true
-        
+
         let scene = RaytracingDemoScene3.makeScene()
-        
+
         let renderer = Raytracer(
             scene: scene,
             camera: camera
         )
-        
+
         #else
 
         let scene = RaymarchingHyperplanePolyhedronScene.makeScene()
-        
+
         let renderer = Raymarcher(
             scene: scene,
             camera: camera
         )
         // renderer.renderMode = .marchSteps()
-        
+
         #endif
 
         renderer.setupViewportSize(viewportSize)
-        
+
         rendererCoordinator = RendererCoordinator(
             renderer: renderer,
             viewportSize: viewportSize,
@@ -218,11 +218,11 @@ open class RaytracerApp: RaytracerUI {
 
         rendererCoordinatorChanged(rendererCoordinator)
         rendererChanged(renderer)
-        
+
         rendererCoordinator?.stateDidChange.addListener(weakOwner: self) { [weak self] (change) in
             DispatchQueue.main.async {
                 guard let self = self else { return }
-                
+
                 if change.newValue == .finished {
                     self.invalidateAll()
                 }
@@ -233,24 +233,24 @@ open class RaytracerApp: RaytracerUI {
 
         self.renderer = renderer
     }
-    
+
     func pause() {
         rendererCoordinator?.pause()
-        
+
         invalidateAll()
     }
-    
+
     func resume() {
         rendererCoordinator?.resume()
-        
+
         invalidateAll()
     }
-    
+
     func togglePause() {
         guard let renderer = rendererCoordinator else {
             return
         }
-        
+
         switch renderer.state {
         case .unstarted, .finished, .cancelled:
             restartRendering()
@@ -300,9 +300,9 @@ open class RaytracerApp: RaytracerUI {
         let oldIsMultithreaded = renderer.isMultiThreaded
         renderer.isMultiThreaded = false
         renderer.beginDebug()
-        
+
         _ = renderer.render(pixelAt: pixel)
-        
+
         renderer.endDebug(target:
             ClipboardProcessingPrinterTarget(
                 clipboard: clipboard
@@ -315,9 +315,32 @@ open class RaytracerApp: RaytracerUI {
             "Copied Processing debug scene for pixel (\(pixel.x), \(pixel.y)) to clipboard."
         )
     }
-    
+
     // MARK: - UI
-    
+
+    open override func keyPress(event: KeyPressEventArgs) {
+        if event.keyChar == " " {
+            togglePause()
+            event.handled = true
+        }
+        if event.keyChar == "r" {
+            restartRendering()
+            event.handled = true
+        }
+        if event.keyChar == "s" {
+            toggleDpiScalingMode()
+            event.handled = true
+        }
+        if event.keyChar == "o" {
+            debugAtMousePointer()
+            event.handled = true
+        }
+
+        if !event.handled {
+            super.keyPress(event: event)
+        }
+    }
+
     open override func keyDown(event: KeyEventArgs) {
         if event.keyCode == .space {
             togglePause()
@@ -335,34 +358,34 @@ open class RaytracerApp: RaytracerUI {
             debugAtMousePointer()
             event.handled = true
         }
-        
+
         if !event.handled {
             super.keyDown(event: event)
         }
     }
-    
+
     open override func mouseMoved(event: MouseEventArgs) {
         _mouseLocation = event.location.asBLPointI
 
         super.mouseMoved(event: event)
-        
+
         invalidateAll()
     }
-    
+
     // MARK: -
-    
+
     open override func update(_ time: TimeInterval) {
         if let renderer = rendererCoordinator, renderer.state == .running {
             invalidateAll()
         }
-        
+
         super.update(time)
     }
-    
+
     func invalidateAll() {
         delegate?.invalidate(self, bounds: .init(location: .zero, size: UISize(size)))
     }
-    
+
     open override func render(renderer: Renderer, renderScale: UIVector, clipRegion: ClipRegionType) {
         renderer.clear(.black)
 
@@ -373,18 +396,19 @@ open class RaytracerApp: RaytracerUI {
                 if renderScale == .one || dpiScalingMode == .useDpiScale {
                     renderer.drawImage(img, at: .zero)
                 } else {
-                    let rect = UIRectangle(
-                        x: 0,
-                        y: 0,
-                        width: Double(width) * renderScale.x,
-                        height: Double(height) * renderScale.y
-                    )
-                    
-                    renderer.drawImageScaled(img, area: rect)
+                    let unscaledBounds = clipRegion.bounds()
+                    let bounds = clipRegion.bounds().scaled(by: renderScale)
+                    var imageArea = unscaledBounds
+                    imageArea.x = max(0, imageArea.x)
+                    imageArea.y = max(0, imageArea.y)
+                    imageArea.width = min(Double(img.size.width), imageArea.right) - imageArea.x
+                    imageArea.height = min(Double(img.size.height), imageArea.bottom) - imageArea.y
+
+                    renderer.drawImageScaled(img, area: bounds)
                 }
             }
         }
-        
+
         super.render(renderer: renderer, renderScale: renderScale, clipRegion: clipRegion)
     }
 

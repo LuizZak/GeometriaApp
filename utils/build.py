@@ -6,6 +6,7 @@ import argparse
 import subprocess
 import json
 import inspect
+import platform
 
 from pathlib import Path
 from dataclasses import dataclass
@@ -89,6 +90,12 @@ def make_argparser() -> argparse.ArgumentParser:
                             default='debug',
                             help="Build configuration to use. Can either be 'debug' or 'release'. Defaults to 'debug'.")
 
+        parser.add_argument('-x', '-Xswift',
+                            action='append',
+                            type=str,
+                            dest='swift_args',
+                            help="A set of arguments that are passed as-is to the swift invocation during build and run operations.")
+
         parser.add_argument('-d',
                             action='append',
                             type=str,
@@ -119,7 +126,7 @@ def make_argparser() -> argparse.ArgumentParser:
     return argparser
 
 
-def toSwiftCDefList(definitions: list[str] | None) -> list[str]:
+def toSwiftCDefList(definitions: list[str] | None):
     if definitions is None:
         return []
 
@@ -133,6 +140,7 @@ class BuildCommandArgs:
     target_name: str | None
     config: str
     manifest_path: Path | None
+    swift_args: list[str] | None
     definitions: list[str] | None
     enable_cross_module_optimization: bool
 
@@ -144,10 +152,14 @@ class BuildCommandArgs:
         
         args.extend(['--configuration', self.config])
 
-        if self.config == 'release':
-            args.extend(win32_release_args)
-        else:
-            args.extend(win32_debug_args)
+        if platform.system() == "Windows":
+            if self.config == 'release':
+                args.extend(win32_release_args)
+            else:
+                args.extend(win32_debug_args)
+
+        if self.swift_args:
+            args.extend(self.swift_args)
         
         args.extend(toSwiftCDefList(self.definitions))
 
@@ -164,6 +176,7 @@ class RunCommandArgs:
     executable_name: str | None
     config: str
     manifest_path: Path | None
+    swift_args: list[str] | None
     definitions: list[str] | None
     enable_cross_module_optimization: bool
 
@@ -172,6 +185,7 @@ class RunCommandArgs:
             None,
             self.config,
             self.manifest_path,
+            self.swift_args,
             self.definitions,
             self.enable_cross_module_optimization
         )
@@ -183,6 +197,7 @@ class RunCommandArgs:
             None,
             self.config,
             self.manifest_path,
+            self.swift_args,
             self.definitions,
             self.enable_cross_module_optimization
         )
@@ -202,10 +217,20 @@ class RunCommandArgs:
 @dataclass
 class TestCommandArgs:
     config: str
+    swift_args: list[str] | None
     definitions: list[str] | None
 
     def swift_test_args(self) -> List[str]:
-        return ['--configuration', self.config, *win32_debug_args, *toSwiftCDefList(self.definitions)]
+        args = []
+
+        args.extend(['--configuration', self.config])
+        if platform.system() == "Windows":
+            args.extend(win32_debug_args)
+        if self.swift_args:
+            args.extend(self.swift_args)
+        args.extend([*toSwiftCDefList(self.definitions)])
+
+        return args
 
 
 # Settings for post-build process.
@@ -301,7 +326,7 @@ def run_manifest_patch(build_dir: Path, target_name: str, manifest_path: Path) -
     if manifest_path is None:
         manifest_path = default_manifest_path(target_name)
 
-    run_post_build(PostBuildSettings(exe_path, manifest_path))
+    run_post_build(PostBuildSettings(exe_path, Path(manifest_path)))
 
     return exe_path
 
@@ -323,14 +348,15 @@ def run_build(settings: BuildCommandArgs):
 
     target = SwiftTarget(target_json)
 
-    if target.type == SwiftTargetType.EXECUTABLE:
-        build_dir = Path(run_output('swift', 'build', "--show-bin-path", *args).decode('UTF8').strip())
+    if platform.system() == "Windows":
+        if target.type == SwiftTargetType.EXECUTABLE:
+            build_dir = Path(run_output('swift', 'build', "--show-bin-path", *args).decode('UTF8').strip())
 
-        manifest_path = settings.manifest_path
-        if manifest_path is None:
-            manifest_path = default_manifest_path(target.name)
+            manifest_path = settings.manifest_path
+            if manifest_path is None:
+                manifest_path = default_manifest_path(target.name)
 
-        run_manifest_patch(build_dir, target.name, manifest_path)
+            run_manifest_patch(build_dir, target.name, manifest_path)
 
 def run_test(settings: TestCommandArgs):
     args = settings.swift_test_args()
@@ -342,16 +368,17 @@ def run_target(settings: RunCommandArgs):
 
     run('swift', 'build', *args)
 
-    if settings.target_name is not None:
-        build_dir = Path(run_output('swift', 'build', "--show-bin-path", *args).decode('UTF8').strip())
+    if platform.system() == "Windows":
+        if settings.target_name is not None:
+            build_dir = Path(run_output('swift', 'build', "--show-bin-path", *args).decode('UTF8').strip())
 
-        manifest_path = settings.manifest_path
-        if manifest_path is None:
-            manifest_path = default_manifest_path(settings.target_name)
+            manifest_path = settings.manifest_path
+            if manifest_path is None:
+                manifest_path = default_manifest_path(settings.target_name)
 
-        exe_path = run_manifest_patch(build_dir, settings.target_name, manifest_path)
+            exe_path = run_manifest_patch(build_dir, settings.target_name, manifest_path)
 
-        run(str(exe_path))
+            run(str(exe_path))
     else:
         run('swift', 'run', *settings.swift_run_args())
 
@@ -365,8 +392,9 @@ def do_build_command(args: Any):
         args.target,
         args.configuration,
         args.manifest_path,
+        args.swift_args,
         args.definitions,
-        args.enable_cross_module_optimization
+        args.enable_cross_module_optimization,
     )
     run_build(settings)
 
@@ -378,7 +406,11 @@ def do_test_command(args: Any):
     print_args(args)
     print('')
 
-    settings = TestCommandArgs(args.configuration, args.definitions)
+    settings = TestCommandArgs(
+        args.configuration,
+        args.swift_args,
+        args.definitions,
+    )
     run_test(settings)
 
     print('Success!')
@@ -394,10 +426,10 @@ def do_run_command(args: Any):
         args.executable,
         args.configuration,
         args.manifest_path,
+        args.swift_args,
         args.definitions,
-        args.enable_cross_module_optimization
+        args.enable_cross_module_optimization,
     )
-
     run_target(settings)
 
 

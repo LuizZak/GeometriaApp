@@ -1,0 +1,35 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "type": "lldb",
+            "request": "launch",
+            "name": "Launch",
+            "program": "${workspaceFolder:GeometriaApp}/.build/debug/GeometriaApp",
+            "args": [],
+            "env": {},
+            "cwd": "${workspaceFolder:GeometriaApp}/.build/debug",
+            "linux": {
+                "preLaunchTask": "Build Linux (debug)",
+            },
+            "windows": {
+                "preLaunchTask": "Build Win32 (debug)",
+            }
+        },
+        {
+            "type": "lldb",
+            "request": "launch",
+            "name": "Launch Release",
+            "program": "${workspaceFolder:GeometriaApp}/.build/release/GeometriaApp",
+            "args": [],
+            "env": {},
+            "cwd": "${workspaceFolder:GeometriaApp}/.build/release",
+            "linux": {
+                "preLaunchTask": "Build Linux (release)",
+            },
+            "windows": {
+                "preLaunchTask": "Build Win32 (release)",
+            }
+        },
+    ]
+}

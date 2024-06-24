@@ -1,10 +1,8 @@
-#if os(Linux)
+import GeometriaLinux
 
 @main
 enum Main {
-    static func main() {
-        fatalError("GeometriaApp is not currently compatible with Linux!")
+    static func main() throws {
+        _=try startApp()
     }
 }
-
-#endif

@@ -56,13 +56,13 @@ open class RaytracerUI: ImagineUIWindowContent {
 
         components.append(component)
     }
-    
+
     open func rendererCoordinatorChanged(_ coordinator: RendererCoordinator?) {
         for component in components {
             component.rendererCoordinatorChanged(coordinator)
         }
     }
-    
+
     open func rendererChanged<T: RendererType>(anyRenderer: T) {
         for component in components {
             component.rendererChanged(anyRenderer: anyRenderer)
@@ -93,7 +93,7 @@ open class RaytracerUI: ImagineUIWindowContent {
 
     private func _setupDialogsContainer() {
         rootView.addSubview(dialogsContainer)
-        
+
         dialogsContainer.layout.makeConstraints { make in
             make.edges == rootView
         }
@@ -141,7 +141,7 @@ open class RaytracerUI: ImagineUIWindowContent {
         switch location {
         case .unspecified:
             break
-        
+
         case .topLeft(let location, nil):
             dialog.location = location
 
@@ -180,7 +180,7 @@ open class RaytracerUI: ImagineUIWindowContent {
         _ provider: TooltipProvider,
         location: PreferredTooltipLocation? = nil
     ) {
-        
+
         controlSystem.showTooltip(for: provider, location: location)
     }
 
@@ -273,7 +273,7 @@ open class RaytracerUI: ImagineUIWindowContent {
             case .topLeft:
                 gradientCircle.center = bounds.topLeft + radiusVector
                 arcStart = .pi
-                
+
             case .topRight:
                 gradientCircle.center = bounds.topRight + radiusVector * UIVector(x: -1, y: 1)
                 arcStart = -.pi / 2

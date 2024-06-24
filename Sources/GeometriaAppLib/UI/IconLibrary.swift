@@ -49,7 +49,7 @@ public class IconLibrary {
         let circle3 = circle2.offsetBy(x: size.width * 0.2, y: size.height * 0.2)
 
         renderer.setFill(.white)
-        
+
         renderer.stroke(circle1)
 
         renderer.fill(circle2)
@@ -77,11 +77,11 @@ public class IconLibrary {
 
     public static let intersectionIcon: Image = makeIcon(.cornflowerBlue) { (renderer, size) in
         let sizePoint = size.asUIPoint
-        
+
         let square = UIRectangle(location: sizePoint * 0.2, size: size * 0.6)
         let circle = UICircle(center: square.bottomRight, radius: square.width * 0.65)
         let pie = circle.arc(start: -.pi / 2, sweep: -.pi / 2)
-    
+
         renderer.withTemporaryState {
             renderer.setStroke(.lightGray.withTransparency(30))
             renderer.stroke(square)
@@ -131,7 +131,7 @@ public class IconLibrary {
             start: sizePoint * UIVector(x: 2.0 / 3.0, y: 0.0),
             end: sizePoint * UIVector(x: 2.0 / 3.0, y: 1.0)
         )
-        
+
         line(
             start: sizePoint * UIVector(x: 0.0, y: 1.0 / 3.0),
             end: sizePoint * UIVector(x: 1.0, y: 1.0 / 3.0)
@@ -173,11 +173,11 @@ public class IconLibrary {
     private static func makeIcon(_ color: Color, rendering closure: (Renderer, UISize) -> Void) -> Image {
         let size = UIIntSize(width: 12, height: 12)
         let context = Blend2DRendererContext().createImageRenderer(width: size.width, height: size.height)
-        context.renderer.clear()
-        context.renderer.setStroke(color)
+        return context.withRenderer { renderer in
+            renderer.clear()
+            renderer.setStroke(color)
 
-        closure(context.renderer, UISize(size))
-
-        return context.renderedImage()
+            closure(renderer, UISize(size))
+        }
     }
 }

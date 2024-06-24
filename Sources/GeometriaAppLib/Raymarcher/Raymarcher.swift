@@ -1,3 +1,4 @@
+import Foundation
 import SwiftBlend2D
 import ImagineUI
 #if canImport(Geometria)
@@ -12,21 +13,21 @@ public final class Raymarcher<Scene: RaymarchingSceneType>: RendererType {
     private var materialMapCache: MaterialMap
     private var globalMarchParameters: MarchingParameters
     private var isDebugOn: Bool = false
-    
+
     public var isMultiThreaded: Bool = false
-    
+
     public let scene: Scene
     public let camera: Camera
     public var viewportSize: ViewportSize = .zero
 
     public var renderMode: RenderMode = .fullRender
-    
+
     public init(scene: Scene, camera: Camera) {
         self.scene = scene
         self.camera = camera
         self.materialMapCache = scene.materialMap()
 
-        self.globalMarchParameters = 
+        self.globalMarchParameters =
             MarchingParameters(
                 maxMarchIterationCount: 250,
                 minimumMarchTolerance: 0.01,
@@ -42,16 +43,16 @@ public final class Raymarcher<Scene: RaymarchingSceneType>: RendererType {
     public func currentScene() -> SceneType {
         return scene
     }
-    
+
     // MARK: - Debugging
-    
+
     public func beginDebug() {
         if isMultiThreaded {
             if !_attemptedDebugInMultithreadedYet {
                 _attemptedDebugInMultithreadedYet = true
                 GeometriaLogger.warning("Attempted to invoke Raymarcher.beginDebug() with a multi-pixel, multi-threaded render, which is potentially not intended. Ignoring...")
             }
-            
+
             return
         }
 
@@ -64,24 +65,24 @@ public final class Raymarcher<Scene: RaymarchingSceneType>: RendererType {
                 sceneCamera: camera
             )
     }
-    
+
     public func endDebug(target: ProcessingPrinterTarget?) {
         isDebugOn = false
-        
+
         processingPrinter?.printAll(target: target)
         processingPrinter = nil
     }
-    
+
     // MARK: - Ray Marching
-    
+
     /// Does raymarching for a single pixel, returning the resulting color.
     public func render(pixelAt coord: PixelCoord) -> BLRgba32 {
         assert(coord >= .zero && coord < viewportSize, "\(coord) is not within \(PixelCoord.zero) x \(viewportSize) limits")
-        
+
         let ray = camera.rayFromCamera(at: coord)
         return raymarch(ray: ray)
     }
-    
+
     /// Performs the distance function for a given point
     private func distanceFunction(_ vector: RVector3D) -> RaymarchingResult {
         scene.signedDistance(to: vector, current: .emptyResult())
@@ -89,7 +90,7 @@ public final class Raymarcher<Scene: RaymarchingSceneType>: RendererType {
 
     private func raymarch(ray: RRay3D, bounceCount: Int = 0) -> BLRgba32 {
         var ray = ray
-        
+
         let maxMarchIterationCount = globalMarchParameters.maxMarchIterationCount
         let minimumMarchTolerance = globalMarchParameters.minimumMarchTolerance
         let maxDistance = globalMarchParameters.maxDistance
@@ -99,15 +100,15 @@ public final class Raymarcher<Scene: RaymarchingSceneType>: RendererType {
         var iteration = 0
         var hit = false
         var escaped = false
-        
+
         while iteration < maxMarchIterationCount {
             defer { iteration += 1 }
-            
+
             result = distanceFunction(ray.start)
-            
+
             let signedDistance = result.distance
             traveled += signedDistance
-            
+
             // Scene is empty?
             if signedDistance.isInfinite {
                 escaped = true
@@ -117,7 +118,7 @@ public final class Raymarcher<Scene: RaymarchingSceneType>: RendererType {
             if signedDistance.isNaN {
                 break
             }
-            
+
             if signedDistance < minimumMarchTolerance {
                 hit = true
                 break
@@ -126,7 +127,7 @@ public final class Raymarcher<Scene: RaymarchingSceneType>: RendererType {
                 escaped = true
                 break
             }
-            
+
             ray.start = ray.projectedMagnitude(signedDistance)
         }
 
@@ -141,7 +142,7 @@ public final class Raymarcher<Scene: RaymarchingSceneType>: RendererType {
         if escaped {
             return scene.skyColor
         }
-        
+
         let materialColor = result.material.map { computeColor(at: ray.start, materialId: $0) }
         var resultColor = materialColor ?? scene.skyColor
 
@@ -159,7 +160,7 @@ public final class Raymarcher<Scene: RaymarchingSceneType>: RendererType {
             //resultColor = mergeColors(scene.skyColor, materialColor, factor: invTransparency)
 
             resultColor = materialColor
-            
+
             // Shading
             let minimumShade: Double = 0.0
             let shade = max(0.0, min(1 - minimumShade, norm.dot(-ray.direction)))
@@ -175,7 +176,7 @@ public final class Raymarcher<Scene: RaymarchingSceneType>: RendererType {
         let dist = traveled
         let distFactor = max(0, min(1, dist / far))
         resultColor = mergeColors(resultColor, scene.skyColor, factor: distFactor * distFactor)
-        
+
         return resultColor
     }
 
@@ -210,11 +211,11 @@ public final class Raymarcher<Scene: RaymarchingSceneType>: RendererType {
 
         let current = range[startIndex]
         let next = range[startIndex + 1]
-        
+
         let ratio = (Float(iterations) - Float(current.steps)) / (Float(next.steps) - Float(current.steps))
         let clamped = clamp(ratio, min: 0.0, max: 1.0)
         let color = current.color.faded(towards: next.color, factor: ratio)
-        
+
         if isDebugOn {
             GeometriaLogger.info("Colors: \(current.color) - \(next.color)")
             GeometriaLogger.info("Color factor: \(ratio) (before clamp: \(clamped))")
@@ -226,7 +227,7 @@ public final class Raymarcher<Scene: RaymarchingSceneType>: RendererType {
 
     private func computeShadowFactor(at point: RVector3D, startDist: Double, softShadowSizeFactor: Double = 8.0) -> Double {
         var ray = RRay3D(start: point - scene.sunDirection * startDist, direction: -scene.sunDirection)
-        
+
         let maxMarchIterationCount = globalMarchParameters.maxMarchIterationCount
         let minimumMarchTolerance = min(globalMarchParameters.minimumMarchTolerance, startDist)
         let maxDistance = globalMarchParameters.maxDistance
@@ -236,10 +237,10 @@ public final class Raymarcher<Scene: RaymarchingSceneType>: RendererType {
         var traveled = startDist
         var res = 1.0
         var ph: Double = 1e20
-        
+
         while iteration < maxMarchIterationCount {
             defer { iteration += 1 }
-            
+
             result = distanceFunction(ray.start)
 
             let signedDistance = result.distance
@@ -252,7 +253,7 @@ public final class Raymarcher<Scene: RaymarchingSceneType>: RendererType {
             if signedDistance.isNaN {
                 break
             }
-            
+
             if signedDistance < minimumMarchTolerance {
                 return 0.0
             }
@@ -266,7 +267,7 @@ public final class Raymarcher<Scene: RaymarchingSceneType>: RendererType {
             if traveled >= maxDistance {
                 break
             }
-            
+
             ray.start = ray.projectedMagnitude(signedDistance)
         }
 
@@ -287,28 +288,28 @@ public final class Raymarcher<Scene: RaymarchingSceneType>: RendererType {
 
         case let .checkerboard(checkerSize, color1, color2):
             let checkerPhase = abs(point) % checkerSize * 2
-            
+
             var isColor1 = false
-            
+
             switch (checkerPhase.x, checkerPhase.y) {
             case (checkerSize..., checkerSize...), (0...checkerSize, 0...checkerSize):
                 isColor1 = false
             default:
                 isColor1 = true
             }
-            
+
             if point.x < 0 {
                 isColor1.toggle()
             }
             if point.y < 0 {
                 isColor1.toggle()
             }
-            
+
             return isColor1 ? color1 : color2
 
         case let .target(center, freq, c1, c2):
             let dist = point.distance(to: center)
-            
+
             let phase = dist.truncatingRemainder(dividingBy: freq)
 
             if phase < freq / 2 {
@@ -323,7 +324,7 @@ public final class Raymarcher<Scene: RaymarchingSceneType>: RendererType {
     private func calcNormal(_ p: RVector3D) -> RVector3D {
         let signedDistance = 0.001 // TODO: Consider replacing by an appropriate value later
         let k = RVector2D(x: 1, y: -1)
-        
+
         // Tetrahedron points
         let k_xyy = RVector3D(x: k.x, y: k.y, z: k.y) // k.xyy
         let k_yyx = RVector3D(x: k.y, y: k.y, z: k.x) // k.yyx
@@ -339,7 +340,7 @@ public final class Raymarcher<Scene: RaymarchingSceneType>: RendererType {
 
         return (n1 + n2 + n3 + n4).normalized()
     }
-    
+
     /// Reflects an incoming direction across a normal, returning a new direction
     /// such that the angle between `direction <- normal` is the same as
     /// `normal -> result`.
