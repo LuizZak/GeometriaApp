@@ -128,6 +128,12 @@ protocol SceneGraphBuilderControllerUIDelegate: AnyObject {
         location: UIPoint
     )
 
+    /// Requests a view that global tooltips that have no specific anchor requirement
+    /// can be attached to.
+    func sceneGraphBuilderGlobalTooltipView(
+        _ controller: SceneGraphBuilderController
+    ) -> View
+
     func sceneGraphBuilderBeginCustomTooltipLifetime(
         _ controller: SceneGraphBuilderController
     ) -> CustomTooltipHandlerType?

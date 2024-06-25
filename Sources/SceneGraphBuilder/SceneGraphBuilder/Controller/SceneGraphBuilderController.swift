@@ -1,3 +1,4 @@
+import Foundation
 import ImagineUI
 import GeometriaAppLib
 
@@ -212,7 +213,11 @@ class SceneGraphBuilderController {
                 in: self
             )
 
-            updateTooltipForConnectionAnchor(operation.tooltipHandler, endAnchor)
+            updateTooltipForConnectionAnchor(
+                operation.tooltipHandler,
+                operation.suggestedDragStartAnchor(),
+                endAnchor
+            )
 
             uiDelegate.sceneGraphBuilderController(
                 self,
@@ -227,7 +232,11 @@ class SceneGraphBuilderController {
                 in: self
             )
 
-            updateTooltipForConnectionAnchor(operation.tooltipHandler, endAnchor)
+            updateTooltipForConnectionAnchor(
+                operation.tooltipHandler,
+                operation.suggestedDragStartAnchor(),
+                endAnchor
+            )
 
             uiDelegate.sceneGraphBuilderController(
                 self,
@@ -376,17 +385,63 @@ class SceneGraphBuilderController {
 
     private func updateTooltipForConnectionAnchor(
         _ tooltipHandler: CustomTooltipHandlerType?,
+        _ startAnchor: SceneGraphConnectionElement.AnchorElement?,
         _ anchor: SceneGraphConnectionElement.AnchorElement
     ) {
 
         switch anchor {
         case .input(_, let info):
             tooltipHandler?.showTooltip(for: info.tooltipProvider, location: .left)
+
         case .output(_, let info):
             tooltipHandler?.showTooltip(for: info.tooltipProvider, location: .right)
+
+        case .globalLocation(let location):
+            guard let tooltip = nodeCreationTooltip(startAnchor) else {
+                return
+            }
+            guard let tooltipProvider = nodeCreationTooltipProvider(location, tooltip) else {
+                return
+            }
+
+            tooltipHandler?.showTooltip(
+                for: tooltipProvider,
+                location: .followingMouse
+            )
+
         default:
             tooltipHandler?.hideTooltip()
         }
+    }
+
+    private func nodeCreationTooltip(
+        _ anchor: SceneGraphConnectionElement.AnchorElement?
+    ) -> Tooltip? {
+        guard let anchor else {
+            return nil
+        }
+
+        switch anchor {
+        case .input(_, let info):
+            return formatTooltip("+ Create new \(dataType: info.input.type)")
+
+        case .output(_, let info):
+            return formatTooltip("+ Create new \(dataType: info.output.type)")
+
+        default:
+            return nil
+        }
+    }
+
+    private func nodeCreationTooltipProvider(
+        _ location: UIPoint,
+        _ tooltip: Tooltip
+    ) -> TooltipProvider? {
+        guard let view = uiDelegate?.sceneGraphBuilderGlobalTooltipView(self) else {
+            return nil
+        }
+
+        return NodeCreationTooltip(viewForTooltip: view, tooltip: tooltip)
     }
 
     private func showTooltip(
@@ -412,6 +467,20 @@ class SceneGraphBuilderController {
         case draggingNode(ViewDragOperation)
         case draggingInput(InputDragOperation)
         case draggingOutput(OutputDragOperation)
+    }
+
+    private struct NodeCreationTooltip: TooltipProvider {
+        var viewForTooltip: View
+        var tooltip: Tooltip? {
+            didSet {
+                _tooltipUpdated(tooltip)
+            }
+        }
+        @Event
+        var tooltipUpdated: EventSource<Tooltip?>
+        var preferredTooltipLocation: PreferredTooltipLocation = .followingMouse
+        var tooltipCondition: TooltipDisplayCondition = .always
+        var tooltipDelay: TimeInterval? = 0
     }
 
     private struct ViewDragOperation {
@@ -442,6 +511,10 @@ class SceneGraphBuilderController {
         /// For displaying custom tooltips as the user interacts with other
         /// UI elements while the dragging operation is ongoing.
         var tooltipHandler: CustomTooltipHandlerType?
+
+        func suggestedDragStartAnchor() -> SceneGraphConnectionElement.AnchorElement? {
+            connection.startAnchor
+        }
 
         func suggestedDragEndAnchor(
             mouseLocation: UIPoint,
@@ -505,6 +578,10 @@ class SceneGraphBuilderController {
         /// For displaying custom tooltips as the user interacts with other
         /// UI elements while the dragging operation is ongoing.
         var tooltipHandler: CustomTooltipHandlerType?
+
+        func suggestedDragStartAnchor() -> SceneGraphConnectionElement.AnchorElement? {
+            connection.startAnchor
+        }
 
         func suggestedDragEndAnchor(
             mouseLocation: UIPoint,

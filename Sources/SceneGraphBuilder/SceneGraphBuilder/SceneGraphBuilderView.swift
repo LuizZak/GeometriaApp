@@ -571,6 +571,12 @@ extension SceneGraphBuilderView: SceneGraphBuilderControllerUIDelegate {
         self._openContextMenu(items: items, location: location)
     }
 
+    func sceneGraphBuilderGlobalTooltipView(
+        _ controller: SceneGraphBuilderController
+    ) -> View {
+        self
+    }
+
     func sceneGraphBuilderBeginCustomTooltipLifetime(
         _ controller: SceneGraphBuilderController
     ) -> CustomTooltipHandlerType? {
