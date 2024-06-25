@@ -15,7 +15,7 @@
       "location" : "https://github.com/LuizZak/ImagineUI-X11.git",
       "state" : {
         "branch" : "main",
-        "revision" : "7d6d71c2b1ce252c6b3999bc42f648a01f01cb8a"
+        "revision" : "8f124fdf0560f338ca2caad0b164aab384b00bc2"
       }
     },
     {
@@ -24,7 +24,7 @@
       "location" : "https://github.com/LuizZak/swift-bezier.git",
       "state" : {
         "branch" : "main",
-        "revision" : "89476e6c309df5fd09640457ee01ef8e20e3ab51"
+        "revision" : "84c8d4614e90fbb39a083bb7463242890ad0e475"
       }
     },
     {
@@ -33,7 +33,7 @@
       "location" : "https://github.com/LuizZak/swift-blend2d.git",
       "state" : {
         "branch" : "master",
-        "revision" : "5704db8276f1e06ba50a36dbbc7d0a945f37db4a"
+        "revision" : "9a0287fd7b9bdda025c383b6f6c48eb90d00a658"
       }
     },
     {

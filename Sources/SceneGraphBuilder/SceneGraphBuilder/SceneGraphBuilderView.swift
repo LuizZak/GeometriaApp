@@ -147,7 +147,7 @@ class SceneGraphBuilderView: RootView {
             _connectionViewsManager.updateZIndices(connectedTo: endNode)
         }
     }
-    
+
     private func _removeNodeView(_ nodeView: SceneGraphNodeView) {
         guard let index = _nodeViews.firstIndex(of: nodeView) else { return }
 
@@ -209,7 +209,7 @@ class SceneGraphBuilderView: RootView {
 
     private func _allElementsUnder(point: UIPoint) -> [SceneGraphMouseElementKind] {
         let iterator = _iteratorForElementsUnder(point: point)
-        
+
         return Array(iterator)
     }
 
@@ -327,7 +327,7 @@ class SceneGraphBuilderView: RootView {
         ) -> ConnectionView? {
 
             let connection = info.element
-            
+
             for existing in connectionViews {
                 if existing.visualConnection === connection {
                     existing.updateConnectionView(
@@ -344,7 +344,7 @@ class SceneGraphBuilderView: RootView {
                 globalSpatialReference: globalSpatialReference
             )
             view.graphEdge = info.graphEdge
-            
+
             connectionViews.append(view)
             container.addSubview(view)
 
@@ -445,13 +445,17 @@ extension SceneGraphBuilderView: SceneGraphBuilderControllerUIDelegate {
 
     func sceneGraphBuilderController(
         _ controller: SceneGraphBuilderController,
-        zoomViewportBy zoom: Double
+        zoomViewportBy zoom: Double,
+        mouseLocation: UIVector
     ) {
-        
+
         let newZoom = _nodesContainer.zoom + zoom
         let clampedZoom = min(max(newZoom, 0.25), 2.0)
 
+        let diff = clampedZoom / _nodesContainer.zoom
+
         _nodesContainer.zoom = clampedZoom
+        _nodesContainer.translation = mouseLocation - (mouseLocation - _nodesContainer.translation) * diff
     }
 
     func sceneGraphBuilderController(
@@ -459,7 +463,7 @@ extension SceneGraphBuilderView: SceneGraphBuilderControllerUIDelegate {
         moveView view: View,
         toLocation location: UIPoint
     ) {
-        
+
         view.location = location
 
         if view is SceneGraphNodeView {
@@ -498,6 +502,10 @@ extension SceneGraphBuilderView: SceneGraphBuilderControllerUIDelegate {
         removeConnectionElement element: SceneGraphConnectionElement
     ) {
 
+        // Disable preview of element's anchors
+        _updateAnchorPreview(element.startAnchor, showPreview: false)
+        _updateAnchorPreview(element.endAnchor, showPreview: false)
+
         _removeConnectionElement(element)
     }
 
@@ -505,10 +513,15 @@ extension SceneGraphBuilderView: SceneGraphBuilderControllerUIDelegate {
     func sceneGraphBuilderController(
         _ controller: SceneGraphBuilderController,
         updateStartAnchorFor element: SceneGraphConnectionElement,
-        _ anchor: SceneGraphConnectionElement.AnchorElement?
+        _ anchor: SceneGraphConnectionElement.AnchorElement?,
+        isPreview: Bool
     ) {
 
+        _updateAnchorPreview(element.endAnchor, showPreview: false)
+
         element.startAnchor = anchor
+
+        _updateAnchorPreview(anchor, showPreview: isPreview)
 
         _updateConnectionElements()
     }
@@ -517,12 +530,34 @@ extension SceneGraphBuilderView: SceneGraphBuilderControllerUIDelegate {
     func sceneGraphBuilderController(
         _ controller: SceneGraphBuilderController,
         updateEndAnchorFor element: SceneGraphConnectionElement,
-        _ anchor: SceneGraphConnectionElement.AnchorElement?
+        _ anchor: SceneGraphConnectionElement.AnchorElement?,
+        isPreview: Bool
     ) {
+
+        _updateAnchorPreview(element.endAnchor, showPreview: false)
 
         element.endAnchor = anchor
 
+        _updateAnchorPreview(anchor, showPreview: isPreview)
+
         _updateConnectionElements()
+    }
+
+    private func _updateAnchorPreview(
+        _ anchor: SceneGraphConnectionElement.AnchorElement?,
+        showPreview: Bool
+    ) {
+
+        switch anchor {
+        case .input(_, let input):
+            input.state.setShowConnectionPreview(showPreview)
+
+        case .output(_, let output):
+            output.state.setShowConnectionPreview(showPreview)
+
+        default:
+            break
+        }
     }
 
     // MARK: - UI components
@@ -536,8 +571,6 @@ extension SceneGraphBuilderView: SceneGraphBuilderControllerUIDelegate {
         self._openContextMenu(items: items, location: location)
     }
 
-
-
     func sceneGraphBuilderBeginCustomTooltipLifetime(
         _ controller: SceneGraphBuilderController
     ) -> CustomTooltipHandlerType? {
@@ -546,5 +579,5 @@ extension SceneGraphBuilderView: SceneGraphBuilderControllerUIDelegate {
 }
 
 protocol SceneGraphBuilderViewDelegate: RaytracerUIComponentDelegate {
-    
+
 }

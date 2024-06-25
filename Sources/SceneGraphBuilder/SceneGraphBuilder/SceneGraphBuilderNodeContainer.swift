@@ -1,7 +1,6 @@
 import ImagineUI
 
-/// A view that acts as an infinitely-bounded view for node containment,
-/// with dedicated.
+/// A view that acts as an infinitely-bounded view for node containment.
 class SceneGraphBuilderNodeContainer: View {
     var translation: UIVector = .zero {
         willSet {

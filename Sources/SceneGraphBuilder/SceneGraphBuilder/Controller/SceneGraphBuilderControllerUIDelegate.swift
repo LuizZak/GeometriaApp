@@ -12,7 +12,7 @@ enum SceneGraphMouseElementKind {
 
 /// Delegate for UI interactions of a scene graph builder controller.
 protocol SceneGraphBuilderControllerUIDelegate: AnyObject {
-    // MARK: - Querying 
+    // MARK: - Querying
 
     func sceneGraphBuilderController(
         _ controller: SceneGraphBuilderController,
@@ -72,7 +72,8 @@ protocol SceneGraphBuilderControllerUIDelegate: AnyObject {
 
     func sceneGraphBuilderController(
         _ controller: SceneGraphBuilderController,
-        zoomViewportBy zoom: Double
+        zoomViewportBy zoom: Double,
+        mouseLocation: UIVector
     )
 
     func sceneGraphBuilderController(
@@ -101,14 +102,16 @@ protocol SceneGraphBuilderControllerUIDelegate: AnyObject {
     func sceneGraphBuilderController(
         _ controller: SceneGraphBuilderController,
         updateStartAnchorFor element: SceneGraphConnectionElement,
-        _ anchor: SceneGraphConnectionElement.AnchorElement?
+        _ anchor: SceneGraphConnectionElement.AnchorElement?,
+        isPreview: Bool
     )
 
     /// Updates the ending anchor for a connection element.
     func sceneGraphBuilderController(
         _ controller: SceneGraphBuilderController,
         updateEndAnchorFor element: SceneGraphConnectionElement,
-        _ anchor: SceneGraphConnectionElement.AnchorElement?
+        _ anchor: SceneGraphConnectionElement.AnchorElement?,
+        isPreview: Bool
     )
 
     /// Requests that a connection element be removed from the interface.

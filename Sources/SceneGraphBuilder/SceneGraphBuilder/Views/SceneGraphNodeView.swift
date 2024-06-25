@@ -27,7 +27,7 @@ class SceneGraphNodeView: RootView {
 
     private func initialize() {
         cacheAsBitmap = false
-        
+
         strokeWidth = 2
         cornerRadius = 4
 
@@ -44,7 +44,7 @@ class SceneGraphNodeView: RootView {
 
     private func updateColors() {
         backColor = Color(red: 37, green: 37, blue: 38)
-        
+
         switch controlState {
         case .normal:
             strokeColor = Color(red: 9, green: 71, blue: 113)
@@ -259,10 +259,14 @@ class SceneGraphNodeView: RootView {
         }
     }
 
-    /// Allows interacting with the underlying UI state of an input of a node view.
-    public class InputViewState {
+    /// Base class for classes that allow interacting with the underlying UI
+    /// state of an input or output of a node view.
+    public class BaseInputOutputViewState {
         @Observable
         fileprivate var connectionCount: Int = 0
+
+        @Observable
+        fileprivate var showConnectionPreview: Bool = false
 
         /// Reports that a connection has been made visually.
         public func connectionAdded() {
@@ -272,23 +276,20 @@ class SceneGraphNodeView: RootView {
         /// Reports that a connection has been removed visually.
         public func connectionRemoved() {
             connectionCount -= 1
+        }
+
+        /// Toggles the connection preview highlight of the input view.
+        public func setShowConnectionPreview(_ showConnectionPreview: Bool) {
+            self.showConnectionPreview = showConnectionPreview
         }
     }
 
+    /// Allows interacting with the underlying UI state of an input of a node view.
+    public class InputViewState: BaseInputOutputViewState {
+    }
+
     /// Allows interacting with the underlying UI state of an output of a node view.
-    public class OutputViewState {
-        @Observable
-        fileprivate var connectionCount: Int = 0
-
-        /// Reports that a connection has been made visually.
-        public func connectionAdded() {
-            connectionCount += 1
-        }
-
-        /// Reports that a connection has been removed visually.
-        public func connectionRemoved() {
-            connectionCount -= 1
-        }
+    public class OutputViewState: BaseInputOutputViewState {
     }
 
     private class InputView: View {
@@ -312,6 +313,9 @@ class SceneGraphNodeView: RootView {
         func setupEvents() {
             state.$connectionCount.addWeakListener(self) { (owner, count) in
                 owner.connectionView.connectionState = count > 0 ? .connected : .disconnected
+            }
+            state.$showConnectionPreview.addWeakListener(self) { (owner, showPreview) in
+                owner.connectionView.showConnectionPreview = showPreview
             }
         }
 
@@ -369,6 +373,9 @@ class SceneGraphNodeView: RootView {
             state.$connectionCount.addWeakListener(self) { (owner, count) in
                 owner.connectionView.connectionState = count > 0 ? .connected : .disconnected
             }
+            state.$showConnectionPreview.addWeakListener(self) { (owner, showPreview) in
+                owner.connectionView.showConnectionPreview = showPreview
+            }
         }
 
         override func setupHierarchy() {
@@ -422,6 +429,14 @@ class SceneGraphNodeView: RootView {
             }
         }
 
+        /// Whether to show a connection preview; used to aid in UI hinting when
+        /// connecting nodes.
+        var showConnectionPreview: Bool = false {
+            didSet {
+                invalidate()
+            }
+        }
+
         var isConnected: Bool {
             switch connectionState {
             case .disconnected:
@@ -457,7 +472,7 @@ class SceneGraphNodeView: RootView {
                 x2: 0,
                 y2: circle.center.y
             )
-            
+
             switch connectionDirection {
             case .left:
                 circle.center.x = size.width - _circleRadius
@@ -474,7 +489,10 @@ class SceneGraphNodeView: RootView {
             renderer.setStrokeWidth(strokeWidth)
             renderer.stroke(circle)
 
-            if isConnected {
+            if showConnectionPreview {
+                renderer.setFill(.orange.faded(towards: .transparentWhite, factor: 0.5, blendAlpha: true))
+                renderer.fill(circle.expanded(by: -_circleRadius / 3))
+            } else if isConnected {
                 renderer.setFill(.orange)
                 renderer.fill(circle.expanded(by: -_circleRadius / 3))
             }
@@ -518,8 +536,12 @@ class SceneGraphNodeView: RootView {
             }
         }
 
+        /// The connection state for a connection view.
         enum ConnectionState {
+            /// No connection exists.
             case disconnected
+
+            /// A connection exists.
             case connected
         }
 
@@ -576,7 +598,7 @@ class SceneGraphNodeView: RootView {
 
         override func setupHierarchy() {
             super.setupHierarchy()
-            
+
             _iconView.areaIntoConstraintsMask = []
 
             addSubview(_stackView)
