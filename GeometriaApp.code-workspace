@@ -187,6 +187,7 @@
 		"ShortcutMenuBar.userButton03Command": "workbench.action.tasks.runTask|Run Win32 (release)",
 		"cSpell.words": [
 			"AABB",
+			"Bezier",
 			"Boundable",
 			"Geometria",
 			"instantiator",

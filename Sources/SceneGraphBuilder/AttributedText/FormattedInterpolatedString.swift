@@ -40,6 +40,10 @@ struct FormattedInterpolatedString: ExpressibleByStringInterpolation {
             output.append("\(literal)", attributes: attributes)
         }
 
+        mutating func appendInterpolation(image: any Image) {
+            output.append(" ", attributes: [.image: ImageAttribute(image: image)])
+        }
+
         mutating func appendInterpolation(dataType literal: SceneNodeDataType) {
             output.append("\(literal)", attributes: [.foregroundColor: Color.fuchsia])
         }

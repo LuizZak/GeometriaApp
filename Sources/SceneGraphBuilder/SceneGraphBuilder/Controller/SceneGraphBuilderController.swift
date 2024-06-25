@@ -423,10 +423,10 @@ class SceneGraphBuilderController {
 
         switch anchor {
         case .input(_, let info):
-            return formatTooltip("+ Create new \(dataType: info.input.type)")
+            return formatTooltip("\(image: GraphBuilderIconLibrary.addIcon) \(dataType: info.input.type)...")
 
         case .output(_, let info):
-            return formatTooltip("+ Create new \(dataType: info.output.type)")
+            return formatTooltip("\(image: GraphBuilderIconLibrary.addIcon) \(dataType: info.output.type)...")
 
         default:
             return nil
