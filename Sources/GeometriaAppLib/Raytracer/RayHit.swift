@@ -193,10 +193,10 @@ public struct RayHit: Equatable {
     /// inner/outer hits and geometry ID.
     public func rayIgnoreForHit(minimumRayLengthSquared: Double = 0.0) -> RayIgnore {
         switch hitDirection {
-        case .inside:
+        case .fromInside:
             return .entrance(id: id, minimumRayLengthSquared: minimumRayLengthSquared)
 
-        case .outside:
+        case .fromOutside:
             return .exit(id: id, minimumRayLengthSquared: minimumRayLengthSquared)
 
         case .singlePoint:
@@ -208,26 +208,26 @@ public struct RayHit: Equatable {
     /// a geometry.
     public enum HitDirection {
         /// Ray hit the geometry from the inside out
-        case inside
+        case fromInside
 
         /// Ray hit the geometry from the outside in
-        case outside
+        case fromOutside
 
         /// Ray hit a geometry that is not volumetric, e.g. a plane.
         case singlePoint
         
         /// Returns the opposite hit direction that this value represents.
         ///
-        /// Returns `HitDirection.inside` if this value is `.outside`, and
-        /// `.outside` if this value is `.inside`.
+        /// Returns `HitDirection.fromInside` if this value is `.fromOutside`, and
+        /// `.fromOutside` if this value is `.fromInside`.
         ///
         /// `.singlePoint` always maps back into `.singlePoint`.
         public var inverted: Self {
             switch self {
-            case .inside:
-                return .outside
-            case .outside:
-                return .inside
+            case .fromInside:
+                return .fromOutside
+            case .fromOutside:
+                return .fromInside
             case .singlePoint:
                 return .singlePoint
             }

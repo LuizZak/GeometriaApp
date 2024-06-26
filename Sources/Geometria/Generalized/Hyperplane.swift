@@ -62,13 +62,15 @@ extension Hyperplane: ConvexType {
     ///
     /// Note that hyperplanes are infinitely bounded, thus intersections with
     /// lines will consist of at most one point.
+    @inlinable
+    @_specialize(exported: true, kind: full, where Line == LineSegment3D)
+    @_specialize(exported: true, kind: full, where Line == DirectionalRay3D)
     public func intersection<Line: LineFloatingPoint>(with line: Line) -> ConvexLineIntersection<Vector> where Line.Vector == Vector {
         let magnitude = unclampedNormalMagnitudeForIntersection(with: line)
         guard let magnitude = magnitude, line.containsProjectedNormalizedMagnitude(magnitude) else {
             // No intersection:
-
             // Figure out if line is fully contained within plane or not
-            return signedDistance(to: line.a) < .zero ? .contained : .noIntersection
+            return contains(line.a) ? .contained : .noIntersection
         }
 
         // Intersection:
@@ -89,6 +91,7 @@ extension Hyperplane: VolumetricType {
     ///
     /// Points laying exactly on top of the plane's limit (signed distance == 0)
     /// are considered to be part of the hyperplane (a closed half-space).
+    @inlinable
     public func contains(_ vector: Vector) -> Bool {
         return signedDistance(to: vector) <= .zero
     }

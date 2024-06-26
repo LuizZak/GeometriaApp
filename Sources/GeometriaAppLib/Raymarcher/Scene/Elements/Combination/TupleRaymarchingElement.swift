@@ -19,7 +19,7 @@ public typealias TupleRaymarchingElement7<T0: RaymarchingElement, T1: Raymarchin
 public typealias TupleRaymarchingElement8<T0: RaymarchingElement, T1: RaymarchingElement, T2: RaymarchingElement, T3: RaymarchingElement, T4: RaymarchingElement, T5: RaymarchingElement, T6: RaymarchingElement, T7: RaymarchingElement> =
     TupleElement8<T0, T1, T2, T3, T4, T5, T6, T7>
 
-/* Currently the code below is not implementable because of a compiler issue that is present in Swift 5.9 but not on the nightly build, reproduced as follow:
+/* // Currently the code below is not implementable because of a compiler issue that is present in Swift 5.9.1 but not on the nightly build, reproduced as follow:
 protocol Base {
     func foo()
 }
@@ -56,10 +56,10 @@ extension SpecializedTuple2 {
         t1.bar()
     }
 }
-*/
+// */
 
-/*
-#if VARIADIC_TUPLE_ELEMENT
+//*
+#if true // VARIADIC_TUPLE_ELEMENT
 
 public typealias TupleRaymarchingElement<each T: RaymarchingElement> = TupleElement<repeat each T>
 
@@ -79,7 +79,7 @@ extension TupleRaymarchingElement: RaymarchingElement {
 }
 
 #endif
-*/
+// */
 
 extension TupleRaymarchingElement2: RaymarchingElement {
     @inlinable

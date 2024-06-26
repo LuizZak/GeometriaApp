@@ -26,6 +26,10 @@ extension BoundingBoxRaytracingElement: RaytracingElement & RaytracingBoundedEle
     
     @inlinable
     public func contains(point: RVector3D) -> Bool {
+        guard boundingBox.contains(point) else {
+            return false
+        }
+
         return element.contains(point: point)
     }
     

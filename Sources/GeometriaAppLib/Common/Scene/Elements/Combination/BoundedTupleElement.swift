@@ -2,13 +2,13 @@
 import Geometria
 #endif
 
-/*
-#if VARIADIC_TUPLE_ELEMENT
+//*
+#if true // VARIADIC_TUPLE_ELEMENT
 
 public typealias BoundedTupleElement<each T: BoundedElement> = TupleElement<repeat each T>
 
 #endif
-*/
+// */
 
 public typealias BoundedTupleElement2<T0: BoundedElement, T1: BoundedElement> =
     TupleElement2<T0, T1>

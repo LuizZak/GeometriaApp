@@ -29,6 +29,14 @@ public struct SortedRayHitsZipper: IteratorProtocol {
     }
 
     @inlinable
+    public init(s0Query: RayQuery, s1Query: RayQuery) {
+        self.init(
+            s0: SortedRayHits(fromQuery: s0Query),
+            s1: SortedRayHits(fromQuery: s1Query)
+        )
+    }
+
+    @inlinable
     public mutating func next() -> Element? {
         switch (s0Index == s0.endIndex, s1Index == s1.endIndex) {
         case (true, true):
@@ -54,7 +62,7 @@ public struct SortedRayHitsZipper: IteratorProtocol {
     }
 
     /// Represents a yielded element from this zipper. Is either `.s0` or `.s1`,
-    /// depending from which sequence the current element was yielded from.
+    /// depending on which sequence the current element was yielded from.
     public enum Element {
         case s0(RayHit)
         case s1(RayHit)

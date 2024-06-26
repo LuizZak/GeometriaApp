@@ -21,7 +21,7 @@ public final class Raytracer<Scene: RaytracingSceneType>: RendererType {
     private let bias: Double = 0.0001
     
     public var isMultiThreaded: Bool = false
-    public var maxBounces: Int = 15
+    public var maxBounces: Int = 30
     public let scene: Scene
     public let camera: Camera
     public var viewportSize: ViewportSize = .zero

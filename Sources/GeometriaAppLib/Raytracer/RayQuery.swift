@@ -21,6 +21,7 @@ public struct RayQuery: Equatable {
     
     public var ignoring: RayIgnore
 
+    @inlinable
     public init(
         ray: RRay3D,
         rayAABB: RAABB3D? = nil,
@@ -38,10 +39,30 @@ public struct RayQuery: Equatable {
         self.ignoring = ignoring
     }
 
+    /// Returns a copy of this query with a specified ray ignore attributed to
+    /// it.
+    @_transparent
+    public func withRayIgnore(_ rayIgnore: RayIgnore) -> Self {
+        var copy = self
+        copy.ignoring = rayIgnore
+        return copy
+    }
+
     /// Returns a copy of this query with no hit information attributed.
     @_transparent
     public consuming func withNilHit() -> Self {
         .init(ray: ray, ignoring: ignoring)
+    }
+
+    /// Returns a copy of this query with a specified ray hit associated iff
+    /// `rayHit.distanceSquared < rayMagnitudeSquared`, otherwise returns `self`.
+    @inlinable
+    public consuming func withHitIfCloser(_ rayHit: RayHit) -> Self {
+        if rayHit.distanceSquared < rayMagnitudeSquared {
+            self = withHit(rayHit)
+        }
+
+        return self
     }
     
     @inlinable
@@ -56,7 +77,7 @@ public struct RayQuery: Equatable {
         
         let newAABB = lineSegment.bounds
         
-        return RayQuery(
+        self = RayQuery(
             ray: ray,
             rayAABB: newAABB,
             rayMagnitudeSquared: magnitudeSquared,
@@ -64,6 +85,8 @@ public struct RayQuery: Equatable {
             lastHit: rayHit,
             ignoring: ignoring
         )
+
+        return self
     }
 
     @_transparent
@@ -87,8 +110,23 @@ public struct RayQuery: Equatable {
         return withHit(hit)
     }
 
+    /// Returns `lastHit` if `rayMagnitudeSquared < distanceSquared`, or `nil`
+    /// otherwise.
+    @inlinable
+    public func lastHitIfDistanceLessThan(distanceSquared: Double) -> RayHit? {
+        if distanceSquared == .infinity {
+            return self.lastHit
+        }
+        guard rayMagnitudeSquared < distanceSquared else {
+            return nil
+        }
+
+        return self.lastHit
+    }
+
     /// Translates the components of this ray query, returning a new ray query
     /// that is shifted in space by an amount specified by `vector`.
+    @inlinable
     public consuming func translated(by vector: RVector3D) -> Self {
         var query = self
 
@@ -103,6 +141,7 @@ public struct RayQuery: Equatable {
     /// Uniformly scales the components of this ray query, returning a new ray 
     /// query that is scaled in space around the given center point by an amount 
     /// specified by `factor`.
+    @inlinable
     public consuming func scaled(by factor: Double, around center: RVector3D) -> Self {
         var query = self
         let vector = RVector3D(repeating: factor)
@@ -119,6 +158,7 @@ public struct RayQuery: Equatable {
     /// Rotates the components of this ray query, returning a new ray query that
     /// is rotated in space around the given center point by a given rotational
     /// matrix.
+    @inlinable
     public consuming func rotatedBy(_ matrix: RRotationMatrix3D, around center: RVector3D) -> Self {
         var query = self
 
@@ -133,6 +173,7 @@ public struct RayQuery: Equatable {
     /// Rotates the components of this ray query, returning a new ray query that
     /// is rotated in space around the given center point by a given 3x3 transform
     /// matrix.
+    @inlinable
     public consuming func rotatedBy(_ transform: Transform3x3, around center: RVector3D) -> Self {
         var query = self
 
@@ -206,6 +247,7 @@ extension RayQuery {
         return .singlePoint(PointNormal(point: inter, normal: normal))
     }
     
+    @inlinable
     public func isFullyContained<Convex: Convex3Type>(
         by convex: Convex
     ) -> Bool where Convex.Vector == RVector3D {
@@ -227,6 +269,7 @@ extension RayQuery {
         }
     }
 
+    @inlinable
     public func isFullyContained(by hyperplane: RHyperplane3D) -> Bool {
         if !hyperplane.contains(ray.a) {
             return false
@@ -260,6 +303,7 @@ extension RayQuery {
 
     // MARK: Convex3Type
 
+    @inlinable
     public consuming func intersecting<Convex: Convex3Type>(
         id: Int,
         material: MaterialId?,
@@ -285,6 +329,7 @@ extension RayQuery {
         return self.withHit(hit)
     }
 
+    @inlinable
     public func intersectAll<Convex: Convex3Type>(
         id: Int,
         material: MaterialId?,
@@ -308,6 +353,7 @@ extension RayQuery {
 
     // MARK: LineIntersectablePlaneType
 
+    @inlinable
     public func intersecting<Plane: LineIntersectablePlaneType>(
         id: Int,
         material: MaterialId?,
@@ -332,6 +378,7 @@ extension RayQuery {
         return self.withHit(hit)
     }
 
+    @inlinable
     public func intersectAll<Plane: LineIntersectablePlaneType>(
         id: Int,
         material: MaterialId?,
@@ -353,7 +400,8 @@ extension RayQuery {
         appendPointsOfInterest(pois, id: id, material: material, to: &results)
     }
 
-    private func appendPointsOfInterest(
+    @usableFromInline
+    internal func appendPointsOfInterest(
         _ intersection: RConvexLineResult3D,
         id: Int,
         material: MaterialId?,
@@ -364,7 +412,7 @@ extension RayQuery {
             results.insert(
                 .init(
                     id: id,
-                    pointOfInterest: (enter, .outside),
+                    pointOfInterest: (enter, .fromOutside),
                     distanceSquared: enter.point.distanceSquared(to: ray.start),
                     material: material
                 )
@@ -372,7 +420,7 @@ extension RayQuery {
             results.insert(
                 .init(
                     id: id,
-                    pointOfInterest: (exit, .inside),
+                    pointOfInterest: (exit, .fromInside),
                     distanceSquared: exit.point.distanceSquared(to: ray.start),
                     material: material
                 )
@@ -382,7 +430,7 @@ extension RayQuery {
             results.insert(
                 .init(
                     id: id,
-                    pointOfInterest: (enter, .outside),
+                    pointOfInterest: (enter, .fromOutside),
                     distanceSquared: enter.point.distanceSquared(to: ray.start),
                     material: material
                 )
@@ -392,7 +440,7 @@ extension RayQuery {
             results.insert(
                 .init(
                     id: id,
-                    pointOfInterest: (exit, .inside),
+                    pointOfInterest: (exit, .fromInside),
                     distanceSquared: exit.point.distanceSquared(to: ray.start),
                     material: material
                 )

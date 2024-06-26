@@ -48,7 +48,7 @@ var geometriaAppLibTarget: Target = .target(
         .copy("Resources/NotoSans-Regular.ttf"),
     ],
     swiftSettings: [
-        
+
     ]
 )
 if ProcessInfo.processInfo.environment["REPORT_BUILD_TIME"] == "YES" {
@@ -62,7 +62,7 @@ var sceneGraphBuilderTarget: Target = .target(
         "Geometria",
     ],
     swiftSettings: [
-        
+
     ]
 )
 
@@ -127,7 +127,11 @@ targets.append(
         ],
         exclude: [
             "GeometriaApp.exe.manifest"
-        ])
+        ],
+        cxxSettings: [
+            .define("_ALLOW_COMPILER_AND_STL_VERSION_MISMATCH", .when(platforms: [.windows]))
+        ]
+    )
 )
 
 geometriaAppTarget.dependencies.append(
@@ -148,7 +152,8 @@ targets.append(
             "ImagineUI",
             "GeometriaAppLib",
             "SceneGraphBuilder"
-        ])
+        ]
+    )
 )
 
 #else

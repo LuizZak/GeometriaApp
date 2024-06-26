@@ -6,6 +6,10 @@ class GeometriaAppDelegate: ImagineUIAppDelegate {
     var main: ImagineUIContentType?
 
     func appDidLaunch() {
+        // NOTE: Disabling caching as it currently causes an assertion in Blend2D
+        ControlView.globallyCacheAsBitmap = false
+        Label.globallyCacheAsBitmap = false
+
         GeometriaLogger.logger = WinLoggerWrapper.instance
         ImagineUILogger.logger = WinLoggerWrapper.instance
 
