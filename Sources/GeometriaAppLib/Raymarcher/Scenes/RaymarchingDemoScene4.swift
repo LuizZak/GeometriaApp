@@ -6,7 +6,7 @@ enum RaymarchingDemoScene4 {
     @inlinable
     static func makeScene() -> some RaymarchingSceneType {
         let materials: MaterialMap = makeMaterialMap(MaterialMapEnum.self)
-        
+
         return RaymarchingElementBuilder.makeScene(skyColor: .cornflowerBlue, materials: materials) {
             scene()
         }
@@ -16,7 +16,7 @@ enum RaymarchingDemoScene4 {
 @RaymarchingElementBuilder
 private func scene() -> some RaymarchingElement {
     makeFloorPlane()
-    
+
     intersection {
         makeTorus(
             center: .init(x: 0, y: 100, z: 40),
@@ -30,7 +30,7 @@ private func scene() -> some RaymarchingElement {
             normal: .unitZ + .one / 10
         ).absolute()
     }
-    //.makeBoundingBox()
+    .makeBoundingBox()
 }
 
 @_transparent
@@ -126,8 +126,8 @@ private enum MaterialMapEnum: Int, CaseIterable, MaterialMapEnumType {
 
         case .floor:
             return .checkerboard(
-                size: 50.0, 
-                color1: .white, 
+                size: 50.0,
+                color1: .white,
                 color2: .black
             )
         }
