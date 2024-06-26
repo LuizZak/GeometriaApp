@@ -1,3 +1,6 @@
+#if canImport(Geometria)
+import Geometria
+#endif
 import Foundation
 import ImagineUI
 import SwiftBlend2D
@@ -80,7 +83,15 @@ class UIProjectionComponent: RaytracerUIComponent {
                 renderShape(renderer, subtracting, .structural)
 
             default:
-                renderShapes(renderer, geometry.shapes)
+                let context: RenderContext
+
+                if geometry.isStrictlyGeometry {
+                    context = .primitive
+                } else {
+                    context = .structural
+                }
+
+                renderShapes(renderer, geometry.shapes, context)
             }
         }
     }
@@ -181,6 +192,7 @@ private enum GeometryToRender {
     case line(id: Element.Id, RenderingShape)
     case disk(id: Element.Id, RenderingShape)
     case cylinder(id: Element.Id, RenderingShape)
+    case bounding(id: Element.Id, RenderingShape)
     case subtract(id: Element.Id, base: RenderingShape, subtracting: RenderingShape)
     case union(id: Element.Id, shapes: [RenderingShape])
 
@@ -191,6 +203,7 @@ private enum GeometryToRender {
             .line(let id, _),
             .disk(let id, _),
             .cylinder(let id, _),
+            .bounding(let id, _),
             .subtract(let id, _, _),
             .union(let id, _):
 
@@ -204,6 +217,7 @@ private enum GeometryToRender {
             .aabb(_, let shape),
             .line(_, let shape),
             .disk(_, let shape),
+            .bounding(_, let shape),
             .cylinder(_, let shape):
 
             return [shape]
@@ -213,6 +227,42 @@ private enum GeometryToRender {
 
         case .union(_, let shapes):
             return shapes
+        }
+    }
+
+    /// Returns `true` if this element represents only shapes attached to visible
+    /// geometry in the scene.
+    var isStrictlyGeometry: Bool {
+        switch self {
+        case .ellipse,
+            .aabb,
+            .line,
+            .disk,
+            .cylinder:
+            return true
+
+        case .bounding,
+            .subtract,
+            .union:
+            return false
+        }
+    }
+
+    /// Returns `true` if this element represents only shapes attached to invisible
+    /// structural geometry in the scene.
+    var isStrictlyStructural: Bool {
+        switch self {
+        case .ellipse,
+            .aabb,
+            .line,
+            .disk,
+            .cylinder,
+            .subtract:
+            return false
+
+        case .bounding,
+            .union:
+            return true
         }
     }
 }
@@ -238,6 +288,21 @@ private class SceneTraverser: ElementVisitor {
         self.projector = CameraProjection(camera: camera)
     }
 
+    // MARK: General
+
+    func projectAABB<R: RectangleType>(_ aabb: R) -> RenderingShape? where R.Vector == RVector3D {
+        let shape = projector.projectAABB(aabb)
+        guard !shape.isEmpty else {
+            return nil
+        }
+
+        return shape
+    }
+
+    func projectSphere(_ sphere: RSphere3D) -> RenderingShape? {
+        projector.projectSphere(sphere)
+    }
+
     // MARK: Generic elements
 
     func visit<T>(_ element: T) -> ResultType where T: BoundedElement {
@@ -250,8 +315,7 @@ private class SceneTraverser: ElementVisitor {
     // MARK: Basic
 
     func visit(_ element: AABBElement) -> ResultType {
-        let shape = projector.projectAABB(element.geometry)
-        guard !shape.isEmpty else {
+        guard let shape = projectAABB(element.geometry) else {
             return []
         }
 
@@ -260,8 +324,7 @@ private class SceneTraverser: ElementVisitor {
         ]
     }
     func visit(_ element: CubeElement) -> ResultType {
-        let shape = projector.projectAABB(element.geometry)
-        guard !shape.isEmpty else {
+        guard let shape = projectAABB(element.geometry) else {
             return []
         }
 
@@ -310,7 +373,7 @@ private class SceneTraverser: ElementVisitor {
         return []
     }
     func visit(_ element: SphereElement) -> ResultType {
-        guard let shape = projector.projectSphere(element.geometry) else {
+        guard let shape = projectSphere(element.geometry) else {
             return []
         }
 
@@ -328,10 +391,24 @@ private class SceneTraverser: ElementVisitor {
     // MARK: Bounding
 
     func visit<T>(_ element: BoundingBoxElement<T>) -> ResultType {
-        element.element.accept(self)
+        let el = element.element.accept(self)
+
+        if let shape = projectAABB(element.boundingBox) {
+            let result = GeometryToRender.bounding(id: element.id, shape)
+            return [result] + el
+        }
+
+        return el
     }
     func visit<T>(_ element: BoundingSphereElement<T>) -> ResultType {
-        element.element.accept(self)
+        let el = element.element.accept(self)
+
+        if let shape = projectSphere(element.boundingSphere) {
+            let result = GeometryToRender.bounding(id: element.id, shape)
+            return [result] + el
+        }
+
+        return el
     }
 
     // MARK: Combination
