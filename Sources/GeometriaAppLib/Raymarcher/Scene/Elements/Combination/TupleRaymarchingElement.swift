@@ -19,47 +19,7 @@ public typealias TupleRaymarchingElement7<T0: RaymarchingElement, T1: Raymarchin
 public typealias TupleRaymarchingElement8<T0: RaymarchingElement, T1: RaymarchingElement, T2: RaymarchingElement, T3: RaymarchingElement, T4: RaymarchingElement, T5: RaymarchingElement, T6: RaymarchingElement, T7: RaymarchingElement> =
     TupleElement8<T0, T1, T2, T3, T4, T5, T6, T7>
 
-/* // Currently the code below is not implementable because of a compiler issue that is present in Swift 5.9.1 but not on the nightly build, reproduced as follow:
-protocol Base {
-    func foo()
-}
-
-protocol Specialized: Base {
-    func bar()
-}
-
-struct Tuple<each T: Base> {
-    var t: (repeat each T)
-}
-
-struct Tuple2<T0: Base, T1: Base> {
-    var t0: T0
-    var t1: T1
-}
-
-typealias SpecializedTuple<each T: Specialized> = Tuple<repeat each T>
-typealias SpecializedTuple2<T0: Specialized, T1: Specialized> = Tuple2<T0, T1>
-
-extension SpecializedTuple {
-    func baz() {
-        repeat (each t).foo()
-        repeat (each t).bar() // Error: value of type 'τ_1_0' has no member 'bar'
-    }
-}
-
-extension SpecializedTuple2 {
-    func baz() {
-        t0.foo()
-        t1.foo()
-
-        t0.bar()
-        t1.bar()
-    }
-}
-// */
-
-//*
-#if true // VARIADIC_TUPLE_ELEMENT
+#if VARIADIC_TUPLE_ELEMENT
 
 public typealias TupleRaymarchingElement<each T: RaymarchingElement> = TupleElement<repeat each T>
 
@@ -79,7 +39,6 @@ extension TupleRaymarchingElement: RaymarchingElement {
 }
 
 #endif
-// */
 
 extension TupleRaymarchingElement2: RaymarchingElement {
     @inlinable

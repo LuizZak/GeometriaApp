@@ -19,8 +19,7 @@ extension<T0: Element, T1: Element, T2: Element> TupleElement<(T0, T1, T2: Eleme
 but do it with multiple tuples for now for performance reasons.
 */
 
-//*
-#if true // VARIADIC_TUPLE_ELEMENT
+#if VARIADIC_TUPLE_ELEMENT
 
 public struct TupleElement<each T: Element>: TupleElementType {
     public var id: Element.Id = 0
@@ -48,7 +47,7 @@ public struct TupleElement<each T: Element>: TupleElementType {
 
             result = element.queryScene(id: id)
         }
-        
+
         do {
             repeat try visit(each t)
         } catch {
@@ -63,7 +62,6 @@ public struct TupleElement<each T: Element>: TupleElementType {
 }
 
 #endif
-// */
 
 public struct TupleElement2<T0: Element, T1: Element>: TupleElementType {
     public var id: Element.Id = 0

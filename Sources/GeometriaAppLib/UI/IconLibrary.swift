@@ -98,17 +98,41 @@ public class IconLibrary {
     public static let subtractionIcon: Image = makeIcon(structuralElementColor) { (renderer, size) in
         let sizePoint = size.asUIPoint
 
-        var poly = UIPolygon(vertices: [
-            sizePoint * 0.2,
-            sizePoint * UIVector(x: 0.8, y: 0.2),
-            sizePoint * UIVector(x: 0.8, y: 0.5),
-            sizePoint * UIVector(x: 0.5, y: 0.5),
-            sizePoint * UIVector(x: 0.5, y: 0.8),
-            sizePoint * UIVector(x: 0.2, y: 0.8),
-        ])
-        poly.close()
+        let square = UIRectangle(location: sizePoint * 0.1, size: size * 0.5)
+        let circle = UICircle(center: square.bottomRight, radius: square.width * 0.5)
+        let arc = circle.arc(start: -.pi / 2, sweep: -.pi / 2)
 
-        renderer.stroke(poly)
+        renderer.withTemporaryState {
+            renderer.setStroke(.lightGray.withTransparency(30))
+            renderer.stroke(square)
+            renderer.stroke(circle)
+        }
+
+        renderer.strokeLine(start: square.topLeft, end: square.topRight)
+        renderer.strokeLine(start: square.topRight, end: arc.startPoint)
+        renderer.stroke(arc)
+        renderer.strokeLine(start: arc.endPoint, end: square.bottomLeft)
+        renderer.strokeLine(start: square.bottomLeft, end: square.topLeft)
+    }
+
+    public static let unionIcon: Image = makeIcon(structuralElementColor) { (renderer, size) in
+        let sizePoint = size.asUIPoint
+
+        let square = UIRectangle(location: sizePoint * 0.1, size: size * 0.5)
+        let circle = UICircle(center: square.bottomRight, radius: square.width * 0.5)
+        let arc = circle.arc(start: -.pi / 2, sweep: .pi * (3 / 2))
+
+        renderer.withTemporaryState {
+            renderer.setStroke(.lightGray.withTransparency(30))
+            renderer.stroke(square)
+            renderer.stroke(circle)
+        }
+
+        renderer.strokeLine(start: square.topLeft, end: square.topRight)
+        renderer.strokeLine(start: square.topRight, end: arc.startPoint)
+        renderer.stroke(arc)
+        renderer.strokeLine(start: arc.endPoint, end: square.bottomLeft)
+        renderer.strokeLine(start: square.bottomLeft, end: square.topLeft)
     }
 
     // MARK: - Green icons (data types)

@@ -1,6 +1,4 @@
-
-//*
-#if true // VARIADIC_TUPLE_ELEMENT
+#if VARIADIC_TUPLE_ELEMENT
 
 public typealias TupleRaytracingElement<each T: RaytracingElement> = TupleElement<repeat each T>
 
@@ -43,7 +41,6 @@ extension TupleRaytracingElement: RaytracingElement {
 }
 
 #endif
-// */
 
 
 public typealias TupleRaytracingElement2<T0: RaytracingElement, T1: RaytracingElement> =
