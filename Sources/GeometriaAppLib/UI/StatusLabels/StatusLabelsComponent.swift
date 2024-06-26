@@ -15,7 +15,7 @@ class StatusLabelsComponent: RaytracerUIComponent {
     private let batcherLabel: LabelControl = LabelControl()
     private let progressLabel: LabelControl = LabelControl()
 
-    
+
     private let topRightLabels: StackView = StackView(orientation: .vertical)
 
     private let resolutionLabel: LabelControl = LabelControl(text: "<viewport resolution unknown>")
@@ -53,14 +53,15 @@ class StatusLabelsComponent: RaytracerUIComponent {
         topRightLabels.alignment = .trailing
         topRightLabels.addArrangedSubview(resolutionLabel)
         topRightLabels.addArrangedSubview(dpiScalingModeLabel)
-        
+
         bottomLeftLabels.spacing = 5
         bottomLeftLabels.addArrangedSubview(instructionsLabel)
         bottomLeftLabels.addArrangedSubview(mouseLocationLabel)
-        
+
         topLeftLabels.layout.makeConstraints { make in
             make.left == container + 5
             make.top == container + 5
+            (make.right <= topRightLabels.layout.left - 5) | .medium
         }
 
         topRightLabels.layout.makeConstraints { make in
@@ -71,8 +72,9 @@ class StatusLabelsComponent: RaytracerUIComponent {
         bottomLeftLabels.layout.makeConstraints { make in
             make.left == container + 5
             make.bottom == container - 5
+            (make.right <= container - 5) | .medium
         }
-        
+
         updateLabels()
 
         Scheduler.instance.fixedFrameEvent.addListener(weakOwner: self) { [weak self] _ in
@@ -83,7 +85,7 @@ class StatusLabelsComponent: RaytracerUIComponent {
             }
         }
     }
-    
+
     func updateLabels() {
         if let coordinator = rendererCoordinator {
             stateLabel.text = "State: \(coordinator.state.description)"
@@ -92,11 +94,11 @@ class StatusLabelsComponent: RaytracerUIComponent {
 
             resolutionLabel.text = "\(coordinator.viewportSize.width)x\(coordinator.viewportSize.height)"
         }
-        
+
         if _timeStarted != 0.0 {
             if _timeEnded != 0.0 {
                 let timeString = String(format: "%.3lf", _timeEnded - _timeStarted)
-                
+
                 totalTimeLabel.text = "Total time (s): \(timeString)"
             } else {
                 totalTimeLabel.text = "Total time (s): Running..."
@@ -115,7 +117,7 @@ class StatusLabelsComponent: RaytracerUIComponent {
         if new == .finished {
             self._timeEnded = UISettings.timeInSeconds()
         }
-        
+
         self.updateLabels()
     }
 
@@ -130,9 +132,9 @@ class StatusLabelsComponent: RaytracerUIComponent {
                 self?.onStateChange(old: change.oldValue, new: change.newValue)
             }
         }
-        
+
         updateLabels()
-        
+
         stateLabel.isVisible = coordinator != nil
         batcherLabel.isVisible = coordinator != nil
         progressLabel.isVisible = coordinator != nil

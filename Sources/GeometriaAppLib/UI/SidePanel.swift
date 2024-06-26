@@ -31,7 +31,7 @@ public class SidePanel: ControlView {
             }
         }
     }
-    
+
     /// The bounds that contents of this side panel should occupy in order to
     /// fit the draggable side panel handle area.
     public let contentBounds: LayoutGuide = LayoutGuide()
@@ -161,7 +161,7 @@ public class SidePanel: ControlView {
 
         if isMouseOverLip {
             _mouseDown = true
-            
+
             switch pinSide {
             case .left:
                 _mouseOffset = event.location.x - bounds.width
@@ -231,7 +231,7 @@ public class SidePanel: ControlView {
         guard let superview = superview else {
             return
         }
-        
+
         switch pinSide {
         case .left:
             length = min(superview.size.width, mouseOnSuperview.x - _mouseOffset)
@@ -250,7 +250,8 @@ public class SidePanel: ControlView {
     }
 
     /// Bounds in this side panel that the draggable lip is placed.
-    /// Depends on `_lipSize` and `pinSide`.
+    /// Depends on `_lipSize` and `pinSide`, and its actual draw size might be
+    /// smaller than this rectangle.
     func lipArea() -> UIRectangle {
         var area = bounds
 

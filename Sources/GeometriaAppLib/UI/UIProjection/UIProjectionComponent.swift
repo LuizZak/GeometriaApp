@@ -49,19 +49,16 @@ class UIProjectionComponent: RaytracerUIComponent {
 
     func rendererChanged<T>(_ renderer: Raytracer<T>) {
         rendererChanged(anyRenderer: renderer)
-
-        let traverser = SceneTraverser(camera: renderer.camera)
-        geometries = renderer.scene.walk(traverser)
     }
 
     func rendererChanged<T>(_ renderer: Raymarcher<T>) {
         rendererChanged(anyRenderer: renderer)
-
-        let traverser = SceneTraverser(camera: renderer.camera)
-        geometries = renderer.scene.walk(traverser)
     }
 
     func rendererChanged<T: RendererType>(anyRenderer: T) {
+        let traverser = SceneTraverser(camera: anyRenderer.camera)
+        geometries = anyRenderer.currentScene().walk(traverser)
+
         renderView.invalidate()
     }
 
@@ -461,6 +458,10 @@ private class SceneTraverser: ElementVisitor {
     // MARK: Transforming
 
     func visit<T>(_ element: ScaleElement<T>) -> ResultType {
+        // TODO: Support transformations properly
+        element.element.accept(self)
+    }
+    func visit<T>(_ element: RotateElement<T>) -> ResultType {
         // TODO: Support transformations properly
         element.element.accept(self)
     }
