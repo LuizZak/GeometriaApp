@@ -49,6 +49,7 @@ extension NSquare: VolumetricType where Vector: VectorAdditive & VectorComparabl
     /// Returns `true` if the given vector is contained within the bounds of this
     /// square.
     @inlinable
+    @_specialize(exported: true, kind: full, where Vector == Vector3D)
     public func contains(_ vector: Vector) -> Bool {
         return vector >= location && vector <= location + sideLength
     }
@@ -71,16 +72,24 @@ public extension NSquare where Vector: VectorDivisible {
 
 extension NSquare: ConvexType where Vector: VectorFloatingPoint {
     /// Returns whether a given line intersects with this square.
+    @inlinable
+    @_specialize(exported: true, kind: full, where Line == LineSegment3D)
+    @_specialize(exported: true, kind: full, where Line == DirectionalRay3D)
     public func intersects<Line>(line: Line) -> Bool where Line: LineFloatingPoint, Line.Vector == Vector {
         bounds.intersects(line: line)
     }
     
+    @inlinable
+    @_specialize(exported: true, kind: full, where Line == LineSegment3D)
+    @_specialize(exported: true, kind: full, where Line == DirectionalRay3D)
     public func intersection<Line>(with line: Line) -> ConvexLineIntersection<Vector> where Line : LineFloatingPoint, Vector == Line.Vector {
         bounds.intersection(with: line)
     }
 }
 
 extension NSquare: SignedDistanceMeasurableType where Vector: VectorFloatingPoint {
+    @inlinable
+    @_specialize(exported: true, kind: full, where Vector == Vector3D)
     public func signedDistance(to point: Vector) -> Vector.Scalar {
         bounds.signedDistance(to: point)
     }

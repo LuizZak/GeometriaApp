@@ -20,15 +20,15 @@ struct RaytracingElementBuilder {
     }
 
     // MARK: Generic types
-    
+
     static func buildExpression<T>(
         _ value: T,
         _ material: MaterialId = MaterialId.defaultMaterial
     ) -> GeometryRaytracingElement<T> where T: Convex3Type {
-        
+
         .init(geometry: value, material: material)
     }
-    
+
     static func buildExpression<T>(_ value: T) -> T where T: RaytracingElement {
         value
     }
@@ -40,6 +40,15 @@ struct RaytracingElementBuilder {
     static func buildBlock<T>(_ value: T) -> T where T: RaytracingElement {
         value
     }
+
+    // TODO: Following construction fails in Swift 5.10: https://github.com/apple/swift/issues/71804
+    #if VARIADIC_TUPLE_ELEMENT
+
+    static func buildBlock<each T>(_ value: repeat each T) -> TupleRaytracingElement<repeat each T> where repeat each T: RaytracingElement {
+        TupleRaytracingElement(t: repeat each value)
+    }
+
+    #else
 
     static func buildBlock<T0, T1>(
         _ t0: T0,
@@ -117,4 +126,6 @@ struct RaytracingElementBuilder {
 
         .init(t0: t0, t1: t1, t2: t2, t3: t3, t4: t4, t5: t5, t6: t6, t7: t7)
     }
+
+    #endif // #if VARIADIC_TUPLE_ELEMENT
 }

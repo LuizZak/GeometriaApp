@@ -3,7 +3,6 @@ import ImagineUI
 import Blend2DRenderer
 
 class SceneGraphTreeComponent: RaytracerUIComponent {
-    private var _mouseLocation: UIPoint = .zero
     private let treeView = TreeView()
     private var sceneDataSource: SceneDataSource?
 
@@ -31,7 +30,7 @@ class SceneGraphTreeComponent: RaytracerUIComponent {
     }
 
     func rendererCoordinatorChanged(_ coordinator: RendererCoordinator?) {
-        
+
     }
 
     func rendererChanged<T: RendererType>(anyRenderer: T) {
@@ -48,10 +47,6 @@ class SceneGraphTreeComponent: RaytracerUIComponent {
         let graph = scene.walk(visitor)
 
         updateDataSource(SceneDataSource(root: graph))
-    }
-
-    func mouseMoved(event: MouseEventArgs) {
-        _mouseLocation = event.location
     }
 
     private func setupTreeViewEvents() {
@@ -83,7 +78,6 @@ class SceneGraphTreeComponent: RaytracerUIComponent {
         sceneDataSource = dataSource
 
         treeView.dataSource = dataSource
-        treeView.reloadData()
     }
 
     private class SceneDataSource: TreeViewDataSource {
@@ -121,7 +115,7 @@ class SceneGraphTreeComponent: RaytracerUIComponent {
             switch item {
             case .node(let node):
                 return AttributedText(node.title)
-            case .property(let property):
+            case .property(_, let property):
                 return "\(property.name): \(property.value)"
             case .subnodes:
                 return "Children"
@@ -142,7 +136,7 @@ class SceneGraphTreeComponent: RaytracerUIComponent {
 
         enum ItemType {
             case node(SceneGraphTreeNode)
-            case property(SceneGraphTreeNode.PropertyEntry)
+            case property(SceneGraphTreeNode, SceneGraphTreeNode.PropertyEntry)
             case subnodes(SceneGraphTreeNode)
 
             func hasElements() -> Bool {
@@ -153,15 +147,18 @@ class SceneGraphTreeComponent: RaytracerUIComponent {
             /// returns its element id, otherwise returns `nil`.
             func elementId() -> Element.Id? {
                 switch self {
-                case .node(let node):
+                case .node(let node),
+                    .property(let node, _):
+
                     switch node.object {
                     case .element(let element):
                         return element.id
+
                     case .matrix3x3, .material:
                         return nil
                     }
-                
-                case .property, .subnodes:
+
+                case .subnodes:
                     return nil
                 }
             }
@@ -170,22 +167,22 @@ class SceneGraphTreeComponent: RaytracerUIComponent {
                 switch self {
                 case .node(let node):
                     var count = 0
-                    
+
                     switch node.object {
                     case .element:
                         count += 1 // ID property
                     case .matrix3x3, .material:
                         break
                     }
-                    
+
                     count += node.properties.count
                     count += node.subnodes.count
 
                     return count
-                
+
                 case .property:
                     return 0
-                
+
                 case .subnodes(let node):
                     return node.subnodes.count
                 }
@@ -195,29 +192,29 @@ class SceneGraphTreeComponent: RaytracerUIComponent {
                 switch self {
                 case .node(let node):
                     var index = index
-                    
+
                     switch node.object {
                     case .element(let element):
                         if index == 0 {
-                            return .property(.init(name: "Id", value: "\(element.id)"))
+                            return .property(node, .init(name: "Id", value: "\(element.id)"))
                         }
-                        
+
                         index -= 1
-                        
+
                     case .matrix3x3, .material:
                         break
                     }
 
                     if index < node.properties.count {
-                        return .property(node.properties[index])
+                        return .property(node, node.properties[index])
                     }
                     index -= node.properties.count
-                    
+
                     return .node(node.subnodes[index])
-                
+
                 case .property:
                     fatalError("Cannot index into a property")
-                
+
                 case .subnodes(let node):
                     return .node(node.subnodes[index])
                 }

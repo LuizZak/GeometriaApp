@@ -4,9 +4,6 @@ import ImagineUI
 import Text
 import Blend2DRenderer
 
-private let instructions: String = """
-"""
-
 open class RaytracerApp: RaytracerUI {
     private var _updateTimer: SchedulerTimerType?
     private var _isResizing: Bool = false
@@ -18,6 +15,10 @@ open class RaytracerApp: RaytracerUI {
     private let statusMessages: StatusMessageStackComponent = StatusMessageStackComponent()
     private let statusLabels: StatusLabelsComponent = StatusLabelsComponent()
     private let uiProjection: UIProjectionComponent = UIProjectionComponent()
+    private var sceneList: SceneListComponent?
+
+    var scenes: [SceneEntry] = []
+    var activeScene: SceneEntry? = nil
 
     var rendererCoordinator: RendererCoordinator?
     var renderer: RendererType?
@@ -49,8 +50,14 @@ open class RaytracerApp: RaytracerUI {
 
         backgroundColor = nil
 
-        restartRendering()
+        scenes = createScenes()
+
         createUI()
+
+        // Choose some scene to start with
+        if !scenes.isEmpty {
+            sceneList?.selectEntryIndex(0)
+        }
     }
 
     deinit {
@@ -66,15 +73,30 @@ open class RaytracerApp: RaytracerUI {
         sceneGraph.treeComponentDelegate = self
         addComponent(sceneGraph)
 
+        // Scene selector list
+        let sceneList = createSceneListUI()
+        self.sceneList = sceneList
+
         // Status labels
         let labelsContainer = addComponentInReservedView(statusLabels)
         labelsContainer.layout.makeConstraints { make in
-            (make.top, make.right, make.bottom) == componentsContainer
+            (make.top, make.bottom) == componentsContainer
             make.right(of: sceneGraph.sidePanel)
+            make.left(of: sceneList.sidePanel, priority: .high)
         }
 
         // Status messages
         addComponent(statusMessages)
+    }
+
+    func createSceneListUI() -> SceneListComponent {
+        let scenes = self.scenes.map(SceneListComponent.SceneEntry.from(_:))
+
+        let sceneList = SceneListComponent(width: 200.0, scenes: scenes)
+        sceneList.treeComponentDelegate = self
+        addComponent(sceneList)
+
+        return sceneList
     }
 
     open override func didCloseWindow() {
@@ -103,6 +125,24 @@ open class RaytracerApp: RaytracerUI {
         restartRendering()
     }
 
+    func changeScene(_ entry: SceneListComponent.SceneEntry) {
+        guard let scene = sceneFromSceneListScene(entry) else {
+            return
+        }
+
+        changeScene(scene)
+    }
+
+    func changeScene(_ entry: SceneEntry) {
+        activeScene = entry
+
+        restartRendering()
+    }
+
+    func sceneFromSceneListScene(_ entry: SceneListComponent.SceneEntry) -> SceneEntry? {
+        scenes.first(where: { $0.name == entry.name })
+    }
+
     func restartRendering() {
         _updateTimer = Scheduler.instance.scheduleTimer(interval: 1 / 60.0, repeats: true) { [weak self] in
             self?.update(UISettings.timeInSeconds())
@@ -125,6 +165,9 @@ open class RaytracerApp: RaytracerUI {
     }
 
     func recreateRenderer() {
+        guard let activeScene else {
+            return
+        }
         guard width > 0 && height > 0 else {
             return
         }
@@ -138,17 +181,34 @@ open class RaytracerApp: RaytracerUI {
             scaleFactor = 1.0
         }
 
-        let image = BLImage(
-            width: Int(Double(width) * scaleFactor),
-            height: Int(Double(height) * scaleFactor),
-            format: .prgb32
+        let result = activeScene.recreateRenderer(
+            Int(Double(width) * scaleFactor),
+            Int(Double(height) * scaleFactor),
+            threadCount
         )
 
-        let viewportSize = image.size.asViewportSize
+        self.renderer = result.renderer
+        self.buffer = result.buffer
+        self.rendererCoordinator = result.rendererCoordinator
 
-        let buffer = Blend2DBufferWriter(image: image)
-        self.buffer = buffer
+        rendererCoordinatorChanged(rendererCoordinator)
+        rendererChanged(anyRenderer: result.renderer)
 
+        rendererCoordinator?.stateDidChange.addListener(weakOwner: self) { [weak self] (change) in
+            DispatchQueue.main.async {
+                guard let self = self else { return }
+
+                if change.newValue == .finished {
+                    self.invalidateAll()
+                }
+            }
+        }
+        rendererCoordinator?.initialize()
+        rendererCoordinator?.start()
+    }
+
+    /* This block is kept here mostly for the debug information relating to single pixels of problematic scenes
+    func recreateRenderer() {
         // NOTE: Following coordinates assume a window size of 1000 x 750.
 //        let batcher = SinglePixelBatcher(pixel: .init(x: 173, y: 171)) // Transparent sphere - bottom-left center of refraction 'anomaly'
 //        let batcher = SinglePixelBatcher(pixel: .init(x: 261, y: 173)) // Reflection of transparent sphere on right sphere
@@ -177,62 +237,8 @@ open class RaytracerApp: RaytracerUI {
         // */
 //        let batcher = SieveBatcher()
 //        let batcher = LinearBatcher()
-
-        // TODO: Derive camera configuration from the demo scene builders.
-
-        let camera = Camera(
-            viewportSize: viewportSize,
-            viewportCenter: .init(x: 0.0, y: 0, z: 90.0)
-        )
-
-        #if true
-
-        let scene = RaytracingDemoScene3.makeScene()
-
-        let renderer = Raytracer(
-            scene: scene,
-            camera: camera
-        )
-
-        #else
-
-        let scene = RaymarchingHyperplanePolyhedronScene.makeScene()
-
-        let renderer = Raymarcher(
-            scene: scene,
-            camera: camera
-        )
-        // renderer.renderMode = .marchSteps()
-
-        #endif
-
-        renderer.setupViewportSize(viewportSize)
-
-        rendererCoordinator = RendererCoordinator(
-            renderer: renderer,
-            viewportSize: viewportSize,
-            buffer: buffer,
-            threadCount: threadCount,
-            batcher: batcher
-        )
-
-        rendererCoordinatorChanged(rendererCoordinator)
-        rendererChanged(renderer)
-
-        rendererCoordinator?.stateDidChange.addListener(weakOwner: self) { [weak self] (change) in
-            DispatchQueue.main.async {
-                guard let self = self else { return }
-
-                if change.newValue == .finished {
-                    self.invalidateAll()
-                }
-            }
-        }
-        rendererCoordinator?.initialize()
-        rendererCoordinator?.start()
-
-        self.renderer = renderer
     }
+    */
 
     func pause() {
         rendererCoordinator?.pause()
@@ -423,6 +429,11 @@ open class RaytracerApp: RaytracerUI {
         /// accordingly.
         case useDpiScale
     }
+
+    struct SceneEntry {
+        let name: String
+        let recreateRenderer: (_ width: Int, _ height: Int, _ threadCount: Int) -> (buffer: Blend2DBufferWriter, renderer: any RendererType, rendererCoordinator: RendererCoordinator)
+    }
 }
 
 extension RaytracerApp: SceneGraphTreeComponentDelegate {
@@ -432,5 +443,14 @@ extension RaytracerApp: SceneGraphTreeComponentDelegate {
     ) {
 
         uiProjection.geometryIdsToShow = selection
+    }
+}
+
+extension RaytracerApp: SceneListComponentDelegate {
+    func sceneListComponent(
+        _ component: SceneListComponent,
+        didChangeSelection selection: SceneListComponent.SceneEntry
+    ) {
+        changeScene(selection)
     }
 }

@@ -19,17 +19,11 @@ extension<T0: Element, T1: Element, T2: Element> TupleElement<(T0, T1, T2: Eleme
 but do it with multiple tuples for now for performance reasons.
 */
 
-/*
 #if VARIADIC_TUPLE_ELEMENT
-
-// TODO: Workaround for https://github.com/apple/swift/issues/66917 and lack of
-// pack iteration (https://github.com/apple/swift-evolution/blob/main/proposals/0408-pack-iteration.md)
-// in Swift 5.9
-fileprivate struct _IterationStop: Error {
-}
 
 public struct TupleElement<each T: Element>: TupleElementType {
     public var id: Element.Id = 0
+    @usableFromInline
     var t: (repeat each T)
 
     public var elements: [Element] {
@@ -48,12 +42,12 @@ public struct TupleElement<each T: Element>: TupleElementType {
         var result: Element?
         func visit<U: Element>(_ element: U) throws {
             if result != nil {
-                throw _IterationStop()
+                throw _TupleIterationStop()
             }
 
             result = element.queryScene(id: id)
         }
-        
+
         do {
             repeat try visit(each t)
         } catch {
@@ -68,7 +62,6 @@ public struct TupleElement<each T: Element>: TupleElementType {
 }
 
 #endif
-*/
 
 public struct TupleElement2<T0: Element, T1: Element>: TupleElementType {
     public var id: Element.Id = 0
@@ -412,4 +405,39 @@ extension TupleElement8: Element {
     public func accept<Visitor: ElementVisitor>(_ visitor: Visitor) -> Visitor.ResultType {
         visitor.visit(self)
     }
+}
+
+@_transparent
+public func group<T0, T1>(@ElementBuilder _ builder: () -> TupleElement2<T0, T1>) -> TupleElement2<T0, T1> {
+    return builder()
+}
+
+@_transparent
+public func group<T0, T1, T2>(@ElementBuilder _ builder: () -> TupleElement3<T0, T1, T2>) -> TupleElement3<T0, T1, T2> {
+    return builder()
+}
+
+@_transparent
+public func group<T0, T1, T2, T3>(@ElementBuilder _ builder: () -> TupleElement4<T0, T1, T2, T3>) -> TupleElement4<T0, T1, T2, T3> {
+    return builder()
+}
+
+@_transparent
+public func group<T0, T1, T2, T3, T4>(@ElementBuilder _ builder: () -> TupleElement5<T0, T1, T2, T3, T4>) -> TupleElement5<T0, T1, T2, T3, T4> {
+    return builder()
+}
+
+@_transparent
+public func group<T0, T1, T2, T3, T4, T5>(@ElementBuilder _ builder: () -> TupleElement6<T0, T1, T2, T3, T4, T5>) -> TupleElement6<T0, T1, T2, T3, T4, T5> {
+    return builder()
+}
+
+@_transparent
+public func group<T0, T1, T2, T3, T4, T5, T6>(@ElementBuilder _ builder: () -> TupleElement7<T0, T1, T2, T3, T4, T5, T6>) -> TupleElement7<T0, T1, T2, T3, T4, T5, T6> {
+    return builder()
+}
+
+@_transparent
+public func group<T0, T1, T2, T3, T4, T5, T6, T7>(@ElementBuilder _ builder: () -> TupleElement8<T0, T1, T2, T3, T4, T5, T6, T7>) -> TupleElement8<T0, T1, T2, T3, T4, T5, T6, T7> {
+    return builder()
 }

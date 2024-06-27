@@ -15,6 +15,7 @@ public extension Hyperplane3 {
     /// Returns the intersection of this 3 dimensional hyperplane with another
     /// hyperplane as a line, or `nil`, if the hyperplanes are parallel or
     /// [coplanar](https://en.wikipedia.org/wiki/Coplanarity).
+    @inlinable
     func intersection(with other: Self) -> Line<Vector>? {
         guard other.normal.absolute != normal.absolute else {
             return nil

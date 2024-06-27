@@ -13,6 +13,17 @@ public struct SortedRayHits {
         self.hits = hits
     }
 
+    /// Initializes a `SortedRayHits` with the ray hit from a query. If the query
+    /// has no hit, the `SortedRayHits` is initialized empty.
+    @inlinable
+    public init(fromQuery query: RayQuery) {
+        if let lastHit = query.lastHit {
+            self.hits = [lastHit]
+        } else {
+            self.hits = []
+        }
+    }
+
     @inlinable
     public mutating func insert(_ hit: RayHit) {
         let index = hits.partitioningIndex {
@@ -43,7 +54,9 @@ extension SortedRayHits: ExpressibleByArrayLiteral {
     public init(arrayLiteral: RayHit...) {
         self.hits = arrayLiteral
 
-        sort()
+        if !arrayLiteral.isEmpty {
+            sort()
+        }
     }
 }
 

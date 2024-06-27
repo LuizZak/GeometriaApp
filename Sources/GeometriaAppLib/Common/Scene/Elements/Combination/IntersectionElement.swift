@@ -16,7 +16,7 @@ extension IntersectionElement: Element {
     @inlinable
     public mutating func attributeIds(_ idFactory: inout ElementIdFactory) {
         id = idFactory.makeId()
-        
+
         t0.attributeIds(&idFactory)
         t1.attributeIds(&idFactory)
     }
@@ -24,7 +24,7 @@ extension IntersectionElement: Element {
     @inlinable
     public func queryScene(id: Element.Id) -> Element? {
         if id == self.id { return self }
-        
+
         if let el = t0.queryScene(id: id) { return el }
         if let el = t1.queryScene(id: id) { return el }
 
@@ -41,6 +41,20 @@ extension IntersectionElement: BoundedElement where T0: BoundedElement, T1: Boun
         let t0Bounds = t0.makeBounds()
 
         return t0Bounds.intersection(t1.makeBounds()) ?? t0Bounds
+    }
+}
+
+extension IntersectionElement {
+    public func makeBoundingBox() -> BoundingBoxRaymarchingElement<Self> where T0: BoundedElement, T1: BoundedElement {
+        .init(element: self)
+    }
+
+    public func makeBoundingBox() -> BoundingBoxRaymarchingElement<Self> where T0: BoundedElement {
+        .init(element: self, boundingBox: t0.makeBounds())
+    }
+
+    public func makeBoundingBox() -> BoundingBoxRaymarchingElement<Self> where T1: BoundedElement {
+        .init(element: self, boundingBox: t1.makeBounds())
     }
 }
 

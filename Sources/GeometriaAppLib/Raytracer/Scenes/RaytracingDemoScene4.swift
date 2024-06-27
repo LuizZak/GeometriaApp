@@ -6,7 +6,7 @@ enum RaytracingDemoScene4 {
     @inlinable
     static func makeScene() -> some RaytracingSceneType {
         let materials: MaterialMap = makeMaterialMap(MaterialMapEnum.self)
-        
+
         return RaytracingElementBuilder.makeScene(skyColor: .cornflowerBlue, materials: materials) {
             scene()
         }
@@ -17,8 +17,8 @@ enum RaytracingDemoScene4 {
 private func scene() -> some RaytracingElement {
     makeFloorPlane()
 
-    rotated(by: .make3DRotationY(.pi / 2), around: .init(x: 0, y: 100, z: 40)) {
-        rotated(by: .make3DRotationZ(.pi / 4), around: .init(x: 0, y: 100, z: 40)) {
+    rotated(by: .make3DRotationZ(.pi / 4), around: .init(x: 0, y: 100, z: 40)) {
+        rotated(by: .make3DRotationY(.pi / 2), around: .init(x: 0, y: 100, z: 40)) {
             makeCylinder(
                 center: .init(x: 0, y: 100, z: 40),
                 direction: .unitZ,
@@ -36,7 +36,7 @@ private func makeCylinder(
     length: Double,
     radius: Double
 ) -> CylinderElement {
-    
+
     let start = center - direction * length / 2
     let end = center + direction * length / 2
 
@@ -89,7 +89,7 @@ private enum MaterialMapEnum: Int, CaseIterable, MaterialMapEnumType {
             return .diffuse(
                 .init(
                     color: .gray,
-                    transparency: 0.2
+                    transparency: 0.8
                 )
             )
         }

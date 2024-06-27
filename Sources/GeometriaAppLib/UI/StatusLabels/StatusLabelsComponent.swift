@@ -61,6 +61,7 @@ class StatusLabelsComponent: RaytracerUIComponent {
         topLeftLabels.layout.makeConstraints { make in
             make.left == container + 5
             make.top == container + 5
+            (make.right <= topRightLabels.layout.left - 5) | .medium
         }
 
         topRightLabels.layout.makeConstraints { make in
@@ -71,6 +72,7 @@ class StatusLabelsComponent: RaytracerUIComponent {
         bottomLeftLabels.layout.makeConstraints { make in
             make.left == container + 5
             make.bottom == container - 5
+            (make.right <= container - 5) | .medium
         }
 
         updateLabels()

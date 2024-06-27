@@ -11,7 +11,7 @@ import platform
 from pathlib import Path
 from dataclasses import dataclass
 from enum import Enum, unique
-from typing import Any, Callable, List, Optional, TypeVar
+from typing import Any, Callable, List, Optional, TypeVar, Union
 from os import PathLike
 
 win32_debug_args = [
@@ -31,7 +31,7 @@ def make_argparser() -> argparse.ArgumentParser:
     # Argument parser with support for specifying default subcommand parser
     # https://stackoverflow.com/a/37593636
     class DefaultSubcommandArgParse(argparse.ArgumentParser):
-        __default_subparser: argparse.ArgumentParser | None = None
+        __default_subparser: Union[argparse.ArgumentParser, None] = None
 
         def set_default_subparser(self, name):
             self.__default_subparser = name
@@ -126,7 +126,7 @@ def make_argparser() -> argparse.ArgumentParser:
     return argparser
 
 
-def toSwiftCDefList(definitions: list[str] | None):
+def toSwiftCDefList(definitions: Union[list[str], None]):
     if definitions is None:
         return []
 
@@ -137,11 +137,11 @@ def toSwiftCDefList(definitions: list[str] | None):
 # Arguments for a build command.
 @dataclass
 class BuildCommandArgs:
-    target_name: str | None
+    target_name: Union[str, None]
     config: str
-    manifest_path: Path | None
-    swift_args: list[str] | None
-    definitions: list[str] | None
+    manifest_path: Union[Path, None]
+    swift_args: Union[list[str], None]
+    definitions: Union[list[str], None]
     enable_cross_module_optimization: bool
 
     def swift_build_args(self) -> List[str]:
@@ -172,12 +172,12 @@ class BuildCommandArgs:
 # Arguments for a run command.
 @dataclass
 class RunCommandArgs:
-    target_name: str | None
-    executable_name: str | None
+    target_name: Union[str, None]
+    executable_name: Union[str, None]
     config: str
-    manifest_path: Path | None
-    swift_args: list[str] | None
-    definitions: list[str] | None
+    manifest_path: Union[Path, None]
+    swift_args: Union[list[str], None]
+    definitions: Union[list[str], None]
     enable_cross_module_optimization: bool
 
     def swift_build_args(self) -> List[str]:
@@ -217,8 +217,8 @@ class RunCommandArgs:
 @dataclass
 class TestCommandArgs:
     config: str
-    swift_args: list[str] | None
-    definitions: list[str] | None
+    swift_args: Union[list[str], None]
+    definitions: Union[list[str], None]
 
     def swift_test_args(self) -> List[str]:
         args = []
@@ -259,7 +259,7 @@ class SwiftTarget(object):
 T = TypeVar("T")
 
 
-def deserialize_json(target_class: Callable[[Any], T], object_repr: str | bytes | bytearray) -> T:
+def deserialize_json(target_class: Callable[[Any], T], object_repr: Union[str, bytes, bytearray]) -> T:
     data = json.loads(object_repr)
     signature = inspect.signature(target_class)
     bound_signature = signature.bind(**data)
@@ -273,14 +273,14 @@ def print_args(args: Any):
         print(f'  - {k}: {v}')
     
 
-def run_output(bin_name: str, *args: str | PathLike, echo: bool = True) -> bytes:
+def run_output(bin_name: str, *args: Union[str, PathLike], echo: bool = True) -> bytes:
     if echo:
         print('>', bin_name, *list(args))
 
     return subprocess.check_output([bin_name] + list(args))
 
 
-def run(bin_name: str, *args: str | PathLike, echo: bool = True, silent: bool = False):
+def run(bin_name: str, *args: Union[str, PathLike], echo: bool = True, silent: bool = False):
     if echo:
         print('>', bin_name, *list(args))
 
@@ -437,13 +437,12 @@ def main() -> int:
     argparser = make_argparser()
     args = argparser.parse_args()
 
-    match args.command:
-        case 'build':
-            do_build_command(args)
-        case 'test':
-            do_test_command(args)
-        case 'run':
-            do_run_command(args)
+    if args.command == 'build':
+        do_build_command(args)
+    elif args.command == 'test':
+        do_test_command(args)
+    elif args.command == 'run':
+        do_run_command(args)
 
     return 0
 

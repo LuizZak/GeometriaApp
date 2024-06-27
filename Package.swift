@@ -128,7 +128,11 @@ targets.append(
         ],
         exclude: [
             "GeometriaApp.exe.manifest"
-        ])
+        ],
+        cxxSettings: [
+            .define("_ALLOW_COMPILER_AND_STL_VERSION_MISMATCH", .when(platforms: [.windows]))
+        ]
+    )
 )
 
 geometriaAppTarget.dependencies.append(
@@ -150,7 +154,8 @@ targets.append(
             "ImagineUI",
             "GeometriaAppLib",
             "SceneGraphBuilder"
-        ])
+        ]
+    )
 )
 
 #elseif os(Linux)

@@ -1,3 +1,48 @@
+#if VARIADIC_TUPLE_ELEMENT
+
+public typealias TupleRaytracingElement<each T: RaytracingElement> = TupleElement<repeat each T>
+
+extension TupleRaytracingElement: RaytracingElement {
+    @inlinable
+    public func raycast(query: consuming RayQuery) -> RayQuery {
+        var query = query
+        repeat query = (each t).raycast(query: query)
+        return query
+    }
+
+    @inlinable
+    public func raycast(query: RayQuery, results: inout SortedRayHits) {
+        repeat (each t).raycast(query: query, results: &results)
+    }
+
+    @inlinable
+    public func contains(point: RVector3D) -> Bool {
+        var result = false
+        func visit<U: RaytracingElement>(_ element: U) {
+            result = result || element.contains(point: point)
+        }
+
+        repeat visit(each t)
+
+        return result
+    }
+
+    @inlinable
+    public func fullyContainsRay(query: RayQuery) -> Bool {
+        var result = false
+        func visit<U: RaytracingElement>(_ element: U) {
+            result = result || element.fullyContainsRay(query: query)
+        }
+
+        repeat visit(each t)
+
+        return result
+    }
+}
+
+#endif
+
+
 public typealias TupleRaytracingElement2<T0: RaytracingElement, T1: RaytracingElement> =
     TupleElement2<T0, T1>
 
@@ -23,10 +68,10 @@ extension TupleRaytracingElement2: RaytracingElement {
     @inlinable
     public func raycast(query: consuming RayQuery) -> RayQuery {
         var query = query
-        
+
         query = t0.raycast(query: query)
         query = t1.raycast(query: query)
-        
+
         return query
     }
 
@@ -35,7 +80,13 @@ extension TupleRaytracingElement2: RaytracingElement {
         t0.raycast(query: query, results: &results)
         t1.raycast(query: query, results: &results)
     }
-    
+
+    @inlinable
+    public func contains(point: RVector3D) -> Bool {
+        return t0.contains(point: point)
+            || t1.contains(point: point)
+    }
+
     @inlinable
     public func fullyContainsRay(query: RayQuery) -> Bool {
         return t0.fullyContainsRay(query: query)
@@ -61,7 +112,14 @@ extension TupleRaytracingElement3: RaytracingElement {
         t1.raycast(query: query, results: &results)
         t2.raycast(query: query, results: &results)
     }
-    
+
+    @inlinable
+    public func contains(point: RVector3D) -> Bool {
+        return t0.contains(point: point)
+            || t1.contains(point: point)
+            || t2.contains(point: point)
+    }
+
     @inlinable
     public func fullyContainsRay(query: RayQuery) -> Bool {
         return t0.fullyContainsRay(query: query)
@@ -90,7 +148,15 @@ extension TupleRaytracingElement4: RaytracingElement {
         t2.raycast(query: query, results: &results)
         t3.raycast(query: query, results: &results)
     }
-    
+
+    @inlinable
+    public func contains(point: RVector3D) -> Bool {
+        return t0.contains(point: point)
+            || t1.contains(point: point)
+            || t2.contains(point: point)
+            || t3.contains(point: point)
+    }
+
     public func fullyContainsRay(query: RayQuery) -> Bool {
         return t0.fullyContainsRay(query: query)
             && t1.fullyContainsRay(query: query)
@@ -121,7 +187,16 @@ extension TupleRaytracingElement5: RaytracingElement {
         t3.raycast(query: query, results: &results)
         t4.raycast(query: query, results: &results)
     }
-    
+
+    @inlinable
+    public func contains(point: RVector3D) -> Bool {
+        return t0.contains(point: point)
+            || t1.contains(point: point)
+            || t2.contains(point: point)
+            || t3.contains(point: point)
+            || t4.contains(point: point)
+    }
+
     @inlinable
     public func fullyContainsRay(query: RayQuery) -> Bool {
         return t0.fullyContainsRay(query: query)
@@ -156,7 +231,17 @@ extension TupleRaytracingElement6: RaytracingElement {
         t4.raycast(query: query, results: &results)
         t5.raycast(query: query, results: &results)
     }
-    
+
+    @inlinable
+    public func contains(point: RVector3D) -> Bool {
+        return t0.contains(point: point)
+            || t1.contains(point: point)
+            || t2.contains(point: point)
+            || t3.contains(point: point)
+            || t4.contains(point: point)
+            || t5.contains(point: point)
+    }
+
     @inlinable
     public func fullyContainsRay(query: RayQuery) -> Bool {
         return t0.fullyContainsRay(query: query)
@@ -194,7 +279,18 @@ extension TupleRaytracingElement7: RaytracingElement {
         t5.raycast(query: query, results: &results)
         t6.raycast(query: query, results: &results)
     }
-    
+
+    @inlinable
+    public func contains(point: RVector3D) -> Bool {
+        return t0.contains(point: point)
+            || t1.contains(point: point)
+            || t2.contains(point: point)
+            || t3.contains(point: point)
+            || t4.contains(point: point)
+            || t5.contains(point: point)
+            || t6.contains(point: point)
+    }
+
     @inlinable
     public func fullyContainsRay(query: RayQuery) -> Bool {
         return t0.fullyContainsRay(query: query)
@@ -235,7 +331,19 @@ extension TupleRaytracingElement8: RaytracingElement {
         t6.raycast(query: query, results: &results)
         t7.raycast(query: query, results: &results)
     }
-    
+
+    @inlinable
+    public func contains(point: RVector3D) -> Bool {
+        return t0.contains(point: point)
+            || t1.contains(point: point)
+            || t2.contains(point: point)
+            || t3.contains(point: point)
+            || t4.contains(point: point)
+            || t5.contains(point: point)
+            || t6.contains(point: point)
+            || t7.contains(point: point)
+    }
+
     @inlinable
     public func fullyContainsRay(query: RayQuery) -> Bool {
         return t0.fullyContainsRay(query: query)

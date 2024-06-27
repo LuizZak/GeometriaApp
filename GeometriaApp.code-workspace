@@ -94,9 +94,9 @@
 					"run",
 					"-c", "release",
 					"-t", "GeometriaApp",
-					// "-x=-Xswiftc", "-x=-cross-module-optimization",
-					"-m", "Sources/GeometriaWindows/GeometriaApp.exe.manifest",
-					"-cross-module-optimization", // TODO: Validate whether cross-module-optimization offers performance advantages
+					"-m", "Sources\\GeometriaWindows\\GeometriaApp.exe.manifest",
+					// NOTE: Currently crashes the compiler in Swift 5.10.1
+					// "-cross-module-optimization", // TODO: Validate whether cross-module-optimization offers performance advantages
 				]
 			},
 		]
@@ -106,17 +106,31 @@
 			{
 				"type": "lldb",
 				"request": "launch",
-				"name": "Debug GeometriaApp",
-				"program": "${workspaceFolder:GeometriaApp}/.build/debug/GeometriaApp",
-				"args": [],
-				"env": {
-				},
+				"name": "Launch",
+				"sourceLanguages": [
+					"swift"
+				],
+				"program": "${workspaceFolder:GeometriaApp}/.build/debug/GeometriaApp.exe",
 				"cwd": "${workspaceFolder:GeometriaApp}",
 				"preLaunchTask": "Build Win32 (debug)",
 			},
 			{
 				"type": "lldb",
 				"request": "launch",
+				"sourceLanguages": [
+					"swift"
+				],
+				"name": "Debug GeometriaApp",
+				"program": "${workspaceFolder:GeometriaApp}/.build/debug/GeometriaApp.exe",
+				"cwd": "${workspaceFolder:GeometriaApp}",
+				"preLaunchTask": "Build Win32 (debug)",
+			},
+			{
+				"type": "lldb",
+				"request": "launch",
+				"sourceLanguages": [
+					"swift"
+				],
 				"name": "Release GeometriaApp",
 				"program": "${workspaceFolder:GeometriaApp}/.build/release/GeometriaApp",
 				"args": [],

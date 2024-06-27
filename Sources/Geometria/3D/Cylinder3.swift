@@ -69,12 +69,15 @@ public extension Cylinder3 where Vector: Equatable {
 extension Cylinder3: BoundableType where Vector: Vector3FloatingPoint {
     @inlinable
     public var bounds: AABB<Vector> {
-        // Degenerate cylinder
-        if start == end {
-            return .zero
+        @_specialize(exported: true, kind: full, where Vector == Vector3D)
+        get {
+            // Degenerate cylinder
+            if start == end {
+                return .zero
+            }
+            
+            return startAsDisk.bounds.union(endAsDisk.bounds)
         }
-        
-        return startAsDisk.bounds.union(endAsDisk.bounds)
     }
 }
 
@@ -220,22 +223,23 @@ extension Cylinder3: Convex3Type where Vector: Vector3Real {
         let cylinderSlope = cylinderLine.lineSlope
         let lineSlope = line.lineSlope
         
-        var crossSlope = cylinderSlope.cross(lineSlope).normalized()
+        var crossSlope = cylinderSlope.cross(lineSlope)
         
         // Line is parallel to cylinder's line - choose a normal based on the
         // direction from the cylinder's center line to the line
         if crossSlope == .zero {
-            crossSlope = (start - line.projectUnclamped(start)).normalized()
+            crossSlope = (start - line.projectUnclamped(start))
         }
         
         // Create a 2D version of the problem by cross-sectioning the cylinder
         // with a plane which is parallel to both the line and the cylinder's
         // axis and solve a bounding-box/line intersection
         
-        let pl: ProjectivePointNormalPlane3<Vector>
-        pl = .makeCorrectedPlane(point: line.a,
-                                 normal: crossSlope,
-                                 upAxis: cylinderSlope)
+        let pl = ProjectivePointNormalPlane3<Vector>.makeCorrectedPlane(
+            point: line.a,
+            normal: crossSlope,
+            upAxis: cylinderSlope
+        )
         
         // Find the rectangle that represents the cylinder's cross section on
         // the plane
@@ -271,7 +275,7 @@ extension Cylinder3: Convex3Type where Vector: Vector3Real {
         
         let intersection = aabb.intersection(with: line2d)
         
-        func mapPointNormal(_ pn: PointNormal<Vector2>) -> PointNormal<Vector> {
+        return intersection.replacingPointNormals { (pn: PointNormal<Vector2>, _) -> PointNormal<Vector> in
             let worldPoint = pl.projectOut(pn.point)
 
             var normal: Vector
@@ -284,7 +288,7 @@ extension Cylinder3: Convex3Type where Vector: Vector3Real {
             } else {
                 // Otherwise the normal can be computed as the direction between
                 // the intersection point and its projection on the cylinder's line
-                normal =  (cylinderLine.projectUnclamped(worldPoint) - worldPoint).normalized()
+                normal = (cylinderLine.projectUnclamped(worldPoint) - worldPoint).normalized()
             }
             
             // Use the normal that has the least value (pointing towards the
@@ -296,30 +300,6 @@ extension Cylinder3: Convex3Type where Vector: Vector3Real {
             return PointNormal(
                 point: worldPoint,
                 normal: normal
-            )
-        }
-        
-        switch intersection {
-        case .noIntersection:
-            return .noIntersection
-            
-        case .contained:
-            return .contained
-            
-        case .enter(let pn):
-            return .enter(mapPointNormal(pn))
-            
-            // TODO: Cover this case in unit tests
-        case .singlePoint(let pn):
-            return .singlePoint(mapPointNormal(pn))
-            
-        case .exit(let pn):
-            return .exit(mapPointNormal(pn))
-            
-        case let .enterExit(pn1, pn2):
-            return .enterExit(
-                mapPointNormal(pn1),
-                mapPointNormal(pn2)
             )
         }
     }

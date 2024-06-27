@@ -22,6 +22,10 @@ public extension RaytracerUIComponent {
     func rendererChanged<T>(_ renderer: Raymarcher<T>) {
         rendererChanged(anyRenderer: renderer)
     }
+
+    func mouseMoved(event: MouseEventArgs) {
+
+    }
 }
 
 public protocol RaytracerUIComponentDelegate: AnyObject {

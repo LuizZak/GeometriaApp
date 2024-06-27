@@ -451,6 +451,10 @@ extension SceneGraphTreeNode {
     func addingIcon<T0, T1>(for element: SubtractionElement<T0, T1>) -> SceneGraphTreeNode {
         self.addingIcon(IconLibrary.subtractionIcon)
     }
+
+    func addingIcon<T0, T1>(for element: UnionElement<T0, T1>) -> SceneGraphTreeNode {
+        self.addingIcon(IconLibrary.unionIcon)
+    }
 }
 
 // MARK: - SceneGraphVisitor

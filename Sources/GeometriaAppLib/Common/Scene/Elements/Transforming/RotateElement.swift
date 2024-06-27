@@ -6,10 +6,10 @@ import Geometria
 public struct RotateElement<T: Element> {
     public var id: Element.Id = 0
     public var element: T
-    
+
     public var rotation: Transform3x3
     public var rotationCenter: RVector3D
-    
+
     public init(
         id: Int = 0,
         element: T,
@@ -21,7 +21,7 @@ public struct RotateElement<T: Element> {
         self.rotation = rotation
         self.rotationCenter = rotationCenter
     }
-    
+
     public init(
         id: Int = 0,
         element: T,
@@ -46,7 +46,7 @@ extension RotateElement: Element {
     @_transparent
     public func queryScene(id: Element.Id) -> Element? {
         if id == self.id { return self }
-        
+
         return element.queryScene(id: id)
     }
 
@@ -79,10 +79,12 @@ extension BoundedElement {
 }
 
 extension RotateElement {
+    /* TODO: This is incorrect insofar as rotations with different rotationCenter values.
     @_transparent
     public func rotatedBy(_ rotation: RRotationMatrix3D, around rotationCenter: RVector3D) -> RotateElement<T> {
-        .init(element: element, rotation: self.rotation * rotation, rotationCenter: rotationCenter)
+        .init(element: element, rotation: rotation * self.rotation, rotationCenter: rotationCenter)
     }
+    // */
 }
 
 @_transparent
@@ -90,10 +92,12 @@ public func rotated<T: Element>(by rotation: RRotationMatrix3D, around rotationC
     builder().rotatedBy(rotation, around: rotationCenter)
 }
 
+/*
 @_transparent
 public func rotated<T: Element>(by rotation: RRotationMatrix3D, around rotationCenter: RVector3D, @ElementBuilder _ builder: () -> RotateElement<T>) -> RotateElement<T> {
     builder().rotatedBy(rotation, around: rotationCenter)
 }
+// */
 
 @_transparent
 public func rotatedAroundCenter<T: BoundedElement>(by rotation: RRotationMatrix3D, @ElementBuilder _ builder: () -> T) -> RotateElement<T> {

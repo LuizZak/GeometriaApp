@@ -22,8 +22,8 @@ public enum RayIgnore: Equatable {
     /// ignored.
     indirect case allButSingleId(id: Int, RayIgnore)
     
-    /// Returns `true` iff this ``RayIgnore`` instance is `.full` case, with the
-    /// given geometry assigned.
+    /// Returns `true` iff this ``RayIgnore`` instance is `.full` or ´.allButSingleId´
+    /// cases, with the given geometry assigned.
     public func shouldIgnoreFully(id: Int) -> Bool {
         switch self {
         case .full(let geoId):
@@ -44,7 +44,7 @@ public enum RayIgnore: Equatable {
     /// Returns `true` if this ``RayIgnore`` is configured to ignore a particular
     /// ray hit configuration based on its id, hit direction, and distance traveled
     /// by ray before the hit.
-    public func shouldIgnore(hit: RayHit, rayStart: RVector3D) -> Bool {
+    public func shouldIgnore(hit: RayHit) -> Bool {
         switch self {
         case .full(let geoId):
             return geoId == hit.id
@@ -53,28 +53,28 @@ public enum RayIgnore: Equatable {
             if geoId != hit.id {
                 return false
             }
-            if rayStart.distanceSquared(to: hit.point) < minLen {
+            if hit.distanceSquared < minLen {
                 return true
             }
 
-            return hit.hitDirection == .outside || hit.hitDirection == .singlePoint
+            return hit.hitDirection == .fromOutside || hit.hitDirection == .singlePoint
         
         case .exit(let geoId, let minLen):
             if geoId != hit.id {
                 return false
             }
-            if rayStart.distanceSquared(to: hit.point) < minLen {
+            if hit.distanceSquared < minLen {
                 return true
             }
 
-            return hit.hitDirection == .inside || hit.hitDirection == .singlePoint
+            return hit.hitDirection == .fromInside || hit.hitDirection == .singlePoint
 
         case let .allButSingleId(geoId, ignore):
             if geoId != hit.id {
                 return true
             }
 
-            return ignore.shouldIgnore(hit: hit, rayStart: rayStart)
+            return ignore.shouldIgnore(hit: hit)
 
         case .none:
             return false
@@ -106,9 +106,9 @@ public enum RayIgnore: Equatable {
 
         switch inter {
         case .enter(let pn), .enterExit(let pn, _):
-            return (pn, .outside)
+            return (pn, .fromOutside)
         case .exit(let pn):
-            return (pn, .inside)
+            return (pn, .fromInside)
         case .singlePoint(let pn):
             return (pn, .singlePoint)
         case .noIntersection, .contained:

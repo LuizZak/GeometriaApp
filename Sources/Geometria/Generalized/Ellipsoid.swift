@@ -68,31 +68,13 @@ extension Ellipsoid: ConvexType where Vector: VectorReal {
         let scaledSphere = NSphere<Vector>(center: center * scale, radius: axisToKeep)
         let scaledLine = line.withPointsScaledBy(scale)
         
-        func scalePointNormal(_ pn: PointNormal<Vector>) -> PointNormal<Vector> {
-            .init(
+        let intersection = scaledSphere.intersection(with: scaledLine)
+
+        return intersection.replacingPointNormals { (pn, _) in
+            return .init(
                 point: pn.point / scale,
                 normal: (pn.normal * scale).normalized()
             )
-        }
-        
-        switch scaledSphere.intersection(with: scaledLine) {
-        case .noIntersection:
-            return .noIntersection
-            
-        case .contained:
-            return .contained
-
-        case .singlePoint(let pn):
-            return .singlePoint(scalePointNormal(pn))
-            
-        case .enter(let pn):
-            return .enter(scalePointNormal(pn))
-
-        case .exit(let pn):
-            return .exit(scalePointNormal(pn))
-
-        case let .enterExit(penter, pexit):
-            return .enterExit(scalePointNormal(penter), scalePointNormal(pexit))
         }
     }
 }

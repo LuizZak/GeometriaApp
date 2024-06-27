@@ -12,6 +12,11 @@ extension EmptyRaytracingElement: RaytracingElement {
     }
     
     @inlinable
+    public func contains(point: RVector3D) -> Bool {
+        return false
+    }
+    
+    @inlinable
     public func fullyContainsRay(query: RayQuery) -> Bool {
         false
     }

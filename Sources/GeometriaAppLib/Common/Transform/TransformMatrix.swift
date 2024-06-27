@@ -5,7 +5,7 @@ import Geometria
 /// Encodes a square matrix and its inverse.
 public struct TransformMatrix<Matrix: SquareMatrixType> {
     public let m: Matrix
-    
+
     /// Inverse of `self.m`
     public let mInv: Matrix
 
@@ -23,7 +23,7 @@ public struct TransformMatrix<Matrix: SquareMatrixType> {
     public static func * (lhs: Self, rhs: Self) -> Self {
         TransformMatrix(
             lhs.m * rhs.m,
-            lhs.mInv * rhs.mInv
+            rhs.mInv * lhs.mInv
         )
     }
 

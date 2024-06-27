@@ -52,6 +52,11 @@ extension AnyRaytracingElement: RaytracingElement {
     }
 
     @inlinable
+    public func contains(point: RVector3D) -> Bool {
+        element.contains(point: point)
+    }
+
+    @inlinable
     public func fullyContainsRay(query: RayQuery) -> Bool {
         element.fullyContainsRay(query: query)
     }

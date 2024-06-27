@@ -2,8 +2,8 @@
 /// vectors in 3D space with double-precision floating-point scalars.
 public typealias ProjectivePointNormalPlane3D = ProjectivePointNormalPlane3<Vector3D>
 
-/// A point-normal plane with a separate up and right vector used to control
-/// projection on the axis of the plane and compute the local X and Y axis.
+/// A point-normal plane with a separate and right vectors used to control
+/// projection on the axis of the plane and compute local X and Y axis uniquely.
 public struct ProjectivePointNormalPlane3<Vector: Vector3FloatingPoint>: PointProjectablePlaneType {
     /// A point on this plane.
     public var point: Vector
@@ -29,6 +29,7 @@ public struct ProjectivePointNormalPlane3<Vector: Vector3FloatingPoint>: PointPr
         "\(type(of: self))(normal: \(normal), upAxis: \(upAxis), rightAxis: \(rightAxis))"
     }
     
+    @inlinable
     public init(point: Vector, normal: Vector, upAxis: Vector, rightAxis: Vector) {
         self.point = point
         self.normal = normal
@@ -85,8 +86,6 @@ public extension ProjectivePointNormalPlane3 {
     ///   - upAxis: The up-axis of the plane.
     @inlinable
     static func makeCorrectedPlane(point: Vector, normal: Vector, upAxis: Vector) -> Self {
-        let normal = normal.normalized()
-        let upAxis = upAxis.normalized()
         let rightAxis = normal.cross(upAxis)
         let newUpAxis = rightAxis.cross(normal)
         
