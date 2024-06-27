@@ -89,15 +89,26 @@
 				"label": "Run Win32 (release)",
 				"type": "shell",
 				"command": "python",
-				"args": [
-					"utils/build.py",
-					"run",
-					"-c", "release",
-					"-t", "GeometriaApp",
-					"-m", "Sources\\GeometriaWindows\\GeometriaApp.exe.manifest",
-					// NOTE: Currently crashes the compiler in Swift 5.10.1
-					// "-cross-module-optimization", // TODO: Validate whether cross-module-optimization offers performance advantages
-				]
+				"windows": {
+					"args": [
+						"utils/build.py",
+						"run",
+						"-c", "release",
+						"-t", "GeometriaApp",
+						"-m", "Sources\\GeometriaWindows\\GeometriaApp.exe.manifest",
+						// NOTE: Currently crashes the compiler in Swift 5.10.1
+						// "-cross-module-optimization", // TODO: Validate whether cross-module-optimization offers performance advantages
+					]
+				},
+				"linux": {
+					"args": [
+						"utils/build.py",
+						"run",
+						"-c", "release",
+						"-t", "GeometriaApp",
+						//"-cross-module-optimization", // TODO: Validate whether cross-module-optimization offers performance advantages
+					]
+				}
 			},
 		]
 	},

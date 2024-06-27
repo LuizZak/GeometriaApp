@@ -118,20 +118,25 @@ class StatusLabelsComponent: RaytracerUIComponent {
         if new == .finished {
             self._timeEnded = UISettings.timeInSeconds()
         }
-
-        self.updateLabels()
     }
 
     func rendererCoordinatorChanged(_ coordinator: RendererCoordinator?) {
+        let oldState = self.rendererCoordinator?.state
         self.rendererCoordinator = coordinator
 
         self._timeEnded = 0.0
         self._timeStarted = 0.0
 
         coordinator?.stateDidChange.addListener(weakOwner: self) { [weak self] (change) in
+            self?.onStateChange(old: change.oldValue, new: change.newValue)
+
             DispatchQueue.main.async {
-                self?.onStateChange(old: change.oldValue, new: change.newValue)
+                self?.updateLabels()
             }
+        }
+
+        if let coordinator {
+            onStateChange(old: oldState ?? .unstarted, new: coordinator.state)
         }
 
         updateLabels()
@@ -139,6 +144,7 @@ class StatusLabelsComponent: RaytracerUIComponent {
         stateLabel.isVisible = coordinator != nil
         batcherLabel.isVisible = coordinator != nil
         progressLabel.isVisible = coordinator != nil
+        totalTimeLabel.isVisible = coordinator != nil
     }
 
     func rendererChanged<T: RendererType>(anyRenderer: T) {

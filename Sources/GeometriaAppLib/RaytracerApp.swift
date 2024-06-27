@@ -162,6 +162,7 @@ open class RaytracerApp: RaytracerUI {
             dpiScalingMode,
             currentScale: delegate?.windowDpiScalingFactor(self) ?? 1.0
         )
+        statusLabels.updateLabels()
     }
 
     func recreateRenderer() {
@@ -374,8 +375,6 @@ open class RaytracerApp: RaytracerUI {
         _mouseLocation = event.location.asBLPointI
 
         super.mouseMoved(event: event)
-
-        invalidateAll()
     }
 
     // MARK: -
