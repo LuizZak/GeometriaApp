@@ -41,7 +41,7 @@ struct FormattedInterpolatedString: ExpressibleByStringInterpolation {
         }
 
         mutating func appendInterpolation(image: any Image) {
-            output.append(" ", attributes: [.image: ImageAttribute(image: image)])
+            output.append(" ", attributes: [.image: ImageAttribute(image: image), .imageVerticalAlignment: ImageVerticalAlignmentAttribute.centralized])
         }
 
         mutating func appendInterpolation(dataType literal: SceneNodeDataType) {
