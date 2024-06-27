@@ -10,15 +10,6 @@
       }
     },
     {
-      "identity" : "imagineui-x11",
-      "kind" : "remoteSourceControl",
-      "location" : "https://github.com/LuizZak/ImagineUI-X11.git",
-      "state" : {
-        "branch" : "main",
-        "revision" : "35e7c5ce0cb0233db59a10998dd981907c5209c5"
-      }
-    },
-    {
       "identity" : "swift-bezier",
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/LuizZak/swift-bezier.git",
@@ -37,12 +28,12 @@
       }
     },
     {
-      "identity" : "swift-libpng",
+      "identity" : "swift-com",
       "kind" : "remoteSourceControl",
-      "location" : "https://github.com/LuizZak/swift-libpng.git",
+      "location" : "https://github.com/compnerd/swift-com.git",
       "state" : {
-        "branch" : "master",
-        "revision" : "c059e4a34d0a84a2a1cc7eac8acdb8fa3ab8142f"
+        "branch" : "main",
+        "revision" : "8b2a7b50d9bcec07f0ae84d2be7f9909e73223d3"
       }
     },
     {
