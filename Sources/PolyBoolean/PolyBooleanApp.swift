@@ -1,0 +1,199 @@
+import Foundation
+import ImagineUI
+import SwiftBlend2D
+import Geometria
+
+open class PolyBooleanApp: ImagineUIWindowContent {
+    var isMouseDown: Bool = false
+
+    var polys: [any PolyBooleanType] = []
+    var mousePoly: CirclePoly = .init(circle: .unit)
+
+    let labelStackView = StackView(orientation: .vertical)
+    let intersectCountLabel = Label(textColor: .black, fontSize: 20)
+    let mouseLocationLabel = Label(textColor: .black, fontSize: 20)
+
+    open override func initialize() {
+        super.initialize()
+
+        let sizeVec = self.size.asVector2D
+
+        polys = [
+            CirclePoly(circle: .init(center: sizeVec / 2, radius: sizeVec.x / 5)),
+            RectPoly(location: sizeVec * .init(x: 0.4, y: 0.3), size: sizeVec * 0.5)
+        ]
+        mousePoly.circle.radius = sizeVec.x / 10
+
+        rootView.addSubview(labelStackView)
+        labelStackView.addArrangedSubview(intersectCountLabel)
+        labelStackView.addArrangedSubview(mouseLocationLabel)
+        labelStackView.layout.makeConstraints { make in
+            make.top == rootView + 5
+            make.left == rootView + 5
+        }
+
+        intersectCountLabel.text = "Total intersections: Computing..."
+        mouseLocationLabel.text = "Mouse location: (0, 0)"
+    }
+
+    open override func mouseMoved(event: MouseEventArgs) {
+        super.mouseMoved(event: event)
+
+        mouseLocationLabel.text = "Mouse location: (\(event.location.x), \(event.location.y))"
+        mousePoly.circle.center = event.location.asVector2D
+
+        invalidateScreen()
+    }
+
+    open override func mouseDown(event: MouseEventArgs) {
+        super.mouseDown(event: event)
+
+        if event.buttons == .left {
+            isMouseDown = true
+            invalidateScreen()
+        }
+    }
+
+    open override func mouseUp(event: MouseEventArgs) {
+        if event.buttons == .left {
+            isMouseDown = false
+            invalidateScreen()
+        }
+    }
+
+    func effectivePolys() -> [any PolyBooleanType] {
+        if isMouseDown {
+            return polys + [mousePoly]
+        }
+
+        return polys
+    }
+
+    open override func render(renderer: any Renderer, renderScale: UIVector, clipRegion: any ClipRegionType) {
+        super.render(renderer: renderer, renderScale: renderScale, clipRegion: clipRegion)
+
+        renderer.setStroke(
+            .init(color: .black, width: 5, startCap: .round, endCap: .round, joinStyle: .round)
+        )
+
+        let polys = effectivePolys()
+        render(polys: polys, renderer: renderer)
+        renderIntersections(polys: polys, renderer: renderer)
+        //testEllipseNormals(renderer: renderer)
+    }
+
+    func renderIntersections(
+        polys: [any PolyBooleanType],
+        renderer: any Renderer
+    ) {
+        func renderPoint(_ point: UIPoint, color: Color) {
+            let circle = UICircle(center: point, radius: 5)
+            renderer.setFill(color)
+            renderer.fill(circle)
+        }
+
+        func renderPoint(period: PolyBooleanType.Period, on poly: PolyBooleanType, color: Color) {
+            let point = poly.point(at: period)
+            renderPoint(point.asUIPoint, color: color)
+        }
+
+        var totalIntersections = 0
+
+        let intersect = PolyIntersect()
+
+        for lhsIndex in 0..<(polys.count - 1) {
+            let lhs = polys[lhsIndex]
+
+            for rhsIndex in (lhsIndex + 1)..<polys.count {
+                guard lhsIndex != rhsIndex else { continue }
+
+                let rhs = polys[rhsIndex]
+
+                guard let result = intersect.intersect(lhs, rhs) else {
+                    continue
+                }
+
+                totalIntersections += result.periods.count
+
+                for period in result.periods {
+                    renderPoint(period: period.lhsPeriod, on: lhs, color: .red)
+                    renderPoint(period: period.rhsPeriod, on: rhs, color: .blue)
+                }
+            }
+        }
+
+        intersectCountLabel.text = "Total intersections: \(totalIntersections)"
+    }
+
+    /*
+    func testEllipseNormals(renderer: any Renderer) {
+        let sizeVec = self.size.asVector2D
+        let ellipse = Ellipse2D(center: sizeVec / 2, radius: sizeVec * .init(x: 0.3, y: 0.2))
+        renderer.stroke(ellipse.asUIEllipse)
+
+        for angle in stride(from: 0, to: .pi * 2, by: .pi * 2 / 100.0) {
+            let ellipsePoint = ellipse.center + Vector2D(
+                x: cos(angle),
+                y: sin(angle)
+            ) * ellipse.radius
+
+            let toCenter = (ellipsePoint - ellipse.center).normalized()
+
+            let lineStart = ellipsePoint - toCenter * 5
+            let lineEnd = ellipsePoint + toCenter * 5
+
+            let line = LineSegment2D(start: lineStart, end: lineEnd)
+
+            switch ellipse.intersection(with: line) {
+            case .noIntersection, .contained:
+                break
+
+            case .singlePoint(let pn), .enter(let pn), .exit(let pn), .enterExit(let pn, _):
+                let magnitudeStart = 5.0
+                let magnitudeEnd = 105.0
+                let intersectLine = LineSegment2D(
+                    start: pn.point - pn.normal * magnitudeStart,
+                    end: pn.point + pn.normal * magnitudeEnd
+                )
+
+                renderer.stroke(intersectLine.asUILine)
+            }
+        }
+    }
+    */
+
+    func render(polys: [any PolyBooleanType], renderer: any Renderer) {
+        for poly in polys {
+            render(poly: poly, renderer: renderer)
+        }
+    }
+
+    func render(poly: some PolyBooleanType, renderer: any Renderer) {
+        let stroke = poly.stroke(in: 0...1)
+
+        render(stroke: stroke, renderer: renderer)
+    }
+
+    func render(strokes: [PeriodicSurfaceStroke], renderer: any Renderer) {
+        for stroke in strokes {
+            render(stroke: stroke, renderer: renderer)
+        }
+    }
+
+    func render(stroke: PeriodicSurfaceStroke, renderer: any Renderer) {
+        render(op: stroke.op, renderer: renderer)
+    }
+
+    func render(op: PeriodicSurfaceStroke.Op, renderer: any Renderer) {
+        switch op {
+        case .compound(let strokes):
+            render(strokes: strokes, renderer: renderer)
+
+        case .line(let line):
+            renderer.stroke(line)
+
+        case .circleArc(let arc):
+            renderer.stroke(arc)
+        }
+    }
+}

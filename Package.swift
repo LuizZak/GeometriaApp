@@ -51,6 +51,18 @@ var geometriaAppLibTarget: Target = .target(
 
     ]
 )
+
+var polyBooleanTarget: Target = .target(
+    name: "PolyBoolean",
+    dependencies: [
+        .product(name: "SwiftBlend2D", package: "swift-blend2d"),
+        .product(name: "ImagineUI", package: "ImagineUI"),
+        .product(name: "Blend2DRenderer", package: "ImagineUI"),
+        "Geometria",
+        "GeometriaAppLib",
+    ]
+)
+
 if ProcessInfo.processInfo.environment["REPORT_BUILD_TIME"] == "YES" {
     geometriaAppLibTarget.swiftSettings?.append(contentsOf: reportingSwiftSettings)
 }
@@ -124,7 +136,8 @@ targets.append(
             "ImagineUI-Win",
             .product(name: "Blend2DRenderer", package: "ImagineUI"),
             "GeometriaAppLib",
-            "SceneGraphBuilder"
+            "SceneGraphBuilder",
+            "PolyBoolean",
         ],
         exclude: [
             "GeometriaApp.exe.manifest"
@@ -153,7 +166,8 @@ targets.append(
             .product(name: "SwiftBlend2D", package: "swift-blend2d"),
             "ImagineUI",
             "GeometriaAppLib",
-            "SceneGraphBuilder"
+            "SceneGraphBuilder",
+            "PolyBoolean",
         ]
     )
 )
@@ -175,7 +189,8 @@ targets.append(
             .product(name: "ImagineUI-X11", package: "ImagineUI-X11"),
             .product(name: "SwiftBlend2D", package: "swift-blend2d"),
             "GeometriaAppLib",
-            "SceneGraphBuilder"
+            "SceneGraphBuilder",
+            "PolyBoolean",
         ])
 )
 
@@ -184,6 +199,7 @@ targets.append(
 targets.append(geometriaAppTarget)
 targets.append(geometriaAppLibTarget)
 targets.append(sceneGraphBuilderTarget)
+targets.append(polyBooleanTarget)
 
 let package = Package(
     name: "GeometriaApp",

@@ -49,7 +49,8 @@ extension WithMutableType {
     }
 }
 
-extension UIArc: WithMutableType { }
+extension UICircleArc: WithMutableType { }
+extension UIEllipseArc: WithMutableType { }
 extension UIBezier: WithMutableType { }
 extension UICircle: WithMutableType { }
 extension UIEllipse: WithMutableType { }

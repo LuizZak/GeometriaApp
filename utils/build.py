@@ -23,6 +23,7 @@ win32_debug_args = [
     "-Xlinker", "/ignore:4217", # For ignoring a very verbose set of warnings in debug builds on Windows
 ]
 win32_release_args = [
+    "-Xswiftc", "-whole-module-optimization",
     "-Xlinker", "/ignore:4217", # For ignoring a very verbose set of warnings in debug builds on Windows
 ]
 

@@ -36,7 +36,13 @@
 				"args": [
 					"utils/build.py",
 					"-c", "debug"
-				]
+				],
+				"linux": {
+					"command": "python",
+				},
+				"windows": {
+					"command": "python312"
+				}
 			},
             {
 				"label": "Build Linux (debug)",
@@ -65,7 +71,13 @@
 					"-c", "debug",
 					"-t", "GeometriaApp",
 					"-m", "Sources\\GeometriaWindows\\GeometriaApp.exe.manifest",
-				]
+				],
+				"linux": {
+					"command": "python",
+				},
+				"windows": {
+					"command": "python312"
+				}
 			},
             {
 				"label": "Run Linux (debug)",
@@ -90,6 +102,7 @@
 				"type": "shell",
 				"command": "python",
 				"windows": {
+					"command": "python312",
 					"args": [
 						"utils/build.py",
 						"run",
@@ -101,6 +114,7 @@
 					]
 				},
 				"linux": {
+					"command": "python",
 					"args": [
 						"utils/build.py",
 						"run",
