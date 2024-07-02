@@ -9,4 +9,8 @@ extension Vector2D {
     var asUIPoint: UIPoint {
         .init(x: x, y: y)
     }
+
+    var asUISize: UISize {
+        .init(width: x, height: y)
+    }
 }

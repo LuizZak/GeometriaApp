@@ -37,6 +37,11 @@ public struct PeriodicSurfaceStroke {
     /// The operation that this stroke performs during its stroke.
     public var op: Op
 
+    /// Gets the total length of this stroke.
+    public var length: Double {
+        op.length
+    }
+
     /// Returns `true` if this stroke surface is fully periodic, i.e. it covers
     /// the entire range between 0.0 and 1.0, inclusively.
     public var isFullyPeriodic: Bool {
@@ -99,16 +104,15 @@ public struct PeriodicSurfaceStroke {
             let scalar = lineSegment.clampProjectedNormalizedMagnitude(
                 lineSegment.projectAsScalar(point.asVector2D)
             )
+
             let ratio = scalar
             let pointOnLine = lineSegment.projectedNormalizedMagnitude(scalar)
-
-            let period = period(factor: ratio)
             let distance = pointOnLine.distance(to: point.asVector2D)
 
-            return (period, distance: distance)
+            return (period(factor: ratio), distance: distance)
 
         case .circleArc(let arc):
-            let angle = normalizeAngle((point - arc.center).angle())
+            let angle = (point - arc.center).angle()
 
             // Full circle
             guard arc.sweepAngle < .pi * 2 else {
@@ -118,27 +122,15 @@ public struct PeriodicSurfaceStroke {
 
                 return (start + period.truncatingRemainder(dividingBy: range), pt.distance(to: point))
             }
+            let sweep = UIAngleSweep(start: .init(radians: arc.startAngle), sweep: arc.sweepAngle)
 
-            // Normalize arc's angle representation
-            let isMirrored: Bool
-            let normalized: UICircleArc
-            if arc.sweepAngle < 0 {
-                normalized = arc.mirrored
-                isMirrored = true
-            } else {
-                normalized = arc
-                isMirrored = false
-            }
+            let clamped = sweep.clamped(.init(radians: angle))
 
-            let clamped = clampAngle(angle, min: normalized.startAngle, max: normalized.stopAngle)
+            let ratio = sweep.relativeToStart(clamped) / arc.sweepAngle
+            let pointOnArc = arc.pointOnAngle(clamped.radians)
+            let distance = pointOnArc.distance(to: point)
 
-            let pointAt = normalized.pointOnAngle(clamped)
-            var period = (clamped - normalized.startAngle) / normalized.sweepAngle
-            if isMirrored {
-                period = 1 - period
-            }
-
-            return (period, pointAt.distance(to: point))
+            return (period(factor: ratio), distance)
 
         case .compound(let strokes):
             let distances = strokes
@@ -163,19 +155,17 @@ public struct PeriodicSurfaceStroke {
             return nil
         }
 
-        let reduction = end - period
-
         let newOp: Op
         switch op {
         case .line(let line):
             let start = line.start
-            let end = line * (end - reduction)
+            let end = line * ((period - self.start) / (self.end - self.start))
 
             newOp = .line(.init(start: start, end: end))
 
         case .circleArc(let arc):
             let start = arc.startAngle
-            let end = arc.sweepAngle * (end - reduction)
+            let end = arc.sweepAngle * ((period - self.start) / (self.end - self.start))
 
             newOp = .circleArc(.init(center: arc.center, radius: arc.radius, startAngle: start, sweepAngle: end))
 
@@ -202,19 +192,17 @@ public struct PeriodicSurfaceStroke {
             return nil
         }
 
-        let reduction = start - period
-
         let newOp: Op
         switch op {
         case .line(let line):
-            let start = line * reduction
+            let start = line * ((period - self.start) / (self.end - self.start))
             let end = line.end
 
             newOp = .line(.init(start: start, end: end))
 
         case .circleArc(let arc):
-            let start = arc.startAngle + arc.sweepAngle * reduction
-            let end = arc.sweepAngle * reduction
+            let start = arc.startAngle + arc.sweepAngle * ((period - self.start) / (self.end - self.start))
+            let end = arc.sweepAngle * ((period - self.start) / (self.end - self.start))
 
             newOp = .circleArc(.init(center: arc.center, radius: arc.radius, startAngle: start, sweepAngle: end))
 
@@ -244,33 +232,19 @@ public struct PeriodicSurfaceStroke {
         /// associated with a `PeriodicSurfaceStroke`, the period range is equal
         /// to that periodic stroke's `start` and `end` periods.
         case compound([PeriodicSurfaceStroke])
+
+        /// Gets the total length of this stroke path operation.
+        var length: Double {
+            switch self {
+            case .line(let line):
+                return line.length()
+
+            case .circleArc(let arc):
+                return arc.length()
+
+            case .compound(let strokes):
+                return strokes.reduce(0) { $0 + $1.length }
+            }
+        }
     }
-}
-
-fileprivate func normalizeAngle(_ ang: Double) -> Double {
-    var ang = ang
-
-    while ang < -.pi {
-        ang += .pi * 2
-    }
-
-    while ang >= .pi {
-        ang -= .pi * 2
-    }
-
-    return ang
-}
-
-fileprivate func clampAngle(_ ang: Double, min: Double, max: Double) -> Double {
-    let n_min = normalizeAngle(min - ang)
-    let n_max = normalizeAngle(max - ang)
-
-    if n_min <= 0 && n_max >= 0 {
-        return ang
-    }
-    if n_min.magnitude < n_max.magnitude {
-        return min
-    }
-
-    return max
 }

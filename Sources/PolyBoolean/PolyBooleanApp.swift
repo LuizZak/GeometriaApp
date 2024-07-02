@@ -4,6 +4,8 @@ import SwiftBlend2D
 import Geometria
 
 open class PolyBooleanApp: ImagineUIWindowContent {
+    var _updateTimer: SchedulerTimerType?
+
     var isMouseDown: Bool = false
 
     var polys: [any PolyBooleanType] = []
@@ -13,16 +15,33 @@ open class PolyBooleanApp: ImagineUIWindowContent {
     let intersectCountLabel = Label(textColor: .black, fontSize: 20)
     let mouseLocationLabel = Label(textColor: .black, fontSize: 20)
 
+    func effectivePolys() -> [any PolyBooleanType] {
+        if isMouseDown {
+            return polys + [mousePoly]
+        }
+
+        return polys
+    }
+
     open override func initialize() {
         super.initialize()
+
+        _updateTimer = Scheduler.instance.scheduleTimer(interval: 1 / 60.0, repeats: true) { [weak self] in
+            self?.update(UISettings.timeInSeconds())
+        }
+
+        Scheduler.instance.fixedFrameEvent.addListener(weakOwner: self) { [weak self] delta in
+            self?.fixedFrameUpdate(delta)
+        }
 
         let sizeVec = self.size.asVector2D
 
         polys = [
             CirclePoly(circle: .init(center: sizeVec / 2, radius: sizeVec.x / 5)),
-            RectPoly(location: sizeVec * .init(x: 0.4, y: 0.3), size: sizeVec * 0.5)
+            RectPoly(location: sizeVec * .init(x: 0.4, y: 0.3), size: sizeVec * 0.5),
+            RoundedRectPoly(location: sizeVec * .init(x: 0.2, y: 0.4), size: sizeVec * .init(x: 0.4, y: 0.3), radius: sizeVec.x * 0.05),
         ]
-        mousePoly.circle.radius = sizeVec.x / 10
+        mousePoly.circle.radius = sizeVec.x / 20
 
         rootView.addSubview(labelStackView)
         labelStackView.addArrangedSubview(intersectCountLabel)
@@ -61,12 +80,28 @@ open class PolyBooleanApp: ImagineUIWindowContent {
         }
     }
 
-    func effectivePolys() -> [any PolyBooleanType] {
-        if isMouseDown {
-            return polys + [mousePoly]
+    open override func keyDown(event: KeyEventArgs) {
+        super.keyDown(event: event)
+
+        guard !event.handled else {
+            return
         }
 
-        return polys
+        if event.keyCode == .r {
+            strokeAnimation = 0.0
+        }
+    }
+
+    var strokeAnimation: Double = 0 {
+        didSet {
+            if strokeAnimation != oldValue {
+                invalidateScreen()
+            }
+        }
+    }
+    open func fixedFrameUpdate(_ interval: TimeInterval) {
+        strokeAnimation += interval
+        strokeAnimation = strokeAnimation.clamp(min: 0.0, max: 1.0)
     }
 
     open override func render(renderer: any Renderer, renderScale: UIVector, clipRegion: any ClipRegionType) {
@@ -116,6 +151,10 @@ open class PolyBooleanApp: ImagineUIWindowContent {
                 totalIntersections += result.periods.count
 
                 for period in result.periods {
+                    guard period.lhsPeriod < strokeAnimation && period.rhsPeriod < strokeAnimation else {
+                        continue
+                    }
+
                     renderPoint(period: period.lhsPeriod, on: lhs, color: .red)
                     renderPoint(period: period.rhsPeriod, on: rhs, color: .blue)
                 }
@@ -169,7 +208,7 @@ open class PolyBooleanApp: ImagineUIWindowContent {
     }
 
     func render(poly: some PolyBooleanType, renderer: any Renderer) {
-        let stroke = poly.stroke(in: 0...1)
+        let stroke = poly.stroke(in: 0...strokeAnimation)
 
         render(stroke: stroke, renderer: renderer)
     }

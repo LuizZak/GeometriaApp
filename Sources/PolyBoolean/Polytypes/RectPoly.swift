@@ -4,7 +4,7 @@ import Geometria
 
 struct RectPoly: PolyBooleanType {
     var description: String {
-        "RectPoly(inner: \(inner))"
+        "\(type(of: self))(inner: \(inner))"
     }
 
     private var inner: PolytopePoly = .init(vertices: [])

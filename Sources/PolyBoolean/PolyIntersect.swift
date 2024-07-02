@@ -26,7 +26,7 @@ class PolyIntersect {
         typealias Period = Double
         func clipPeriod(_ point: Vector2D, _ stroke: PeriodicSurfaceStroke) -> Period? {
             let (period, distance) = stroke.closestPeriod(to: point.asUIPoint)
-            guard distance <= maxDistanceThreshold || true else {
+            guard distance <= maxDistanceThreshold else {
                 return nil
             }
             guard stroke.contains(period: period) else {

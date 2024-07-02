@@ -4,7 +4,7 @@ import Geometria
 
 struct CirclePoly: PolyBooleanType {
     var description: String {
-        "CirclePoly(circle: \(circle))"
+        "\(type(of: self))(circle: \(circle))"
     }
 
     var circle: Circle2D

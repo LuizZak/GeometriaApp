@@ -5,7 +5,7 @@ struct PolytopePoly: PolyBooleanType {
     private let _cachedStrokes: PeriodicSurfaceStroke
 
     var description: String {
-        "PolytopePoly(vertices: \(vertices))"
+        "\(type(of: self))(vertices: \(vertices))"
     }
 
     let vertices: [Vertex]
