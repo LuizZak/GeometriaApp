@@ -50,14 +50,15 @@ struct RoundedRectPoly: PolyBooleanType {
         asUIRoundRectangle.contains(point.asUIPoint)
     }
 
-    func stroke(in range: ClosedRange<Double>) -> PeriodicSurfaceStroke {
-        let stroke = inner
+    func isOnSurface(_ point: Vector, tolerance: Double) -> Bool {
+        let closest = inner.closestPeriod(to: point.asUIPoint)
 
-        guard let stroke = stroke.clipLower(period: range.upperBound) else {
-            fatalError("Failed to clip lower bound of polytope")
-        }
-        guard let stroke = stroke.clipHigher(period: range.lowerBound) else {
-            fatalError("Failed to clip upper bound of polytope")
+        return closest.distance < tolerance
+    }
+
+    func stroke(in range: ClosedRange<Double>) -> PeriodicSurfaceStroke {
+        guard let stroke = inner.clip(range) else {
+            fatalError("Failed to clip stroke surface of rounded rectangle")
         }
 
         return stroke
@@ -73,17 +74,11 @@ struct RoundedRectPoly: PolyBooleanType {
         )
     }
 
-    static func allStrokes(_ aabb: AABB2D, _ radius: Double) -> [PeriodicSurfaceStroke] {
-        var result: [PeriodicSurfaceStroke] = []
+    static func allStrokes(_ aabb: AABB2D, _ radius: Double) -> [PeriodicSurfaceStroke.Op] {
+        var result: [PeriodicSurfaceStroke.Op] = []
 
         func add(_ op: PeriodicSurfaceStroke.Op) {
-            let stroke = PeriodicSurfaceStroke(
-                start: 0.0,
-                end: 0.0,
-                op: op
-            )
-
-            result.append(stroke)
+            result.append(op)
         }
 
         let leftTop = UIPoint(x: aabb.left, y: aabb.top + radius)
@@ -132,10 +127,6 @@ struct RoundedRectPoly: PolyBooleanType {
         add(.line(.init(start: leftBottom, end: leftTop)))
         add(.circleArc(arcTopLeft))
 
-        for i in 0..<result.count {
-            result[i].start = Double(i) / Double(result.count)
-            result[i].end = Double(i + 1) / Double(result.count)
-        }
         return result
     }
 }

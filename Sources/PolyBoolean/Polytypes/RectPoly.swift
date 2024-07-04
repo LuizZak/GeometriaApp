@@ -31,6 +31,10 @@ struct RectPoly: PolyBooleanType {
         inner.contains(point)
     }
 
+    func isOnSurface(_ point: Vector, tolerance: Double) -> Bool {
+        inner.isOnSurface(point, tolerance: tolerance)
+    }
+
     func point(at period: Double) -> Vector2D {
         inner.point(at: period)
     }

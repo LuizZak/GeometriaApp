@@ -22,6 +22,13 @@ struct PolytopePoly: PolyBooleanType {
         return asLinePolygon2D.contains(point)
     }
 
+    func isOnSurface(_ point: Vector, tolerance: Double) -> Bool {
+        return asLinePolygon2D.isPointOnEdge(
+            point,
+            tolerance: tolerance
+        )
+    }
+
     func point(at period: Double) -> Vector {
         return _cachedStrokes
             .compute(at: period)
@@ -29,13 +36,8 @@ struct PolytopePoly: PolyBooleanType {
     }
 
     func stroke(in range: ClosedRange<Double>) -> PeriodicSurfaceStroke {
-        let stroke = _cachedStrokes
-
-        guard let stroke = stroke.clipLower(period: range.upperBound) else {
-            fatalError("Failed to clip lower bound of polytope")
-        }
-        guard let stroke = stroke.clipHigher(period: range.lowerBound) else {
-            fatalError("Failed to clip upper bound of polytope")
+        guard let stroke = _cachedStrokes.clip(range) else {
+            fatalError("Failed to clip stroke surface of polytope")
         }
 
         return stroke
@@ -55,27 +57,16 @@ struct PolytopePoly: PolyBooleanType {
         )
     }
 
-    static func allStrokes(vertices: [Vertex]) -> [PeriodicSurfaceStroke] {
-        var result: [PeriodicSurfaceStroke] = []
+    static func allStrokes(vertices: [Vertex]) -> [PeriodicSurfaceStroke.Op] {
+        var result: [PeriodicSurfaceStroke.Op] = []
 
         for (index, vertex) in vertices.enumerated() {
             let nextIndex = (index + 1) % vertices.count
             let next = vertices[nextIndex]
-            var end = next.period
 
-            // Make sure we don't incorrectly wrap around the needed 1.0 end
-            // period
-            if nextIndex == 0 {
-                end = 1.0
-            }
-
-            let stroke = PeriodicSurfaceStroke(
-                start: vertex.period,
-                end: end,
-                op: .line(.init(start: vertex.position.asUIPoint, end: next.position.asUIPoint))
+            result.append(
+                .line(.init(start: vertex.position.asUIPoint, end: next.position.asUIPoint))
             )
-
-            result.append(stroke)
         }
 
         return result

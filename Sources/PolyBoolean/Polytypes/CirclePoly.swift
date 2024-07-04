@@ -21,6 +21,13 @@ struct CirclePoly: PolyBooleanType {
         circle.contains(point)
     }
 
+    func isOnSurface(_ point: Vector, tolerance: Double) -> Bool {
+        let distanceSquared = point.distanceSquared(to: circle.center)
+        let delta = (distanceSquared - (circle.radius * circle.radius)).magnitude
+
+        return delta <= tolerance
+    }
+
     func point(at period: Double) -> Vector2D {
         let angle = periodAsAngle(period)
 

@@ -7,6 +7,7 @@ open class PolyBooleanApp: ImagineUIWindowContent {
     var _updateTimer: SchedulerTimerType?
 
     var isMouseDown: Bool = false
+    var isShiftHeld: Bool = false
 
     var polys: [any PolyBooleanType] = []
     var mousePoly: CirclePoly = .init(circle: .unit)
@@ -37,9 +38,11 @@ open class PolyBooleanApp: ImagineUIWindowContent {
         let sizeVec = self.size.asVector2D
 
         polys = [
-            CirclePoly(circle: .init(center: sizeVec / 2, radius: sizeVec.x / 5)),
+            //CirclePoly(circle: .init(center: sizeVec / 2, radius: sizeVec.x / 5)),
             RectPoly(location: sizeVec * .init(x: 0.4, y: 0.3), size: sizeVec * 0.5),
-            RoundedRectPoly(location: sizeVec * .init(x: 0.2, y: 0.4), size: sizeVec * .init(x: 0.4, y: 0.3), radius: sizeVec.x * 0.05),
+            //RoundedRectPoly(location: sizeVec * .init(x: 0.2, y: 0.4), size: sizeVec * .init(x: 0.4, y: 0.3), radius: sizeVec.x * 0.05),
+            //CirclePoly(circle: .init(center: .init(x: 407, y: 276), radius: sizeVec.x / 20)),
+            RectPoly(location: sizeVec * .init(x: 0.2, y: 0.4), size: sizeVec * .init(x: 0.4, y: 0.3)),
         ]
         mousePoly.circle.radius = sizeVec.x / 20
 
@@ -90,6 +93,21 @@ open class PolyBooleanApp: ImagineUIWindowContent {
         if event.keyCode == .r {
             strokeAnimation = 0.0
         }
+        if event.keyCode == .shiftKey {
+            isShiftHeld = true
+        }
+    }
+
+    open override func keyUp(event: KeyEventArgs) {
+        super.keyUp(event: event)
+
+        guard !event.handled else {
+            return
+        }
+
+        if event.keyCode == .shiftKey {
+            isShiftHeld = false
+        }
     }
 
     var strokeAnimation: Double = 0 {
@@ -100,7 +118,14 @@ open class PolyBooleanApp: ImagineUIWindowContent {
         }
     }
     open func fixedFrameUpdate(_ interval: TimeInterval) {
-        strokeAnimation += interval
+        let increment: Double
+        if isShiftHeld {
+            increment = interval / 10
+        } else {
+            increment = interval
+        }
+
+        strokeAnimation += increment
         strokeAnimation = strokeAnimation.clamp(min: 0.0, max: 1.0)
     }
 
@@ -112,24 +137,49 @@ open class PolyBooleanApp: ImagineUIWindowContent {
         )
 
         let polys = effectivePolys()
-        render(polys: polys, renderer: renderer)
-        renderIntersections(polys: polys, renderer: renderer)
+        //render(polys: polys, renderer: renderer)
+        renderUnion(polys: polys, renderer: renderer)
+        //renderIntersections(polys: polys, renderer: renderer)
         //testEllipseNormals(renderer: renderer)
+    }
+
+    func renderUnion(
+        polys: [any PolyBooleanType],
+        renderer: any Renderer
+    ) {
+        if polys.isEmpty {
+            return
+        }
+        if polys.count == 1 {
+            render(poly: polys[0], renderer: renderer)
+            return
+        }
+
+        let poly1 = polys[0]
+        let poly2 = polys[1]
+
+        let union = UnionBooleanOperation.union(poly1, poly2)
+
+        render(strokes: union, renderer: renderer)
     }
 
     func renderIntersections(
         polys: [any PolyBooleanType],
         renderer: any Renderer
     ) {
-        func renderPoint(_ point: UIPoint, color: Color) {
-            let circle = UICircle(center: point, radius: 5)
-            renderer.setFill(color)
-            renderer.fill(circle)
-        }
-
         func renderPoint(period: PolyBooleanType.Period, on poly: PolyBooleanType, color: Color) {
             let point = poly.point(at: period)
-            renderPoint(point.asUIPoint, color: color)
+            self.renderPoint(point.asUIPoint, color: color, renderer: renderer)
+        }
+        func renderPair(_ pair: PolyIntersectResult.Pair, lhs: PolyBooleanType, rhs: PolyBooleanType) {
+            if pair.lhs.start < strokeAnimation && pair.rhs.start < strokeAnimation {
+                renderPoint(period: pair.lhs.start, on: lhs, color: .red)
+                renderPoint(period: pair.rhs.start, on: rhs, color: .blue)
+            }
+            if pair.lhs.end < strokeAnimation && pair.rhs.end < strokeAnimation {
+                renderPoint(period: pair.lhs.end, on: lhs, color: .red)
+                renderPoint(period: pair.rhs.end, on: rhs, color: .blue)
+            }
         }
 
         var totalIntersections = 0
@@ -144,19 +194,12 @@ open class PolyBooleanApp: ImagineUIWindowContent {
 
                 let rhs = polys[rhsIndex]
 
-                guard let result = intersect.intersect(lhs, rhs) else {
-                    continue
-                }
+                let result = intersect.intersect(lhs, rhs)
 
-                totalIntersections += result.periods.count
+                totalIntersections += result.pairs.count * 2
 
-                for period in result.periods {
-                    guard period.lhsPeriod < strokeAnimation && period.rhsPeriod < strokeAnimation else {
-                        continue
-                    }
-
-                    renderPoint(period: period.lhsPeriod, on: lhs, color: .red)
-                    renderPoint(period: period.rhsPeriod, on: rhs, color: .blue)
+                for pair in result.pairs {
+                    renderPair(pair, lhs: lhs, rhs: rhs)
                 }
             }
         }
@@ -209,6 +252,8 @@ open class PolyBooleanApp: ImagineUIWindowContent {
 
     func render(poly: some PolyBooleanType, renderer: any Renderer) {
         let stroke = poly.stroke(in: 0...strokeAnimation)
+        let actual = poly.point(at: strokeAnimation).asUIPoint
+        renderPoint(actual, color: .green, renderer: renderer)
 
         render(stroke: stroke, renderer: renderer)
     }
@@ -223,10 +268,16 @@ open class PolyBooleanApp: ImagineUIWindowContent {
         render(op: stroke.op, renderer: renderer)
     }
 
+    func render(ops: [PeriodicSurfaceStroke.Op], renderer: any Renderer) {
+        for op in ops {
+            render(op: op, renderer: renderer)
+        }
+    }
+
     func render(op: PeriodicSurfaceStroke.Op, renderer: any Renderer) {
         switch op {
-        case .compound(let strokes):
-            render(strokes: strokes, renderer: renderer)
+        case .compound(let ops):
+            render(ops: ops, renderer: renderer)
 
         case .line(let line):
             renderer.stroke(line)
@@ -234,5 +285,11 @@ open class PolyBooleanApp: ImagineUIWindowContent {
         case .circleArc(let arc):
             renderer.stroke(arc)
         }
+    }
+
+    func renderPoint(_ point: UIPoint, color: Color, renderer: any Renderer) {
+        let circle = UICircle(center: point, radius: 5)
+        renderer.setFill(color)
+        renderer.fill(circle)
     }
 }
