@@ -56,6 +56,10 @@ struct RoundedRectPoly: PolyBooleanType {
         return closest.distance < tolerance
     }
 
+    func fullStroke() -> PeriodicSurfaceStroke {
+        inner
+    }
+
     func stroke(in range: ClosedRange<Double>) -> PeriodicSurfaceStroke {
         guard let stroke = inner.clip(range) else {
             fatalError("Failed to clip stroke surface of rounded rectangle")

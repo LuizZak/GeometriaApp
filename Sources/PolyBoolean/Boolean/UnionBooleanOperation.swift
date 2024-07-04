@@ -49,16 +49,28 @@ enum UnionBooleanOperation {
             }
 
             state = .onLhs(lhsPeriod: next.shape1, rhsPeriod: next.shape2)
+        } else {
+            guard let prev = lookup.prevOnShape1(from: 0.0) else {
+                return []
+            }
+
+            state = .onLhs(lhsPeriod: prev.shape1, rhsPeriod: prev.shape2)
         }
         var visited: Set<State> = []
 
         while let next = state.next(on: lookup) {
-            let stroke = state.stroke(end: next, onLhs: lhs, rhs: rhs)
-            strokes.append(stroke)
-
             guard visited.insert(state).inserted else {
                 break
             }
+
+            let stroke = state.stroke(end: next, onLhs: lhs, rhs: rhs)
+            strokes.append(stroke)
+
+            #if DEBUG
+
+            strokes._assertIsConnected()
+
+            #endif
 
             // Flip to the other shape
             state = next.flipped()
@@ -75,6 +87,13 @@ enum UnionBooleanOperation {
         case onLhs(lhsPeriod: Period, rhsPeriod: Period)
         case onRhs(lhsPeriod: Period, rhsPeriod: Period)
 
+        var isLhs: Bool {
+            switch self {
+            case .onLhs: true
+            case .onRhs: false
+            }
+        }
+
         var lhsPeriod: Period {
             switch self {
             case .onLhs(let lhsPeriod, _), .onRhs(let lhsPeriod, _):
@@ -89,38 +108,50 @@ enum UnionBooleanOperation {
             }
         }
 
+        func strokeRanges(end next: Self) -> [ClosedRange<Period>] {
+            let start: Period
+            let end: Period
+
+            switch self {
+            case .onLhs(let lhsPeriod, _):
+                start = lhsPeriod
+                end = next.lhsPeriod
+
+            case .onRhs(_, let rhsPeriod):
+                start = rhsPeriod
+                end = next.rhsPeriod
+            }
+
+            if start > end {
+                if end == 0 {
+                    return [start...1]
+                }
+
+                return [
+                    start...1,
+                    0...end
+                ]
+            }
+
+            return [start...end]
+        }
+
         func stroke(
             end next: Self,
             onLhs lhs: PolyBooleanType,
             rhs: PolyBooleanType
         ) -> PeriodicSurfaceStroke.Op {
 
-            let shape: PolyBooleanType
-            let start: Period
-            let end: Period
+            let shape = isLhs ? lhs : rhs
 
-            switch self {
-            case .onLhs(let lhsPeriod, _):
-                shape = lhs
-                start = lhsPeriod
-                end = next.lhsPeriod
-
-            case .onRhs(_, let rhsPeriod):
-                shape = rhs
-                start = rhsPeriod
-                end = next.rhsPeriod
+            let ranges = strokeRanges(end: next)
+            if ranges.count == 1 {
+                return shape.stroke(in: ranges[0]).op
             }
 
-            if start > end {
-                let stroke1 = shape.stroke(in: start...1)
-                let stroke2 = shape.stroke(in: 0...end)
-
-                return .compound([
-                    stroke1.op, stroke2.op
-                ])
-            }
-
-            return shape.stroke(in: start...end).op
+            return .compound(ranges.map({
+                shape.stroke(in: $0).op
+            }))
         }
 
         mutating func flip() {
@@ -253,8 +284,32 @@ struct IntersectionLookup {
         return shape1.contains(point)
     }
 
+    func isLastInShape1(_ shape1Period: Period) -> Bool {
+        _findNextIndex(shape1Period, shape1Periods) == nil
+    }
+
+    func isLastInShape2(_ shape2Period: Period) -> Bool {
+        _findNextIndex(shape2Period, shape2Periods) == nil
+    }
+
     func nextOnShape1(from period: Period) -> (shape1: Period, shape2: Period)? {
         guard let index = _findNextIndex(period, shape1Periods) else {
+            return nil
+        }
+        let period = shape1Periods[index]
+
+        let onShape2 = _findMatchingIndex(
+            shape: shape1,
+            periodOnShape: period,
+            otherShape: shape2,
+            otherShapePeriods: shape2Periods
+        )
+
+        return (period, onShape2)
+    }
+
+    func prevOnShape1(from period: Period) -> (shape1: Period, shape2: Period)? {
+        guard let index = _findPrevIndex(period, shape1Periods) else {
             return nil
         }
         let period = shape1Periods[index]
@@ -285,11 +340,34 @@ struct IntersectionLookup {
         return (onShape1, period)
     }
 
+    func prevOnShape2(from period: Period) -> (shape1: Period, shape2: Period)? {
+        guard let index = _findPrevIndex(period, shape2Periods) else {
+            return nil
+        }
+        let period = shape2Periods[index]
+
+        let onShape1 = _findMatchingIndex(
+            shape: shape2,
+            periodOnShape: period,
+            otherShape: shape1,
+            otherShapePeriods: shape1Periods
+        )
+
+        return (onShape1, period)
+    }
+
     private func _findNextIndex(
         _ period: Period,
         _ list: [Period]
     ) -> Int? {
         list.firstIndex(where: { $0 > period }) ?? list.indices.first
+    }
+
+    private func _findPrevIndex(
+        _ period: Period,
+        _ list: [Period]
+    ) -> Int? {
+        list.lastIndex(where: { $0 < period }) ?? list.indices.last
     }
 
     private func _findMatchingIndex(
@@ -309,6 +387,11 @@ struct IntersectionLookup {
                 closest = result
             }
         }
+
+        assert(
+            closest.distanceSquared < 1e-1,
+            "Failed to find close matching intersection in other shape?"
+        )
 
         return closest.period
     }

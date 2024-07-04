@@ -39,6 +39,10 @@ struct RectPoly: PolyBooleanType {
         inner.point(at: period)
     }
 
+    func fullStroke() -> PeriodicSurfaceStroke {
+        inner.fullStroke()
+    }
+
     func stroke(in range: ClosedRange<Double>) -> PeriodicSurfaceStroke {
         inner.stroke(in: range)
     }

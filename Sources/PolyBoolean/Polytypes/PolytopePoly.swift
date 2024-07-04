@@ -35,6 +35,10 @@ struct PolytopePoly: PolyBooleanType {
             .asVector2D
     }
 
+    func fullStroke() -> PeriodicSurfaceStroke {
+        _cachedStrokes
+    }
+
     func stroke(in range: ClosedRange<Double>) -> PeriodicSurfaceStroke {
         guard let stroke = _cachedStrokes.clip(range) else {
             fatalError("Failed to clip stroke surface of polytope")

@@ -12,6 +12,9 @@ struct CirclePoly: PolyBooleanType {
     var asUICircle: UICircle {
         UICircle(center: circle.center.asUIPoint, radius: circle.radius)
     }
+    var asUICircleArc: UICircleArc {
+        asUICircle.arc(start: 0, sweep: .pi * 2)
+    }
 
     func periodAsAngle(_ period: Double) -> Double {
         period * .pi * 2
@@ -29,17 +32,35 @@ struct CirclePoly: PolyBooleanType {
     }
 
     func point(at period: Double) -> Vector2D {
-        let angle = periodAsAngle(period)
+        strokeSurface()
+            .compute(at: period)
+            .asVector2D
+    }
 
-        return asUICircle.pointOnAngle(angle).asVector2D
+    func fullStroke() -> PeriodicSurfaceStroke {
+        strokeSurface()
     }
 
     func stroke(in range: ClosedRange<Double>) -> PeriodicSurfaceStroke {
-        let start = periodAsAngle(range.lowerBound)
-        let end = periodAsAngle(range.upperBound)
+        guard let stroke = strokeSurface().clip(range) else {
+            fatalError("Failed to clip stroke surface of circle")
+        }
 
-        let arc = asUICircle.arc(start: start, sweep: end)
+        return stroke
+    }
 
-        return .init(start: range.lowerBound, end: range.upperBound, op: .circleArc(arc))
+    func strokeSurface() -> PeriodicSurfaceStroke {
+        let circle = asUICircle
+
+        return .init(
+            start: 0,
+            end: 1,
+            op: .compound([
+                .circleArc(circle.arc(start: 0, sweep: .pi / 2)),
+                .circleArc(circle.arc(start: .pi / 2, sweep: .pi / 2)),
+                .circleArc(circle.arc(start: .pi, sweep: .pi / 2)),
+                .circleArc(circle.arc(start: .pi * 3 / 2, sweep: .pi / 2)),
+            ])
+        )
     }
 }

@@ -38,11 +38,13 @@ open class PolyBooleanApp: ImagineUIWindowContent {
         let sizeVec = self.size.asVector2D
 
         polys = [
-            //CirclePoly(circle: .init(center: sizeVec / 2, radius: sizeVec.x / 5)),
-            RectPoly(location: sizeVec * .init(x: 0.4, y: 0.3), size: sizeVec * 0.5),
+            CirclePoly(circle: .init(center: sizeVec / 2, radius: sizeVec.x / 5)),
+            //RectPoly(location: sizeVec * .init(x: 0.4, y: 0.3), size: sizeVec * 0.5),
             //RoundedRectPoly(location: sizeVec * .init(x: 0.2, y: 0.4), size: sizeVec * .init(x: 0.4, y: 0.3), radius: sizeVec.x * 0.05),
             //CirclePoly(circle: .init(center: .init(x: 407, y: 276), radius: sizeVec.x / 20)),
             RectPoly(location: sizeVec * .init(x: 0.2, y: 0.4), size: sizeVec * .init(x: 0.4, y: 0.3)),
+            //CirclePoly(circle: .init(center: .init(x: 306, y: 283), radius: sizeVec.x / 20)),
+            //CirclePoly(circle: .init(center: .init(x: 646, y: 337), radius: sizeVec.x / 20)),
         ]
         mousePoly.circle.radius = sizeVec.x / 20
 
@@ -155,12 +157,66 @@ open class PolyBooleanApp: ImagineUIWindowContent {
             return
         }
 
-        let poly1 = polys[0]
-        let poly2 = polys[1]
+        var remaining: [any PolyBooleanType] = polys
 
-        let union = UnionBooleanOperation.union(poly1, poly2)
+        var hasMerged: Bool
+        repeat {
+            guard remaining.count > 1 else {
+                break
+            }
+            hasMerged = false
 
-        render(strokes: union, renderer: renderer)
+            outer:
+            for (index, current) in remaining.enumerated() {
+                for (nextIndex, next) in remaining.enumerated().dropFirst() {
+                    guard index != nextIndex else { continue }
+
+                    let op = UnionBooleanPOIOperation()
+                    let union = op.union(
+                        current,
+                        next
+                    )
+
+                    guard union.count != 2 else {
+                        continue
+                    }
+
+                    // Union ocurred
+                    remaining.remove(at: nextIndex)
+                    remaining.remove(at: index)
+
+                    for shape in union {
+                        remaining.append(
+                            CompoundPoly(stroke: shape)
+                        )
+                    }
+
+                    hasMerged = true
+                    break outer
+                }
+            }
+        } while hasMerged
+
+        render(polys: remaining, renderer: renderer)
+
+        /*
+        var totalPolys = [polys[0]]
+
+        for poly in polys.dropFirst() {
+            var result: [any PolyBooleanType] = []
+
+            for totalPoly in totalPolys {
+                let union = UnionBooleanOperation.union(totalPoly, poly)
+                result.append(contentsOf: union.map(CompoundPoly.init))
+            }
+
+            totalPolys.append(result)
+        }
+
+        render(polys: totalPolys, renderer: renderer)
+        */
+
+        //render(strokes: union, renderer: renderer)
     }
 
     func renderIntersections(

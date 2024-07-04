@@ -50,16 +50,60 @@ class PolyIntersect {
     let arcAdjacentThreshold: Double = 0.01
     let periodAdjacentThreshold: Double = 0.01
 
+    func _intersect(_ lhs: any PolyBooleanType, lhsGeometryId: Int, _ rhs: any PolyBooleanType, rhsGeometryId: Int) -> [IntersectingPointOfInterestSource.Intersection] {
+        typealias Result = IntersectingPointOfInterestSource.Intersection
+
+        let intersect = intersect(lhs, rhs)
+
+        let lhsPeriods = intersect.pairs.flatMap({ [$0.lhs.start, $0.lhs.end] })
+        var rhsPeriods = intersect.pairs.flatMap({ [$0.rhs.start, $0.rhs.end] })
+
+        var result: [Result] = []
+
+        for lhsPeriod in lhsPeriods {
+            let lhsPoint = lhs.point(at: lhsPeriod)
+
+            var closest: (Int, distanceSquared: Double) = (-1, .infinity)
+            for (i, rhsPeriod) in rhsPeriods.enumerated() {
+                let rhsPoint = rhs.point(at: rhsPeriod)
+
+                let distSquared = lhsPoint.distanceSquared(to: rhsPoint)
+
+                if distSquared < closest.distanceSquared {
+                    closest = (i, distSquared)
+                }
+            }
+
+            let rhsPeriod = rhsPeriods[closest.0]
+            rhsPeriods.remove(at: closest.0)
+
+            let lhsOp = lhs.fullStroke().op.operation(at: lhsPeriod)
+            let rhsOp = rhs.fullStroke().op.operation(at: rhsPeriod)
+
+            let lhsOpKind = PointOfInterest.GeometryKind.fromPeriodicSurfaceStrokeOp(lhsOp)
+            let rhsOpKind = PointOfInterest.GeometryKind.fromPeriodicSurfaceStrokeOp(rhsOp)
+
+            let intersection = Result(
+                point: lhsPoint.asUIPoint,
+                geometry1: lhsGeometryId,
+                geometry1Period: lhsPeriod,
+                geometry1Kind: lhsOpKind,
+                geometry2: rhsGeometryId,
+                geometry2Period: rhsPeriod,
+                geometry2Kind: rhsOpKind
+            )
+            result.append(intersection)
+        }
+
+        return result
+    }
+
     func intersect(_ lhs: any PolyBooleanType, _ rhs: any PolyBooleanType) -> PolyIntersectResult {
-        return intersect(lhs.stroke(in: 0...1), rhs.stroke(in: 0...1))
+        return intersect(lhs.fullStroke(), rhs.fullStroke())
     }
 
     func intersect<T1: PolyBooleanType, T2: PolyBooleanType>(_ lhs: T1, _ rhs: T2) -> PolyIntersectResult {
-        return intersect(lhs.stroke(in: 0...1), rhs.stroke(in: 0...1))
-    }
-
-    func intersect(_ lhs: RectPoly, _ rhs: CirclePoly) -> PolyIntersectResult {
-        return intersect(lhs.stroke(in: 0...1), rhs.stroke(in: 0...1))
+        return intersect(lhs.fullStroke(), rhs.fullStroke())
     }
 
     fileprivate func intersect(_ lhs: PeriodicSurfaceStroke, _ rhs: PeriodicSurfaceStroke) -> PolyIntersectResult {
@@ -100,6 +144,9 @@ class PolyIntersect {
 
         lhsPeriods.sort()
         rhsPeriods.sort()
+
+        lhsPeriods.removeDuplicates()
+        rhsPeriods.removeDuplicates()
 
         var lastPeriod: (lhs: Period, rhs: Period)?
         for (lhsPeriod, rhsPeriod) in zip(lhsPeriods, rhsPeriods) {

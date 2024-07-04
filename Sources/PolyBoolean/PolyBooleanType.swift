@@ -101,6 +101,23 @@ public struct PeriodicSurfaceStroke {
         self.start = start
         self.end = end
         self.op = op
+
+        _assertValid()
+    }
+
+    func _assertValid() {
+        #if DEBUG
+
+        switch op {
+        case .compound(let inner):
+            let thresholdSquared: Double = 10 * 10
+            inner._assertIsConnected(thresholdSquared: thresholdSquared)
+
+        default:
+            break
+        }
+
+        #endif
     }
 
     /// Returns `true` if this periodic stroke contains the given period value.
@@ -162,6 +179,20 @@ public struct PeriodicSurfaceStroke {
         /// to that periodic stroke's `start` and `end` periods.
         case compound([PeriodicSurfaceStroke.Op])
 
+        var asUILine: UILine? {
+            switch self {
+            case .line(let line): return line
+            default: return nil
+            }
+        }
+
+        var asUICircleArc: UICircleArc? {
+            switch self {
+            case .circleArc(let arc): return arc
+            default: return nil
+            }
+        }
+
         /// Gets the total length of this stroke path operation.
         var length: Double {
             switch self {
@@ -173,6 +204,27 @@ public struct PeriodicSurfaceStroke {
 
             case .compound(let strokes):
                 return strokes.reduce(0) { $0 + $1.length }
+            }
+        }
+
+        func operation(at period: Period) -> Self {
+            switch self {
+            case .line, .circleArc:
+                return self
+
+            case .compound(let ops):
+                let relative = ops
+                    .relativePeriods()
+
+                for (range, op) in relative {
+                    guard range.contains(period) else {
+                        continue
+                    }
+
+                    return op
+                }
+
+                return self
             }
         }
 
@@ -217,6 +269,11 @@ public struct PeriodicSurfaceStroke {
                 let pointOnLine = lineSegment.projectedNormalizedMagnitude(scalar)
                 let distance = pointOnLine.distance(to: point.asVector2D)
 
+                assert(
+                    pointOnLine.distance(to: compute(at: ratio).asVector2D) <= (distance * 2 + 1e-12),
+                    "Attempting to return closest period to line with mismatched point?"
+                )
+
                 return (ratio, distance: distance)
 
             case .circleArc(let arc):
@@ -234,11 +291,19 @@ public struct PeriodicSurfaceStroke {
 
                 let clamped = sweep.clamped(.init(radians: angle))
 
-                let ratio = sweep.relativeToStart(clamped) / arc.sweepAngle
+                let ratio = (
+                    sweep.relativeToStart(clamped) / arc.sweepAngle
+                ).normalizedPeriod()
+
                 let pointOnArc = arc.pointOnAngle(clamped.radians)
                 let distance = pointOnArc.distance(to: point)
 
-                return (ratio.normalizedPeriod(), distance)
+                assert(
+                    pointOnArc.distance(to: compute(at: ratio)) <= (distance * 2 + 1e-12),
+                    "Attempting to return closest period to arc with mismatched point?"
+                )
+
+                return (ratio, distance)
 
             case .compound(let strokes):
                 let relative = strokes
@@ -254,6 +319,11 @@ public struct PeriodicSurfaceStroke {
                         closest = (opPeriod, opDist.distance)
                     }
                 }
+
+                assert(
+                    closest.distance.isInfinite || point.distance(to: compute(at: closest.period)) <= (closest.distance * 2 + 1e-12),
+                    "Attempting to return closest period to line with mismatched point?"
+                )
 
                 return closest
             }
@@ -308,14 +378,62 @@ public struct PeriodicSurfaceStroke {
                 return .compound(ops)
             }
         }
+
+        /// Recursively collects all points referenced by this stroke operation.
+        ///
+        /// The method only collects discrete points used in line/arc end points,
+        /// and not the points formed by their strokes.
+        func collectPoints(_ target: inout [UIPoint]) {
+            switch self {
+            case .line(let line):
+                target.append(line.start)
+                target.append(line.end)
+
+            case .circleArc(let arc):
+                target.append(arc.startPoint)
+                target.append(arc.endPoint)
+
+            case .compound(let ops):
+                ops.forEach {
+                    $0.collectPoints(&target)
+                }
+            }
+        }
+
+        func _validateIsConnected(_ next: Self, thresholdSquared: Double = 10.0 * 10.0) -> Bool {
+            let atPrev = compute(at: 1.0)
+            let atNext = next.compute(at: 0.0)
+            let distanceSquared = atPrev.distanceSquared(to: atNext)
+
+            return distanceSquared < thresholdSquared
+        }
     }
 }
 
-fileprivate extension Collection where Element == PeriodicSurfaceStroke.Op {
+extension Collection where Element == PeriodicSurfaceStroke.Op {
     typealias Period = Double
 
     func length() -> Double {
         reduce(0) { $0 + $1.length }
+    }
+
+    func flattened() -> [Element] {
+        var result: [Element] = []
+
+        for op in self {
+            switch op {
+            case .compound(let inner):
+                result.append(contentsOf: inner.flattened())
+            default:
+                result.append(op)
+            }
+        }
+
+        return result
+    }
+
+    func flattenedRelativePeriods() -> [(ClosedRange<Period>, PeriodicSurfaceStroke.Op)] {
+        return flattened().relativePeriods()
     }
 
     func relativePeriods() -> [(ClosedRange<Period>, PeriodicSurfaceStroke.Op)] {
@@ -364,3 +482,23 @@ fileprivate extension Double {
         return value
     }
 }
+
+#if DEBUG
+
+internal extension Collection where Element == PeriodicSurfaceStroke.Op {
+    func _assertIsConnected(thresholdSquared: Double = 10.0 * 10.0, file: StaticString = #file, line: UInt = #line) {
+        let thresholdSquared: Double = 10 * 10
+        for (prev, next) in zip(self, self.dropFirst()) {
+            /*
+            assert(
+                prev._validateIsConnected(next, thresholdSquared: thresholdSquared),
+                "Found compound shape that has sequential operations that are not connected?",
+                file: file,
+                line: line
+            )
+            */
+        }
+    }
+}
+
+#endif
