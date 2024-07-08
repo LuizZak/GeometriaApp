@@ -6,27 +6,27 @@ public struct Vector2: Hashable, Codable, Vector2Type, CustomStringConvertible {
 
     /// X coordinate of this vector
     public var x: Scalar
-    
+
     /// Y coordinate of this vector
     public var y: Scalar
-    
+
     /// Textual representation of this `Vector2`
     @inlinable
     public var description: String {
         "\(type(of: self))(x: \(x), y: \(y))"
     }
-    
+
     @_transparent
     public init(x: Scalar, y: Scalar) {
         self.x = x
         self.y = y
     }
-    
+
     @_transparent
     public init(repeating scalar: Scalar) {
         self.init(x: scalar, y: scalar)
     }
-    
+
     /// Initializes this ``Vector2`` with the values from a given tuple.
     @_transparent
     public init(_ tuple: (Scalar, Scalar)) {
@@ -42,14 +42,14 @@ extension Vector2: VectorComparable {
     public static func pointwiseMin(_ lhs: Self, _ rhs: Self) -> Self {
         Self(x: min(lhs.x, rhs.x), y: min(lhs.y, rhs.y))
     }
-    
+
     /// Returns the pointwise maximal Vector where each component is the maximal
     /// scalar value at each index for both vectors.
     @_transparent
     public static func pointwiseMax(_ lhs: Self, _ rhs: Self) -> Self {
         Self(x: max(lhs.x, rhs.x), y: max(lhs.y, rhs.y))
     }
-    
+
     /// Compares two vectors and returns `true` if all components of `lhs` are
     /// greater than `rhs`.
     ///
@@ -58,7 +58,7 @@ extension Vector2: VectorComparable {
     public static func > (lhs: Self, rhs: Self) -> Bool {
         lhs.x > rhs.x && lhs.y > rhs.y
     }
-    
+
     /// Compares two vectors and returns `true` if all components of `lhs` are
     /// greater than or equal to `rhs`.
     ///
@@ -67,7 +67,7 @@ extension Vector2: VectorComparable {
     public static func >= (lhs: Self, rhs: Self) -> Bool {
         lhs.x >= rhs.x && lhs.y >= rhs.y
     }
-    
+
     /// Compares two vectors and returns `true` if all components of `lhs` are
     /// less than `rhs`.
     ///
@@ -76,7 +76,7 @@ extension Vector2: VectorComparable {
     public static func < (lhs: Self, rhs: Self) -> Bool {
         lhs.x < rhs.x && lhs.y < rhs.y
     }
-    
+
     /// Compares two vectors and returns `true` if all components of `lhs` are
     /// less than or equal to `rhs`.
     ///
@@ -97,7 +97,7 @@ extension Vector2: AdditiveArithmetic {
 }
 
 extension Vector2: VectorAdditive {
-    
+
 }
 
 extension Vector2: Vector2Additive {
@@ -105,37 +105,37 @@ extension Vector2: Vector2Additive {
     public static func + (lhs: Self, rhs: Self) -> Self {
         Self(x: lhs.x + rhs.x, y: lhs.y + rhs.y)
     }
-    
+
     @_transparent
     public static func - (lhs: Self, rhs: Self) -> Self {
         Self(x: lhs.x - rhs.x, y: lhs.y - rhs.y)
     }
-    
+
     @_transparent
     public static func + (lhs: Self, rhs: Scalar) -> Self {
         Self(x: lhs.x + rhs, y: lhs.y + rhs)
     }
-    
+
     @_transparent
     public static func - (lhs: Self, rhs: Scalar) -> Self {
         Self(x: lhs.x - rhs, y: lhs.y - rhs)
     }
-    
+
     @_transparent
     public static func += (lhs: inout Self, rhs: Self) {
         lhs = lhs + rhs
     }
-    
+
     @_transparent
     public static func -= (lhs: inout Self, rhs: Self) {
         lhs = lhs - rhs
     }
-    
+
     @_transparent
     public static func += (lhs: inout Self, rhs: Scalar) {
         lhs = lhs + rhs
     }
-    
+
     @_transparent
     public static func -= (lhs: inout Self, rhs: Scalar) {
         lhs = lhs - rhs
@@ -149,37 +149,37 @@ extension Vector2: VectorMultiplicative {
     public static var one: Self {
         Self(x: 1, y: 1)
     }
-    
+
     /// Calculates the dot product between this and another provided `Vector2Type`
     @_transparent
     public func dot(_ other: Self) -> Scalar {
         // NOTE: Doing this in separate statements to ease long compilation times in Xcode 12
         let dx = x * other.x
         let dy = y * other.y
-        
+
         return dx + dy
     }
-    
+
     @_transparent
     public static func * (lhs: Self, rhs: Self) -> Self {
         Self(x: lhs.x * rhs.x, y: lhs.y * rhs.y)
     }
-    
+
     @_transparent
     public static func * (lhs: Self, rhs: Scalar) -> Self {
         Self(x: lhs.x * rhs, y: lhs.y * rhs)
     }
-    
+
     @_transparent
     public static func * (lhs: Scalar, rhs: Self) -> Self {
         Self(x: lhs * rhs.x, y: lhs * rhs.y)
     }
-    
+
     @_transparent
     public static func *= (lhs: inout Self, rhs: Self) {
         lhs = lhs * rhs
     }
-    
+
     @_transparent
     public static func *= (lhs: inout Self, rhs: Scalar) {
         lhs = lhs * rhs
@@ -187,7 +187,7 @@ extension Vector2: VectorMultiplicative {
 }
 
 extension Vector2: Vector2Multiplicative {
-    
+
 }
 
 extension Vector2: VectorSigned {
@@ -197,13 +197,13 @@ extension Vector2: VectorSigned {
     public var absolute: Self {
         Self(x: abs(x), y: abs(y))
     }
-    
+
     @_transparent
     public var sign: Self {
         Self(x: x < 0 ? -1 : (x > 0 ? 1 : 0),
              y: y < 0 ? -1 : (y > 0 ? 1 : 0))
     }
-    
+
     /// Negates this Vector
     @_transparent
     public static prefix func - (lhs: Self) -> Self {
@@ -219,34 +219,34 @@ extension Vector2: Vector2Signed {
     public mutating func formPerpendicular() {
         self = perpendicular()
     }
-    
+
     /// Returns a Vector perpendicular to this Vector relative to the origin.
     @_transparent
     public func perpendicular() -> Self {
         Self(x: -y, y: x)
     }
-    
+
     /// Returns a vector that represents this vector's point, rotated 90º counter
     /// clockwise (in Cartesian space with Y growing up) relative to the origin.
     @_transparent
     public func leftRotated() -> Self {
         Self(x: -y, y: x)
     }
-    
+
     /// Rotates this vector 90º counter clockwise (in Cartesian space with Y
     /// growing up) relative to the origin. This alters the vector instance.
     @_transparent
     public mutating func formLeftRotated() {
         self = leftRotated()
     }
-    
+
     /// Returns a vector that represents this vector's point, rotated 90º clockwise
     /// clockwise (in Cartesian space with Y growing up) relative to the origin.
     @_transparent
     public func rightRotated() -> Self {
         Self(x: y, y: -x)
     }
-    
+
     /// Rotates this vector 90º clockwise relative (in Cartesian space with Y
     /// growing up) to the origin. This alters the vector instance.
     @_transparent
@@ -260,22 +260,22 @@ extension Vector2: VectorDivisible {
     public static func / (lhs: Self, rhs: Self) -> Self {
         Self(x: lhs.x / rhs.x, y: lhs.y / rhs.y)
     }
-    
+
     @_transparent
     public static func / (lhs: Self, rhs: Scalar) -> Self {
         Self(x: lhs.x / rhs, y: lhs.y / rhs)
     }
-    
+
     @_transparent
     public static func / (lhs: Scalar, rhs: Self) -> Self {
         Self(x: lhs / rhs.x, y: lhs / rhs.y)
     }
-    
+
     @_transparent
     public static func /= (lhs: inout Self, rhs: Self) {
         lhs = lhs / rhs
     }
-    
+
     @_transparent
     public static func /= (lhs: inout Self, rhs: Scalar) {
         lhs = lhs / rhs
@@ -296,7 +296,7 @@ extension Vector2: VectorFloatingPoint {
     public func addingProduct(_ a: Self, _ b: Self) -> Self {
         Self(x: x.addingProduct(a.x, b.x), y: y.addingProduct(a.y, b.y))
     }
-    
+
     /// Returns the result of adding the product of the given scalar and vector
     /// to this vector, computed without intermediate rounding.
     ///
@@ -309,7 +309,7 @@ extension Vector2: VectorFloatingPoint {
     public func addingProduct(_ a: Scalar, _ b: Self) -> Self {
         Self(x: x.addingProduct(a, b.x), y: y.addingProduct(a, b.y))
     }
-    
+
     /// Returns the result of adding the product of the given vector and scalar
     /// to this vector, computed without intermediate rounding.
     ///
@@ -322,14 +322,14 @@ extension Vector2: VectorFloatingPoint {
     public func addingProduct(_ a: Self, _ b: Scalar) -> Self {
         Self(x: x.addingProduct(a.x, b), y: y.addingProduct(a.y, b))
     }
-    
+
     /// Rounds the components of this `Vector2Type` using a given
     /// `FloatingPointRoundingRule`.
     @_transparent
     public func rounded(_ rule: FloatingPointRoundingRule) -> Self {
         Self(x: x.rounded(rule), y: y.rounded(rule))
     }
-    
+
     /// Rounds the components of this `Vector2Type` using a given
     /// `FloatingPointRoundingRule.toNearestOrAwayFromZero`.
     ///
@@ -338,7 +338,7 @@ extension Vector2: VectorFloatingPoint {
     public func rounded() -> Self {
         rounded(.toNearestOrAwayFromZero)
     }
-    
+
     /// Rounds the components of this `Vector2Type` using a given
     /// `FloatingPointRoundingRule.up`.
     ///
@@ -347,7 +347,7 @@ extension Vector2: VectorFloatingPoint {
     public func ceil() -> Self {
         rounded(.up)
     }
-    
+
     /// Rounds the components of this `Vector2Type` using a given
     /// `FloatingPointRoundingRule.down`.
     ///
@@ -356,13 +356,13 @@ extension Vector2: VectorFloatingPoint {
     public func floor() -> Self {
         rounded(.down)
     }
-    
+
     @_transparent
     public static func % (lhs: Self, rhs: Self) -> Self {
         Self(x: lhs.x.truncatingRemainder(dividingBy: rhs.x),
              y: lhs.y.truncatingRemainder(dividingBy: rhs.y))
     }
-    
+
     @_transparent
     public static func % (lhs: Self, rhs: Scalar) -> Self {
         Self(x: lhs.x.truncatingRemainder(dividingBy: rhs),
@@ -378,7 +378,7 @@ extension Vector2: SignedDistanceMeasurableType {
 }
 
 extension Vector2: Vector2FloatingPoint {
-    
+
 }
 
 extension Vector2: VectorReal {
@@ -387,7 +387,7 @@ extension Vector2: VectorReal {
         Self(x: Scalar.pow(vec.x, exponent),
              y: Scalar.pow(vec.y, exponent))
     }
-    
+
     @_transparent
     public static func pow(_ vec: Self, _ exponent: Self) -> Self {
         Self(x: Scalar.pow(vec.x, exponent.x),
@@ -402,38 +402,38 @@ extension Vector2: Vector2Real {
     public var angle: Scalar {
         Scalar.atan2(y: y, x: x)
     }
-    
+
     /// Returns a rotated version of this vector, rotated around the origin by a
     /// given angle in radians
     @_transparent
-    public func rotatedBy(_ angleInRadians: Scalar) -> Self {
-        Self.rotate(self, by: angleInRadians)
+    public func rotated(by angle: Angle<Scalar>) -> Self {
+        Self.rotate(self, by: angle)
     }
-    
+
     /// Rotates this vector around the origin by a given angle in radians
     @_transparent
-    public mutating func rotateBy(_ angleInRadians: Scalar) {
-        self = rotatedBy(angleInRadians)
+    public mutating func rotate(by angle: Angle<Scalar>) {
+        self = rotated(by: angle)
     }
-    
+
     /// Rotates this vector around a given pivot by a given angle in radians
     @inlinable
-    public func rotatedBy(_ angleInRadians: Scalar, around pivot: Self) -> Self {
-        (self - pivot).rotatedBy(angleInRadians) + pivot
+    public func rotated(by angle: Angle<Scalar>, around pivot: Self) -> Self {
+        (self - pivot).rotated(by: angle) + pivot
     }
-    
+
     /// Rotates a given vector around the origin by an angle in radians
     @inlinable
-    public static func rotate(_ vec: Self, by angleInRadians: Scalar) -> Self {
-        let c = Scalar.cos(angleInRadians)
-        let s = Scalar.sin(angleInRadians)
-        
+    public static func rotate(_ vec: Self, by angle: Angle<Scalar>) -> Self {
+        let c = angle.cos
+        let s = angle.sin
+
         let x: Scalar = (c * vec.x) as Scalar - (s * vec.y) as Scalar
         let y: Scalar = (c * vec.y) as Scalar + (s * vec.x) as Scalar
-        
+
         return Self(x: x, y: y)
     }
-    
+
     /// Creates a matrix that when multiplied with a Vector object applies the
     /// given set of transformations.
     ///
@@ -441,23 +441,44 @@ extension Vector2: Vector2Real {
     /// not alter a Vector's coordinates once applied.
     ///
     /// The order of operations are: scaling -> rotation -> translation
-    @_transparent
-    public static func matrix(scale: Self = .one,
-                              rotate angle: Scalar = 0,
-                              translate: Self = Self(x: 0, y: 0)) -> Matrix3x2 {
-        
-        Matrix3x2.transformation(xScale: scale.x,
-                                       yScale: scale.y,
-                                       angle: angle,
-                                       xOffset: translate.x,
-                                       yOffset: translate.y)
+    @inlinable
+    @available(*, deprecated, message: "Use matrix(scale: Self, rotate angle: Angle<Scalar>, translate: Self) instead.")
+    public static func matrix(
+        scale: Self = .one,
+        rotate angle: Scalar = 0,
+        translate: Self = Self(x: 0, y: 0)
+    ) -> Matrix3x2 {
+
+        Matrix3x2.transformation(
+            xScale: scale.x,
+            yScale: scale.y,
+            angle: angle,
+            xOffset: translate.x,
+            yOffset: translate.y
+        )
     }
-    
+
+    @inlinable
+    public static func matrix(
+        scale: Self = .one,
+        rotate angle: Angle<Scalar>,
+        translate: Self = Self(x: 0, y: 0)
+    ) -> Matrix3x2 {
+
+        Matrix3x2.transformation(
+            xScale: scale.x,
+            yScale: scale.y,
+            angle: angle,
+            xOffset: translate.x,
+            yOffset: translate.y
+        )
+    }
+
     @_transparent
     public static func * (lhs: Self, rhs: Matrix3x2) -> Self {
         Matrix3x2.transformPoint(matrix: rhs, point: lhs)
     }
-    
+
     @_transparent
     public static func *= (lhs: inout Self, rhs: Matrix3x2) {
         lhs = Matrix3x2.transformPoint(matrix: rhs, point: lhs)

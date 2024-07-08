@@ -1,3 +1,5 @@
+import RealModule
+
 /// Represents a 2D circle with a double-precision floating-point center point
 /// and radius parameters.
 public typealias Circle2D = Circle2<Vector2D>
@@ -75,5 +77,29 @@ extension Circle2: Convex2Type where Vector: Vector2FloatingPoint {
         let y3_1: Scalar = p2.y + h_y
 
         return .twoPoints(pointNormal(x3_0, y3_0), pointNormal(x3_1, y3_1))
+    }
+}
+
+public extension Circle2 where Vector: Vector2Real {
+    /// Returns a point on this circle represented by a given angle.
+    @_transparent
+    @inlinable
+    func pointOnAngle(_ angle: Angle<Scalar>) -> Vector {
+        let c = angle.cos
+        let s = angle.sin
+
+        let point = Vector(x: c, y: s) * radius
+
+        return center + point
+    }
+
+    /// Generates an arc from this circle.
+    func arc(startAngle: Angle<Scalar>, sweepAngle: Angle<Scalar>) -> CircleArc2<Vector> {
+        .init(center: center, radius: radius, startAngle: startAngle, sweepAngle: sweepAngle)
+    }
+
+    /// Generates an arc from this circle.
+    func arc(startAngle: Scalar, sweepAngle: Scalar) -> CircleArc2<Vector> {
+        .init(center: center, radius: radius, startAngle: startAngle, sweepAngle: sweepAngle)
     }
 }

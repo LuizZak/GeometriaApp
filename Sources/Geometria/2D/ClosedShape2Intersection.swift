@@ -22,6 +22,21 @@ public enum ClosedShape2Intersection<Vector: Vector2FloatingPoint> {
     /// Represents the case where no intersection occurs at any point.
     case noIntersection
 
+    /// Returns all the point normals associated with this closed shape intersection
+    /// object.
+    public var pointNormals: [PointNormal<Vector>] {
+        switch self {
+        case .contained, .contains, .noIntersection:
+            return []
+
+        case .singlePoint(let point):
+            return [point]
+
+        case .pairs(let pairs):
+            return pairs.flatMap({ [$0.enter, $0.exit] })
+        }
+    }
+
     /// Convenience for `.pairs([.init(enter: p1, exit: p2)])`.
     @inlinable
     public static func twoPoints(

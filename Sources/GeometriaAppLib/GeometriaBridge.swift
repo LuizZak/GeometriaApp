@@ -77,7 +77,7 @@ public typealias RLineSegment3D = LineSegment3<RVector3D>
 public typealias RRay3D = DirectionalRay3<RVector3D>
 
 /// PointNormal3 for Raytracing operations
-public typealias RPointNormal3D = PointNormal<RVector3D>
+public typealias RPointNormal3D = LineIntersectionPointNormal<RVector3D>
 
 /// ConvexLineIntersection for Raytracing operations
 public typealias RConvexLineResult3D = ConvexLineIntersection<RVector3D>
@@ -104,7 +104,7 @@ public extension RVector2D {
     var asBLPoint: BLPoint {
         return BLPoint(x: x, y: y)
     }
-    
+
     var asBLSize: BLSize {
         return BLSize(w: x, h: y)
     }
@@ -126,7 +126,7 @@ public extension RectangleType where Vector == RVector2D {
     var asBLRect: BLRect {
         BLRect(location: location.asBLPoint, size: size.asBLSize)
     }
-    
+
     var asBLBox: BLBox {
         asBLRect.asBLBox
     }
@@ -147,19 +147,19 @@ public extension RCircle2D {
 public extension RPolyLine2D {
     var asBLPath: BLPath {
         let path = BLPath()
-        
+
         guard !vertices.isEmpty else {
             return path
         }
-        
+
         path.moveTo(vertices[0].asBLPoint)
-        
+
         for v in vertices.dropFirst() {
             path.lineTo(v.asBLPoint)
         }
-        
+
         path.lineTo(vertices[0].asBLPoint)
-        
+
         return path
     }
 }
@@ -168,17 +168,17 @@ extension BLBoxI {
     public var location: BLPointI {
         BLPointI(x: x0, y: y0)
     }
-    
+
     public var size: BLPointI {
         BLPointI(x: Int32(w), y: Int32(h))
     }
-    
+
     public typealias Vector = BLPointI
-    
+
     public init(location: Vector, size: Vector) {
         self.init(x: Int(location.x), y: Int(location.y), w: Int(size.x), h: Int(size.y))
     }
-    
+
     public func union(_ other: Self) -> Self {
         return Self(x0: min(x0, other.x0), y0: min(y0, other.y0),
                     x1: max(x1, other.x1), y1: max(y1, other.y1))
@@ -187,11 +187,11 @@ extension BLBoxI {
 
 extension BLPointI {
     public typealias Scalar = Int32
-    
+
     public var asUIIntPoint: UIIntPoint {
         return UIIntPoint(x: Int(x), y: Int(y))
     }
-    
+
     public init(repeating scalar: Scalar) {
         self.init(x: scalar, y: scalar)
     }
@@ -199,15 +199,15 @@ extension BLPointI {
 
 extension BLPoint: Vector2Type {
     public typealias Scalar = Double
-    
+
     public var asVector: RVector2D {
         return RVector2D(x: x, y: y)
     }
-    
+
     public var asUIVector: UIVector {
         return .init(x: x, y: y)
     }
-    
+
     public init(repeating scalar: Scalar) {
         self.init(x: scalar, y: scalar)
     }
@@ -215,15 +215,15 @@ extension BLPoint: Vector2Type {
 
 extension BLSize: Vector2Type {
     public typealias Scalar = Double
-    
+
     public var asVector: RVector2D {
         return RVector2D(x: w, y: h)
     }
-    
+
     public var asUIVector: UIVector {
         return .init(x: w, y: h)
     }
-    
+
     public var x: Scalar {
         get { w }
         set { w = newValue }
@@ -232,11 +232,11 @@ extension BLSize: Vector2Type {
         get { h }
         set { h = newValue }
     }
-    
+
     public init(x: Scalar, y: Scalar) {
         self.init(w: x, h: y)
     }
-    
+
     public init(repeating scalar: Scalar) {
         self.init(x: scalar, y: scalar)
     }
@@ -248,7 +248,7 @@ extension BLSizeI {
     public var asViewportSize: ViewportSize {
         return ViewportSize(width: Int(w), height: Int(h))
     }
-    
+
     public var x: Scalar {
         get { w }
         set { w = newValue }
@@ -257,11 +257,11 @@ extension BLSizeI {
         get { h }
         set { h = newValue }
     }
-    
+
     public init(x: Scalar, y: Scalar) {
         self.init(w: x, h: y)
     }
-    
+
     public init(repeating scalar: Scalar) {
         self.init(x: scalar, y: scalar)
     }

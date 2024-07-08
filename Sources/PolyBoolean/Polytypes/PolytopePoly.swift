@@ -25,7 +25,7 @@ struct PolytopePoly: PolyBooleanType {
     func isOnSurface(_ point: Vector, tolerance: Double) -> Bool {
         return asLinePolygon2D.isPointOnEdge(
             point,
-            tolerance: tolerance
+            toleranceSquared: tolerance
         )
     }
 

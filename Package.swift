@@ -60,6 +60,7 @@ var polyBooleanTarget: Target = .target(
         .product(name: "Blend2DRenderer", package: "ImagineUI"),
         "Geometria",
         "GeometriaAppLib",
+        "GeometriaClipping",
     ]
 )
 
@@ -87,15 +88,23 @@ if ProcessInfo.processInfo.environment["USE_GEOMETRIA_DEPENDENCY"] == "YES" {
         .package(url: "https://github.com/LuizZak/Geometria.git", branch: "main")
     )
 } else {
-    targets.append(
+    targets.append(contentsOf: [
         .target(
             name: "Geometria",
             dependencies: [
                 .product(name: "Numerics", package: "swift-numerics"),
             ],
             swiftSettings: []
-        )
-    )
+        ),
+        .target(
+            name: "GeometriaClipping",
+            dependencies: [
+                "Geometria",
+                .product(name: "Numerics", package: "swift-numerics"),
+            ],
+            swiftSettings: []
+        ),
+    ])
     geometriaAppLibTarget.swiftSettings?.append(
         .define("GEOMETRIA_EMBEDDED")
     )

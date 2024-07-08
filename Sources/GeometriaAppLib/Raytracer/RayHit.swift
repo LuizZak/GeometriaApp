@@ -7,7 +7,7 @@ public struct RayHit: Equatable {
     public var id: Int
 
     /// The point at which the intersection occurred.
-    public var pointNormal: PointNormal<RVector3D>
+    public var pointNormal: RPointNormal3D
 
     /// Whether the hit came from an internal, external, or flat-plane direction.
     public var hitDirection: HitDirection
@@ -18,7 +18,7 @@ public struct RayHit: Equatable {
 
     /// The ID of the material that was hit, computed at the hit point.
     public var material: MaterialId?
-    
+
     /// Convenience for `pointNormal.point`
     @_transparent
     public var point: RVector3D {
@@ -40,16 +40,16 @@ public struct RayHit: Equatable {
             material: material
         )
     }
-    
+
     @_transparent
     public init(
         id: Int,
-        pointNormal: PointNormal<RVector3D>,
+        pointNormal: RPointNormal3D,
         hitDirection: HitDirection,
         distanceSquared: Double,
         material: MaterialId?
     ) {
-        
+
         self.id = id
         self.pointNormal = pointNormal
         self.hitDirection = hitDirection
@@ -64,14 +64,14 @@ public struct RayHit: Equatable {
         distanceSquared: Double,
         material: MaterialId?
     ) {
-        
+
         self.id = id
         self.pointNormal = pointOfInterest.point
         self.hitDirection = pointOfInterest.hitDirection
         self.distanceSquared = distanceSquared
         self.material = material
     }
-    
+
     @_transparent
     public init?(
         findingPointOfInterestOf rayIgnore: RayIgnore,
@@ -80,7 +80,7 @@ public struct RayHit: Equatable {
         material: MaterialId?,
         id: Int
     ) {
-        
+
         guard let poi = rayIgnore.computePointNormalOfInterest(
             id: id,
             intersection: intersection,
@@ -88,7 +88,7 @@ public struct RayHit: Equatable {
         ) else {
             return nil
         }
-        
+
         self.init(
             id: id,
             pointNormal: poi.point,
@@ -97,7 +97,7 @@ public struct RayHit: Equatable {
             material: material
         )
     }
-    
+
     /// Computes a new ``RayHit`` from the parameters of this instance, while
     /// assigning the point-of-interest of a given ``RayIgnore`` instance.
     ///
@@ -117,7 +117,7 @@ public struct RayHit: Equatable {
         ) else {
             return nil
         }
-        
+
         return RayHit(
             id: id,
             pointNormal: poi.point,
@@ -127,7 +127,7 @@ public struct RayHit: Equatable {
         )
     }
 
-    /// Translates the components of this ray hit, returning a new hit that is 
+    /// Translates the components of this ray hit, returning a new hit that is
     /// shifted in space by an amount specified by `vector`.
     ///
     /// - note: `distanceSquared` is relative to the original ray origin and
@@ -136,7 +136,7 @@ public struct RayHit: Equatable {
     /// of this structure is used post-translation.
     public func translated(by vector: RVector3D) -> RayHit {
         var hit = self
-        
+
         hit.pointNormal.point += vector
 
         return hit
@@ -159,7 +159,7 @@ public struct RayHit: Equatable {
 
         return hit
     }
-    
+
     /// Rotates the components of this ray hit, returning a new ray hit that
     /// is rotated in space around the given center point by a given rotational
     /// matrix.
@@ -170,18 +170,18 @@ public struct RayHit: Equatable {
     /// of this structure is used post-rotation.
     public func rotatedBy(_ matrix: RRotationMatrix3D, around center: RVector3D) -> Self {
         var hit = self
-        
+
         hit.pointNormal.point =
             hit.pointNormal
                 .point
                 .rotatedBy(matrix, around: center)
-        
+
         hit.pointNormal.normal =
             hit.pointNormal
                 .normal
                 .rotatedBy(matrix, around: .zero)
                 .normalized()
-        
+
         return hit
     }
 
@@ -203,8 +203,8 @@ public struct RayHit: Equatable {
             return .full(id: id)
         }
     }
-    
-    /// Specifies the direction of the ray when it hit the boundaries of 
+
+    /// Specifies the direction of the ray when it hit the boundaries of
     /// a geometry.
     public enum HitDirection {
         /// Ray hit the geometry from the inside out
@@ -215,7 +215,7 @@ public struct RayHit: Equatable {
 
         /// Ray hit a geometry that is not volumetric, e.g. a plane.
         case singlePoint
-        
+
         /// Returns the opposite hit direction that this value represents.
         ///
         /// Returns `HitDirection.fromInside` if this value is `.fromOutside`, and

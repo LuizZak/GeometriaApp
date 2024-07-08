@@ -13,20 +13,20 @@ public typealias Cylinder3D = Cylinder3<Vector3D>
 public struct Cylinder3<Vector: Vector3Type>: GeometricType {
     /// Convenience for `Vector.Scalar`.
     public typealias Scalar = Vector.Scalar
-    
+
     /// The starting point of this cylinder.
     public var start: Vector
-    
+
     /// The end point of this cylinder
     public var end: Vector
-    
+
     /// The radius of this cylinder.
     public var radius: Scalar
-    
+
     public var description: String {
         "\(type(of: self))(start: \(start), end: \(end), radius: \(radius))"
     }
-    
+
     @_specialize(exported: true, kind: full, where Vector == Vector3D)
     public init(start: Vector, end: Vector, radius: Scalar) {
         self.start = start
@@ -45,7 +45,7 @@ public extension Cylinder3 {
     var asLineSegment: LineSegment<Vector> {
         LineSegment(start: start, end: end)
     }
-    
+
     /// Returns a ``Capsule3`` with the same ``start``, ``end``, and ``radius``
     /// parameter sas this cylinder.
     @_transparent
@@ -75,7 +75,7 @@ extension Cylinder3: BoundableType where Vector: Vector3FloatingPoint {
             if start == end {
                 return .zero
             }
-            
+
             return startAsDisk.bounds.union(endAsDisk.bounds)
         }
     }
@@ -92,7 +92,7 @@ extension Cylinder3: VolumetricType where Vector: Vector3FloatingPoint {
                       normal: start - end,
                       radius: radius)
     }
-    
+
     /// Returns the disk that represents the bottom- or end, section of this
     /// cylinder, centered around ``end`` with a radius of ``radius``, and a
     /// normal pointing away from the center of the cylinder.
@@ -102,7 +102,7 @@ extension Cylinder3: VolumetricType where Vector: Vector3FloatingPoint {
                       normal: end - start,
                       radius: radius)
     }
-    
+
     /// Returns `true` if a given vector is fully contained within this
     /// cylinder.
     ///
@@ -112,14 +112,14 @@ extension Cylinder3: VolumetricType where Vector: Vector3FloatingPoint {
     @_specialize(exported: true, kind: full, where Vector == Vector3D)
     public func contains(_ vector: Vector) -> Bool {
         let line = asLineSegment
-        
+
         let magnitude = line.projectAsScalar(vector)
         if !line.containsProjectedNormalizedMagnitude(magnitude) {
             return false
         }
-        
+
         let pointOnLine = line.projectedNormalizedMagnitude(magnitude)
-        
+
         return pointOnLine.distanceSquared(to: vector) <= radius * radius
     }
 }
@@ -134,7 +134,7 @@ extension Cylinder3: PointProjectableType where Vector: Vector3FloatingPoint {
         let line = asLineSegment
         let projectedScalar = line.projectAsScalar(vector)
         let projected = line.project(vector)
-        
+
         // If the point when projected onto the line is within its bounds,
         // compute a direction to the vector and return a point on the radius
         // of the cylinder.
@@ -144,10 +144,10 @@ extension Cylinder3: PointProjectableType where Vector: Vector3FloatingPoint {
             if direction == .zero {
                 direction = .unitX
             }
-            
+
             let onEdge = projected + direction.normalized() * radius
             let onEdgeDist = vector.distanceSquared(to: onEdge)
-            
+
             // Check that the point is not closer to one of the ends of the
             // cylinder instead of the edges
             let onStartDisk = startAsDisk.project(vector)
@@ -158,10 +158,10 @@ extension Cylinder3: PointProjectableType where Vector: Vector3FloatingPoint {
             if onEndDisk.distanceSquared(to: vector) < onEdgeDist {
                 return onEndDisk
             }
-            
+
             return onEdge
         }
-        
+
         // Create a disk with the same radius as this cylinder, with a normal of
         // the direction of start/end, centered around the projected point on
         // the imaginary line between start/end, and then use it's .project(_:)
@@ -178,7 +178,7 @@ extension Cylinder3: SignedDistanceMeasurableType where Vector: VectorFloatingPo
     public func signedDistance(to point: Vector) -> Vector.Scalar {
         // Derived from:
         // https://iquilezles.org/www/articles/distfunctions/distfunctions.htm
-        
+
         let ba = end - start
         let pa = point - start
         let baba: Scalar = ba.lengthSquared
@@ -194,7 +194,7 @@ extension Cylinder3: SignedDistanceMeasurableType where Vector: VectorFloatingPo
         } else {
             d = ((x > .zero) ? x2 : .zero) + ((y > .zero) ? y2 : .zero)
         }
-        
+
         return d.signValue * abs(d).squareRoot() / baba
     }
 }
@@ -207,7 +207,7 @@ extension Cylinder3: Convex3Type where Vector: Vector3Real {
     @_specialize(exported: true, kind: full, where Line == LineSegment3D)
     @_specialize(exported: true, kind: full, where Line == DirectionalRay3D)
     public func intersection<Line>(with line: Line) -> ConvexLineIntersection<Vector> where Line: Line3FloatingPoint, Vector == Line.Vector {
-        
+
         // Procedure:
         // 1: Create a plane along the line
         // 2: Pin the normal of this plane to the perpendicular of the cylinder's
@@ -215,40 +215,40 @@ extension Cylinder3: Convex3Type where Vector: Vector3Real {
         // 3: Project cylinder onto plane as an AABB
         // 4: Perform 2D line-aabb intersection
         // 5: Compute 3D coordinates and normal
-        
+
         typealias Vector2 = Vector.SubVector2
-        
+
         let cylinderLine = asLineSegment
-        
+
         let cylinderSlope = cylinderLine.lineSlope
         let lineSlope = line.lineSlope
-        
+
         var crossSlope = cylinderSlope.cross(lineSlope)
-        
+
         // Line is parallel to cylinder's line - choose a normal based on the
         // direction from the cylinder's center line to the line
         if crossSlope == .zero {
             crossSlope = (start - line.projectUnclamped(start))
         }
-        
+
         // Create a 2D version of the problem by cross-sectioning the cylinder
         // with a plane which is parallel to both the line and the cylinder's
         // axis and solve a bounding-box/line intersection
-        
+
         let pl = ProjectivePointNormalPlane3<Vector>.makeCorrectedPlane(
             point: line.a,
             normal: crossSlope,
             upAxis: cylinderSlope
         )
-        
+
         // Find the rectangle that represents the cylinder's cross section on
         // the plane
-        
+
         // Rectangle's height: cylinder's height
         // Rectangle's width: 2 * √(r² − distance-to-center²)
         let rectHeight = cylinderLine.length
         let rectHalfWidth: Scalar
-        
+
         // The depth of the cross-section is the distance between start (or end)
         // to its projection on cross-section plane pl.
         let depthSquared = pl.project(start).distanceSquared(to: start)
@@ -257,25 +257,25 @@ extension Cylinder3: Convex3Type where Vector: Vector3Real {
         if depthSquared > radiusSquared {
             return .noIntersection
         }
-        
+
         rectHalfWidth = Scalar.sqrt(radiusSquared - depthSquared)
-        
+
         let cylStartProj = pl.project2D(start)
         let cylEndProj = cylStartProj + Vector2(x: 0, y: rectHeight)
-        
+
         let aabb = AABB2<Vector2>(
             minimum: cylStartProj - Vector2(x: rectHalfWidth, y: 0),
             maximum: cylEndProj + Vector2(x: rectHalfWidth, y: 0)
         )
-        
+
         let lineAProj = pl.project2D(line.a)
         let lineBProj = pl.project2D(line.b)
-        
+
         let line2d = Line.make2DLine(lineAProj, lineBProj)
-        
+
         let intersection = aabb.intersection(with: line2d)
-        
-        return intersection.replacingPointNormals { (pn: PointNormal<Vector2>, _) -> PointNormal<Vector> in
+
+        return intersection.replacingPointNormals { (pn: LineIntersectionPointNormal<Vector2>, _) -> LineIntersectionPointNormal<Vector> in
             let worldPoint = pl.projectOut(pn.point)
 
             var normal: Vector
@@ -290,34 +290,35 @@ extension Cylinder3: Convex3Type where Vector: Vector3Real {
                 // the intersection point and its projection on the cylinder's line
                 normal = (cylinderLine.projectUnclamped(worldPoint) - worldPoint).normalized()
             }
-            
+
             // Use the normal that has the least value (pointing towards the
             // start of the line)
             if lineSlope.dot(normal) > 0.0 {
                 normal = -normal
             }
-            
-            return PointNormal(
+
+            return .init(
+                normalizedMagnitude: pn.normalizedMagnitude,
                 point: worldPoint,
                 normal: normal
             )
         }
     }
-    
+
     /// Returns the normal of the face closest to the given vector.
     @inlinable
     @_specialize(exported: true, kind: full, where Vector == Vector3D)
     func normalForVector(_ vector: Vector) -> Vector {
         let line = asLineSegment
         let magnitude = line.projectAsScalar(vector)
-        
+
         if magnitude <= 0 {
             return -line.lineSlope.normalized()
         }
         if magnitude >= 1 {
             return line.lineSlope.normalized()
         }
-        
+
         let onLine = line.projectedNormalizedMagnitude(magnitude)
         return (vector - onLine).normalized()
     }

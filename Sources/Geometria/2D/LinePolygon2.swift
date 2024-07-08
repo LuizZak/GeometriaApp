@@ -13,7 +13,45 @@ public extension LinePolygon2 {
     }
 }
 
+extension LinePolygon2 where Vector: Vector2Multiplicative {
+    /// Returns the winding number for this polygon.
+    ///
+    /// The winding number is the sum of the cross products of each adjacent
+    /// edge's slope.
+    ///
+    /// Positive values indicate clockwise orientation in an (X-Right, Y-Up)
+    /// space, while negative indicate counter-clockwise.
+    ///
+    /// If this polygon has less than 3 points, `.zero` is returned instead.
+    public func winding() -> Vector.Scalar {
+        guard var v2 = vertices.last else {
+            return 0
+        }
+
+        var winding: Vector.Scalar = 0
+
+        for p in vertices {
+            winding += v2.cross(p)
+            v2 = p
+        }
+
+        return winding
+    }
+}
+
 extension LinePolygon2 where Vector: Vector2Multiplicative & VectorComparable {
+    /// Returns the squared perimeter of this 2D polygon.
+    @inlinable
+    public func perimeterSquared() -> Vector.Scalar {
+        var total: Scalar = .zero
+
+        for segment in lineSegments() {
+            total += segment.lengthSquared
+        }
+
+        return total
+    }
+
     /// Returns `true` if this polygon is convex.
     ///
     /// A polygon must have at least 3 points to be considered convex.
@@ -115,6 +153,16 @@ extension LinePolygon2 where Vector: Vector2Multiplicative & VectorComparable {
     }
 }
 
+extension LinePolygon2 where Vector: Vector2Multiplicative, Vector.Scalar: DivisibleArithmetic {
+    /// Returns the signed area of this 2D polygon.
+    ///
+    /// Positive values indicate clockwise orientation in an (X-Right, Y-Up)
+    /// space, while negative indicate counter-clockwise.
+    public func area() -> Vector.Scalar {
+        return winding() / 2
+    }
+}
+
 extension LinePolygon2: VolumetricType where Vector: VectorDivisible & VectorComparable {
     /// Assuming this `LinePolygon2` represents a clockwise closed polygon,
     /// performs a vector-containment check against the polygon formed by this
@@ -166,13 +214,13 @@ extension LinePolygon2: VolumetricType where Vector: VectorDivisible & VectorCom
 
 extension LinePolygon2 where Vector: VectorFloatingPoint {
     /// Returns `true` if the given point lies within an edge of the polygon
-    /// represented by `self`, up to a given `tolerance` value.
+    /// represented by `self`, up to a given `toleranceSquared` value.
     ///
     /// Points lie within the edges of the polygon if the distance between the
     /// point and any two adjacent vertices is equal to the distance of the
-    /// adjacent vertices, up to `sqrt(tolerance)`.
+    /// adjacent vertices, up to `√(toleranceSquared)`.
     @inlinable
-    public func isPointOnEdge(_ point: Vector, tolerance: Scalar) -> Bool {
+    public func isPointOnEdge(_ point: Vector, toleranceSquared: Scalar) -> Bool {
         for (i, vertex) in vertices.enumerated() {
             let next = vertices[(i + 1) % vertices.count]
 
@@ -182,11 +230,18 @@ extension LinePolygon2 where Vector: VectorFloatingPoint {
 
             let diff = (edgeSquared - (d1 + d2)).magnitude
 
-            if diff < tolerance {
+            if diff < toleranceSquared {
                 return true
             }
         }
 
         return false
+    }
+}
+
+extension LinePolygon2 where Vector: Vector2FloatingPoint {
+    /// Returns the perimeter of this 2D polygon.
+    public func perimeter() -> Vector.Scalar {
+        perimeterSquared().squareRoot()
     }
 }

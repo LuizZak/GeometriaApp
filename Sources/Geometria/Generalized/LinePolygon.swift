@@ -31,6 +31,21 @@ public struct LinePolygon<Vector: VectorType>: GeometricType {
         vertices.append(v)
     }
 
+    /// Reverses the order of the vertices within this line polygon.
+    @inlinable
+    public mutating func reverse() {
+        vertices.reverse()
+    }
+
+    /// Returns a new line polygon where the vertices are the reversed list of
+    /// vertices from this line polygon.
+    @inlinable
+    public func reversed() -> Self {
+        var copy = self
+        copy.reverse()
+        return copy
+    }
+
     /// Returns a list of line segments that represent the outlines of this line
     /// polygon. If this polygon contains < 2 vertices, the result is an empty
     /// array.
