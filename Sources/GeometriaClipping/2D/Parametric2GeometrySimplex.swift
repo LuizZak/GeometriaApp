@@ -135,6 +135,12 @@ public enum Parametric2GeometrySimplex<Vector: Vector2Real>: Parametric2Simplex,
             guard let intersection = lhs.lineSegment.intersection(with: rhs.lineSegment) else {
                 return []
             }
+            guard
+                Self.isWithinAbsoluteBounds(intersection.line1NormalizedMagnitude),
+                Self.isWithinAbsoluteBounds(intersection.line2NormalizedMagnitude)
+            else {
+                return []
+            }
 
             let period1 = self.period(onRatio: intersection.line1NormalizedMagnitude)
             let period2 = other.period(onRatio: intersection.line2NormalizedMagnitude)
@@ -150,7 +156,8 @@ public enum Parametric2GeometrySimplex<Vector: Vector2Real>: Parametric2Simplex,
                     let circleArcPeriod = Self.circleArcIntersectionRatio(
                         rhs,
                         intersection: intersection
-                    )
+                    ),
+                    Self.isWithinAbsoluteBounds(circleArcPeriod)
                 else {
                     return nil
                 }
@@ -166,7 +173,8 @@ public enum Parametric2GeometrySimplex<Vector: Vector2Real>: Parametric2Simplex,
                     let circleArcPeriod = Self.circleArcIntersectionRatio(
                         lhs,
                         intersection: intersection
-                    )
+                    ),
+                    Self.isWithinAbsoluteBounds(circleArcPeriod)
                 else {
                     return nil
                 }
@@ -188,7 +196,8 @@ public enum Parametric2GeometrySimplex<Vector: Vector2Real>: Parametric2Simplex,
                     let selfPeriod = Self.circleArcIntersectionRatio(
                         lhs,
                         intersection: intersection
-                    )
+                    ),
+                    Self.isWithinAbsoluteBounds(selfPeriod)
                 else {
                     return nil
                 }
@@ -198,7 +207,8 @@ public enum Parametric2GeometrySimplex<Vector: Vector2Real>: Parametric2Simplex,
                     let otherPeriod = Self.circleArcIntersectionRatio(
                         rhs,
                         intersection: intersection
-                    )
+                    ),
+                    Self.isWithinAbsoluteBounds(otherPeriod)
                 else {
                     return nil
                 }
@@ -217,6 +227,10 @@ public enum Parametric2GeometrySimplex<Vector: Vector2Real>: Parametric2Simplex,
         case .circleArc2(let simplex):
             return .circleArc2(simplex.reversed())
         }
+    }
+
+    static func isWithinAbsoluteBounds(_ period: Period) -> Bool {
+        period >= .zero && period < 1
     }
 
     static func circleArcIntersectionRatio(
