@@ -2,6 +2,7 @@ import Foundation
 import ImagineUI
 import SwiftBlend2D
 import Geometria
+import GeometriaClipping
 
 open class PolyBooleanApp: ImagineUIWindowContent {
     var _updateTimer: SchedulerTimerType?
@@ -9,13 +10,31 @@ open class PolyBooleanApp: ImagineUIWindowContent {
     var isMouseDown: Bool = false
     var isShiftHeld: Bool = false
 
+    #if true
+
+    var polys: [any ParametricClip2Geometry] = []
+    var mousePoly: Circle2Parametric = .init(circle: .unit)
+
+    #else
+
     var polys: [any PolyBooleanType] = []
     var mousePoly: CirclePoly = .init(circle: .unit)
+
+    #endif
 
     let labelStackView = StackView(orientation: .vertical)
     let intersectCountLabel = Label(textColor: .black, fontSize: 20)
     let mouseLocationLabel = Label(textColor: .black, fontSize: 20)
 
+    #if true
+    func effectivePolys() -> [any ParametricClip2Geometry] {
+        if isMouseDown {
+            return polys + [mousePoly]
+        }
+
+        return polys
+    }
+    #else
     func effectivePolys() -> [any PolyBooleanType] {
         if isMouseDown {
             return polys + [mousePoly]
@@ -23,6 +42,7 @@ open class PolyBooleanApp: ImagineUIWindowContent {
 
         return polys
     }
+    #endif
 
     open override func initialize() {
         super.initialize()
@@ -37,6 +57,22 @@ open class PolyBooleanApp: ImagineUIWindowContent {
 
         let sizeVec = self.size.asVector2D
 
+        #if true
+
+        polys = [
+            Circle2Parametric(circle: .init(center: sizeVec / 2, radius: sizeVec.x / 5)),
+            //LinePolygon2Parametric(location: sizeVec * .init(x: 0.4, y: 0.3), size: sizeVec * 0.5),
+            //RoundedRectPoly(location: sizeVec * .init(x: 0.2, y: 0.4), size: sizeVec * .init(x: 0.4, y: 0.3), radius: sizeVec.x * 0.05),
+            Circle2Parametric(circle: .init(center: .init(x: 407, y: 276), radius: sizeVec.x / 20)),
+            LinePolygon2Parametric(location: sizeVec * .init(x: 0.2, y: 0.4), size: sizeVec * .init(x: 0.4, y: 0.3)),
+            Circle2Parametric(circle: .init(center: .init(x: 385, y: 539), radius: sizeVec.x / 20)),
+            //Circle2Parametric(circle: .init(center: .init(x: 306, y: 283), radius: sizeVec.x / 20)),
+            //Circle2Parametric(circle: .init(center: .init(x: 646, y: 337), radius: sizeVec.x / 20)),
+        ]
+        mousePoly.circle2.radius = sizeVec.x / 20
+
+        #else
+
         polys = [
             CirclePoly(circle: .init(center: sizeVec / 2, radius: sizeVec.x / 5)),
             //RectPoly(location: sizeVec * .init(x: 0.4, y: 0.3), size: sizeVec * 0.5),
@@ -47,6 +83,8 @@ open class PolyBooleanApp: ImagineUIWindowContent {
             //CirclePoly(circle: .init(center: .init(x: 646, y: 337), radius: sizeVec.x / 20)),
         ]
         mousePoly.circle.radius = sizeVec.x / 20
+
+        #endif
 
         rootView.addSubview(labelStackView)
         labelStackView.addArrangedSubview(intersectCountLabel)
@@ -64,7 +102,12 @@ open class PolyBooleanApp: ImagineUIWindowContent {
         super.mouseMoved(event: event)
 
         mouseLocationLabel.text = "Mouse location: (\(event.location.x), \(event.location.y))"
+
+        #if true
+        mousePoly.circle2.center = event.location.asVector2D
+        #else
         mousePoly.circle.center = event.location.asVector2D
+        #endif
 
         invalidateScreen()
     }
@@ -146,7 +189,7 @@ open class PolyBooleanApp: ImagineUIWindowContent {
     }
 
     func renderUnion(
-        polys: [any PolyBooleanType],
+        polys: [any ParametricClip2Geometry],
         renderer: any Renderer
     ) {
         if polys.isEmpty {
@@ -157,7 +200,7 @@ open class PolyBooleanApp: ImagineUIWindowContent {
             return
         }
 
-        var remaining: [any PolyBooleanType] = polys
+        var remaining: [any ParametricClip2Geometry] = polys
 
         var hasMerged: Bool
         repeat {
@@ -170,12 +213,10 @@ open class PolyBooleanApp: ImagineUIWindowContent {
             for (index, current) in remaining.enumerated() {
                 for (nextIndex, next) in remaining.enumerated().dropFirst() {
                     guard index != nextIndex else { continue }
+                    guard current.bounds.intersects(next.bounds) else { continue }
 
-                    let op = UnionBooleanPOIOperation()
-                    let union = op.union(
-                        current,
-                        next
-                    )
+                    let op = Union2Parametric(current, next, tolerance: 1e-14)
+                    let union = op.allSimplexes()
 
                     guard union.count != 2 else {
                         continue
@@ -187,7 +228,7 @@ open class PolyBooleanApp: ImagineUIWindowContent {
 
                     for shape in union {
                         remaining.append(
-                            CompoundPoly(stroke: shape)
+                            Compound2Parametric(simplexes: shape)
                         )
                     }
 
@@ -198,49 +239,28 @@ open class PolyBooleanApp: ImagineUIWindowContent {
         } while hasMerged
 
         render(polys: remaining, renderer: renderer)
-
-        /*
-        var totalPolys = [polys[0]]
-
-        for poly in polys.dropFirst() {
-            var result: [any PolyBooleanType] = []
-
-            for totalPoly in totalPolys {
-                let union = UnionBooleanOperation.union(totalPoly, poly)
-                result.append(contentsOf: union.map(CompoundPoly.init))
-            }
-
-            totalPolys.append(result)
-        }
-
-        render(polys: totalPolys, renderer: renderer)
-        */
-
-        //render(strokes: union, renderer: renderer)
     }
 
     func renderIntersections(
-        polys: [any PolyBooleanType],
+        polys: [any ParametricClip2Geometry],
         renderer: any Renderer
     ) {
-        func renderPoint(period: PolyBooleanType.Period, on poly: PolyBooleanType, color: Color) {
-            let point = poly.point(at: period)
+        func renderPoint(period: ParametricClip2Geometry.Period, on poly: ParametricClip2Geometry, color: Color) {
+            let point = poly.compute(at: period)
             self.renderPoint(point.asUIPoint, color: color, renderer: renderer)
         }
-        func renderPair(_ pair: PolyIntersectResult.Pair, lhs: PolyBooleanType, rhs: PolyBooleanType) {
-            if pair.lhs.start < strokeAnimation && pair.rhs.start < strokeAnimation {
-                renderPoint(period: pair.lhs.start, on: lhs, color: .red)
-                renderPoint(period: pair.rhs.start, on: rhs, color: .blue)
-            }
-            if pair.lhs.end < strokeAnimation && pair.rhs.end < strokeAnimation {
-                renderPoint(period: pair.lhs.end, on: lhs, color: .red)
-                renderPoint(period: pair.rhs.end, on: rhs, color: .blue)
+        func renderPair(
+            _ pair: (`self`: ParametricClip2Geometry.Period, other: ParametricClip2Geometry.Period),
+            lhs: ParametricClip2Geometry,
+            rhs: ParametricClip2Geometry
+        ) {
+            if pair.`self` < strokeAnimation && pair.other < strokeAnimation {
+                renderPoint(period: pair.`self`, on: lhs, color: .red)
+                renderPoint(period: pair.other, on: rhs, color: .blue)
             }
         }
 
         var totalIntersections = 0
-
-        let intersect = PolyIntersect()
 
         for lhsIndex in 0..<(polys.count - 1) {
             let lhs = polys[lhsIndex]
@@ -250,11 +270,11 @@ open class PolyBooleanApp: ImagineUIWindowContent {
 
                 let rhs = polys[rhsIndex]
 
-                let result = intersect.intersect(lhs, rhs)
+                let result = lhs.allIntersectionPeriods(rhs)
 
-                totalIntersections += result.pairs.count * 2
+                totalIntersections += result.count
 
-                for pair in result.pairs {
+                for pair in result {
                     renderPair(pair, lhs: lhs, rhs: rhs)
                 }
             }
@@ -300,47 +320,46 @@ open class PolyBooleanApp: ImagineUIWindowContent {
     }
     */
 
-    func render(polys: [any PolyBooleanType], renderer: any Renderer) {
+    func render(polys: [any ParametricClip2Geometry], renderer: any Renderer) {
         for poly in polys {
             render(poly: poly, renderer: renderer)
         }
     }
 
-    func render(poly: some PolyBooleanType, renderer: any Renderer) {
-        let stroke = poly.stroke(in: 0...strokeAnimation)
-        let actual = poly.point(at: strokeAnimation).asUIPoint
+    func render(poly: any ParametricClip2Geometry, renderer: any Renderer) {
+        let simplexes = poly.clampedSimplexes(in: 0..<strokeAnimation)
+        let actual = poly.compute(at: strokeAnimation).asUIPoint
         renderPoint(actual, color: .green, renderer: renderer)
 
-        render(stroke: stroke, renderer: renderer)
+        render(ops: simplexes, renderer: renderer)
     }
 
-    func render(strokes: [PeriodicSurfaceStroke], renderer: any Renderer) {
-        for stroke in strokes {
-            render(stroke: stroke, renderer: renderer)
-        }
-    }
-
-    func render(stroke: PeriodicSurfaceStroke, renderer: any Renderer) {
-        render(op: stroke.op, renderer: renderer)
-    }
-
-    func render(ops: [PeriodicSurfaceStroke.Op], renderer: any Renderer) {
+    func render(ops: [Parametric2GeometrySimplex<Vector2D>], renderer: any Renderer) {
         for op in ops {
             render(op: op, renderer: renderer)
         }
     }
 
-    func render(op: PeriodicSurfaceStroke.Op, renderer: any Renderer) {
+    func render(op: Parametric2GeometrySimplex<Vector2D>, renderer: any Renderer) {
         switch op {
-        case .compound(let ops):
-            render(ops: ops, renderer: renderer)
+        case .lineSegment2(let lineSegment2):
+            render(op: lineSegment2, renderer: renderer)
 
-        case .line(let line):
-            renderer.stroke(line)
-
-        case .circleArc(let arc):
-            renderer.stroke(arc)
+        case .circleArc2(let circleArc2):
+            render(op: circleArc2, renderer: renderer)
         }
+    }
+
+    func render(op: LineSegment2Simplex<Vector2D>, renderer: any Renderer) {
+        let line = op.lineSegment.asUILine
+
+        renderer.stroke(line)
+    }
+
+    func render(op: CircleArc2Simplex<Vector2D>, renderer: any Renderer) {
+        let arc = op.circleArc.asUICircleArc
+
+        renderer.stroke(arc)
     }
 
     func renderPoint(_ point: UIPoint, color: Color, renderer: any Renderer) {

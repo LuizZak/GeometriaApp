@@ -2,26 +2,22 @@ import Geometria
 
 /// A Union boolean parametric that joins two shapes into a single shape, if they
 /// intersect in space.
-public struct Subtraction2Parametric<T1: ParametricClip2Geometry, T2: ParametricClip2Geometry>: Boolean2Parametric
-    where T1.Vector == T2.Vector, T1.Vector: Hashable
-{
+public struct Subtraction2Parametric: Boolean2Parametric {
     public typealias Period = Double
 
     public let lhs: T1, rhs: T2
     public let tolerance: Scalar
 
-    public init(_ lhs: T1, _ rhs: T2, tolerance: T1.Scalar) where T1.Vector == T2.Vector {
+    public init(_ lhs: T1, _ rhs: T2, tolerance: T1.Scalar) {
         self.lhs = lhs
         self.rhs = rhs
         self.tolerance = tolerance
     }
 
     public func allSimplexes() -> [[Simplex]] {
-        typealias State = GeometriaClipping.State<T1, T2>
-
         let rhsReversed = rhs.reversed()
 
-        let lookup: IntersectionLookup<T1, T2> = .init(
+        let lookup: IntersectionLookup = .init(
             intersectionsOfSelfShape: lhs,
             otherShape: rhsReversed,
             tolerance: tolerance
@@ -30,12 +26,12 @@ public struct Subtraction2Parametric<T1: ParametricClip2Geometry, T2: Parametric
         // If no intersections have been found, check if one of the shapes is
         // contained within the other
         guard !lookup.intersections.isEmpty else {
-            if lookup.isSelfWithinOther() {
-                return []
-            }
             if lookup.isOtherWithinSelf() {
                 // TODO: Implement holes
                 return [lhs.allSimplexes()]
+            }
+            if lookup.isSelfWithinOther() {
+                return []
             }
 
             return [lhs.allSimplexes()]
@@ -64,6 +60,7 @@ public struct Subtraction2Parametric<T1: ParametricClip2Geometry, T2: Parametric
         //   simplex produced by loop 1; if not, start the first path on the current
         //   point and proceed until all points belong to simplexes in rhs.
         var resultOverall: [[Simplex]] = []
+        var simplexVisited: Set<State> = []
         var visitedOverall: Set<State> = []
 
         var state = State.onLhs(lhs.startPeriod, rhs.startPeriod)
@@ -74,24 +71,28 @@ public struct Subtraction2Parametric<T1: ParametricClip2Geometry, T2: Parametric
         }
 
         while visitedOverall.insert(state).inserted {
-            var result: [Simplex] = []
-            var visited: Set<State> = []
+            if !simplexVisited.contains(state) {
+                var result: [Simplex] = []
+                var visited: Set<State> = []
 
-            while visited.insert(state).inserted {
-                // Find next intersection
-                let next = lookup.next(state)
+                while visited.insert(state).inserted {
+                    // Find next intersection
+                    let next = lookup.next(state)
 
-                // Append simplex
-                let simplex = lookup.clampedSimplexesRange(state, next)
-                result.append(contentsOf: simplex)
+                    // Append simplex
+                    let simplex = lookup.clampedSimplexesRange(state, next)
+                    result.append(contentsOf: simplex)
 
-                // Flip to the next intersection
-                state = next.flipped()
+                    // Flip to the next intersection
+                    state = next.flipped()
+                }
+
+                simplexVisited.formUnion(visited)
+
+                // Re-normalize the simplex periods
+                result = result.normalized(startPeriod: .zero, endPeriod: 1)
+                resultOverall.append(result)
             }
-
-            // Re-normalize the simplex periods
-            result = result.normalized(startPeriod: .zero, endPeriod: 1)
-            resultOverall.append(result)
 
             // Here we skip twice in order to skip the portion of lhs that is
             // occluded behind rhs, and land on the next intersection that brings

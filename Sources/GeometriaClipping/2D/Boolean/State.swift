@@ -6,7 +6,10 @@ import Geometria
 /// The state always keeps track of the equivalency of periods during intersections,
 /// and each case indicates which geometry to follow in subsequent
 /// `IntersectionLookup.next()`/`.previous()` calls.
-enum State<T1: ParametricClip2Geometry, T2: ParametricClip2Geometry>: Hashable where T1.Period == T2.Period {
+enum State: Hashable {
+    typealias T1 = ParametricClip2Geometry
+    typealias T2 = ParametricClip2Geometry
+
     /// The current intersection point is being examined on the left-hand side
     /// geometry.
     case onLhs(T1.Period, T2.Period)

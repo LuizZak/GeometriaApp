@@ -3,9 +3,7 @@ import Geometria
 /// A 2-dimensional parametric geometry that produces lines and circular arcs as
 /// parametric simplexes.
 public protocol ParametricClip2Geometry: ParametricClipGeometry {
-    /// The type of vectors used to represent geometry within this parametric
-    /// geometry.
-    associatedtype Vector: Vector2Real
+    typealias Vector = Vector2D
 
     typealias Scalar = Vector.Scalar
     typealias Period = Double
@@ -21,6 +19,9 @@ public protocol ParametricClip2Geometry: ParametricClipGeometry {
     ///
     /// This value is not part of the addressable period range.
     var endPeriod: Period { get }
+
+    /// Gets the bounding box for this parametric geometry.
+    var bounds: AABB2<Vector> { get }
 
     /// Performs a point-containment check against this parametric geometry.
     func contains(_ point: Vector) -> Bool
@@ -75,6 +76,10 @@ public protocol ParametricClip2Geometry: ParametricClipGeometry {
 extension ParametricClip2Geometry {
     var periodRange: Period {
         endPeriod - startPeriod
+    }
+
+    public var bounds: AABB<Vector> {
+        AABB(aabbs: allSimplexes().map(\.bounds))
     }
 
     func normalizedPeriod(_ period: Period) -> Period {
@@ -182,13 +187,29 @@ public extension ParametricClip2Geometry {
 
         for selfSimplex in selfSimplexes {
             for otherSimplex in otherSimplexes {
+                var currentIntersections: [Intersection] = []
                 let intersections = selfSimplex.intersectionPeriods(with: otherSimplex)
 
-                allIntersections.append(contentsOf: intersections.map { intersection in
+                currentIntersections.append(contentsOf: intersections.map { intersection in
                     (
                         self: self.normalizedPeriod(intersection.`self`),
                         other: other.normalizedPeriod(intersection.other)
                     )
+                })
+
+                // Avoid adding intersections with repeated periods which may occur
+                // when a geometry intersects two simplexes exactly
+                allIntersections.append(contentsOf: currentIntersections.filter { intersection in
+                    for case let last? in allIntersections {
+                        if last.`self` == intersection.`self` {
+                            return false
+                        }
+                        if last.other == intersection.other {
+                            return false
+                        }
+                    }
+
+                    return true
                 })
             }
         }

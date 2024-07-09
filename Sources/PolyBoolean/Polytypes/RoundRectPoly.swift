@@ -1,3 +1,5 @@
+#if false
+
 import Foundation
 import Geometry
 import Geometria
@@ -134,3 +136,5 @@ struct RoundedRectPoly: PolyBooleanType {
         return result
     }
 }
+
+#endif

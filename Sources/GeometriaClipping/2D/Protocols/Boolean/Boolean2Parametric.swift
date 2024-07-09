@@ -10,8 +10,8 @@ public protocol Boolean2Parametric where T1.Vector == T2.Vector {
     /// generator.
     typealias Vector = T1.Vector
 
-    associatedtype T1: ParametricClip2Geometry
-    associatedtype T2: ParametricClip2Geometry
+    typealias T1 = ParametricClip2Geometry
+    typealias T2 = ParametricClip2Geometry
 
     typealias Scalar = Vector.Scalar
     typealias Period = Double

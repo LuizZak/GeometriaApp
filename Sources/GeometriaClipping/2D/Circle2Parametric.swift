@@ -1,7 +1,7 @@
 import Geometria
 
 /// A parametric geometry that is defined by a ``Circle2`` shape.
-public struct Circle2Parametric<Vector: Vector2Real>: ParametricClip2Geometry, Equatable {
+public struct Circle2Parametric: ParametricClip2Geometry, Equatable {
     public typealias Scalar = Vector.Scalar
     public typealias Simplex = Parametric2GeometrySimplex<Vector>
 
@@ -52,25 +52,16 @@ public struct Circle2Parametric<Vector: Vector2Real>: ParametricClip2Geometry, E
 
     public func allSimplexes() -> [Simplex] {
         var arc1: CircleArc2<Vector>
-        var arc2: CircleArc2<Vector>
 
         if isReversed {
             arc1 = circle2.arc(
-                startAngle: Angle.pi * 2.0,
-                sweepAngle: -.pi
-            )
-            arc2 = circle2.arc(
-                startAngle: Angle.pi,
-                sweepAngle: -.pi
+                startAngle: Angle.zero,
+                sweepAngle: -.pi * 2.0
             )
         } else {
             arc1 = circle2.arc(
-                startAngle: .zero,
-                sweepAngle: .pi
-            )
-            arc2 = circle2.arc(
-                startAngle: Angle.pi,
-                sweepAngle: .pi
+                startAngle: Angle.zero,
+                sweepAngle: .pi * 2.0
             )
         }
 
@@ -78,15 +69,12 @@ public struct Circle2Parametric<Vector: Vector2Real>: ParametricClip2Geometry, E
             .circleArc2(
                 .init(circleArc: arc1, startPeriod: 0, endPeriod: 1 / 2)
             ),
-            .circleArc2(
-                .init(circleArc: arc2, startPeriod: 1 / 2, endPeriod: 1)
-            ),
         ]
 
         return simplexes
     }
 
-    public func reversed() -> Circle2Parametric<Vector> {
+    public func reversed() -> Circle2Parametric {
         var copy = self
         copy.isReversed = !isReversed
         return copy

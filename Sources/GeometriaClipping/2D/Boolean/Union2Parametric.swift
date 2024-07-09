@@ -2,24 +2,20 @@ import Geometria
 
 /// A Union boolean parametric that joins two shapes into a single shape, if they
 /// intersect in space.
-public struct Union2Parametric<T1: ParametricClip2Geometry, T2: ParametricClip2Geometry>: Boolean2Parametric
-    where T1.Vector == T2.Vector, T1.Vector: Hashable
-{
+public struct Union2Parametric: Boolean2Parametric {
     public typealias Period = Double
 
     public let lhs: T1, rhs: T2
     public let tolerance: Scalar
 
-    public init(_ lhs: T1, _ rhs: T2, tolerance: T1.Scalar) where T1.Vector == T2.Vector {
+    public init(_ lhs: T1, _ rhs: T2, tolerance: T1.Scalar) {
         self.lhs = lhs
         self.rhs = rhs
         self.tolerance = tolerance
     }
 
     public func allSimplexes() -> [[Simplex]] {
-        typealias State = GeometriaClipping.State<T1, T2>
-
-        let lookup: IntersectionLookup<T1, T2> = .init(
+        let lookup: IntersectionLookup = .init(
             intersectionsOfSelfShape: lhs,
             otherShape: rhs,
             tolerance: tolerance
@@ -27,11 +23,11 @@ public struct Union2Parametric<T1: ParametricClip2Geometry, T2: ParametricClip2G
 
         // If no intersections have been found, check if one of the shapes is
         // contained within the other
-        guard !lookup.intersections.isEmpty else {
-            if lookup.isSelfWithinOther() {
+        guard lookup.intersections.count >= 2 else {
+            if lookup.isOtherWithinSelf() {
                 return [lhs.allSimplexes()]
             }
-            if lookup.isOtherWithinSelf() {
+            if lookup.isSelfWithinOther() {
                 return [rhs.allSimplexes()]
             }
 

@@ -2,7 +2,7 @@ import Geometria
 
 /// A 2-dimensional parametric shape that is composed of generic simplexes that
 /// are joined end-to-end in a loop.
-public struct Compound2Parametric<Vector: Vector2Real>: ParametricClip2Geometry {
+public struct Compound2Parametric: ParametricClip2Geometry {
     public typealias Scalar = Vector.Scalar
     public typealias Simplex = Parametric2GeometrySimplex<Vector>
 
@@ -117,7 +117,7 @@ public struct Compound2Parametric<Vector: Vector2Real>: ParametricClip2Geometry 
         simplexes
     }
 
-    public func reversed() -> Compound2Parametric<Vector> {
+    public func reversed() -> Self {
         let simplexes = self.simplexes
             .map({ $0.reversed() })
             .reversed()

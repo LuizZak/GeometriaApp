@@ -2,7 +2,10 @@ import Geometria
 
 /// Retains information about intersections and the shapes that produced them to
 /// be used by boolean parametric operators.
-internal class IntersectionLookup<T1: ParametricClip2Geometry, T2: ParametricClip2Geometry> where T1.Vector == T2.Vector {
+internal class IntersectionLookup {
+    typealias T1 = ParametricClip2Geometry
+    typealias T2 = ParametricClip2Geometry
+
     typealias Intersection = (`self`: T1.Period, other: T2.Period)
 
     private let selfSimplexes: [T1.Simplex]
@@ -205,10 +208,6 @@ internal class IntersectionLookup<T1: ParametricClip2Geometry, T2: ParametricCli
             other: intersection.other - otherShape.periodRange
         )
     }
-}
-
-extension IntersectionLookup where T1.Vector: Hashable {
-    typealias State = GeometriaClipping.State<T1, T2>
 
     /// Returns the result of clamping simplexes from either the left-hand or
     /// right-hand side of the intersections defined by `start -> end`, based on

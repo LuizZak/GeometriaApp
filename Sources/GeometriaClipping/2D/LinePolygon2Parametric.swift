@@ -2,7 +2,7 @@ import Geometria
 
 /// A parametric geometry that is defined by an underlying set of vertices from a
 /// ``LinePolygon2`` shape.
-public struct LinePolygon2Parametric<Vector: Vector2Real>: ParametricClip2Geometry, Equatable {
+public struct LinePolygon2Parametric: ParametricClip2Geometry, Equatable {
     public typealias Scalar = Vector.Scalar
     public typealias Simplex = Parametric2GeometrySimplex<Vector>
 
@@ -96,7 +96,7 @@ public struct LinePolygon2Parametric<Vector: Vector2Real>: ParametricClip2Geomet
         return result
     }
 
-    public func reversed() -> LinePolygon2Parametric<Vector> {
+    public func reversed() -> Self {
         let polygon = linePolygon2.reversed()
 
         return .init(
