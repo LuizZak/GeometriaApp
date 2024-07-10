@@ -67,7 +67,7 @@ public struct Circle2Parametric: ParametricClip2Geometry, Equatable {
 
         let simplexes: [Simplex] = [
             .circleArc2(
-                .init(circleArc: arc1, startPeriod: 0, endPeriod: 1 / 2)
+                .init(circleArc: arc1, startPeriod: 0, endPeriod: 1)
             ),
         ]
 

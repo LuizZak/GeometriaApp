@@ -63,9 +63,11 @@ open class PolyBooleanApp: ImagineUIWindowContent {
             Circle2Parametric(circle: .init(center: sizeVec / 2, radius: sizeVec.x / 5)),
             //LinePolygon2Parametric(location: sizeVec * .init(x: 0.4, y: 0.3), size: sizeVec * 0.5),
             //RoundedRectPoly(location: sizeVec * .init(x: 0.2, y: 0.4), size: sizeVec * .init(x: 0.4, y: 0.3), radius: sizeVec.x * 0.05),
-            Circle2Parametric(circle: .init(center: .init(x: 407, y: 276), radius: sizeVec.x / 20)),
+            //Circle2Parametric(circle: .init(center: .init(x: 407, y: 276), radius: sizeVec.x / 20)),
             LinePolygon2Parametric(location: sizeVec * .init(x: 0.2, y: 0.4), size: sizeVec * .init(x: 0.4, y: 0.3)),
-            Circle2Parametric(circle: .init(center: .init(x: 385, y: 539), radius: sizeVec.x / 20)),
+            //Circle2Parametric(circle: .init(center: .init(x: 385, y: 539), radius: sizeVec.x / 20)),
+            Circle2Parametric(circle: .init(center: .init(x: 265, y: 525), radius: sizeVec.x / 20)),
+            //Circle2Parametric(circle: .init(center: .init(x: 324, y: 575), radius: sizeVec.x / 20)),
             //Circle2Parametric(circle: .init(center: .init(x: 306, y: 283), radius: sizeVec.x / 20)),
             //Circle2Parametric(circle: .init(center: .init(x: 646, y: 337), radius: sizeVec.x / 20)),
         ]
@@ -177,12 +179,16 @@ open class PolyBooleanApp: ImagineUIWindowContent {
     open override func render(renderer: any Renderer, renderScale: UIVector, clipRegion: any ClipRegionType) {
         super.render(renderer: renderer, renderScale: renderScale, clipRegion: clipRegion)
 
+        let polys = effectivePolys()
+
+        renderer.setStroke(
+            .init(color: .black, width: 1, startCap: .round, endCap: .round, joinStyle: .round)
+        )
+        render(polys: polys, renderer: renderer)
+
         renderer.setStroke(
             .init(color: .black, width: 5, startCap: .round, endCap: .round, joinStyle: .round)
         )
-
-        let polys = effectivePolys()
-        //render(polys: polys, renderer: renderer)
         renderUnion(polys: polys, renderer: renderer)
         //renderIntersections(polys: polys, renderer: renderer)
         //testEllipseNormals(renderer: renderer)
@@ -211,7 +217,7 @@ open class PolyBooleanApp: ImagineUIWindowContent {
 
             outer:
             for (index, current) in remaining.enumerated() {
-                for (nextIndex, next) in remaining.enumerated().dropFirst() {
+                for (nextIndex, next) in remaining.enumerated().dropFirst(index + 1) {
                     guard index != nextIndex else { continue }
                     guard current.bounds.intersects(next.bounds) else { continue }
 
@@ -257,6 +263,15 @@ open class PolyBooleanApp: ImagineUIWindowContent {
             if pair.`self` < strokeAnimation && pair.other < strokeAnimation {
                 renderPoint(period: pair.`self`, on: lhs, color: .red)
                 renderPoint(period: pair.other, on: rhs, color: .blue)
+            }
+        }
+        func renderPair(
+            _ pair: ParametricClip2Intersection,
+            lhs: ParametricClip2Geometry,
+            rhs: ParametricClip2Geometry
+        ) {
+            for pair in pair.periods {
+                renderPair(pair, lhs: lhs, rhs: rhs)
             }
         }
 
@@ -329,9 +344,9 @@ open class PolyBooleanApp: ImagineUIWindowContent {
     func render(poly: any ParametricClip2Geometry, renderer: any Renderer) {
         let simplexes = poly.clampedSimplexes(in: 0..<strokeAnimation)
         let actual = poly.compute(at: strokeAnimation).asUIPoint
-        renderPoint(actual, color: .green, renderer: renderer)
 
         render(ops: simplexes, renderer: renderer)
+        renderPoint(actual, color: .green, renderer: renderer)
     }
 
     func render(ops: [Parametric2GeometrySimplex<Vector2D>], renderer: any Renderer) {

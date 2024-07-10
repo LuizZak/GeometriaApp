@@ -3,8 +3,8 @@ import Geometria
 /// Retains information about intersections and the shapes that produced them to
 /// be used by boolean parametric operators.
 internal class IntersectionLookup {
-    typealias T1 = ParametricClip2Geometry
-    typealias T2 = ParametricClip2Geometry
+    typealias T1 = any ParametricClip2Geometry
+    typealias T2 = any ParametricClip2Geometry
 
     typealias Intersection = (`self`: T1.Period, other: T2.Period)
 
@@ -27,7 +27,7 @@ internal class IntersectionLookup {
         self.init(
             selfShape: selfShape,
             otherShape: otherShape,
-            intersections: intersections
+            intersections: intersections.flatMap(\.periods)
         )
     }
 

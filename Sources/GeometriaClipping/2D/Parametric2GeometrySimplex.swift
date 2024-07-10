@@ -230,7 +230,7 @@ public enum Parametric2GeometrySimplex<Vector: Vector2Real>: Parametric2Simplex,
     }
 
     static func isWithinAbsoluteBounds(_ period: Period) -> Bool {
-        period >= .zero && period < 1
+        period >= .zero && period <= 1
     }
 
     static func circleArcIntersectionRatio(
