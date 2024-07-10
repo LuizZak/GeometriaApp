@@ -25,7 +25,7 @@ public class AABBGraphNode: GeometryGraphNode {
     }
 
     public override func makeElement(_ delegate: SceneGraphDelegate) throws -> Any {
-        AnyElement(AABBElement(geometry: aabb, material: material))
+        AnyRaymarchingElement(AABBElement(geometry: aabb, material: material))
     }
 }
 

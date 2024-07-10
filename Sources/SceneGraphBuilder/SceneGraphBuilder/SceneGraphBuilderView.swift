@@ -2,7 +2,6 @@ import ImagineUI
 import GeometriaAppLib
 
 class SceneGraphBuilderView: RootView {
-    private var _sidePanel: SidePanel = SidePanel(pinSide: .left, length: 250)
     private var _nodesContainer: SceneGraphBuilderNodeContainer = SceneGraphBuilderNodeContainer()
     private var _connectionViewsManager: ConnectionViewsManager
 
@@ -17,6 +16,7 @@ class SceneGraphBuilderView: RootView {
     }
 
     weak var delegate: SceneGraphBuilderViewDelegate?
+    let sidePanel: SidePanel = SidePanel(pinSide: .left, length: 250)
 
     override init() {
         _connectionViewsManager = .init(container: _nodesContainer)
@@ -36,9 +36,9 @@ class SceneGraphBuilderView: RootView {
         super.setupHierarchy()
 
         addSubview(_nodesContainer)
-        addSubview(_sidePanel)
+        addSubview(sidePanel)
 
-        _sidePanel.addSubview(_nodeListView)
+        sidePanel.addSubview(_nodeListView)
     }
 
     override func setupConstraints() {
@@ -121,6 +121,11 @@ class SceneGraphBuilderView: RootView {
         anchor.outputViewInfo?.state.connectionAdded()
     }
 
+    private func _decrementConnectionCount(_ anchor: SceneGraphConnectionElement.AnchorElement) {
+        anchor.inputViewInfo?.state.connectionRemoved()
+        anchor.outputViewInfo?.state.connectionRemoved()
+    }
+
     private func _moveNodeViewToFront(_ nodeView: SceneGraphNodeView) {
         nodeView.bringToFrontOfSuperview()
 
@@ -155,6 +160,42 @@ class SceneGraphBuilderView: RootView {
         _nodeViews.remove(at: index)
     }
 
+    private func _removeEdge(_ edge: SceneGraphEdge) {
+        func anchorForElement(
+            _ nodeView: SceneGraphNodeView,
+            _ element: SceneGraphDirectedNodeElement.Element
+        ) -> SceneGraphConnectionElement.AnchorElement? {
+
+            switch element {
+            case .node:
+                return nil
+            case .input(_, let input):
+                let info = nodeView.inputViewConnection(forInputIndex: input.index)
+                return .input(nodeView, info)
+
+            case .output(_, let output):
+                let info = nodeView.outputViewConnection(forOutputIndex: output.index)
+                return .output(nodeView, info)
+            }
+        }
+
+        // Remove reference of connection from existing nodes
+        if
+            let startNode = _viewForNode(edge.start.sceneGraphNode),
+            let startAnchor = anchorForElement(startNode, edge.start.element)
+        {
+            _decrementConnectionCount(startAnchor)
+        }
+        if
+            let endNode = _viewForNode(edge.end.sceneGraphNode),
+            let endAnchor = anchorForElement(endNode, edge.end.element)
+        {
+            _decrementConnectionCount(endAnchor)
+        }
+
+        _removeConnectionElement(forEdge: edge)
+    }
+
     private func _createConnectionElement(
         startAnchor: SceneGraphConnectionElement.AnchorElement? = nil,
         endAnchor: SceneGraphConnectionElement.AnchorElement? = nil,
@@ -170,6 +211,10 @@ class SceneGraphBuilderView: RootView {
         _connections.append(info)
 
         return element
+    }
+
+    private func _removeConnectionElement(forEdge edge: SceneGraphEdge) {
+        _connections.removeAll { $0.graphEdge === edge }
     }
 
     private func _removeConnectionElement(_ element: SceneGraphConnectionElement) {
@@ -242,7 +287,7 @@ class SceneGraphBuilderView: RootView {
                         continue
                     }
 
-                    return .connection(connection.visualConnection, edge: edge)
+                    return .connection(connection.visualConnection, edge: edge, connection)
                 }
             }
 
@@ -427,12 +472,36 @@ extension SceneGraphBuilderView: SceneGraphBuilderControllerUIDelegate {
         _addNode(node)
     }
 
+    @discardableResult
+    func sceneGraphBuilderController(
+        _ controller: SceneGraphBuilderController,
+        removeViewForNode node: SceneGraphNode
+    ) -> SceneGraphNodeView? {
+
+        guard let nodeView = _viewForNode(node) else {
+            return nil
+        }
+
+        _removeNodeView(nodeView)
+
+        return nodeView
+    }
+
     func sceneGraphBuilderController(
         _ controller: SceneGraphBuilderController,
         createViewForEdge edge: SceneGraphEdge
     ) {
 
         _addEdge(edge)
+    }
+
+
+    func sceneGraphBuilderController(
+        _ controller: SceneGraphBuilderController,
+        removeViewForEdge edge: SceneGraphEdge
+    ) {
+
+        _removeEdge(edge)
     }
 
     func sceneGraphBuilderController(

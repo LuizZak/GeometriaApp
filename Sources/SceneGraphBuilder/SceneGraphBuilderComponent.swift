@@ -7,6 +7,13 @@ class SceneGraphBuilderComponent: RaytracerUIComponent {
     private let _builderView: SceneGraphBuilderView = SceneGraphBuilderView()
     private let _controller: SceneGraphBuilderController = SceneGraphBuilderController()
 
+    var sidePanel: SidePanel {
+        _builderView.sidePanel
+    }
+    var sceneGraph: SceneGraph {
+        _controller.sceneGraph
+    }
+
     weak var delegate: RaytracerUIComponentDelegate?
 
     init() {
@@ -18,7 +25,7 @@ class SceneGraphBuilderComponent: RaytracerUIComponent {
 
     func setup(container: View) {
         container.addSubview(_builderView)
-        
+
         _builderView.layout.makeConstraints { make in
             make.edges == container
         }
@@ -41,6 +48,15 @@ class SceneGraphBuilderComponent: RaytracerUIComponent {
         }
         _builderView.mouseWheelScrolled.addListener(weakOwner: self) { [_controller] (_, event) in
             _controller.onMouseWheel(event)
+        }
+        _builderView.keyDown.addListener(weakOwner: self) { [_controller] (_, event) in
+            _controller.onKeyDown(event)
+        }
+        _builderView.keyUp.addListener(weakOwner: self) { [_controller] (_, event) in
+            _controller.onKeyUp(event)
+        }
+        _builderView.keyPressed.addListener(weakOwner: self) { [_controller] (_, event) in
+            _controller.onKeyPress(event)
         }
     }
 

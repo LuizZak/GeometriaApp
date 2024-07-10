@@ -4,7 +4,10 @@ import GeometriaAppLib
 
 /// Controls UI interactions with a scene graph builder interface.
 class SceneGraphBuilderController {
+    private var _mouseDownPoint: UIPoint = .zero
+    private var _isMouseClickCandidate: Bool = false
     private var _mouseState: MouseState = .none
+    private var _selection: [SceneGraphMouseElementKind] = []
 
     weak var uiDelegate: SceneGraphBuilderControllerUIDelegate?
 
@@ -31,7 +34,12 @@ class SceneGraphBuilderController {
         addNode(node3)?.location = .init(x: 550, y: 210)
     }
 
+    // MARK: - Events - Mouse
+
     func onMouseDown(_ event: MouseEventArgs) {
+        _mouseDownPoint = event.location
+        _isMouseClickCandidate = true
+
         if event.buttons == .left {
             if let element = elementUnder(point: event.location) {
                 switch element {
@@ -44,7 +52,7 @@ class SceneGraphBuilderController {
                 case .output(let info, let node, _):
                     beginOutputDrag(info, node: node)
 
-                case .connection(let element, _):
+                case .connection(let element, _, _):
                     uiDelegate?.sceneGraphBuilderController(
                         self,
                         bringEdgeToFront: element
@@ -59,6 +67,10 @@ class SceneGraphBuilderController {
     }
 
     func onMouseMove(_ event: MouseEventArgs) {
+        if event.location.distance(to: _mouseDownPoint) > 5 {
+            _isMouseClickCandidate = false
+        }
+
         updateDragState(event.location)
     }
 
@@ -67,21 +79,31 @@ class SceneGraphBuilderController {
     }
 
     func onMouseClick(_ event: MouseEventArgs) {
-        rightButton:
-        if event.buttons == .right {
-            guard let uiElement = elementUnder(point: event.location) else {
-                break rightButton
-            }
+        guard _isMouseClickCandidate else {
+            return
+        }
 
-            switch uiElement {
-            case .node(_, let view):
-                openContextMenu(
-                    for: view,
-                    location: convert(point: event.location, to: nil)
-                )
-            default:
+        switch event.buttons {
+        case .left:
+            clearSelection()
+
+            guard let uiElement = elementUnder(point: event.location) else {
                 break
             }
+
+            addSelection(uiElement)
+
+        case .right:
+            guard let uiElement = elementUnder(point: event.location) else {
+                break
+            }
+
+            openContextMenu(
+                for: uiElement,
+                location: convert(point: event.location, to: nil)
+            )
+        default:
+            break
         }
     }
 
@@ -107,7 +129,47 @@ class SceneGraphBuilderController {
         }
     }
 
+    // MARK: Keyboard
+
+    func onKeyDown(_ event: KeyEventArgs) {
+    }
+
+    func onKeyUp(_ event: KeyEventArgs) {
+    }
+
+    func onKeyPress(_ event: KeyPressEventArgs) {
+    }
+
     // MARK: - Internals
+
+    // MARK: Selection management
+
+    private func clearSelection() {
+        for selection in _selection {
+            updateSelectionStatus(
+                selection,
+                isSelected: false
+            )
+        }
+
+        _selection.removeAll()
+    }
+
+    private func addSelection(_ element: SceneGraphMouseElementKind) {
+        guard !_selection.contains(where: { $0.associatedControlView === element.associatedControlView }) else {
+            return
+        }
+
+        _selection.append(element)
+        updateSelectionStatus(element, isSelected: true)
+    }
+
+    private func updateSelectionStatus(
+        _ element: SceneGraphMouseElementKind,
+        isSelected: Bool
+    ) {
+        element.associatedControlView.isSelected = isSelected
+    }
 
     // MARK: Mouse state management
 
@@ -367,12 +429,33 @@ class SceneGraphBuilderController {
         )
     }
 
-    private func openContextMenu(for view: SceneGraphNodeView, location: UIPoint) {
+    private func nodeView(for node: SceneGraphNode) -> SceneGraphNodeView? {
+        guard let uiDelegate else { return nil }
+
+        return uiDelegate.sceneGraphBuilderController(
+            self,
+            viewForGraphNode: node
+        )
+    }
+
+    private func openContextMenu(for element: SceneGraphMouseElementKind, location: UIPoint) {
+        switch element {
+        case .node(let node, let view):
+            openContextMenu(for: view, node: node, location: location)
+
+
+
+        default:
+            break
+        }
+    }
+
+    private func openContextMenu(for view: SceneGraphNodeView, node: SceneGraphNode, location: UIPoint) {
         guard let uiDelegate else { return }
 
         let items = ContextMenuView.createItems {
             ContextMenuItem(title: "Delete") {
-                //self._removeNodeView(view)
+                self.removeNode(node)
             }
         }
 
@@ -557,8 +640,7 @@ class SceneGraphBuilderController {
                 }
             }
 
-            let global = controller.convert(point: mouseLocation, to: nil)
-            return .globalLocation(global)
+            return .globalLocation(mouseLocation)
         }
     }
 
@@ -625,8 +707,7 @@ class SceneGraphBuilderController {
                 }
             }
 
-            let global = controller.convert(point: mouseLocation, to: nil)
-            return .globalLocation(global)
+            return .globalLocation(mouseLocation)
         }
     }
 }
@@ -639,6 +720,25 @@ extension SceneGraphBuilderController {
         sceneGraph.addNode(node)
 
         return createNodeView(for: node)
+    }
+
+    func removeNode(_ node: SceneGraphNode) {
+        guard let uiDelegate else {
+            return
+        }
+        guard sceneGraph.containsNode(node) else {
+            return
+        }
+
+        uiDelegate.sceneGraphBuilderController(self, removeViewForNode: node)
+
+        guard let edges = sceneGraph.removeNode(node)?.edges else {
+            return
+        }
+
+        for edge in edges {
+            uiDelegate.sceneGraphBuilderController(self, removeViewForEdge: edge)
+        }
     }
 
     /// Returns whether a particular scene graph node can be removed from the

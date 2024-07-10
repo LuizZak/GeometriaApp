@@ -2,6 +2,21 @@ import ImagineUI
 import Blend2DRenderer
 
 enum GraphBuilderIconLibrary {
+    public static let runIcon: Image = makeIcon(.darkGreen) { (renderer, size) in
+        let sizePoint = size.asUIPoint
+        let center = sizePoint / 2
+
+        var path = UIBezier()
+        path.move(to: .zero)
+        path.line(toX: size.width, y: center.y)
+        path.line(toX: 0, y: sizePoint.y)
+        path.close()
+
+        renderer.stroke(path)
+        renderer.setFill(.green)
+        renderer.fill(path)
+    }
+
     public static let addIcon: Image = makeIcon(.yellow, size: .init(width: 10, height: 10)) { (renderer, size) in
         let sizePoint = size.asUIPoint
 

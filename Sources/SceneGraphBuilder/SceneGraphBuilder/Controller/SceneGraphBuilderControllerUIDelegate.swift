@@ -7,7 +7,24 @@ enum SceneGraphMouseElementKind {
     case node(node: SceneGraphNode, SceneGraphNodeView)
     case input(SceneGraphNodeView.InputViewInfo, node: SceneGraphNode, SceneGraphNodeView)
     case output(SceneGraphNodeView.OutputViewInfo, node: SceneGraphNode, SceneGraphNodeView)
-    case connection(SceneGraphConnectionElement, edge: SceneGraphEdge)
+    case connection(SceneGraphConnectionElement, edge: SceneGraphEdge, ConnectionView)
+
+    /// Gets the control view associated with this connection element.
+    var associatedControlView: ControlView {
+        switch self {
+        case .node(_, let view):
+            return view
+
+        case .input(_, _, let view):
+            return view
+
+        case .output(_, _, let view):
+            return view
+
+        case .connection(_, _, let view):
+            return view
+        }
+    }
 }
 
 /// Delegate for UI interactions of a scene graph builder controller.
@@ -60,9 +77,20 @@ protocol SceneGraphBuilderControllerUIDelegate: AnyObject {
         createViewForNode node: SceneGraphNode
     ) -> SceneGraphNodeView
 
+    @discardableResult
+    func sceneGraphBuilderController(
+        _ controller: SceneGraphBuilderController,
+        removeViewForNode node: SceneGraphNode
+    ) -> SceneGraphNodeView?
+
     func sceneGraphBuilderController(
         _ controller: SceneGraphBuilderController,
         createViewForEdge edge: SceneGraphEdge
+    )
+
+    func sceneGraphBuilderController(
+        _ controller: SceneGraphBuilderController,
+        removeViewForEdge edge: SceneGraphEdge
     )
 
     func sceneGraphBuilderController(

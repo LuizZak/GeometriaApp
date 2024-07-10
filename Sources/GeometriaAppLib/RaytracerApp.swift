@@ -9,7 +9,7 @@ open class RaytracerApp: RaytracerUI {
     private var _isResizing: Bool = false
     private var _mouseLocation: BLPointI = .zero
 
-    private var threadCount: Int = 12
+    private var threadCount: Int = 6
 
     // Components
     private let statusMessages: StatusMessageStackComponent = StatusMessageStackComponent()

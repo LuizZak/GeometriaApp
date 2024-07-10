@@ -84,7 +84,7 @@ class ConnectionView: ControlView {
         }
 
         visualConnection.bezier = bezier
-        
+
         if let state {
             state.bezier = bezier
 
@@ -118,8 +118,10 @@ class ConnectionView: ControlView {
         switch controlState {
         case .normal:
             strokeScale = 1
-        case .highlighted:
+
+        case .highlighted, .selected:
             strokeScale = 2
+
         default:
             break
         }
@@ -253,7 +255,7 @@ class ConnectionView: ControlView {
                 return sep.magnitude / 2
             case (.left, _):
                 return -sep.magnitude / 2
-            
+
             case (.none, _):
                 return sep
             }
@@ -261,7 +263,7 @@ class ConnectionView: ControlView {
 
         func bezierAnchorPoint(_ other: AnchorPointInfo) -> UIPoint {
             let sep = bezierAnchorDistance(other)
-            
+
             return UIPoint(x: point.x + sep, y: point.y)
         }
 

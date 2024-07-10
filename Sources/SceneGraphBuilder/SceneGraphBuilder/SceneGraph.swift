@@ -20,38 +20,38 @@ class SceneGraph: DirectedGraph {
     public func areNodesEqual(_ node1: Node, _ node2: Node) -> Bool {
         node1 === node2
     }
-    
+
     /// Returns whether a given graph node exists in this graph.
     ///
     /// A reference equality test (===) is used to determine syntax node equality.
     public func containsNode(_ node: Node) -> Bool {
         nodes.contains { $0 === node }
     }
-    
+
     @inlinable
     public func startNode(for edge: Edge) -> Node {
         edge.start
     }
-    
+
     @inlinable
     public func endNode(for edge: Edge) -> Node {
         edge.end
     }
-    
+
     /// Returns all outgoing edges for a given graph node.
     ///
     /// A reference equality test (===) is used to determine graph node equality.
     public func edges(from node: Node) -> [Edge] {
         edges.filter { $0.start === node }
     }
-    
+
     /// Returns all ingoing edges for a given graph node.
     ///
     /// A reference equality test (===) is used to determine graph node equality.
     public func edges(towards node: Node) -> [Edge] {
         edges.filter { $0.end === node }
     }
-    
+
     /// Returns an existing edge between two nodes, or `nil`, if no edges between
     /// them currently exist.
     ///
@@ -67,7 +67,7 @@ class SceneGraph: DirectedGraph {
     }
 
     func copyMetadata(from edge1: Edge, to edge2: Edge) {
-        
+
     }
 
     /// Removes all nodes and edges from this graph.
@@ -75,42 +75,13 @@ class SceneGraph: DirectedGraph {
         nodes.removeAll()
         edges.removeAll()
     }
-    
-    /// Adds a given node to this graph.
-    func addNode(_ sceneGraphNode: SceneGraphNode) {
-        let node = SceneGraphDirectedNodeElement(node: sceneGraphNode)
-        addNode(node)
-
-        // Add auxiliary nodes from this node
-        for input in sceneGraphNode.inputs {
-            let inputNode = SceneGraphDirectedNodeElement(
-                node: sceneGraphNode,
-                input: input
-            )
-
-            addNode(inputNode)
-
-            addEdge(from: inputNode, to: node)
-        }
-
-        for output in sceneGraphNode.outputs {
-            let outputNode = SceneGraphDirectedNodeElement(
-                node: sceneGraphNode,
-                output: output
-            )
-
-            addNode(outputNode)
-
-            addEdge(from: node, to: outputNode)
-        }
-    }
 
     fileprivate func addNode(_ node: SceneGraphDirectedNodeElement) {
         assert(
             !self.containsNode(node),
             "Node \(node) already exists in this graph"
         )
-        
+
         nodes.append(node)
     }
 
@@ -128,7 +99,7 @@ class SceneGraph: DirectedGraph {
 
         return addEdge(from: start, to: end)
     }
-    
+
     /// Adds an edge `start -> end` to this graph.
     @discardableResult
     func addEdge(from start: Node, to end: Node) -> Edge {
@@ -142,7 +113,7 @@ class SceneGraph: DirectedGraph {
     func addEdge(_ edge: Edge) {
         edges.append(edge)
     }
-    
+
     /// Removes an edge between two nodes from this graph.
     func removeEdge(from start: Node, to end: Node) {
         func predicate(_ edge: Edge) -> Bool {
@@ -156,7 +127,13 @@ class SceneGraph: DirectedGraph {
 
         edges.removeAll(where: predicate)
     }
-    
+
+    func removeEdge(_ edge: Edge) {
+        if let index = edges.firstIndex(of: edge) {
+            edges.remove(at: index)
+        }
+    }
+
     /// Removes a given node from this graph.
     func removeNode(_ node: Node) {
         assert(
@@ -167,12 +144,12 @@ class SceneGraph: DirectedGraph {
         removeEdges(allEdges(for: node))
         nodes.removeAll(where: { $0 === node })
     }
-    
+
     /// Removes a given sequence of edges from this graph.
     func removeEdges<S: Sequence>(_ edgesToRemove: S) where S.Element == Edge {
         edges.removeAll(where: edgesToRemove.contains)
     }
-    
+
     /// Removes a given sequence of nodes from this graph.
     func removeNodes<S: Sequence>(_ nodesToRemove: S) where S.Element == Node {
         nodes.removeAll(where: nodesToRemove.contains)
@@ -254,11 +231,93 @@ class SceneGraph: DirectedGraph {
         redirectEntries(for: next, to: node)
         addEdge(from: node, to: next)
     }
+
+    /// Used to refer to arbitrary sets of nodes and edges within a scene graph.
+    struct ElementBundle {
+        var nodes: [Node] = []
+        var edges: [Edge] = []
+    }
 }
 
 // MARK: SceneGraphNode extensions
 extension SceneGraph {
-    func node(forSceneGraphNode sceneGraphNode: SceneGraphNode) -> SceneGraphDirectedNodeElement? {
+
+    func containsNode(_ sceneGraphNode: SceneGraphNode) -> Bool {
+        for node in nodes {
+            if node.sceneGraphNode === sceneGraphNode {
+                return true
+            }
+        }
+
+        return false
+    }
+
+    /// Adds a given node to this graph.
+    func addNode(_ sceneGraphNode: SceneGraphNode) {
+        let node = SceneGraphDirectedNodeElement(node: sceneGraphNode)
+        addNode(node)
+
+        // Add auxiliary nodes from this node
+        for input in sceneGraphNode.inputs {
+            let inputNode = SceneGraphDirectedNodeElement(
+                node: sceneGraphNode,
+                input: input
+            )
+
+            addNode(inputNode)
+
+            addEdge(from: inputNode, to: node)
+        }
+
+        for output in sceneGraphNode.outputs {
+            let outputNode = SceneGraphDirectedNodeElement(
+                node: sceneGraphNode,
+                output: output
+            )
+
+            addNode(outputNode)
+
+            addEdge(from: node, to: outputNode)
+        }
+    }
+
+    /// Removes a given node from this graph.
+    ///
+    /// Returns all edges that where connected to the node and where removed, if
+    /// the node existed in this graph.
+    @discardableResult
+    func removeNode(_ sceneGraphNode: SceneGraphNode) -> ElementBundle? {
+        guard let subtree = dependantElements(forSceneGraphNode: sceneGraphNode) else {
+            return nil
+        }
+
+        let extraEdges = subtree.nodes.flatMap { node in
+            allEdges(for: node).filter { !subtree.edges.contains($0) }
+        }
+        removeEdges(subtree.edges + extraEdges)
+        for node in subtree.nodes {
+            removeNode(node)
+        }
+
+        return .init(edges: extraEdges)
+    }
+
+    /// Returns all elements that are strongly connected to a given scene graph
+    /// node represented within this graph, like a node's inputs and outputs.
+    ///
+    /// If the node is not represented in this graph, `nil` is returned, instead.
+    func dependantElements(forSceneGraphNode sceneGraphNode: SceneGraphNode) -> ElementBundle? {
+        let nodes = self.nodes.filter { node in
+            node.sceneGraphNode === sceneGraphNode
+        }
+        let edges = self.edges.filter { edge in
+            nodes.contains(edge.start) && nodes.contains(edge.end)
+        }
+
+        return .init(nodes: nodes, edges: edges)
+    }
+
+    func node(forSceneGraphNode sceneGraphNode: SceneGraphNode) -> Node? {
         for node in nodes {
             switch node.element {
             case .node(let n) where sceneGraphNode === n:
@@ -270,8 +329,8 @@ extension SceneGraph {
 
         return nil
     }
-    
-    func node(forInput sceneGraphNode: SceneGraphNode, _ input: SceneGraphNodeInput) -> SceneGraphDirectedNodeElement? {
+
+    func node(forInput sceneGraphNode: SceneGraphNode, _ input: SceneGraphNodeInput) -> Node? {
         for node in nodes {
             switch node.element {
             case .input(let n, let i) where sceneGraphNode === n && i.index == input.index:
@@ -283,8 +342,8 @@ extension SceneGraph {
 
         return nil
     }
-    
-    func node(forOutput sceneGraphNode: SceneGraphNode, _ output: SceneGraphNodeOutput) -> SceneGraphDirectedNodeElement? {
+
+    func node(forOutput sceneGraphNode: SceneGraphNode, _ output: SceneGraphNodeOutput) -> Node? {
         for node in nodes {
             switch node.element {
             case .output(let n, let o) where sceneGraphNode === n && o.index == output.index:
@@ -401,7 +460,7 @@ class SceneGraphDirectedNodeElement: DirectedGraphNode {
                 hasher.combine(0x01) // Enum discriminator
                 hasher.combine(ObjectIdentifier(node))
                 hasher.combine(input.index)
-            
+
             case .output(let node, let output):
                 hasher.combine(0x02) // Enum discriminator
                 hasher.combine(ObjectIdentifier(node))
@@ -416,7 +475,7 @@ class SceneGraphDirectedNodeElement: DirectedGraphNode {
 
             case (.input(let lhsNode, let lhsInput), .input(let rhsNode, let rhsInput)):
                 return lhsNode === rhsNode && lhsInput.index == rhsInput.index
-            
+
             case (.output(let lhsNode, let lhsOutput), .output(let rhsNode, let rhsOutput)):
                 return lhsNode === rhsNode && lhsOutput.index == rhsOutput.index
 

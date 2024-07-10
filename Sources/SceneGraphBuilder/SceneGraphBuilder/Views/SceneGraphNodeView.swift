@@ -42,6 +42,12 @@ class SceneGraphNodeView: RootView {
         updateColors()
     }
 
+    override func onStateChanged(_ change: ValueChangedEventArgs<ControlViewState>) {
+        super.onStateChanged(change)
+
+        updateColors()
+    }
+
     private func updateColors() {
         backColor = Color(red: 37, green: 37, blue: 38)
 
@@ -49,7 +55,7 @@ class SceneGraphNodeView: RootView {
         case .normal:
             strokeColor = Color(red: 9, green: 71, blue: 113)
 
-        case .highlighted:
+        case .highlighted, .selected:
             strokeColor = Color(red: 9, green: 71, blue: 113).faded(towards: .white, factor: 0.1)
 
         default:
@@ -58,12 +64,6 @@ class SceneGraphNodeView: RootView {
 
         _inputsLabel.backColor = .transparentBlack
         _outputsLabel.backColor = .transparentBlack
-    }
-
-    override func onStateChanged(_ change: ValueChangedEventArgs<ControlViewState>) {
-        super.onStateChanged(change)
-
-        updateColors()
     }
 
     override func setupHierarchy() {
