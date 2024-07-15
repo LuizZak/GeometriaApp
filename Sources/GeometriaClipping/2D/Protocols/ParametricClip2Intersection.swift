@@ -2,10 +2,7 @@ import Numerics
 
 /// Contains information relating to the intersection of two solid parametric
 /// geometries.
-public enum ParametricClip2Intersection {
-    /// Convenience for `T1.Period`
-    public typealias Period = Double
-
+public enum ParametricClip2Intersection<Period: Hashable & FloatingPoint> {
     /// The compact information present for intersections.
     public typealias Atom = (self: Period, other: Period)
 

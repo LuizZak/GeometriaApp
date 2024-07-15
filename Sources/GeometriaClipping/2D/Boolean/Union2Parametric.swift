@@ -14,16 +14,64 @@ public struct Union2Parametric: Boolean2Parametric {
         self.tolerance = tolerance
     }
 
-    public func allSimplexes() -> [[Simplex]] {
-        let lookup: IntersectionLookup = .init(
-            intersectionsOfSelfShape: lhs,
-            otherShape: rhs,
-            tolerance: tolerance
+    public func allContours() -> [Contour] {
+        #if false
+
+        typealias Graph = Simplex2Graph<Vector>
+
+        func materialize(
+            _ edge: Graph.Edge,
+            from start: Graph.Node,
+            to end: Graph.Node
+        ) -> Parametric2GeometrySimplex<Vector> {
+            let startPoint = start.point
+            let endPoint = end.point
+
+            switch edge.kind {
+            case .line:
+                return .lineSegment2(
+                    .init(
+                        lineSegment: .init(start: startPoint, end: endPoint),
+                        startPeriod: .zero,
+                        endPeriod: .zero
+                    )
+                )
+
+            case .circleArc(let center, let sweep):
+                var arc: CircleArc2 = .init(
+                    startPoint: startPoint,
+                    endPoint: endPoint,
+                    sweepAngle: sweep
+                )
+                // Re-adjust center
+                arc.center = center
+
+                return .circleArc2(
+                    .init(
+                        circleArc: arc,
+                        startPeriod: .zero,
+                        endPeriod: .zero
+                    )
+                )
+            }
+        }
+
+        let intersections = lhs
+            .allIntersectionPeriods(rhs, tolerance: tolerance)
+            .flatMap(\.periods)
+        let graph = Graph.fromParametricIntersections(
+            lhs,
+            rhs,
+            intersections: intersections
         )
 
-        // If no intersections have been found, check if one of the shapes is
-        // contained within the other
-        guard lookup.intersections.count >= 2 else {
+        if !graph.hasIntersections() {
+            let lookup: IntersectionLookup<T1, T2> = .init(
+                selfShape: lhs,
+                otherShape: rhs,
+                intersections: intersections
+            )
+
             if lookup.isOtherWithinSelf() {
                 return [lhs.allSimplexes()]
             }
@@ -34,31 +82,119 @@ public struct Union2Parametric: Boolean2Parametric {
             return [lhs.allSimplexes(), rhs.allSimplexes()]
         }
 
-        var state = State.onLhs(lhs.startPeriod, rhs.startPeriod)
-        if lookup.isInsideOther(selfPeriod: state.lhsPeriod) {
-            state = lookup.next(state)
+        let start = lhs.compute(at: lhs.startPeriod)
+        guard let startNode = graph.nodes.first(where: { $0.point == start }) else {
+            return []
+        }
+        var current = startNode
+        if rhs.contains(current.point) {
+            current = graph.firstIntersection(after: current) ?? current
         } else {
-            state = lookup.previous(state)
+            current = graph.firstIntersection(before: current) ?? current
         }
 
         var result: [Simplex] = []
-        var visited: Set<State> = []
 
-        while visited.insert(state).inserted {
-            // Find next intersection
-            let next = lookup.next(state)
+        var visited: Set<Graph.Node> = []
+        var isOnLhs = false
 
-            // Append simplex
-            let simplex = lookup.clampedSimplexesRange(state, next)
-            result.append(contentsOf: simplex)
+        while visited.insert(current).inserted {
+            let edges = graph.edges(from: current).filter { edge -> Bool in
+                let node = graph.endNode(for: edge)
+                return node.isIntersection || node.onLhs == isOnLhs
+            }
 
-            // Flip over to the next geometry
-            state = next.flipped()
+            guard let shortest = edges.min(by: { $0.lengthSquared < $1.lengthSquared }) else {
+                // Found non-periodic geometry?
+                continue
+            }
+            let next = graph.endNode(for: shortest)
+
+            let simplex = materialize(shortest, from: current, to: next)
+
+            result.append(simplex)
+
+            if next.isIntersection {
+                isOnLhs = !isOnLhs
+            }
+
+            current = next
         }
 
         // Re-normalize the simplex periods
         result = result.normalized(startPeriod: .zero, endPeriod: 1)
 
         return [result]
+
+        #else
+
+        typealias State = GeometriaClipping.State
+
+        let lhsContours = lhs.allContours()
+        let rhsContours = rhs.allContours()
+
+        let lookup: IntersectionLookup = .init(
+            lhsShapes: lhsContours,
+            lhsRange: lhs.startPeriod..<lhs.endPeriod,
+            rhsShapes: rhsContours,
+            rhsRange: rhs.startPeriod..<rhs.endPeriod,
+            tolerance: tolerance
+        )
+
+        let resultOverall = ContourManager()
+
+        // Re-combine the contours by working from bottom-to-top, stopping at
+        // contours that participate in intersections, adding the contours on top
+        // of the result
+        for index in 0..<lhsContours.count {
+            if !lookup.hasIntersections(lhsIndex: index) {
+                resultOverall.append(lhsContours[index])
+            }
+        }
+        for index in 0..<rhsContours.count {
+            if !lookup.hasIntersections(rhsIndex: index) {
+                resultOverall.append(rhsContours[index])
+            }
+        }
+
+        var simplexVisited: Set<State> = []
+        var visitedOverall: Set<State> = []
+
+        guard var state = lookup.candidateStart() else {
+            return resultOverall.allContours()
+        }
+
+        while visitedOverall.insert(state).inserted {
+            if !simplexVisited.contains(state) {
+                let result = resultOverall.beginContour()
+                var visited: Set<State> = []
+
+                while visited.insert(state).inserted {
+                    // Find next intersection
+                    let next = lookup.next(state)
+
+                    // Append simplex
+                    let simplex = lookup.clampedSimplexesRange(state, next)
+                    result.append(contentsOf: simplex)
+
+                    // Flip to the next intersection
+                    state = next.flipped()
+                }
+
+                simplexVisited.formUnion(visited)
+
+                // Re-normalize the simplex periods
+                result.endContour(startPeriod: .zero, endPeriod: 1)
+            }
+
+            // Here we skip twice in order to skip the portion of lhs that is
+            // occluded behind rhs, and land on the next intersection that brings
+            // lhs inside rhs
+            state = lookup.next(lookup.next(state))
+        }
+
+        return resultOverall.allContours()
+
+        #endif
     }
 }

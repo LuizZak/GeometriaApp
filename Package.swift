@@ -16,6 +16,7 @@ var packageDependencies: [Package.Dependency] =  [
     .package(url: "https://github.com/apple/swift-numerics.git", from: "1.0.0"),
     .package(url: "https://github.com/LuizZak/ImagineUI.git", branch: "master"),    //.package(url: "https://github.com/LuizZak/ImagineUI.git", branch: "master"),
     .package(url: "https://github.com/LuizZak/swift-blend2d.git", branch: "master"), //.package(url: "https://github.com/LuizZak/swift-blend2d.git", branch: "master")
+    .package(url: "https://github.com/LuizZak/MiniDigraph.git", exact: "0.5.1"),
 ]
 
 var targets: [Target] = []
@@ -101,6 +102,7 @@ if ProcessInfo.processInfo.environment["USE_GEOMETRIA_DEPENDENCY"] == "YES" {
             dependencies: [
                 "Geometria",
                 .product(name: "Numerics", package: "swift-numerics"),
+                .product(name: "MiniDigraph", package: "MiniDigraph"),
             ],
             swiftSettings: []
         ),

@@ -60,13 +60,18 @@ open class PolyBooleanApp: ImagineUIWindowContent {
         #if true
 
         polys = [
-            Circle2Parametric(circle: .init(center: sizeVec / 2, radius: sizeVec.x / 5)),
+            //Circle2Parametric(circle: .init(center: sizeVec / 2, radius: sizeVec.x / 5)),
             //LinePolygon2Parametric(location: sizeVec * .init(x: 0.4, y: 0.3), size: sizeVec * 0.5),
             //RoundedRectPoly(location: sizeVec * .init(x: 0.2, y: 0.4), size: sizeVec * .init(x: 0.4, y: 0.3), radius: sizeVec.x * 0.05),
             //Circle2Parametric(circle: .init(center: .init(x: 407, y: 276), radius: sizeVec.x / 20)),
-            LinePolygon2Parametric(location: sizeVec * .init(x: 0.2, y: 0.4), size: sizeVec * .init(x: 0.4, y: 0.3)),
+            //LinePolygon2Parametric(location: sizeVec * .init(x: 0.2, y: 0.4), size: sizeVec * .init(x: 0.4, y: 0.3)),
             //Circle2Parametric(circle: .init(center: .init(x: 385, y: 539), radius: sizeVec.x / 20)),
-            Circle2Parametric(circle: .init(center: .init(x: 265, y: 525), radius: sizeVec.x / 20)),
+            //Circle2Parametric(circle: .init(center: .init(x: 265, y: 525), radius: sizeVec.x / 20)),
+            Circle2Parametric(circle: .init(center: .init(x: 200, y: 525), radius: sizeVec.x / 20)),
+            Circle2Parametric(circle: .init(center: .init(x: 153, y: 441), radius: sizeVec.x / 20)),
+            Circle2Parametric(circle: .init(center: .init(x: 248, y: 443), radius: sizeVec.x / 20)),
+            Circle2Parametric(circle: .init(center: .init(x: 200, y: 470), radius: sizeVec.x / 20)),
+            //Circle2Parametric(circle: .init(center: .init(x: 376, y: 525), radius: sizeVec.x / 20)),
             //Circle2Parametric(circle: .init(center: .init(x: 324, y: 575), radius: sizeVec.x / 20)),
             //Circle2Parametric(circle: .init(center: .init(x: 306, y: 283), radius: sizeVec.x / 20)),
             //Circle2Parametric(circle: .init(center: .init(x: 646, y: 337), radius: sizeVec.x / 20)),
@@ -184,7 +189,7 @@ open class PolyBooleanApp: ImagineUIWindowContent {
         renderer.setStroke(
             .init(color: .black, width: 1, startCap: .round, endCap: .round, joinStyle: .round)
         )
-        render(polys: polys, renderer: renderer)
+        //render(polys: polys, renderer: renderer)
 
         renderer.setStroke(
             .init(color: .black, width: 5, startCap: .round, endCap: .round, joinStyle: .round)
@@ -206,54 +211,35 @@ open class PolyBooleanApp: ImagineUIWindowContent {
             return
         }
 
-        var remaining: [any ParametricClip2Geometry] = polys
+        guard let first = polys.first else {
+            return
+        }
 
-        var hasMerged: Bool
-        repeat {
-            guard remaining.count > 1 else {
-                break
-            }
-            hasMerged = false
+        var base: any ParametricClip2Geometry = first
 
-            outer:
-            for (index, current) in remaining.enumerated() {
-                for (nextIndex, next) in remaining.enumerated().dropFirst(index + 1) {
-                    guard index != nextIndex else { continue }
-                    guard current.bounds.intersects(next.bounds) else { continue }
+        for next in polys.dropFirst() {
+            let op = Union2Parametric(base, next, tolerance: 1e-14)
+            let union = op.allContours()
 
-                    let op = Union2Parametric(current, next, tolerance: 1e-14)
-                    let union = op.allSimplexes()
+            base = Compound2Parametric(contours: union)
+        }
 
-                    guard union.count != 2 else {
-                        continue
-                    }
-
-                    // Union ocurred
-                    remaining.remove(at: nextIndex)
-                    remaining.remove(at: index)
-
-                    for shape in union {
-                        remaining.append(
-                            Compound2Parametric(simplexes: shape)
-                        )
-                    }
-
-                    hasMerged = true
-                    break outer
-                }
-            }
-        } while hasMerged
-
-        render(polys: remaining, renderer: renderer)
+        render(poly: base, renderer: renderer)
     }
 
     func renderIntersections(
         polys: [any ParametricClip2Geometry],
         renderer: any Renderer
     ) {
-        func renderPoint(period: ParametricClip2Geometry.Period, on poly: ParametricClip2Geometry, color: Color) {
-            let point = poly.compute(at: period)
+        /*
+        func renderPoint(period: ParametricClip2Geometry.Period, on contour: Parametric2Contour<Vector2D>, color: Color) {
+            let point = contour.compute(at: period)
             self.renderPoint(point.asUIPoint, color: color, renderer: renderer)
+        }
+        func renderPoint(period: ParametricClip2Geometry.Period, on poly: ParametricClip2Geometry, color: Color) {
+            for contour in poly.allContours() {
+                renderPoint(period: period, on: contour, color: color)
+            }
         }
         func renderPair(
             _ pair: (`self`: ParametricClip2Geometry.Period, other: ParametricClip2Geometry.Period),
@@ -266,7 +252,7 @@ open class PolyBooleanApp: ImagineUIWindowContent {
             }
         }
         func renderPair(
-            _ pair: ParametricClip2Intersection,
+            _ pair: ParametricClip2Intersection<Double>,
             lhs: ParametricClip2Geometry,
             rhs: ParametricClip2Geometry
         ) {
@@ -296,6 +282,7 @@ open class PolyBooleanApp: ImagineUIWindowContent {
         }
 
         intersectCountLabel.text = "Total intersections: \(totalIntersections)"
+        */
     }
 
     /*
@@ -342,8 +329,14 @@ open class PolyBooleanApp: ImagineUIWindowContent {
     }
 
     func render(poly: any ParametricClip2Geometry, renderer: any Renderer) {
-        let simplexes = poly.clampedSimplexes(in: 0..<strokeAnimation)
-        let actual = poly.compute(at: strokeAnimation).asUIPoint
+        for contour in poly.allContours() {
+            render(contour: contour, renderer: renderer)
+        }
+    }
+
+    func render(contour: Parametric2Contour<Vector2D>, renderer: any Renderer) {
+        let simplexes = contour.clampedSimplexes(in: 0..<strokeAnimation)
+        let actual = contour.compute(at: strokeAnimation).asUIPoint
 
         render(ops: simplexes, renderer: renderer)
         renderPoint(actual, color: .green, renderer: renderer)

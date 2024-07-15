@@ -5,7 +5,7 @@ import Geometria
 public protocol Parametric2Simplex: ParametricSimplex where Vector: Vector2Type {
     /// The type of period that is used to represent this parametric simplex's
     /// period range in its parent parametric geometry.
-    typealias Period = Double
+    typealias Period = Vector.Scalar
 
     /// Gets the starting point of this simplex.
     var start: Vector { get }
@@ -47,4 +47,12 @@ extension Parametric2Simplex {
     public var periodRange: Range<Period> {
         startPeriod..<endPeriod
     }
+}
+
+public enum SimplexWinding {
+    /// A clockwise winding.
+    case clockwise
+
+    /// A counter-clockwise winding.
+    case counterClockwise
 }

@@ -10,6 +10,15 @@
       }
     },
     {
+      "identity" : "minidigraph",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/LuizZak/MiniDigraph.git",
+      "state" : {
+        "revision" : "86de9ff0fcfd56c57e62e744228669df1357d0b9",
+        "version" : "0.5.1"
+      }
+    },
+    {
       "identity" : "swift-bezier",
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/LuizZak/swift-bezier.git",

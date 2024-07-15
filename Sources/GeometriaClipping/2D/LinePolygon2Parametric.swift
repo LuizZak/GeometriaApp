@@ -3,8 +3,10 @@ import Geometria
 /// A parametric geometry that is defined by an underlying set of vertices from a
 /// ``LinePolygon2`` shape.
 public struct LinePolygon2Parametric: ParametricClip2Geometry, Equatable {
+    public typealias Vector = Vector2D
     public typealias Scalar = Vector.Scalar
     public typealias Simplex = Parametric2GeometrySimplex<Vector>
+    public typealias Contour = Parametric2Contour<Vector>
 
     public var description: String {
         "\(type(of: self))(linePolygon2: \(linePolygon2), startPeriod: \(startPeriod), endPeriod: \(endPeriod))"
@@ -68,8 +70,8 @@ public struct LinePolygon2Parametric: ParametricClip2Geometry, Equatable {
         linePolygon2.isPointOnEdge(point, toleranceSquared: toleranceSquared)
     }
 
-    public func allSimplexes() -> [Simplex] {
-        _cachedSimplexes
+    public func allContours() -> [Contour] {
+        return [.init(simplexes: _cachedSimplexes)]
     }
 
     private static func computeSimplexes(_ linePolygon2: LinePolygon2<Vector>) -> [Simplex] {
