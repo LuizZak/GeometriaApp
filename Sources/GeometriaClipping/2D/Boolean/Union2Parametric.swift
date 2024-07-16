@@ -15,119 +15,6 @@ public struct Union2Parametric: Boolean2Parametric {
     }
 
     public func allContours() -> [Contour] {
-        #if false
-
-        typealias Graph = Simplex2Graph<Vector>
-
-        func materialize(
-            _ edge: Graph.Edge,
-            from start: Graph.Node,
-            to end: Graph.Node
-        ) -> Parametric2GeometrySimplex<Vector> {
-            let startPoint = start.point
-            let endPoint = end.point
-
-            switch edge.kind {
-            case .line:
-                return .lineSegment2(
-                    .init(
-                        lineSegment: .init(start: startPoint, end: endPoint),
-                        startPeriod: .zero,
-                        endPeriod: .zero
-                    )
-                )
-
-            case .circleArc(let center, let sweep):
-                var arc: CircleArc2 = .init(
-                    startPoint: startPoint,
-                    endPoint: endPoint,
-                    sweepAngle: sweep
-                )
-                // Re-adjust center
-                arc.center = center
-
-                return .circleArc2(
-                    .init(
-                        circleArc: arc,
-                        startPeriod: .zero,
-                        endPeriod: .zero
-                    )
-                )
-            }
-        }
-
-        let intersections = lhs
-            .allIntersectionPeriods(rhs, tolerance: tolerance)
-            .flatMap(\.periods)
-        let graph = Graph.fromParametricIntersections(
-            lhs,
-            rhs,
-            intersections: intersections
-        )
-
-        if !graph.hasIntersections() {
-            let lookup: IntersectionLookup<T1, T2> = .init(
-                selfShape: lhs,
-                otherShape: rhs,
-                intersections: intersections
-            )
-
-            if lookup.isOtherWithinSelf() {
-                return [lhs.allSimplexes()]
-            }
-            if lookup.isSelfWithinOther() {
-                return [rhs.allSimplexes()]
-            }
-
-            return [lhs.allSimplexes(), rhs.allSimplexes()]
-        }
-
-        let start = lhs.compute(at: lhs.startPeriod)
-        guard let startNode = graph.nodes.first(where: { $0.point == start }) else {
-            return []
-        }
-        var current = startNode
-        if rhs.contains(current.point) {
-            current = graph.firstIntersection(after: current) ?? current
-        } else {
-            current = graph.firstIntersection(before: current) ?? current
-        }
-
-        var result: [Simplex] = []
-
-        var visited: Set<Graph.Node> = []
-        var isOnLhs = false
-
-        while visited.insert(current).inserted {
-            let edges = graph.edges(from: current).filter { edge -> Bool in
-                let node = graph.endNode(for: edge)
-                return node.isIntersection || node.onLhs == isOnLhs
-            }
-
-            guard let shortest = edges.min(by: { $0.lengthSquared < $1.lengthSquared }) else {
-                // Found non-periodic geometry?
-                continue
-            }
-            let next = graph.endNode(for: shortest)
-
-            let simplex = materialize(shortest, from: current, to: next)
-
-            result.append(simplex)
-
-            if next.isIntersection {
-                isOnLhs = !isOnLhs
-            }
-
-            current = next
-        }
-
-        // Re-normalize the simplex periods
-        result = result.normalized(startPeriod: .zero, endPeriod: 1)
-
-        return [result]
-
-        #else
-
         typealias State = GeometriaClipping.State
 
         let lhsContours = lhs.allContours()
@@ -147,15 +34,23 @@ public struct Union2Parametric: Boolean2Parametric {
         // contours that participate in intersections, adding the contours on top
         // of the result
         for index in 0..<lhsContours.count {
-            if !lookup.hasIntersections(lhsIndex: index) {
-                resultOverall.append(lhsContours[index])
-            }
+            let contour = lhsContours[index]
+
+            resultOverall.append(
+                contour,
+                isReference: lookup.hasIntersections(lhsIndex: index)
+            )
         }
         for index in 0..<rhsContours.count {
-            if !lookup.hasIntersections(rhsIndex: index) {
-                resultOverall.append(rhsContours[index])
-            }
+            let contour = rhsContours[index]
+
+            resultOverall.append(
+                contour,
+                isReference: lookup.hasIntersections(rhsIndex: index)
+            )
         }
+
+        resultOverall.coverHoles()
 
         var simplexVisited: Set<State> = []
         var visitedOverall: Set<State> = []
@@ -194,7 +89,5 @@ public struct Union2Parametric: Boolean2Parametric {
         }
 
         return resultOverall.allContours()
-
-        #endif
     }
 }
