@@ -36,6 +36,7 @@ public struct LineSegment2Simplex<Vector: Vector2FloatingPoint>: Parametric2Simp
     /// Returns `(period - startPeriod) / (endPeriod - startPeriod)`.
     ///
     /// - note: The result is unclamped.
+    @inlinable
     func ratioForPeriod(_ period: Period) -> Period {
         (period - startPeriod) / (endPeriod - startPeriod)
     }
@@ -43,16 +44,19 @@ public struct LineSegment2Simplex<Vector: Vector2FloatingPoint>: Parametric2Simp
     /// Returns `startPeriod + (endPeriod - startPeriod) * ratio`.
     ///
     /// - note: The result is unclamped.
+    @inlinable
     func period(onRatio ratio: Period) -> Period {
         startPeriod + (endPeriod - startPeriod) * ratio
     }
 
+    @inlinable
     public func compute(at period: Period) -> Vector {
         let ratio = ratioForPeriod(period)
 
         return lineSegment.projectedNormalizedMagnitude(ratio)
     }
 
+    @inlinable
     public func isOnSurface(_ vector: Vector, toleranceSquared: Scalar) -> Bool {
         lineSegment.distanceSquared(to: vector) < toleranceSquared
     }
@@ -62,6 +66,7 @@ public struct LineSegment2Simplex<Vector: Vector2FloatingPoint>: Parametric2Simp
     ///
     /// If the geometry is not available on the given range, `nil` is returned,
     /// instead.
+    @inlinable
     public func clamped(in range: Range<Period>) -> Self? {
         if startPeriod >= range.upperBound || endPeriod <= range.lowerBound {
             return nil
@@ -80,6 +85,7 @@ public struct LineSegment2Simplex<Vector: Vector2FloatingPoint>: Parametric2Simp
         )
     }
 
+    @inlinable
     public func reversed() -> Self {
         return .init(
             lineSegment: .init(start: lineSegment.end, end: lineSegment.start),

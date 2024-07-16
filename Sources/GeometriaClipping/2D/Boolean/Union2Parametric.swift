@@ -14,6 +14,7 @@ public struct Union2Parametric: Boolean2Parametric {
         self.tolerance = tolerance
     }
 
+    @inlinable
     public func allContours() -> [Contour] {
         typealias State = GeometriaClipping.State
 

@@ -1,4 +1,5 @@
 import Geometria
+import RealModule
 
 /// A parametric geometry that is defined by a ``Circle2`` shape.
 public struct Circle2Parametric: ParametricClip2Geometry, Equatable {
@@ -13,10 +14,16 @@ public struct Circle2Parametric: ParametricClip2Geometry, Equatable {
 
     /// The underlying circle shape that comprises this parametric geometry.
     public var circle2: Circle2<Vector>
+    @usableFromInline
     var isReversed: Bool = false
 
     public var startPeriod: Period
     public var endPeriod: Period
+
+    @inlinable
+    public var bounds: AABB<Vector> {
+        circle2.bounds
+    }
 
     public init(
         center: Vector,
@@ -44,14 +51,17 @@ public struct Circle2Parametric: ParametricClip2Geometry, Equatable {
         self.endPeriod = endPeriod
     }
 
+    @inlinable
     public func contains(_ point: Vector) -> Bool {
         circle2.contains(point)
     }
 
+    @inlinable
     public func isOnSurface(_ point: Vector, toleranceSquared: Scalar) -> Bool {
         circle2.distanceSquared(to: point) < toleranceSquared
     }
 
+    @inlinable
     public func allContours() -> [Contour] {
         return [
             .init(
@@ -61,6 +71,7 @@ public struct Circle2Parametric: ParametricClip2Geometry, Equatable {
         ]
     }
 
+    @inlinable
     public func allSimplexes() -> [Simplex] {
         var arc1: CircleArc2<Vector>
         var arc2: CircleArc2<Vector>
@@ -97,6 +108,7 @@ public struct Circle2Parametric: ParametricClip2Geometry, Equatable {
         return simplexes
     }
 
+    @inlinable
     public func reversed() -> Self {
         var copy = self
         copy.isReversed = !isReversed

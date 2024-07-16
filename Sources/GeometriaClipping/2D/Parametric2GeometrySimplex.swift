@@ -1,4 +1,5 @@
 import Geometria
+import RealModule
 
 /// The parametric simplex type produced by a `ParametricClip2Geometry`.
 public enum Parametric2GeometrySimplex<Vector: Vector2Real>: Parametric2Simplex, Equatable {
@@ -70,6 +71,7 @@ public enum Parametric2GeometrySimplex<Vector: Vector2Real>: Parametric2Simplex,
         }
     }
 
+    @inlinable
     public func compute(at period: Period) -> Vector {
         switch self {
         case .lineSegment2(let lineSegment):
@@ -80,6 +82,7 @@ public enum Parametric2GeometrySimplex<Vector: Vector2Real>: Parametric2Simplex,
         }
     }
 
+    @inlinable
     public func isOnSurface(_ vector: Vector, toleranceSquared: Scalar) -> Bool {
         switch self {
         case .lineSegment2(let lineSegment):
@@ -93,6 +96,7 @@ public enum Parametric2GeometrySimplex<Vector: Vector2Real>: Parametric2Simplex,
     /// Returns `startPeriod + (endPeriod - startPeriod) * ratio`.
     ///
     /// - note: The result is unclamped.
+    @inlinable
     func period(onRatio ratio: Scalar) -> Period {
         startPeriod + (endPeriod - startPeriod) * ratio
     }
@@ -102,6 +106,7 @@ public enum Parametric2GeometrySimplex<Vector: Vector2Real>: Parametric2Simplex,
     ///
     /// If the geometry is not available on the given range, `nil` is returned,
     /// instead.
+    @inlinable
     public func clamped(in range: Range<Period>) -> Self? {
         if startPeriod >= range.upperBound || endPeriod <= range.lowerBound {
             return nil
@@ -131,6 +136,7 @@ public enum Parametric2GeometrySimplex<Vector: Vector2Real>: Parametric2Simplex,
     ///
     /// If `self` and `other` do not intersect, an empty array is returned,
     /// instead.
+    @inlinable
     public func intersectionPeriods(with other: Self) -> [(`self`: Period, other: Period)] {
         switch (self, other) {
         case (.lineSegment2(let lhs), .lineSegment2(let rhs)):
@@ -237,10 +243,12 @@ public enum Parametric2GeometrySimplex<Vector: Vector2Real>: Parametric2Simplex,
         }
     }
 
+    @inlinable
     static func isWithinAbsoluteBounds(_ period: Period) -> Bool {
         period >= .zero && period < 1
     }
 
+    @inlinable
     static func circleArcIntersectionRatio(
         _ circleArc: CircleArc2Simplex<Vector>,
         intersection: LineIntersection<Vector>.Intersection
@@ -251,6 +259,7 @@ public enum Parametric2GeometrySimplex<Vector: Vector2Real>: Parametric2Simplex,
         )
     }
 
+    @inlinable
     static func circleArcIntersectionRatio(
         _ circleArc: CircleArc2Simplex<Vector>,
         intersection: LineIntersectionPointNormal<Vector>
@@ -261,6 +270,7 @@ public enum Parametric2GeometrySimplex<Vector: Vector2Real>: Parametric2Simplex,
         )
     }
 
+    @inlinable
     static func circleArcIntersectionRatio(
         _ circleArc: CircleArc2Simplex<Vector>,
         intersection: PointNormal<Vector>
@@ -271,6 +281,7 @@ public enum Parametric2GeometrySimplex<Vector: Vector2Real>: Parametric2Simplex,
         )
     }
 
+    @inlinable
     static func circleArcIntersectionRatio(
         _ circleArc: CircleArc2<Vector>,
         intersection: LineIntersectionPointNormal<Vector>
@@ -281,6 +292,7 @@ public enum Parametric2GeometrySimplex<Vector: Vector2Real>: Parametric2Simplex,
         )
     }
 
+    @inlinable
     static func circleArcIntersectionRatio(
         _ circleArc: CircleArc2<Vector>,
         intersection: PointNormal<Vector>
@@ -331,6 +343,7 @@ extension Collection {
         return AABB2(aabbs: self.map(\.bounds))
     }
 
+    @inlinable
     func allIntersectionPeriods<C: Collection, Vector>(
         with other: C,
         tolerance: Vector.Scalar,

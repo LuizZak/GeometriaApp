@@ -115,16 +115,19 @@ extension CircleArc2: Hashable where Vector: Hashable { }
 
 public extension CircleArc2 {
     /// Constructs a circle with the same center + radius as this circle arc.
+    @inlinable
     var asCircle2: Circle2<Vector> {
         .init(center: center, radius: radius)
     }
 
     /// Constructs an angle sweep from this arc's start and sweep angles.
+    @inlinable
     var asAngleSweep: AngleSweep<Scalar> {
         .init(start: startAngle, sweep: sweepAngle)
     }
 
     /// Returns the stop angle of this sweep, as the sum of `startAngle` + `sweepAngle`.
+    @inlinable
     var stopAngle: Angle<Scalar> {
         startAngle + sweepAngle
     }
@@ -194,6 +197,7 @@ public extension CircleArc2 {
 }
 
 extension CircleArc2: LineIntersectableType {
+    @inlinable
     public func intersections<Line>(
         with line: Line
     ) -> LineIntersection<Vector> where Line : LineFloatingPoint, Vector == Line.Vector {
@@ -221,6 +225,7 @@ extension CircleArc2: LineIntersectableType {
 
 public extension CircleArc2 {
     /// Returns the minimal bounding box capable of fully containing this arc.
+    @inlinable
     func bounds() -> AABB<Vector> {
         let points = quadrants() + [startPoint, endPoint]
 
@@ -233,6 +238,7 @@ public extension CircleArc2 {
     /// The resulting array is up to four elements long, with each element
     /// representing an axis, from the arc's center point, in the +/- x and +/- y
     /// direction, if the arc's sweep includes that point.
+    @inlinable
     func quadrants() -> [Vector] {
         let quadrantAngles: [Angle<Scalar>] = [
             0, Scalar.pi / 2, Scalar.pi, Scalar.pi * 3 / 2
@@ -250,6 +256,7 @@ public extension CircleArc2 {
     }
 
     /// Projects a given point to the closest point within this arc.
+    @inlinable
     func project(_ point: Vector) -> Vector {
         let angle = center.angle(to: point).radians
         let sweep = AngleSweep(start: startAngle, sweep: sweepAngle)
@@ -270,6 +277,7 @@ public extension CircleArc2 {
 
     /// Returns the squared distance to the closest point within this arc to the
     /// given point.
+    @inlinable
     func distanceSquared(to point: Vector) -> Scalar {
         let projected = project(point)
         return projected.distanceSquared(to: point)

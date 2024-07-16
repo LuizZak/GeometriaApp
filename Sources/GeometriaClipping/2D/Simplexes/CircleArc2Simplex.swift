@@ -1,4 +1,5 @@
 import Geometria
+import RealModule
 
 /// A 2-dimensional simplex composed of a circular arc segment.
 public struct CircleArc2Simplex<Vector: Vector2Real>: Parametric2Simplex, Equatable {
@@ -14,10 +15,12 @@ public struct CircleArc2Simplex<Vector: Vector2Real>: Parametric2Simplex, Equata
     public var startPeriod: Period
     public var endPeriod: Period
 
+    @inlinable
     var lengthSquared: Scalar {
         circleArc.arcLength * circleArc.arcLength
     }
 
+    @inlinable
     public var bounds: AABB2<Vector> {
         circleArc.bounds()
     }
@@ -37,6 +40,7 @@ public struct CircleArc2Simplex<Vector: Vector2Real>: Parametric2Simplex, Equata
     /// Returns `(period - startPeriod) / (endPeriod - startPeriod)`.
     ///
     /// - note: The result is unclamped.
+    @inlinable
     func ratioForPeriod(_ period: Period) -> Period {
         (period - startPeriod) / (endPeriod - startPeriod)
     }
@@ -44,10 +48,12 @@ public struct CircleArc2Simplex<Vector: Vector2Real>: Parametric2Simplex, Equata
     /// Returns `startPeriod + (endPeriod - startPeriod) * ratio`.
     ///
     /// - note: The result is unclamped.
+    @inlinable
     func period(onRatio ratio: Period) -> Period {
         startPeriod + (endPeriod - startPeriod) * ratio
     }
 
+    @inlinable
     public func compute(at period: Period) -> Vector {
         let ratio = ratioForPeriod(period)
 
@@ -58,6 +64,7 @@ public struct CircleArc2Simplex<Vector: Vector2Real>: Parametric2Simplex, Equata
         )
     }
 
+    @inlinable
     public func isOnSurface(_ vector: Vector, toleranceSquared: Scalar) -> Bool {
         circleArc.distanceSquared(to: vector) < toleranceSquared
     }
@@ -67,6 +74,7 @@ public struct CircleArc2Simplex<Vector: Vector2Real>: Parametric2Simplex, Equata
     ///
     /// If the geometry is not available on the given range, `nil` is returned,
     /// instead.
+    @inlinable
     public func clamped(in range: Range<Period>) -> Self? {
         if startPeriod >= range.upperBound || endPeriod <= range.lowerBound {
             return nil
@@ -87,6 +95,7 @@ public struct CircleArc2Simplex<Vector: Vector2Real>: Parametric2Simplex, Equata
         )
     }
 
+    @inlinable
     public func reversed() -> Self {
         return .init(
             circleArc: .init(

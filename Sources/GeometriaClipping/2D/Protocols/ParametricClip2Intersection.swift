@@ -26,6 +26,7 @@ public enum ParametricClip2Intersection<Period: Hashable & FloatingPoint> {
 
     /// Returns `true` if `self` has a trailing periods on the intersection that
     /// matches `next`'s leading periods.
+    @usableFromInline
     func canCombine(withNext next: Self, tolerance: Period) -> Bool {
         guard let last = periods.last else {
             return false
@@ -39,6 +40,7 @@ public enum ParametricClip2Intersection<Period: Hashable & FloatingPoint> {
 
     /// Attempts to combine `self` with `next`, returning a single intersection
     /// if the two intersections could be combined.
+    @usableFromInline
     func attemptCombine(withNext next: Self, tolerance: Period) -> Self? {
         guard canCombine(withNext: next, tolerance: tolerance) else {
             return nil
@@ -59,6 +61,7 @@ public enum ParametricClip2Intersection<Period: Hashable & FloatingPoint> {
         }
     }
 
+    @usableFromInline
     static func areApproximatelyEqual(_ lhs: Atom, _ rhs: Atom, tolerance: Period) -> Bool {
         let lead = lhs.`self`.isApproximatelyEqual(to: rhs.`self`, absoluteTolerance: tolerance)
         let trail = lhs.`other`.isApproximatelyEqual(to: rhs.`other`, absoluteTolerance: tolerance)

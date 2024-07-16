@@ -2,46 +2,60 @@ import Geometria
 import MiniDigraph
 
 /// Manages inclusions/merging of contour objects.
+@usableFromInline
 class ContourManager {
-    private typealias ContourContainmentGraph = CachingDirectedGraph<Int, DirectedGraph<Int>.Edge>
+    @usableFromInline
+    internal typealias ContourContainmentGraph = CachingDirectedGraph<Int, DirectedGraph<Int>.Edge>
 
+    @usableFromInline
     typealias Vector = Vector2D
+    @usableFromInline
     typealias Contour = Parametric2Contour<Vector>
+    @usableFromInline
     typealias Simplex = Parametric2GeometrySimplex<Vector>
+    @usableFromInline
     typealias Period = Vector.Scalar
 
-    private var inputContours: [ContourInfo]
+    @usableFromInline
+    internal var inputContours: [ContourInfo]
 
+    @usableFromInline
     init() {
         inputContours = []
     }
 
+    @inlinable
     func allContours() -> [Contour] {
-        return _finishContours()
+        return finishContours()
     }
 
+    @usableFromInline
     func append(_ contour: Contour, isReference: Bool = false) {
         inputContours.append(
             .init(contour: contour, isReference: isReference)
         )
     }
 
+    @usableFromInline
     func beginContour() -> ContourBuilder {
         return ContourBuilder(manager: self)
     }
 
     /// Applies winding rules with the current reference and non-reference contours,
     /// removing hole contours, and removing all reference contours in the process.
+    @inlinable
     func coverHoles() {
-        var graph = _contourGraph()
+        var graph = contourGraph()
         let initialNodes = graph.nodes
 
         graph.pruneByWinding(
-            windingNumber: windingNumber(of:),
-            winding: winding(of:)
+            windingNumber: { windingNumber(of: $0) },
+            winding: { winding(of: $0) }
         )
 
-        let difference = initialNodes.subtracting(graph.nodes).sorted(by: { $0 > $1 })
+        let difference = initialNodes
+            .subtracting(graph.nodes)
+            .sorted(by: { $0 > $1 })
         for index in difference {
             inputContours.remove(at: index)
         }
@@ -51,7 +65,8 @@ class ContourManager {
 
     /// Creates a graph of the containment dependencies: Contours that contain
     /// others have an edge added such that: outer -> inner
-    private func _contourGraph() -> ContourContainmentGraph {
+    @inlinable
+    func contourGraph() -> ContourContainmentGraph {
         let range = 0..<inputContours.count
 
         var graph = ContourContainmentGraph()
@@ -63,9 +78,9 @@ class ContourManager {
             for rhsIndex in range.dropFirst(lhsIndex + 1) {
                 let rhs = inputContours[rhsIndex].contour
 
-                if _isContained(lhs, within: rhs) {
+                if isContained(lhs, within: rhs) {
                     graph.addEdge(from: rhsIndex, to: lhsIndex)
-                } else if _isContained(rhs, within: lhs) {
+                } else if isContained(rhs, within: lhs) {
                     graph.addEdge(from: lhsIndex, to: rhsIndex)
                 }
             }
@@ -74,12 +89,9 @@ class ContourManager {
         return graph
     }
 
-    private func _finishContours() -> [Contour] {
-        var graph = self._contourGraph()
-
-        func isReference(_ node: ContourContainmentGraph.Node) -> Bool {
-            inputContours[node].isReference
-        }
+    @inlinable
+    func finishContours() -> [Contour] {
+        var graph = self.contourGraph()
 
         graph.pruneByWinding(
             windingNumber: windingNumber(of:),
@@ -90,29 +102,34 @@ class ContourManager {
             fatalError("Found cyclic contour containment dependency?")
         }
 
-        return sorted.filter({ !isReference($0) }).map(contourForNode)
+        return sorted.filter({ !inputContours[$0].isReference }).map(contourForNode)
     }
 
-    private func contourForNode(_ node: ContourContainmentGraph.Node) -> Contour {
+    @inlinable
+    func contourForNode(_ node: ContourContainmentGraph.Node) -> Contour {
         inputContours[node].contour
     }
 
-    private func windingNumber(of contour: Contour) -> Int {
+    @inlinable
+    func windingNumber(of contour: Contour) -> Int {
         switch contour.winding {
         case .clockwise: return 1
         case .counterClockwise: return -1
         }
     }
 
-    private func winding(of node: ContourContainmentGraph.Node) -> Contour.Winding {
+    @inlinable
+    func winding(of node: ContourContainmentGraph.Node) -> Contour.Winding {
         contourForNode(node).winding
     }
 
-    private func windingNumber(of node: ContourContainmentGraph.Node) -> Int {
+    @inlinable
+    func windingNumber(of node: ContourContainmentGraph.Node) -> Int {
         windingNumber(of: contourForNode(node))
     }
 
-    private func _isContained(_ lhs: Contour, within rhs: Contour) -> Bool {
+    @inlinable
+    func isContained(_ lhs: Contour, within rhs: Contour) -> Bool {
         guard rhs.bounds.contains(lhs.bounds) else {
             return false
         }
@@ -122,16 +139,23 @@ class ContourManager {
         }
 
         return probe(lhs.startPeriod)
-            || probe((lhs.endPeriod - lhs.startPeriod) / 2)
+            || probe(lhs.endPeriod)
+            || probe(lhs.normalizedCenter(lhs.startPeriod, lhs.endPeriod))
     }
 
+    @usableFromInline
     struct ContourInfo {
+        @usableFromInline
         var contour: Contour
+        @usableFromInline
         var isReference: Bool
+        @inlinable
         var isShell: Bool { contour.winding == .clockwise }
+        @inlinable
         var isHole: Bool { contour.winding == .counterClockwise }
     }
 
+    @usableFromInline
     class ContourBuilder {
         private var hasEnded: Bool = false
         private let manager: ContourManager
@@ -142,18 +166,21 @@ class ContourManager {
             self.simplexes = []
         }
 
+        @usableFromInline
         func append<S: Sequence>(contentsOf simplexes: S) where S.Element == Simplex {
             assert(!hasEnded, "!hasEnded: Attempted to append simplexes to finished contour")
 
             self.simplexes.append(contentsOf: simplexes)
         }
 
+        @usableFromInline
         func append(_ simplex: Simplex) {
             assert(!hasEnded, "!hasEnded: Attempted to append simplex to finished contour")
 
             simplexes.append(simplex)
         }
 
+        @usableFromInline
         func endContour(startPeriod: Period, endPeriod: Period) {
             assert(!hasEnded, "!hasEnded: Attempted to end already finished contour")
 
@@ -179,9 +206,10 @@ private extension DirectedGraphType {
     }
 }
 
-private extension CachingDirectedGraph where Node == Int, Edge: SimpleDirectedGraphEdge {
+internal extension CachingDirectedGraph where Node == Int, Edge: SimpleDirectedGraphEdge {
     /// Traverses the graph, ensuring that the nested winding number of each
     /// contour matches the contour's winding.
+    @inlinable
     mutating func pruneByWinding<Vector>(
         windingNumber: (Node) -> Int,
         winding: (Node) -> Parametric2Contour<Vector>.Winding
@@ -227,6 +255,7 @@ private extension CachingDirectedGraph where Node == Int, Edge: SimpleDirectedGr
         }
     }
 
+    @inlinable
     func totalWindingNumber(
         of node: Node,
         windingNumber: (Node) -> Int

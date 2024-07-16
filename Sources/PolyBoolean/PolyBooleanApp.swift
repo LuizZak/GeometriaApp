@@ -10,9 +10,18 @@ open class PolyBooleanApp: ImagineUIWindowContent {
     var isMouseDown: Bool = false
     var isShiftHeld: Bool = false
 
+    var strokeAnimation: Double = 0 {
+        didSet {
+            if strokeAnimation != oldValue {
+                invalidateScreen()
+            }
+        }
+    }
+
     #if true
 
     var polys: [any ParametricClip2Geometry] = []
+    var circles: [DemoCircle] = []
     var mousePoly: Circle2Parametric = .init(circle: .unit)
 
     #else
@@ -29,10 +38,10 @@ open class PolyBooleanApp: ImagineUIWindowContent {
     #if true
     func effectivePolys() -> [any ParametricClip2Geometry] {
         if isMouseDown {
-            return polys + [mousePoly]
+            return circles.map(\.circle) + [mousePoly]
         }
 
-        return polys
+        return circles.map(\.circle)
     }
     #else
     func effectivePolys() -> [any PolyBooleanType] {
@@ -57,6 +66,8 @@ open class PolyBooleanApp: ImagineUIWindowContent {
 
         let sizeVec = self.size.asVector2D
 
+        spawnCircles()
+
         #if true
 
         polys = [
@@ -67,10 +78,10 @@ open class PolyBooleanApp: ImagineUIWindowContent {
             //LinePolygon2Parametric(location: sizeVec * .init(x: 0.2, y: 0.4), size: sizeVec * .init(x: 0.4, y: 0.3)),
             //Circle2Parametric(circle: .init(center: .init(x: 385, y: 539), radius: sizeVec.x / 20)),
             //Circle2Parametric(circle: .init(center: .init(x: 265, y: 525), radius: sizeVec.x / 20)),
-            Circle2Parametric(circle: .init(center: .init(x: 200, y: 525), radius: sizeVec.x / 20)),
-            Circle2Parametric(circle: .init(center: .init(x: 153, y: 441), radius: sizeVec.x / 20)),
-            Circle2Parametric(circle: .init(center: .init(x: 248, y: 443), radius: sizeVec.x / 20)),
-            Circle2Parametric(circle: .init(center: .init(x: 200, y: 470), radius: sizeVec.x / 20)),
+            //Circle2Parametric(circle: .init(center: .init(x: 200, y: 525), radius: sizeVec.x / 20)),
+            //Circle2Parametric(circle: .init(center: .init(x: 153, y: 441), radius: sizeVec.x / 20)),
+            //Circle2Parametric(circle: .init(center: .init(x: 248, y: 443), radius: sizeVec.x / 20)),
+            //Circle2Parametric(circle: .init(center: .init(x: 200, y: 470), radius: sizeVec.x / 20)),
             //Circle2Parametric(circle: .init(center: .init(x: 376, y: 525), radius: sizeVec.x / 20)),
             //Circle2Parametric(circle: .init(center: .init(x: 324, y: 575), radius: sizeVec.x / 20)),
             //Circle2Parametric(circle: .init(center: .init(x: 306, y: 283), radius: sizeVec.x / 20)),
@@ -105,6 +116,58 @@ open class PolyBooleanApp: ImagineUIWindowContent {
         mouseLocationLabel.text = "Mouse location: (0, 0)"
     }
 
+    func spawnCircles() {
+        circles.removeAll()
+
+        let count = 50
+        let radiusRange: ClosedRange<Double> = 25.0...50.0
+        let velocityRange: ClosedRange<Double> = -100.0...100.0
+        let sizeVec = self.size.asVector2D
+
+        for _ in 0..<count {
+            let radius = Double.random(in: radiusRange)
+            let spawnBounds = AABB(minimum: .init(repeating: radius), maximum: sizeVec - radius)
+            let spawnX = Double.random(in: spawnBounds.minimum.x...spawnBounds.maximum.x)
+            let spawnY = Double.random(in: spawnBounds.minimum.y...spawnBounds.maximum.y)
+            let velocityX = Double.random(in: velocityRange)
+            let velocityY = Double.random(in: velocityRange)
+
+            let circle = Circle2Parametric(
+                center: .init(x: spawnX, y: spawnY),
+                radius: radius,
+                startPeriod: 0.0,
+                endPeriod: 1.0
+            )
+
+            let demoCircle = DemoCircle(
+                circle: circle,
+                velocity: .init(x: velocityX, y: velocityY)
+            )
+
+            circles.append(demoCircle)
+        }
+    }
+
+    open func fixedFrameUpdate(_ interval: TimeInterval) {
+        let increment: Double
+        if isShiftHeld {
+            increment = interval / 10
+        } else {
+            increment = interval
+        }
+
+        circles = circles.map { circle in
+            circle.updating(
+                increment,
+                bounds: .init(location: .zero, size: self.size.asVector2D)
+            )
+        }
+
+        strokeAnimation = (strokeAnimation + increment).clamp(min: 0.0, max: 1.0)
+
+        invalidateScreen()
+    }
+
     open override func mouseMoved(event: MouseEventArgs) {
         super.mouseMoved(event: event)
 
@@ -115,8 +178,6 @@ open class PolyBooleanApp: ImagineUIWindowContent {
         #else
         mousePoly.circle.center = event.location.asVector2D
         #endif
-
-        invalidateScreen()
     }
 
     open override func mouseDown(event: MouseEventArgs) {
@@ -124,14 +185,12 @@ open class PolyBooleanApp: ImagineUIWindowContent {
 
         if event.buttons == .left {
             isMouseDown = true
-            invalidateScreen()
         }
     }
 
     open override func mouseUp(event: MouseEventArgs) {
         if event.buttons == .left {
             isMouseDown = false
-            invalidateScreen()
         }
     }
 
@@ -160,25 +219,6 @@ open class PolyBooleanApp: ImagineUIWindowContent {
         if event.keyCode == .shiftKey {
             isShiftHeld = false
         }
-    }
-
-    var strokeAnimation: Double = 0 {
-        didSet {
-            if strokeAnimation != oldValue {
-                invalidateScreen()
-            }
-        }
-    }
-    open func fixedFrameUpdate(_ interval: TimeInterval) {
-        let increment: Double
-        if isShiftHeld {
-            increment = interval / 10
-        } else {
-            increment = interval
-        }
-
-        strokeAnimation += increment
-        strokeAnimation = strokeAnimation.clamp(min: 0.0, max: 1.0)
     }
 
     open override func render(renderer: any Renderer, renderScale: UIVector, clipRegion: any ClipRegionType) {
@@ -374,5 +414,37 @@ open class PolyBooleanApp: ImagineUIWindowContent {
         let circle = UICircle(center: point, radius: 5)
         renderer.setFill(color)
         renderer.fill(circle)
+    }
+
+    struct DemoCircle {
+        var circle: Circle2Parametric
+        var velocity: Vector2D
+
+        func updating(_ dt: TimeInterval, bounds: AABB2D) -> Self {
+            var copy = self
+            copy.update(dt, bounds: bounds)
+            return copy
+        }
+
+        mutating func update(_ dt: TimeInterval, bounds: AABB2D) {
+            // Make sure we can travel before updating the positions
+            guard circle.circle2.radius < bounds.width && circle.circle2.radius < bounds.height else {
+                return
+            }
+
+            circle.circle2.center += velocity * dt
+            let circleBounds = circle.circle2.bounds
+
+            if circleBounds.left <= bounds.minimum.x {
+                velocity.x = velocity.x.magnitude
+            } else if circleBounds.right >= bounds.maximum.x {
+                velocity.x = -(velocity.x.magnitude)
+            }
+            if circleBounds.top < bounds.minimum.y {
+                velocity.y = velocity.y.magnitude
+            } else if circleBounds.bottom >= bounds.maximum.y {
+                velocity.y = -(velocity.y.magnitude)
+            }
+        }
     }
 }

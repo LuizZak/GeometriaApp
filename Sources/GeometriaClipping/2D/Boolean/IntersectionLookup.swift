@@ -2,11 +2,17 @@ import Geometria
 
 /// Retains information about intersections and the shapes that produced them to
 /// be used by boolean parametric operators.
+@usableFromInline
 internal class IntersectionLookup {
     public typealias Vector = Vector2D
+
+    @usableFromInline
     typealias Period = Vector.Scalar
+    @usableFromInline
     typealias Intersection = (lhs: Period, lhsIndex: Int, rhs: Period, rhsIndex: Int)
+    @usableFromInline
     typealias Simplex = Parametric2GeometrySimplex<Vector>
+    @usableFromInline
     typealias Contour = Parametric2Contour<Vector>
 
     private let lhsShapes: [Contour]
@@ -17,6 +23,7 @@ internal class IntersectionLookup {
     private let tolerance: Vector.Scalar
     private(set) var intersections: [Intersection]
 
+    @usableFromInline
     init(
         lhsShapes: [Contour],
         lhsRange: Range<Period>,
@@ -46,6 +53,10 @@ internal class IntersectionLookup {
             let lhsOnSorted = lhsIndex
 
             for (rhsIndex, rhs) in rhsShapes.enumerated() {
+                guard lhs.bounds.intersects(rhs.bounds) else {
+                    continue
+                }
+
                 let rhsOnSorted = lhsShapes.count + rhsIndex
                 let intersections = lhs
                     .allIntersectionPeriods(rhs, tolerance: tolerance)
@@ -64,20 +75,24 @@ internal class IntersectionLookup {
         }
     }
 
+    @usableFromInline
     func hasIntersections() -> Bool {
         !intersections.isEmpty
     }
 
+    @usableFromInline
     func hasIntersections(lhsIndex: Int) -> Bool {
         !intersectionsSorted[lhsIndex].isEmpty
     }
 
+    @usableFromInline
     func hasIntersections(rhsIndex: Int) -> Bool {
         !intersectionsSorted[lhsShapes.count + rhsIndex].isEmpty
     }
 }
 
 extension IntersectionLookup {
+    @usableFromInline
     typealias State = GeometriaClipping.State
 
     /// Returns the result of clamping simplexes from either the left-hand or
@@ -87,6 +102,7 @@ extension IntersectionLookup {
     /// The result is the range of simplexes, clamped to be within
     /// `start.activePeriod..<end.activePeriod`, where `end.activePeriod` mirrors
     /// the handedness of `state`.
+    @usableFromInline
     func clampedSimplexesRange(
         _ start: State,
         _ end: State
@@ -125,6 +141,7 @@ extension IntersectionLookup {
     /// it into `rhsShapes`.
     ///
     /// If there are no intersections, `nil` is returned, instead.
+    @usableFromInline
     func candidateStart() -> State? {
         for contourIndex in 0..<lhsShapes.count {
             let contour = lhsShapes[contourIndex]
@@ -155,6 +172,7 @@ extension IntersectionLookup {
 
     /// Returns `true` if the given state on `lhsShapes` computes to a point
     /// that is contained within `rhsShapes`.
+    @usableFromInline
     func isInsideRhs(at state: State) -> Bool {
         let contour = lhsShapes[state.lhsIndex]
 
@@ -163,6 +181,7 @@ extension IntersectionLookup {
 
     /// Returns `true` if the given index in `lhsShapes` has a containment within
     /// `rhsShapes`.
+    @usableFromInline
     func isInsideRhs(lhsIndex: Int) -> Bool {
         let contour = lhsShapes[lhsIndex]
 
@@ -170,6 +189,7 @@ extension IntersectionLookup {
     }
 
     /// Returns `true` if `contour` is inside at least one item in `otherContours`.
+    @usableFromInline
     func isInside(_ contour: Contour, _ otherContours: [Contour]) -> Bool {
         _innerIsInside(contour, period: contour.startPeriod, otherContours)
     }
@@ -227,6 +247,7 @@ extension IntersectionLookup {
     ///
     /// If any of the states is of a different handedness, `false` is returned,
     /// instead.
+    @usableFromInline
     func periodPrecedes(from start: State, _ lhs: State, _ rhs: State) -> Bool {
         switch (start, lhs, rhs) {
         case (.onLhs(let start, let index, _, _), .onLhs(let lhs, _, _, _), .onLhs(let rhs, _, _, _)):
@@ -247,6 +268,7 @@ extension IntersectionLookup {
     /// If this intersection lookup is empty, `nil` is returned, instead.
     ///
     /// - note: Wraps around the list if no suitable candidate is found.
+    @usableFromInline
     func next(_ state: State) -> State {
         switch state {
         case .onLhs:
@@ -288,6 +310,7 @@ extension IntersectionLookup {
     /// If this intersection lookup is empty, `nil` is returned, instead.
     ///
     /// - note: Wraps around the list if no suitable candidate is found.
+    @usableFromInline
     func nextOrEqual(_ state: State) -> State {
         switch state {
         case .onLhs:
@@ -329,6 +352,7 @@ extension IntersectionLookup {
     /// If this intersection lookup is empty, `nil` is returned, instead.
     ///
     /// - note: Wraps around the list if no suitable candidate is found.
+    @usableFromInline
     func previous(_ state: State) -> State {
         switch state {
         case .onLhs:
@@ -370,6 +394,7 @@ extension IntersectionLookup {
     /// If this intersection lookup is empty, `nil` is returned, instead.
     ///
     /// - note: Wraps around the list if no suitable candidate is found.
+    @usableFromInline
     func previousOrEqual(_ state: State) -> State {
         switch state {
         case .onLhs:
