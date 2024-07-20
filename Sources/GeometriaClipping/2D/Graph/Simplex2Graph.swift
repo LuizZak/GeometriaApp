@@ -1,183 +1,330 @@
 import MiniDigraph
 import Geometria
+import RealModule
 
 /// A graph that describes a set of geometry vertices + intersection points, with
 /// edges that correspond to simplexes of a 2-dimensional geometry.
-struct Simplex2Graph {
+public struct Simplex2Graph {
     public typealias Vector = Vector2D
-    typealias Scalar = Vector.Scalar
+    public typealias Period = Vector.Scalar
 
-    fileprivate(set) var nodes: Set<Node> = []
-    fileprivate(set) var edges: Set<Edge> = []
+    @usableFromInline
+    internal var _graph: CachingDirectedGraph<Node, Edge>
 
-    /// Returns `true` if any of the nodes within this simplex graph is an
-    /// intersection.
-    func hasIntersections() -> Bool {
-        nodes.contains(where: \.isIntersection)
+    public var lhsCount: Int
+    public var rhsCount: Int
+
+    @inlinable
+    public var nodes: Set<Node> {
+        get { _graph.nodes }
+    }
+    @inlinable
+    public var edges: Set<Edge> {
+        get { _graph.edges }
     }
 
-    /// Returns first intersection before `node`
-    ///
-    /// - note: Respects `onLhs` of node, if it's a geometry node.
-    func firstIntersection(before node: Node) -> Node? {
-        let onLhs = node.onLhs
-        var result: Node?
+    public init(
+        lhsCount: Int,
+        rhsCount: Int,
+        nodes: Set<Node> = [],
+        edges: Set<Edge> = []
+    ) {
+        _graph = CachingDirectedGraph()
+        _graph.addNodes(nodes)
+        _graph.addEdges(edges)
 
-        customBreadthFirstSearch(start: node, reversed: true) { visit in
-            let nextEdges = edges(towards: visit.node)
-
-            guard visit.node.isIntersection else {
-                return nextEdges.filter { edge in
-                    let node = startNode(for: edge)
-                    return node.isIntersection || node.onLhs == onLhs
-                }
-            }
-
-            result = visit.node
-            return nil
-        }
-
-        return result
+        self.lhsCount = lhsCount
+        self.rhsCount = rhsCount
     }
 
-    /// Returns first intersection past `node`
-    ///
-    /// - note: Respects `onLhs` of node, if it's a geometry node.
-    func firstIntersection(after node: Node) -> Node? {
-        let onLhs = node.onLhs
-        var result: Node?
-
-        customBreadthFirstSearch(start: node) { visit in
-            let nextEdges = edges(from: visit.node)
-
-            guard visit.node.isIntersection else {
-                return nextEdges.filter { edge in
-                    let node = endNode(for: edge)
-                    return node.isIntersection || node.onLhs == onLhs
-                }
-            }
-
-            result = visit.node
-            return nil
+    /// Returns the edge for a given period within a given shape index number.
+    @inlinable
+    public func edgeForPeriod(_ period: Period, shapeIndex: Int) -> Edge? {
+        edges.first { edge in
+            edge.shapeIndex == shapeIndex && edge.periodRange.contains(period)
         }
-
-        return result
     }
 
-    struct Node: Identifiable, Hashable {
-        var id: Int
-        var kind: Kind
+    public class Node: Hashable, CustomStringConvertible {
+        public typealias ShapeIndex = Int
 
-        var point: Vector {
-            kind.point
+        public var location: Vector
+        public var kind: Kind
+
+        public var description: String {
+            "Node(location: \(location), kind: \(kind))"
         }
 
-        var onLhs: Bool? {
-            kind.onLhs
-        }
-
-        var isIntersection: Bool {
+        public var isIntersection: Bool {
             kind.isIntersection
         }
 
-        enum Kind: Hashable {
+        public var shapeIndex: Int? {
+            kind.shapeIndex
+        }
+
+        public var lhsIndex: Int? {
+            kind.lhsIndex
+        }
+
+        public var rhsIndex: Int? {
+            kind.rhsIndex
+        }
+
+        public init(location: Vector, kind: Kind) {
+            self.location = location
+            self.kind = kind
+        }
+
+        public func hash(into hasher: inout Hasher) {
+            hasher.combine(ObjectIdentifier(self))
+        }
+
+        public static func == (lhs: Node, rhs: Node) -> Bool {
+            lhs === rhs
+        }
+
+        public enum Kind: Equatable, CustomStringConvertible {
             /// A geometry node.
-            case geometry(Vector, onLhs: Bool)
+            case geometry(
+                shapeIndex: ShapeIndex,
+                period: Period
+            )
 
             /// An intersection node.
-            case intersection(Vector)
+            case intersection(
+                lhs: ShapeIndex,
+                lhsPeriod: Period,
+                rhs: ShapeIndex,
+                rhsPeriod: Period
+            )
 
-            var point: Vector {
+            public var description: String {
                 switch self {
-                case .geometry(let point, _),
-                    .intersection(let point):
-                    return point
+                case .geometry(let shapeIndex, let period):
+                    return ".geometry(shapeIndex: \(shapeIndex), period: \(period))"
+
+                case .intersection(let lhs, let lhsPeriod, let rhs, let rhsPeriod):
+                    return ".intersection(lhs: \(lhs), lhsPeriod: \(lhsPeriod), rhs: \(rhs), rhsPeriod: \(rhsPeriod))"
                 }
             }
 
-            var onLhs: Bool? {
+            public var isIntersection: Bool {
                 switch self {
-                case .geometry(_, let onLhs):
-                    return onLhs
-
                 case .intersection:
+                    return true
+                default:
+                    return false
+                }
+            }
+
+            public var shapeIndex: Int? {
+                switch self {
+                case .geometry(let shapeIndex, _):
+                    return shapeIndex
+                default:
                     return nil
                 }
             }
 
-            var isIntersection: Bool {
+            public var lhsIndex: Int? {
                 switch self {
-                case .geometry:
-                    return false
-                case .intersection:
-                    return true
+                case .intersection(let index, _, _, _):
+                    return index
+                default:
+                    return nil
+                }
+            }
+
+            public var rhsIndex: Int? {
+                switch self {
+                case .intersection(_, _, let index, _):
+                    return index
+                default:
+                    return nil
                 }
             }
         }
     }
 
-    struct Edge: DirectedGraphEdge {
-        var start: Node.ID
-        var end: Node.ID
+    public class Edge: AbstractDirectedGraphEdge, Hashable, CustomStringConvertible {
+        /// A unique identifier assigned during graph generation, used to sort
+        /// edges by earliest generation.
+        public var id: Int
 
-        var lengthSquared: Scalar
-        var kind: Kind
+        public var start: Node
+        public var end: Node
+        public var shapeIndex: Int
+        public var startPeriod: Period
+        public var endPeriod: Period
+        public var kind: Kind
 
-        enum Kind: Hashable {
-            /// A simple straight line edge.
+        public var totalWinding: Int = 0
+        public var winding: Parametric2Contour<Vector>.Winding = .clockwise
+
+        public var description: String {
+            return "\(ObjectIdentifier(start)) -(\(kind))-> \(ObjectIdentifier(end))"
+        }
+
+        public var lengthSquared: Vector.Scalar {
+            materialize().lengthSquared
+        }
+
+        public var periodRange: Range<Period> {
+            startPeriod..<endPeriod
+        }
+
+        public init(
+            id: Int,
+            start: Node,
+            end: Node,
+            shapeIndex: Int,
+            startPeriod: Period,
+            endPeriod: Period,
+            kind: Kind
+        ) {
+            self.id = id
+            self.start = start
+            self.end = end
+            self.shapeIndex = shapeIndex
+            self.startPeriod = startPeriod
+            self.endPeriod = endPeriod
+            self.kind = kind
+        }
+
+        @inlinable
+        public func queryPoint(_ center: (Period, Period) -> Period) -> Vector {
+            func centerOfSimplex(_ simplex: Parametric2GeometrySimplex<Vector>) -> Vector {
+                simplex.compute(at: center(simplex.startPeriod, simplex.endPeriod))
+            }
+
+            let simplex = materialize()
+            return centerOfSimplex(simplex)
+        }
+
+        @inlinable
+        public func materialize() -> Parametric2GeometrySimplex<Vector> {
+            switch kind {
+            case .line:
+                return .lineSegment2(
+                    .init(
+                        lineSegment: .init(
+                            start: start.location,
+                            end: end.location
+                        ),
+                        startPeriod: startPeriod,
+                        endPeriod: endPeriod
+                    )
+                )
+
+            case .circleArc(let center, let radius, let startAngle, let sweepAngle):
+                let arc = CircleArc2(
+                    center: center,
+                    radius: radius,
+                    startAngle: startAngle,
+                    sweepAngle: sweepAngle
+                )
+
+                return .circleArc2(
+                    .init(
+                        circleArc: arc,
+                        startPeriod: startPeriod,
+                        endPeriod: endPeriod
+                    )
+                )
+            }
+        }
+
+        public func hash(into hasher: inout Hasher) {
+            hasher.combine(ObjectIdentifier(self))
+        }
+
+        public static func == (lhs: Edge, rhs: Edge) -> Bool {
+            lhs === rhs
+        }
+
+        public enum Kind: Equatable, CustomStringConvertible {
+            /// A straight line edge.
             case line
 
             /// A circular arc edge, with a center point and sweep.
-            case circleArc(center: Vector, sweep: Angle<Vector.Scalar>)
+            case circleArc(
+                center: Vector,
+                radius: Vector.Scalar,
+                startAngle: Angle<Vector.Scalar>,
+                sweepAngle: Angle<Vector.Scalar>
+            )
+
+            public var description: String {
+                switch self {
+                case .line:
+                    return ".line"
+
+                case .circleArc(let center, let radius, let startAngle, let sweepAngle):
+                    return ".circleArc(center: \(center), radius: \(radius), startAngle: \(startAngle), sweepAngle: \(sweepAngle))"
+                }
+            }
         }
     }
 }
 
 extension Simplex2Graph: DirectedGraphType {
-    func startNode(for edge: Edge) -> Node {
-        guard let node = nodes.first(where: { $0.id == edge.start }) else {
-            preconditionFailure("Edge references node ID \(edge.start) that is not in this graph")
-        }
-
-        return node
+    @inlinable
+    public func startNode(for edge: Edge) -> Node {
+        _graph.startNode(for: edge)
     }
 
-    func endNode(for edge: Edge) -> Node {
-        guard let node = nodes.first(where: { $0.id == edge.end }) else {
-            preconditionFailure("Edge references node ID \(edge.end) that is not in this graph")
-        }
-
-        return node
+    @inlinable
+    public func endNode(for edge: Edge) -> Node {
+        _graph.endNode(for: edge)
     }
 
-    func edges(from node: Node) -> Set<Edge> {
-        edges.filter { $0.start == node.id }
+    @inlinable
+    public func edges(from node: Node) -> Set<Edge> {
+        _graph.edges(from: node)
     }
 
-    func edges(towards node: Node) -> Set<Edge> {
-        edges.filter { $0.end == node.id }
+    @inlinable
+    public func edges(towards node: Node) -> Set<Edge> {
+        _graph.edges(towards: node)
     }
 
-    func edge(from start: Node, to end: Node) -> Edge? {
-        edges.first(where: { $0.start == start.id && $0.end == end.id })
+    @inlinable
+    public func edge(from start: Node, to end: Node) -> Edge? {
+        _graph.edge(from: start, to: end)
     }
 }
 
 extension Simplex2Graph: MutableDirectedGraphType {
-    mutating func addNode(_ node: Simplex2Graph.Node) {
-        nodes.insert(node)
+    @inlinable
+    public init() {
+        self.init(
+            lhsCount: 0,
+            rhsCount: 0,
+            nodes: [],
+            edges: []
+        )
     }
 
-    mutating func removeNode(_ node: Simplex2Graph.Node) {
-        nodes.remove(node)
+    @inlinable
+    public mutating func addNode(_ node: Node) {
+        _graph.addNode(node)
     }
 
-    mutating func addEdge(_ edge: Simplex2Graph.Edge) -> Simplex2Graph.Edge {
-        edges.insert(edge).memberAfterInsert
+    @inlinable
+    public mutating func removeNode(_ node: Simplex2Graph.Node) {
+        _graph.removeNode(node)
     }
 
-    mutating func removeEdge(_ edge: Simplex2Graph.Edge) {
-        edges.remove(edge)
+    @discardableResult
+    @inlinable
+    public mutating func addEdge(_ edge: Edge) -> Edge {
+        _graph.addEdge(edge)
+    }
+
+    @inlinable
+    public mutating func removeEdge(_ edge: Edge) {
+        _graph.removeEdge(edge)
     }
 }
 

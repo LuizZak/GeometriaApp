@@ -22,4 +22,24 @@ public struct Subtraction2Parametric: Boolean2Parametric {
         // A subtraction is a union of a geometry and a reverse-wound input geometry
         return Union2Parametric(lhs, rhsReversed, tolerance: tolerance).allContours()
     }
+
+    public static func subtraction(
+        tolerance: Vector.Scalar = .leastNonzeroMagnitude,
+        _ lhs: T1,
+        _ rhs: T2
+    ) -> Compound2Parametric {
+        let op = Self(lhs, rhs, tolerance: tolerance)
+        return .init(contours: op.allContours())
+    }
+}
+
+/// Performs a subtraction operation by removing all given parametric geometries
+/// from `shape1`.
+public func subtraction(
+    tolerance: Double = .leastNonzeroMagnitude,
+    _ shape1: any ParametricClip2Geometry,
+    _ shapes: [any ParametricClip2Geometry]
+) -> Compound2Parametric {
+    let shapes = shapes.map({ $0.reversed() })
+    return union([shape1] + shapes)
 }

@@ -14,6 +14,89 @@ public struct Intersection2Parametric: Boolean2Parametric {
     }
 
     public func allContours() -> [Contour] {
+        #if true
+
+        typealias Graph = Simplex2Graph
+
+        var graph = Graph.fromParametricIntersections(
+            lhs,
+            rhs,
+            tolerance: tolerance
+        )
+
+        // Remove all edges that have incompatible total windings according to
+        // their contour windings
+        for edge in graph.edges {
+            let shouldRemove: Bool
+
+            switch edge.winding {
+            case .clockwise:
+                shouldRemove = edge.totalWinding != 2
+
+            case .counterClockwise:
+                shouldRemove = true
+            }
+
+            if shouldRemove {
+                graph.removeEdge(edge)
+            }
+        }
+
+        graph.prune()
+
+        let resultOverall = ContourManager()
+
+        func candidateIsAscending(_ lhs: Graph.Edge, _ rhs: Graph.Edge) -> Bool {
+            return lhs.id < rhs.id
+        }
+
+        var simplexVisited: Set<Graph.Node> = []
+        var visitedOverall: Set<Graph.Node> = []
+
+        guard var current = graph.edges.min(by: candidateIsAscending)?.start else {
+            return resultOverall.allContours()
+        }
+
+        var isOnLhs = true
+
+        while visitedOverall.insert(current).inserted {
+            if !simplexVisited.contains(current) {
+                let result = resultOverall.beginContour()
+                var visited: Set<Graph.Node> = []
+
+                while visited.insert(current).inserted {
+                    guard let nextEdge = graph.edges(from: current).min(by: candidateIsAscending) else {
+                        break
+                    }
+
+                    graph.removeEdge(nextEdge)
+
+                    result.append(nextEdge.materialize())
+                    current = nextEdge.end
+
+                    if current.isIntersection {
+                        isOnLhs = !isOnLhs
+                    }
+                }
+
+                result.endContour(startPeriod: .zero, endPeriod: 1)
+
+                simplexVisited.formUnion(visited)
+            }
+
+            graph.prune()
+
+            guard let next = graph.edges.min(by: candidateIsAscending) else {
+                return resultOverall.allContours()
+            }
+
+            current = next.start
+        }
+
+        return resultOverall.allContours()
+
+        #else
+
         typealias State = GeometriaClipping.State
 
         let lhsContours = lhs.allContours()
@@ -88,5 +171,39 @@ public struct Intersection2Parametric: Boolean2Parametric {
         }
 
         return resultOverall.allContours()
+
+        #endif
     }
+
+    public static func intersection(
+        tolerance: Vector.Scalar = .leastNonzeroMagnitude,
+        _ lhs: T1,
+        _ rhs: T2
+    ) -> Compound2Parametric {
+        let op = Self(lhs, rhs, tolerance: tolerance)
+        return .init(contours: op.allContours())
+    }
+}
+
+/// Performs an intersection operation across all given parametric geometries.
+///
+/// - precondition: `shapes` is not empty.
+public func intersection(
+    tolerance: Double = .leastNonzeroMagnitude,
+    _ shapes: [any ParametricClip2Geometry]
+) -> Compound2Parametric {
+    guard let first = shapes.first else {
+        preconditionFailure("!shapes.isEmpty")
+    }
+
+    var result = Compound2Parametric(first)
+    for next in shapes.dropFirst() {
+        result = Intersection2Parametric
+            .intersection(
+                tolerance: tolerance,
+                result,
+                Compound2Parametric(next)
+            )
+    }
+    return result
 }

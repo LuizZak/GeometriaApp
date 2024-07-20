@@ -16,12 +16,89 @@ public struct Union2Parametric: Boolean2Parametric {
 
     @inlinable
     public func allContours() -> [Contour] {
-        typealias State = GeometriaClipping.State
+        #if true
+
+        typealias Graph = Simplex2Graph
+
+        var graph = Graph.fromParametricIntersections(
+            lhs,
+            rhs,
+            tolerance: tolerance
+        )
+
+        // Remove all edges that have incompatible total windings according to
+        // their contour windings
+        for edge in graph.edges {
+            let shouldRemove: Bool
+
+            switch edge.winding {
+            case .clockwise:
+                shouldRemove = edge.totalWinding != 1
+
+            case .counterClockwise:
+                shouldRemove = edge.totalWinding != 0
+            }
+
+            if shouldRemove {
+                graph.removeEdge(edge)
+            }
+        }
+
+        graph.prune()
+
+        let resultOverall = ContourManager()
+
+        func candidateIsAscending(_ lhs: Graph.Edge, _ rhs: Graph.Edge) -> Bool {
+            return lhs.id < rhs.id
+        }
+
+        var simplexVisited: Set<Graph.Node> = []
+        var visitedOverall: Set<Graph.Node> = []
+
+        guard var current = graph.edges.min(by: candidateIsAscending)?.start else {
+            return resultOverall.allContours()
+        }
+
+        while visitedOverall.insert(current).inserted {
+            if !simplexVisited.contains(current) {
+                let result = resultOverall.beginContour()
+                var visited: Set<Graph.Node> = []
+
+                while visited.insert(current).inserted {
+                    guard let nextEdge = graph.edges(from: current).min(by: candidateIsAscending) else {
+                        break
+                    }
+
+                    graph.removeEdge(nextEdge)
+
+                    result.append(nextEdge.materialize())
+                    current = nextEdge.end
+                }
+
+                result.endContour(startPeriod: .zero, endPeriod: 1)
+
+                simplexVisited.formUnion(visited)
+            }
+
+            graph.prune()
+
+            guard let next = graph.edges.min(by: candidateIsAscending) else {
+                break
+            }
+
+            current = next.start
+        }
+
+        return resultOverall.allContours()
+
+        #else
+
+        typealias State = GeometriaClipping.State<Period>
 
         let lhsContours = lhs.allContours()
         let rhsContours = rhs.allContours()
 
-        let lookup: IntersectionLookup = .init(
+        let lookup: IntersectionLookup<Vector> = .init(
             lhsShapes: lhsContours,
             lhsRange: lhs.startPeriod..<lhs.endPeriod,
             rhsShapes: rhsContours,
@@ -29,7 +106,7 @@ public struct Union2Parametric: Boolean2Parametric {
             tolerance: tolerance
         )
 
-        let resultOverall = ContourManager()
+        let resultOverall = ContourManager<Vector>()
 
         // Re-combine the contours by working from bottom-to-top, stopping at
         // contours that participate in intersections, adding the contours on top
@@ -90,5 +167,39 @@ public struct Union2Parametric: Boolean2Parametric {
         }
 
         return resultOverall.allContours()
+
+        #endif
     }
+
+    public static func union(
+        tolerance: Vector.Scalar = .leastNonzeroMagnitude,
+        _ lhs: T1,
+        _ rhs: T2
+    ) -> Compound2Parametric {
+        let op = Self(lhs, rhs, tolerance: tolerance)
+        return .init(contours: op.allContours())
+    }
+}
+
+/// Performs a union operation across all given parametric geometries.
+///
+/// - precondition: `shapes` is not empty.
+public func union(
+    tolerance: Double = .leastNonzeroMagnitude,
+    _ shapes: [any ParametricClip2Geometry]
+) -> Compound2Parametric {
+    guard let first = shapes.first else {
+        preconditionFailure("!shapes.isEmpty")
+    }
+
+    var result = Compound2Parametric(first)
+    for next in shapes.dropFirst() {
+        result = Union2Parametric
+            .union(
+                tolerance: tolerance,
+                result,
+                Compound2Parametric(next)
+            )
+    }
+    return result
 }

@@ -49,8 +49,8 @@ class ContourManager {
         let initialNodes = graph.nodes
 
         graph.pruneByWinding(
-            windingNumber: { windingNumber(of: $0) },
-            winding: { winding(of: $0) }
+            windingNumber: windingNumber(of:),
+            winding: winding(of:)
         )
 
         let difference = initialNodes
@@ -139,8 +139,7 @@ class ContourManager {
         }
 
         return probe(lhs.startPeriod)
-            || probe(lhs.endPeriod)
-            || probe(lhs.normalizedCenter(lhs.startPeriod, lhs.endPeriod))
+            || probe((lhs.endPeriod + lhs.startPeriod) / 2)
     }
 
     @usableFromInline

@@ -119,10 +119,23 @@ open class PolyBooleanApp: ImagineUIWindowContent {
     func spawnCircles() {
         circles.removeAll()
 
-        let count = 50
+        let count = 1
         let radiusRange: ClosedRange<Double> = 25.0...50.0
         let velocityRange: ClosedRange<Double> = -100.0...100.0
         let sizeVec = self.size.asVector2D
+
+        // Spawn a large, immobile circle in the center
+        circles.append(
+            .init(
+                circle: .init(
+                    center: sizeVec / 2,
+                    radius: sizeVec.minimalComponent / 3,
+                    startPeriod: 0.0,
+                    endPeriod: 1.0
+                ),
+                velocity: .zero
+            )
+        )
 
         for _ in 0..<count {
             let radius = Double.random(in: radiusRange)
@@ -234,7 +247,9 @@ open class PolyBooleanApp: ImagineUIWindowContent {
         renderer.setStroke(
             .init(color: .black, width: 5, startCap: .round, endCap: .round, joinStyle: .round)
         )
-        renderUnion(polys: polys, renderer: renderer)
+        //renderUnion(polys: polys, renderer: renderer)
+        //renderSubtraction(polys: polys, renderer: renderer)
+        renderIntersection(polys: polys, renderer: renderer)
         //renderIntersections(polys: polys, renderer: renderer)
         //testEllipseNormals(renderer: renderer)
     }
@@ -251,18 +266,45 @@ open class PolyBooleanApp: ImagineUIWindowContent {
             return
         }
 
+        let base = union(tolerance: 1e-14, polys)
+
+        render(poly: base, renderer: renderer)
+    }
+
+    func renderSubtraction(
+        polys: [any ParametricClip2Geometry],
+        renderer: any Renderer
+    ) {
+        if polys.isEmpty {
+            return
+        }
+        if polys.count == 1 {
+            render(poly: polys[0], renderer: renderer)
+            return
+        }
+
         guard let first = polys.first else {
             return
         }
 
-        var base: any ParametricClip2Geometry = first
+        let base = subtraction(tolerance: 1e-14, first, Array(polys.dropFirst()))
 
-        for next in polys.dropFirst() {
-            let op = Union2Parametric(base, next, tolerance: 1e-14)
-            let union = op.allContours()
+        render(poly: base, renderer: renderer)
+    }
 
-            base = Compound2Parametric(contours: union)
+    func renderIntersection(
+        polys: [any ParametricClip2Geometry],
+        renderer: any Renderer
+    ) {
+        if polys.isEmpty {
+            return
         }
+        if polys.count == 1 {
+            render(poly: polys[0], renderer: renderer)
+            return
+        }
+
+        let base = intersection(tolerance: 1e-14, polys)
 
         render(poly: base, renderer: renderer)
     }
