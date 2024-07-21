@@ -16,6 +16,31 @@ public struct CircleArc2Simplex<Vector: Vector2Real>: Parametric2Simplex, Equata
     public var endPeriod: Period
 
     @inlinable
+    public var center: Vector {
+        circleArc.center
+    }
+
+    @inlinable
+    public var radius: Scalar {
+        circleArc.radius
+    }
+
+    @inlinable
+    public var startAngle: Angle<Double> {
+        circleArc.startAngle
+    }
+
+    @inlinable
+    public var sweepAngle: Angle<Double> {
+        circleArc.sweepAngle
+    }
+
+    @inlinable
+    public var stopAngle: Angle<Double> {
+        circleArc.stopAngle
+    }
+
+    @inlinable
     var lengthSquared: Scalar {
         circleArc.arcLength * circleArc.arcLength
     }

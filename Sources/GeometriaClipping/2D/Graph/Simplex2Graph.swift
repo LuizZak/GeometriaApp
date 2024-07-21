@@ -6,40 +6,40 @@ import RealModule
 /// edges that correspond to simplexes of a 2-dimensional geometry.
 public struct Simplex2Graph {
     public typealias Vector = Vector2D
+    public typealias Scalar = Vector.Scalar
     public typealias Period = Vector.Scalar
+    public typealias Contour = Parametric2Contour<Vector>
 
+    /// The next available edge ID to be used when adding contours.
     @usableFromInline
+    var edgeId: Int = 0
     internal var _graph: CachingDirectedGraph<Node, Edge>
 
-    public var lhsCount: Int
-    public var rhsCount: Int
+    public var contours: [Contour]
 
-    @inlinable
     public var nodes: Set<Node> {
-        get { _graph.nodes }
+        _graph.nodes
     }
+    public var edges: Set<Edge>{
+        _graph.edges
+    }
+
     @inlinable
-    public var edges: Set<Edge> {
-        get { _graph.edges }
+    mutating func nextEdgeId() -> Int {
+        defer { edgeId += 1 }
+        return edgeId
     }
 
-    public init(
-        lhsCount: Int,
-        rhsCount: Int,
-        nodes: Set<Node> = [],
-        edges: Set<Edge> = []
-    ) {
-        _graph = CachingDirectedGraph()
-        _graph.addNodes(nodes)
-        _graph.addEdges(edges)
-
-        self.lhsCount = lhsCount
-        self.rhsCount = rhsCount
+    /// Returns `true` if any of the nodes within this simplex graph is an
+    /// intersection.
+    @inlinable
+    public func hasIntersections() -> Bool {
+        nodes.contains(where: \.isIntersection)
     }
 
     /// Returns the edge for a given period within a given shape index number.
     @inlinable
-    public func edgeForPeriod(_ period: Period, shapeIndex: Int) -> Edge? {
+    func edgeForPeriod(_ period: Period, shapeIndex: Int) -> Edge? {
         edges.first { edge in
             edge.shapeIndex == shapeIndex && edge.periodRange.contains(period)
         }
@@ -247,7 +247,8 @@ public struct Simplex2Graph {
             /// A straight line edge.
             case line
 
-            /// A circular arc edge, with a center point and sweep.
+            /// A circular arc edge, with a center point, radius, and start+sweep
+            /// angles.
             case circleArc(
                 center: Vector,
                 radius: Vector.Scalar,
@@ -269,62 +270,56 @@ public struct Simplex2Graph {
 }
 
 extension Simplex2Graph: DirectedGraphType {
-    @inlinable
     public func startNode(for edge: Edge) -> Node {
         _graph.startNode(for: edge)
     }
 
-    @inlinable
     public func endNode(for edge: Edge) -> Node {
         _graph.endNode(for: edge)
     }
 
-    @inlinable
     public func edges(from node: Node) -> Set<Edge> {
         _graph.edges(from: node)
     }
 
-    @inlinable
     public func edges(towards node: Node) -> Set<Edge> {
         _graph.edges(towards: node)
     }
 
-    @inlinable
     public func edge(from start: Node, to end: Node) -> Edge? {
         _graph.edge(from: start, to: end)
     }
 }
 
 extension Simplex2Graph: MutableDirectedGraphType {
-    @inlinable
     public init() {
-        self.init(
-            lhsCount: 0,
-            rhsCount: 0,
-            nodes: [],
-            edges: []
-        )
+        self._graph = .init()
+        self.contours = []
     }
 
-    @inlinable
     public mutating func addNode(_ node: Node) {
         _graph.addNode(node)
     }
 
-    @inlinable
-    public mutating func removeNode(_ node: Simplex2Graph.Node) {
+    public mutating func removeNode(_ node: Node) {
         _graph.removeNode(node)
     }
 
     @discardableResult
-    @inlinable
     public mutating func addEdge(_ edge: Edge) -> Edge {
         _graph.addEdge(edge)
     }
 
-    @inlinable
     public mutating func removeEdge(_ edge: Edge) {
         _graph.removeEdge(edge)
+    }
+
+    public func indegree(of node: Node) -> Int {
+        _graph.edges(towards: node).count
+    }
+
+    public func outdegree(of node: Node) -> Int {
+        _graph.edges(from: node).count
     }
 }
 

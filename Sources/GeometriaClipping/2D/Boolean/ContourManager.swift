@@ -25,8 +25,11 @@ class ContourManager {
     }
 
     @inlinable
-    func allContours() -> [Contour] {
-        return finishContours()
+    func allContours(filterWinding: Bool) -> [Contour] {
+        if filterWinding {
+            return finishContours()
+        }
+        return inputContours.map(\.contour)
     }
 
     @usableFromInline
@@ -169,12 +172,52 @@ class ContourManager {
         func append<S: Sequence>(contentsOf simplexes: S) where S.Element == Simplex {
             assert(!hasEnded, "!hasEnded: Attempted to append simplexes to finished contour")
 
-            self.simplexes.append(contentsOf: simplexes)
+            for simplex in simplexes {
+                append(simplex)
+            }
         }
 
         @usableFromInline
         func append(_ simplex: Simplex) {
             assert(!hasEnded, "!hasEnded: Attempted to append simplex to finished contour")
+
+            // Attempt to join adjacent circular arcs
+            switch (simplexes.last, simplex) {
+            case (.circleArc2(let lhs), .circleArc2(let rhs)):
+                guard lhs.center == rhs.center else {
+                    break
+                }
+                guard lhs.radius == rhs.radius else {
+                    break
+                }
+                guard (lhs.sweepAngle.radians >= 0) == (rhs.sweepAngle.radians >= 0) else {
+                    break
+                }
+                guard lhs.stopAngle == rhs.startAngle else {
+                    break
+                }
+                guard (lhs.sweepAngle + rhs.sweepAngle).radians.magnitude < .pi / 2 else {
+                    break
+                }
+
+                simplexes[simplexes.count - 1] = .circleArc2(
+                    .init(
+                        circleArc: .init(
+                            center: lhs.center,
+                            radius: lhs.radius,
+                            startAngle: lhs.startAngle,
+                            sweepAngle: lhs.sweepAngle + rhs.sweepAngle
+                        ),
+                        startPeriod: lhs.startPeriod,
+                        endPeriod: rhs.endPeriod
+                    )
+                )
+
+                return
+
+            default:
+                break
+            }
 
             simplexes.append(simplex)
         }

@@ -38,10 +38,10 @@ open class PolyBooleanApp: ImagineUIWindowContent {
     #if true
     func effectivePolys() -> [any ParametricClip2Geometry] {
         if isMouseDown {
-            return circles.map(\.circle) + [mousePoly]
+            return circles.map({ $0.makeHollow() }) + [mousePoly]
         }
 
-        return circles.map(\.circle)
+        return circles.map({ $0.makeHollow() })
     }
     #else
     func effectivePolys() -> [any PolyBooleanType] {
@@ -119,7 +119,7 @@ open class PolyBooleanApp: ImagineUIWindowContent {
     func spawnCircles() {
         circles.removeAll()
 
-        let count = 1
+        let count = 50
         let radiusRange: ClosedRange<Double> = 25.0...50.0
         let velocityRange: ClosedRange<Double> = -100.0...100.0
         let sizeVec = self.size.asVector2D
@@ -248,8 +248,8 @@ open class PolyBooleanApp: ImagineUIWindowContent {
             .init(color: .black, width: 5, startCap: .round, endCap: .round, joinStyle: .round)
         )
         //renderUnion(polys: polys, renderer: renderer)
-        //renderSubtraction(polys: polys, renderer: renderer)
-        renderIntersection(polys: polys, renderer: renderer)
+        renderSubtraction(polys: polys, renderer: renderer)
+        //renderIntersection(polys: polys, renderer: renderer)
         //renderIntersections(polys: polys, renderer: renderer)
         //testEllipseNormals(renderer: renderer)
     }
@@ -461,6 +461,15 @@ open class PolyBooleanApp: ImagineUIWindowContent {
     struct DemoCircle {
         var circle: Circle2Parametric
         var velocity: Vector2D
+
+        func makeHollow() -> Compound2Parametric {
+            var inner = circle.reversed()
+            inner.circle2.radius *= 0.8
+
+            return Compound2Parametric(contours:
+                circle.allContours() + inner.allContours()
+            )
+        }
 
         func updating(_ dt: TimeInterval, bounds: AABB2D) -> Self {
             var copy = self

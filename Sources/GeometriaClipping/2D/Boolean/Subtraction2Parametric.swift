@@ -3,31 +3,53 @@ import Geometria
 /// A Union boolean parametric that joins two shapes into a single shape, if they
 /// intersect in space.
 public struct Subtraction2Parametric: Boolean2Parametric {
-    public typealias Period = Double
+    public typealias Vector = Vector2D
+    public typealias Contour = Parametric2Contour<Vector>
 
-    public let lhs: T1, rhs: T2
+    public let lhsContours: [Contour]
+    public let rhsContours: [Contour]
     public let tolerance: Scalar
 
-    public init(_ lhs: T1, _ rhs: T2, tolerance: T1.Scalar) {
-        self.lhs = lhs
-        self.rhs = rhs
+    public init<T1: ParametricClip2Geometry, T2: ParametricClip2Geometry>(
+        _ lhs: T1,
+        _ rhs: T2,
+        tolerance: T1.Scalar = .leastNonzeroMagnitude
+    ) where T1.Vector == T2.Vector, T1.Vector == Vector, T1.Vector: Hashable {
+        self.init(
+            lhsContours: lhs.allContours(),
+            rhsContours: rhs.allContours(),
+            tolerance: tolerance
+        )
+    }
+
+    public init(
+        lhsContours: [Contour],
+        rhsContours: [Contour],
+        tolerance: Scalar = .leastNonzeroMagnitude
+    ) {
+        self.lhsContours = lhsContours
+        self.rhsContours = rhsContours
         self.tolerance = tolerance
     }
 
+    @inlinable
     public func allContours() -> [Contour] {
-        typealias State = GeometriaClipping.State
-
-        let rhsReversed = rhs.reversed()
+        let rhsReversed = rhsContours.map({ $0.reversed() })
 
         // A subtraction is a union of a geometry and a reverse-wound input geometry
-        return Union2Parametric(lhs, rhsReversed, tolerance: tolerance).allContours()
+        let union = Union2Parametric(
+            contours: lhsContours + rhsReversed,
+            tolerance: tolerance
+        )
+        return union.allContours()
     }
 
-    public static func subtraction(
+    @inlinable
+    public static func subtraction<T1: ParametricClip2Geometry, T2: ParametricClip2Geometry>(
         tolerance: Vector.Scalar = .leastNonzeroMagnitude,
         _ lhs: T1,
         _ rhs: T2
-    ) -> Compound2Parametric {
+    ) -> Compound2Parametric where T1.Vector == T2.Vector, T1.Vector == Vector, T1.Vector: Hashable {
         let op = Self(lhs, rhs, tolerance: tolerance)
         return .init(contours: op.allContours())
     }
@@ -35,11 +57,12 @@ public struct Subtraction2Parametric: Boolean2Parametric {
 
 /// Performs a subtraction operation by removing all given parametric geometries
 /// from `shape1`.
+@inlinable
 public func subtraction(
     tolerance: Double = .leastNonzeroMagnitude,
     _ shape1: any ParametricClip2Geometry,
     _ shapes: [any ParametricClip2Geometry]
 ) -> Compound2Parametric {
-    let shapes = shapes.map({ $0.reversed() })
-    return union([shape1] + shapes)
+    let shapes = shapes.map({ Compound2Parametric($0.reversed()) })
+    return union([Compound2Parametric(shape1)] + shapes)
 }

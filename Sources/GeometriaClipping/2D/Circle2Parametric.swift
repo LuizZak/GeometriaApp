@@ -21,6 +21,16 @@ public struct Circle2Parametric: ParametricClip2Geometry, Equatable {
     public var endPeriod: Period
 
     @inlinable
+    public var center: Vector {
+        circle2.center
+    }
+
+    @inlinable
+    public var radius: Scalar {
+        circle2.radius
+    }
+
+    @inlinable
     public var bounds: AABB<Vector> {
         circle2.bounds
     }
