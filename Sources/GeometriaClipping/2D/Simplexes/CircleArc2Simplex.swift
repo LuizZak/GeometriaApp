@@ -10,7 +10,10 @@ public struct CircleArc2Simplex<Vector: Vector2Real>: Parametric2Simplex, Equata
     }
 
     /// The circular arc segment associated with this simplex.
-    public var circleArc: CircleArc2<Vector>
+    public var circleArc: CircleArc2<Vector> {
+        didSet { bounds = circleArc.bounds() }
+    }
+    internal(set) public var bounds: AABB2<Vector>
 
     public var startPeriod: Period
     public var endPeriod: Period
@@ -45,11 +48,6 @@ public struct CircleArc2Simplex<Vector: Vector2Real>: Parametric2Simplex, Equata
         circleArc.arcLength * circleArc.arcLength
     }
 
-    @inlinable
-    public var bounds: AABB2<Vector> {
-        circleArc.bounds()
-    }
-
     /// Initializes a new circular arc segment simplex value with a given circular
     /// arc segment.
     public init(
@@ -58,6 +56,7 @@ public struct CircleArc2Simplex<Vector: Vector2Real>: Parametric2Simplex, Equata
         endPeriod: Period
     ) {
         self.circleArc = circleArc
+        self.bounds = circleArc.bounds()
         self.startPeriod = startPeriod
         self.endPeriod = endPeriod
     }

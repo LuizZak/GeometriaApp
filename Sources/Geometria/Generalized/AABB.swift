@@ -430,8 +430,21 @@ public extension AABB where Vector: VectorMultiplicative {
     }
 }
 
-extension AABB: DivisibleRectangleType where Vector: VectorDivisible {
+extension AABB: DivisibleRectangleType where Vector: VectorDivisible & VectorComparable {
+    /// Subdivides this AABB into `2 ^ D` (where `D` is the dimensional size of
+    /// `Self.Vector`) AABBs that occupy the same area as this AABB but subdivide
+    /// it into equally-sized AABBs.
+    ///
+    /// The ordering of the subdivisions is not defined.
+    @inlinable
+    public func subdivided() -> [Self] {
+        let center = self.center
+        let vertices = self.vertices
 
+        return vertices.map { v in
+            Self(of: center, v)
+        }
+    }
 }
 
 @_specializeExtension

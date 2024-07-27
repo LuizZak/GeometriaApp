@@ -57,7 +57,8 @@ public struct Union2Parametric: Boolean2Parametric {
 
         graph.prune()
 
-        let resultOverall = ContourManager()
+        /*
+        let resultOverall = ContourManager<Vector>()
 
         func candidateIsAscending(_ lhs: Graph.Edge, _ rhs: Graph.Edge) -> Bool {
             return lhs.id < rhs.id
@@ -66,7 +67,7 @@ public struct Union2Parametric: Boolean2Parametric {
         var visitedOverall: Set<Graph.Node> = []
 
         guard var current = graph.edges.min(by: candidateIsAscending)?.start else {
-            return resultOverall.allContours(filterWinding: false)
+            return resultOverall.allContours(applyWindingFiltering: false)
         }
 
         // TODO: Refactor this common part out of Intersection2Parametric
@@ -97,13 +98,16 @@ public struct Union2Parametric: Boolean2Parametric {
             graph.prune()
 
             guard let next = graph.edges.min(by: candidateIsAscending) else {
-                return resultOverall.allContours(filterWinding: false)
+                return resultOverall.allContours(applyWindingFiltering: false)
             }
 
             current = next.start
         }
 
-        return resultOverall.allContours(filterWinding: false)
+        return resultOverall.allContours(applyWindingFiltering: false)
+        */
+
+        return graph.recombine()
     }
 
     @inlinable
@@ -125,6 +129,22 @@ public func union(
 ) -> Compound2Parametric {
     let op = Union2Parametric(
         contours: shapes.flatMap({ $0.allContours() }),
+        tolerance: tolerance
+    )
+
+    return Compound2Parametric(
+        contours: op.allContours()
+    )
+}
+
+/// Performs a union operation across all given parametric contours.
+@inlinable
+public func union(
+    tolerance: Vector2D.Scalar = .leastNonzeroMagnitude,
+    _ contours: [Parametric2Contour<Vector2D>]
+) -> Compound2Parametric {
+    let op = Union2Parametric(
+        contours: contours,
         tolerance: tolerance
     )
 

@@ -119,7 +119,7 @@ open class PolyBooleanApp: ImagineUIWindowContent {
     func spawnCircles() {
         circles.removeAll()
 
-        let count = 50
+        let count = 1
         let radiusRange: ClosedRange<Double> = 25.0...50.0
         let velocityRange: ClosedRange<Double> = -100.0...100.0
         let sizeVec = self.size.asVector2D
@@ -248,10 +248,12 @@ open class PolyBooleanApp: ImagineUIWindowContent {
             .init(color: .black, width: 5, startCap: .round, endCap: .round, joinStyle: .round)
         )
         //renderUnion(polys: polys, renderer: renderer)
-        renderSubtraction(polys: polys, renderer: renderer)
+        //renderSubtraction(polys: polys, renderer: renderer)
+        renderXor(polys: polys, renderer: renderer)
         //renderIntersection(polys: polys, renderer: renderer)
-        //renderIntersections(polys: polys, renderer: renderer)
         //testEllipseNormals(renderer: renderer)
+
+        //renderIntersections(polys: polys, renderer: renderer)
     }
 
     func renderUnion(
@@ -288,6 +290,23 @@ open class PolyBooleanApp: ImagineUIWindowContent {
         }
 
         let base = subtraction(tolerance: 1e-14, first, Array(polys.dropFirst()))
+
+        render(poly: base, renderer: renderer)
+    }
+
+    func renderXor(
+        polys: [any ParametricClip2Geometry],
+        renderer: any Renderer
+    ) {
+        if polys.isEmpty {
+            return
+        }
+        if polys.count == 1 {
+            render(poly: polys[0], renderer: renderer)
+            return
+        }
+
+        let base = xor(tolerance: 1e-14, polys)
 
         render(poly: base, renderer: renderer)
     }

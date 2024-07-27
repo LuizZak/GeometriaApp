@@ -14,8 +14,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/LuizZak/MiniDigraph.git",
       "state" : {
-        "revision" : "86de9ff0fcfd56c57e62e744228669df1357d0b9",
-        "version" : "0.5.1"
+        "revision" : "1832c37618b0263fe8850ab8b3dfef28cd183fc7",
+        "version" : "0.6.0"
       }
     },
     {

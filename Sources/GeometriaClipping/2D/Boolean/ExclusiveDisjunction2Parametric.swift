@@ -1,8 +1,9 @@
+import MiniDigraph
 import Geometria
 
-/// A Union boolean parametric that joins two shapes into a single shape, if they
-/// intersect in space.
-public struct Intersection2Parametric: Boolean2Parametric {
+/// An exclusive disjunction, or 'xor'- parametric combination that returns all
+/// contours that are occupied by any one contour but not another.
+public struct ExclusiveDisjunction2Parametric: Boolean2Parametric {
     public typealias Vector = Vector2D
     public typealias Contour = Parametric2Contour<Vector>
 
@@ -30,38 +31,16 @@ public struct Intersection2Parametric: Boolean2Parametric {
 
     @inlinable
     public func allContours() -> [Contour] {
-        typealias Graph = Simplex2Graph
+        // An exclusive disjunction can be expressed as a union followed by a
+        // subtraction of the intersection
+        let union = union(tolerance: tolerance, self.contours)
+        let intersection = intersection(tolerance: tolerance, self.contours)
 
-        var graph = Graph.fromParametricIntersections(
-            contours: contours,
-            tolerance: tolerance
-        )
-
-        // Remove all edges that have incompatible total windings according to
-        // their contour windings
-        for edge in graph.edges {
-            let shouldRemove: Bool
-
-            switch edge.winding {
-            case .clockwise:
-                shouldRemove = edge.totalWinding != 2
-
-            case .counterClockwise:
-                shouldRemove = edge.totalWinding != 1
-            }
-
-            if shouldRemove {
-                graph.removeEdge(edge)
-            }
-        }
-
-        graph.prune()
-
-        return graph.recombine()
+        return subtraction(union, [intersection]).allContours()
     }
 
     @inlinable
-    public static func intersection<T1: ParametricClip2Geometry, T2: ParametricClip2Geometry>(
+    public static func xor<T1: ParametricClip2Geometry, T2: ParametricClip2Geometry>(
         tolerance: Vector.Scalar = .leastNonzeroMagnitude,
         _ lhs: T1,
         _ rhs: T2
@@ -71,15 +50,16 @@ public struct Intersection2Parametric: Boolean2Parametric {
     }
 }
 
-/// Performs an intersection operation across all given parametric geometries.
+/// Performs an exclusive disjunction, or 'xor'- operation across all given
+/// parametric geometries.
 ///
 /// - precondition: `shapes` is not empty.
 @inlinable
-public func intersection(
+public func xor(
     tolerance: Double = .leastNonzeroMagnitude,
     _ shapes: [any ParametricClip2Geometry]
 ) -> Compound2Parametric {
-    let op = Intersection2Parametric(
+    let op = ExclusiveDisjunction2Parametric(
         contours: shapes.flatMap({ $0.allContours() }),
         tolerance: tolerance
     )
@@ -89,15 +69,16 @@ public func intersection(
     )
 }
 
-/// Performs an intersection operation across all given parametric contours.
+/// Performs an exclusive disjunction, or 'xor'- operation across all given
+/// parametric contours.
 ///
 /// - precondition: `contours` is not empty.
 @inlinable
-public func intersection(
+public func xor(
     tolerance: Double = .leastNonzeroMagnitude,
     _ contours: [Parametric2Contour<Vector2D>]
 ) -> Compound2Parametric {
-    let op = Intersection2Parametric(
+    let op = ExclusiveDisjunction2Parametric(
         contours: contours,
         tolerance: tolerance
     )

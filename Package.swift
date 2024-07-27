@@ -16,7 +16,7 @@ var packageDependencies: [Package.Dependency] =  [
     .package(url: "https://github.com/apple/swift-numerics.git", from: "1.0.0"),
     .package(url: "https://github.com/LuizZak/ImagineUI.git", branch: "master"),    //.package(url: "https://github.com/LuizZak/ImagineUI.git", branch: "master"),
     .package(url: "https://github.com/LuizZak/swift-blend2d.git", branch: "master"), //.package(url: "https://github.com/LuizZak/swift-blend2d.git", branch: "master")
-    .package(url: "https://github.com/LuizZak/MiniDigraph.git", exact: "0.5.1"),
+    .package(url: "https://github.com/LuizZak/MiniDigraph.git", exact: "0.6.0"),
 ]
 
 var targets: [Target] = []
@@ -35,6 +35,7 @@ var geometriaAppLibTarget: Target = .target(
         .product(name: "ImagineUI", package: "ImagineUI"),
         .product(name: "Blend2DRenderer", package: "ImagineUI"),
         "Geometria",
+        "GeometriaAlgorithms",
     ],
     exclude: [
         "Resources/FiraCode-License.txt"
@@ -98,9 +99,18 @@ if ProcessInfo.processInfo.environment["USE_GEOMETRIA_DEPENDENCY"] == "YES" {
             swiftSettings: []
         ),
         .target(
+            name: "GeometriaAlgorithms",
+            dependencies: [
+                "Geometria",
+                .product(name: "Numerics", package: "swift-numerics"),
+            ],
+            swiftSettings: []
+        ),
+        .target(
             name: "GeometriaClipping",
             dependencies: [
                 "Geometria",
+                "GeometriaAlgorithms",
                 .product(name: "Numerics", package: "swift-numerics"),
                 .product(name: "MiniDigraph", package: "MiniDigraph"),
             ],

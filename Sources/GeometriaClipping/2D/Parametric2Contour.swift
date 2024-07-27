@@ -245,11 +245,12 @@ public struct Parametric2Contour<Vector: Vector2Real> {
     @inlinable
     public func reversed() -> Self {
         let simplexes = self.simplexes
-            .map({ $0.reversed() })
+            .map({ $0.reversed(globalStartPeriod: startPeriod, globalEndPeriod: endPeriod) })
             .reversed()
 
         return .init(
-            normalizing: Array(simplexes),
+            simplexes: Array(simplexes),
+            winding: winding.inverse,
             startPeriod: startPeriod,
             endPeriod: endPeriod
         )
@@ -258,6 +259,17 @@ public struct Parametric2Contour<Vector: Vector2Real> {
     public enum Winding {
         case clockwise
         case counterClockwise
+
+        /// Returns the inverse winding value of `self`.
+        public var inverse: Self {
+            switch self {
+            case .clockwise:
+                return .counterClockwise
+
+            case .counterClockwise:
+                return .clockwise
+            }
+        }
 
         /// A numerical value associated with this winding.
         ///
