@@ -1,7 +1,7 @@
 import MiniDigraph
+import RealModule
 import Geometria
 import GeometriaAlgorithms
-import RealModule
 
 /// A graph that describes a set of geometry vertices + intersection points, with
 /// edges that correspond to simplexes of a 2-dimensional geometry.
@@ -50,7 +50,7 @@ public struct Simplex2Graph {
     @usableFromInline
     func edgeForPeriod(_ period: Period, shapeIndex: Int) -> Edge? {
         edges.first { edge in
-            edge.shapeIndex == shapeIndex && edge.periodRange.contains(period)
+            edge.references(shapeIndex: shapeIndex, at: period)
         }
     }
 
@@ -70,14 +70,6 @@ public struct Simplex2Graph {
 
         public var shapeIndex: Int? {
             kind.shapeIndex
-        }
-
-        public var lhsIndex: Int? {
-            kind.lhsIndex
-        }
-
-        public var rhsIndex: Int? {
-            kind.rhsIndex
         }
 
         @usableFromInline
@@ -101,17 +93,10 @@ public struct Simplex2Graph {
                 period: Period
             )
 
-            /// A geometry node that is shared amongst different geometries.
+            /// A geometry node that is shared amongst different geometries,
+            /// indicating an intersection.
             case sharedGeometry(
                 [SharedGeometryEntry]
-            )
-
-            /// An intersection node.
-            case intersection(
-                lhs: ShapeIndex,
-                lhsPeriod: Period,
-                rhs: ShapeIndex,
-                rhsPeriod: Period
             )
 
             public var description: String {
@@ -121,15 +106,12 @@ public struct Simplex2Graph {
 
                 case .sharedGeometry(let entries):
                     return ".sharedGeometry(\(entries))"
-
-                case .intersection(let lhs, let lhsPeriod, let rhs, let rhsPeriod):
-                    return ".intersection(lhs: \(lhs), lhsPeriod: \(lhsPeriod), rhs: \(rhs), rhsPeriod: \(rhsPeriod))"
                 }
             }
 
             public var isIntersection: Bool {
                 switch self {
-                case .intersection:
+                case .sharedGeometry:
                     return true
 
                 default:
@@ -147,22 +129,39 @@ public struct Simplex2Graph {
                 }
             }
 
-            public var lhsIndex: Int? {
+            /// Subtracts a given shape index from the list of referenced shapes
+            /// within this node kind.
+            ///
+            /// If this results in the kind having an empty set of referenced
+            /// nodes, `nil` is returned, instead.
+            ///
+            /// This may transform `intersection` and `sharedGeometry` back into
+            /// `geometry`, which always maps to `nil` if subtracted from.
+            ///
+            /// It is a programming error to attempt to subtract a shape index
+            /// that this node kind does not reference.
+            public func subtracting(shapeIndex: Int) -> Self? {
                 switch self {
-                case .intersection(let index, _, _, _):
-                    return index
-
-                default:
+                case .geometry(shapeIndex, _):
                     return nil
-                }
-            }
 
-            public var rhsIndex: Int? {
-                switch self {
-                case .intersection(_, _, let index, _):
-                    return index
+                case .sharedGeometry(let geometries):
+                    let newGeometries = geometries.filter { $0.shapeIndex != shapeIndex }
+                    if newGeometries.count > 1 {
+                        return .sharedGeometry(newGeometries)
+                    }
+                    if newGeometries.count == 1 {
+                        return .geometry(
+                            shapeIndex: newGeometries[0].shapeIndex,
+                            period: newGeometries[0].period
+                        )
+                    }
+                    return nil
 
                 default:
+                    assertionFailure(
+                        "\(#function): \(shapeIndex) is not part of the shape indices of \(self)"
+                    )
                     return nil
                 }
             }
@@ -198,45 +197,68 @@ public struct Simplex2Graph {
         public var end: Node {
             didSet { cacheProperties() }
         }
-        public var shapeIndex: Int
-        public var startPeriod: Period
-        public var endPeriod: Period
         public var kind: Kind {
             didSet { cacheProperties() }
+        }
+        public var geometry: [SharedGeometryEntry]
+
+        @inlinable
+        public var shapeIndices: [Int] {
+            geometry.map(\.shapeIndex)
         }
 
         public var totalWinding: Int
         public var winding: Parametric2Contour<Vector>.Winding
 
         public var description: String {
-            return "\(ObjectIdentifier(start)) -(\(kind))-> \(ObjectIdentifier(end))"
+            return "\(ObjectIdentifier(start)) -(\(kind), \(geometry))-> \(ObjectIdentifier(end))"
         }
 
         public internal(set) var bounds: AABB<Vector> = .zero
         public internal(set) var lengthSquared: Vector.Scalar = .zero
 
-        public var periodRange: Range<Period> {
-            startPeriod..<endPeriod
+        public convenience init(
+            id: Int,
+            start: Node,
+            end: Node,
+            kind: Kind,
+            shapeIndex: Int,
+            startPeriod: Period,
+            endPeriod: Period,
+            totalWinding: Int = 0,
+            winding: Parametric2Contour<Vector>.Winding = .clockwise
+        ) {
+            self.init(
+                id: id,
+                start: start,
+                end: end,
+                kind: kind,
+                geometry: [
+                    .init(
+                        shapeIndex: shapeIndex,
+                        startPeriod: startPeriod,
+                        endPeriod: endPeriod
+                    )
+                ],
+                totalWinding: totalWinding,
+                winding: winding
+            )
         }
 
         public init(
             id: Int,
             start: Node,
             end: Node,
-            shapeIndex: Int,
-            startPeriod: Period,
-            endPeriod: Period,
             kind: Kind,
+            geometry: [SharedGeometryEntry],
             totalWinding: Int = 0,
             winding: Parametric2Contour<Vector>.Winding = .clockwise
         ) {
             self.id = id
             self.start = start
             self.end = end
-            self.shapeIndex = shapeIndex
-            self.startPeriod = startPeriod
-            self.endPeriod = endPeriod
             self.kind = kind
+            self.geometry = geometry
             self.totalWinding = totalWinding
             self.winding = winding
 
@@ -244,19 +266,101 @@ public struct Simplex2Graph {
         }
 
         internal func cacheProperties() {
-            let simplex = materialize()
-            bounds = simplex.bounds
-            lengthSquared = simplex.lengthSquared
+            let primitive = materializePrimitive()
+            bounds = primitive.bounds
+            lengthSquared = primitive.lengthSquared
+        }
+
+        @inlinable
+        func inverted(edgeId: Int) -> Edge {
+            var totalWinding = self.totalWinding
+            switch winding {
+            case .clockwise:
+                totalWinding -= 1
+
+            case .counterClockwise:
+                totalWinding += 1
+            }
+
+            return Edge(
+                id: edgeId,
+                start: end,
+                end: start,
+                kind: kind.inverse,
+                geometry: geometry.map { $0.inverse },
+                totalWinding: totalWinding,
+                winding: winding.inverse
+            )
         }
 
         @inlinable
         func queryPoint(_ center: (Period, Period) -> Period) -> Vector {
-            func centerOfSimplex(_ simplex: Parametric2GeometrySimplex<Vector>) -> Vector {
-                simplex.compute(at: center(simplex.startPeriod, simplex.endPeriod))
+            let primitive = materializePrimitive()
+            return primitive.centerPoint
+        }
+
+        /// Returns `true` if `self` references a given shape index.
+        @inlinable
+        func references(shapeIndex: Int) -> Bool {
+            for geometry in geometry {
+                if geometry.shapeIndex == shapeIndex {
+                    return true
+                }
             }
 
-            let simplex = materialize()
-            return centerOfSimplex(simplex)
+            return false
+        }
+
+        /// Returns `true` if `self` references a given shape index at a given
+        /// period.
+        @inlinable
+        func references(shapeIndex: Int, at period: Period) -> Bool {
+            for geometry in geometry {
+                if geometry.shapeIndex == shapeIndex && geometry.contains(period: period) {
+                    return true
+                }
+            }
+
+            return false
+        }
+
+        /// Subtracts a given shape index from the list of referenced shape indices
+        /// of this edge, returning `nil` if the operation results in no shape
+        /// indices left referenced by this edge.
+        @inlinable
+        func subtracting(shapeIndex: Int) -> Edge? {
+            geometry.removeAll { $0.shapeIndex == shapeIndex }
+            return geometry.isEmpty ? nil : self
+        }
+
+        /// Returns `true` if `self` and `other` have an overlapping shape index
+        /// reference between them.
+        @inlinable
+        func referencesSameShape(as other: Edge) -> Bool {
+            for shapeIndex in other.geometry.map(\.shapeIndex) {
+                if references(shapeIndex: shapeIndex) {
+                    return true
+                }
+            }
+
+            return false
+        }
+
+        /// Returns the ratio for a given period within this edge, based on a given
+        /// shape index.
+        ///
+        /// If the period does not exist within this edge, `nil` is returned, instead.
+        @inlinable
+        func ratio(forPeriod period: Period, shapeIndex: Int) -> Scalar? {
+            for geometry in geometry where geometry.shapeIndex == shapeIndex {
+                guard geometry.periodRange.contains(period) else {
+                    continue
+                }
+
+                return (period - geometry.startPeriod) / (geometry.endPeriod - geometry.startPeriod)
+            }
+
+            return nil
         }
 
         /// Returns `true` if `self` is coincident with `other`, i.e. both edges
@@ -271,7 +375,7 @@ public struct Simplex2Graph {
             }
             // TODO: Relax this step to a parameter to allow joining collinear edges later on
             // Edges cannot be collinear with other edges from the same shape
-            if shapeIndex == other.shapeIndex {
+            if referencesSameShape(as: other) {
                 return false
             }
 
@@ -370,7 +474,7 @@ public struct Simplex2Graph {
                 // An edge cannot be coincident with itself.
                 return .notCoincident
             }
-            if shapeIndex == other.shapeIndex {
+            if referencesSameShape(as: other) {
                 // Edges belonging to the same shape are never coincident.
                 return .notCoincident
             }
@@ -391,8 +495,8 @@ public struct Simplex2Graph {
 
             let lhsContains: (_ scalar: Scalar) -> Bool
             let rhsContains: (_ scalar: Scalar) -> Bool
-            let lhsPeriod: (_ scalar: Scalar) -> Period
-            let rhsPeriod: (_ scalar: Scalar) -> Period
+            let lhsPeriod: (_ scalar: Scalar) -> [CoincidenceRelationship.PeriodEntry]
+            let rhsPeriod: (_ scalar: Scalar) -> [CoincidenceRelationship.PeriodEntry]
 
             switch (self.kind, other.kind) {
             case (.line, .line):
@@ -501,10 +605,20 @@ public struct Simplex2Graph {
             }
 
             lhsPeriod = { scalar in
-                self.startPeriod + (self.endPeriod - self.startPeriod) * scalar
+                self.geometry.map { geometry in
+                    .init(
+                        shapeIndex: geometry.shapeIndex,
+                        period: geometry.startPeriod + (geometry.endPeriod - geometry.startPeriod) * scalar
+                    )
+                }
             }
             rhsPeriod = { scalar in
-                other.startPeriod + (other.endPeriod - other.startPeriod) * scalar
+                other.geometry.map { geometry in
+                    .init(
+                        shapeIndex: geometry.shapeIndex,
+                        period: geometry.startPeriod + (geometry.endPeriod - geometry.startPeriod) * scalar
+                    )
+                }
             }
 
             // lhs:  •------•
@@ -574,7 +688,10 @@ public struct Simplex2Graph {
             return .notCoincident
         }
 
-        public func materialize() -> Parametric2GeometrySimplex<Vector> {
+        public func materialize(
+            startPeriod: Period,
+            endPeriod: Period
+        ) -> Parametric2GeometrySimplex<Vector> {
             switch kind {
             case .line:
                 return .lineSegment2(
@@ -606,6 +723,31 @@ public struct Simplex2Graph {
             }
         }
 
+        /// Materializes the underlying primitive for this edge that is devoid
+        /// of period information.
+        @inlinable
+        func materializePrimitive() -> Primitive {
+            switch kind {
+            case .line:
+                let lineSegment = LineSegment2(
+                    start: start.location,
+                    end: end.location
+                )
+
+                return .lineSegment2(lineSegment)
+
+            case .circleArc(let center, let radius, let startAngle, let sweepAngle):
+                let arc = CircleArc2(
+                    center: center,
+                    radius: radius,
+                    startAngle: startAngle,
+                    sweepAngle: sweepAngle
+                )
+
+                return .circleArc2(arc)
+            }
+        }
+
         public func hash(into hasher: inout Hasher) {
             hasher.combine(ObjectIdentifier(self))
         }
@@ -627,6 +769,22 @@ public struct Simplex2Graph {
                 sweepAngle: Angle<Vector.Scalar>
             )
 
+            @inlinable
+            var inverse: Self {
+                switch self {
+                case .line:
+                    return self
+
+                case .circleArc(let center, let radius, let startAngle, let sweepAngle):
+                    return .circleArc(
+                        center: center,
+                        radius: radius,
+                        startAngle: startAngle + sweepAngle,
+                        sweepAngle: -sweepAngle
+                    )
+                }
+            }
+
             public var description: String {
                 switch self {
                 case .line:
@@ -635,6 +793,92 @@ public struct Simplex2Graph {
                 case .circleArc(let center, let radius, let startAngle, let sweepAngle):
                     return ".circleArc(center: \(center), radius: \(radius), startAngle: \(startAngle), sweepAngle: \(sweepAngle))"
                 }
+            }
+        }
+
+        public enum Primitive {
+            case lineSegment2(LineSegment2<Vector>)
+            case circleArc2(CircleArc2<Vector>)
+
+            @inlinable
+            var lengthSquared: Scalar {
+                switch self {
+                case .lineSegment2(let primitive):
+                    return primitive.lengthSquared
+
+                case .circleArc2(let primitive):
+                    let arcLength = primitive.arcLength
+                    return arcLength * arcLength
+                }
+            }
+
+            @inlinable
+            var bounds: AABB<Vector> {
+                switch self {
+                case .lineSegment2(let primitive):
+                    return primitive.bounds
+
+                case .circleArc2(let primitive):
+                    return primitive.bounds()
+                }
+            }
+
+            @inlinable
+            var centerPoint: Vector {
+                ratioPoint(1 / 2)
+            }
+
+            @inlinable
+            func ratioPoint(_ ratio: Scalar) -> Vector {
+                switch self {
+                case .lineSegment2(let primitive):
+                    return primitive.projectedNormalizedMagnitude(ratio)
+
+                case .circleArc2(let primitive):
+                    return primitive.pointOnAngle(
+                        primitive.startAngle + primitive.sweepAngle * ratio
+                    )
+                }
+            }
+        }
+
+        public struct SharedGeometryEntry: Equatable, CustomStringConvertible {
+            public var shapeIndex: Int
+            public var startPeriod: Period
+            public var endPeriod: Period
+
+            @inlinable
+            public var periodRange: Range<Period> {
+                startPeriod..<endPeriod
+            }
+
+            @inlinable
+            var inverse: Self {
+                .init(
+                    shapeIndex: shapeIndex,
+                    startPeriod: endPeriod,
+                    endPeriod: startPeriod
+                )
+            }
+
+            public var description: String {
+                "\(type(of: self))(shapeIndex: \(shapeIndex), startPeriod: \(startPeriod), endPeriod: \(endPeriod))"
+            }
+
+            @usableFromInline
+            internal init(
+                shapeIndex: Int,
+                startPeriod: Period,
+                endPeriod: Period
+            ) {
+                self.shapeIndex = shapeIndex
+                self.startPeriod = startPeriod
+                self.endPeriod = endPeriod
+            }
+
+            @inlinable
+            func contains(period: Period) -> Bool {
+                periodRange.contains(period)
             }
         }
 
@@ -665,7 +909,7 @@ public struct Simplex2Graph {
             /// lhs:  •------•
             /// rhs:   •----•
             /// ```
-            case lhsContainsRhs(lhsStart: Period, lhsEnd: Period)
+            case lhsContainsRhs(lhsStart: [PeriodEntry], lhsEnd: [PeriodEntry])
 
             /// The incoming edge parameter contains the receiver of the coincidence
             /// call within its two points.
@@ -675,7 +919,7 @@ public struct Simplex2Graph {
             /// lhs:   •----•
             /// rhs:  •------•
             /// ```
-            case rhsContainsLhs(rhsStart: Period, rhsEnd: Period)
+            case rhsContainsLhs(rhsStart: [PeriodEntry], rhsEnd: [PeriodEntry])
 
             /// The receiver of the coincidence call overlaps the incoming edge
             /// parameter, prefixing it exactly at one point in space.
@@ -685,7 +929,7 @@ public struct Simplex2Graph {
             /// lhs:  •----•
             /// rhs:  •------•
             /// ```
-            case lhsPrefixesRhs(rhsEnd: Period)
+            case lhsPrefixesRhs(rhsEnd: [PeriodEntry])
 
             /// The incoming edge parameter overlaps the receiver of the coincidence
             /// call, prefixing it exactly at one point in space.
@@ -695,7 +939,7 @@ public struct Simplex2Graph {
             /// lhs:  •------•
             /// rhs:  •----•
             /// ```
-            case rhsPrefixesLhs(lhsEnd: Period)
+            case rhsPrefixesLhs(lhsEnd: [PeriodEntry])
 
             /// The receiver of the coincidence call overlaps the incoming edge
             /// parameter, suffixing it exactly at one point in space.
@@ -705,7 +949,7 @@ public struct Simplex2Graph {
             /// lhs:    •----•
             /// rhs:  •------•
             /// ```
-            case lhsSuffixesRhs(rhsStart: Period)
+            case lhsSuffixesRhs(rhsStart: [PeriodEntry])
 
             /// The incoming edge parameter overlaps the receiver of the coincidence
             /// call, suffixing it exactly at one point in space.
@@ -715,7 +959,7 @@ public struct Simplex2Graph {
             /// lhs:  •------•
             /// rhs:    •----•
             /// ```
-            case rhsSuffixesLhs(lhsStart: Period)
+            case rhsSuffixesLhs(lhsStart: [PeriodEntry])
 
             /// The incoming edge parameter overlaps the start point of the receiver
             /// of the coincidence call.
@@ -725,7 +969,7 @@ public struct Simplex2Graph {
             /// lhs:    •----•
             /// rhs:  •----•
             /// ```
-            case rhsContainsLhsStart(rhsStart: Period, lhsEnd: Period)
+            case rhsContainsLhsStart(rhsStart: [PeriodEntry], lhsEnd: [PeriodEntry])
 
             /// The incoming edge parameter overlaps the end point of the receiver
             /// of the coincidence call.
@@ -735,7 +979,12 @@ public struct Simplex2Graph {
             /// lhs:  •----•
             /// rhs:    •----•
             /// ```
-            case rhsContainsLhsEnd(lhsEnd: Period, rhsStart: Period)
+            case rhsContainsLhsEnd(lhsEnd: [PeriodEntry], rhsStart: [PeriodEntry])
+
+            public struct PeriodEntry: Hashable {
+                public let shapeIndex: Int
+                public let period: Period
+            }
         }
     }
 }

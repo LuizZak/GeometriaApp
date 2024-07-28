@@ -31,12 +31,50 @@ public struct ExclusiveDisjunction2Parametric: Boolean2Parametric {
 
     @inlinable
     public func allContours() -> [Contour] {
+        typealias Graph = Simplex2Graph
+
+        var graph = Graph.fromParametricIntersections(
+            contours: contours,
+            tolerance: tolerance
+        )
+
+        // Remove all edges that have incompatible total windings according to
+        // their contour windings
+        for edge in graph.edges {
+            let shouldRemove: Bool
+
+            switch edge.winding {
+            case .clockwise:
+                shouldRemove = edge.totalWinding != 1
+
+                if edge.totalWinding == 2 {
+                    let newEdge = edge.inverted(
+                        edgeId: graph.nextEdgeId()
+                    )
+                    graph.addEdge(newEdge)
+                }
+
+            case .counterClockwise:
+                shouldRemove = edge.totalWinding != 0
+            }
+
+            if shouldRemove {
+                graph.removeEdge(edge)
+            }
+        }
+
+        graph.prune()
+
+        return graph.recombine()
+
+        /*
         // An exclusive disjunction can be expressed as a union followed by a
         // subtraction of the intersection
         let union = union(tolerance: tolerance, self.contours)
         let intersection = intersection(tolerance: tolerance, self.contours)
 
         return subtraction(union, [intersection]).allContours()
+        */
     }
 
     @inlinable

@@ -38,10 +38,10 @@ open class PolyBooleanApp: ImagineUIWindowContent {
     #if true
     func effectivePolys() -> [any ParametricClip2Geometry] {
         if isMouseDown {
-            return circles.map({ $0.makeHollow() }) + [mousePoly]
+            return circles.map({ $0.makeHollow() }) + polys + [mousePoly]
         }
 
-        return circles.map({ $0.makeHollow() })
+        return circles.map({ $0.makeHollow() }) + polys
     }
     #else
     func effectivePolys() -> [any PolyBooleanType] {
@@ -86,6 +86,7 @@ open class PolyBooleanApp: ImagineUIWindowContent {
             //Circle2Parametric(circle: .init(center: .init(x: 324, y: 575), radius: sizeVec.x / 20)),
             //Circle2Parametric(circle: .init(center: .init(x: 306, y: 283), radius: sizeVec.x / 20)),
             //Circle2Parametric(circle: .init(center: .init(x: 646, y: 337), radius: sizeVec.x / 20)),
+            Circle2Parametric(circle: .init(center: .init(x: 355, y: 214), radius: sizeVec.x / 20)),
         ]
         mousePoly.circle2.radius = sizeVec.x / 20
 
@@ -119,7 +120,7 @@ open class PolyBooleanApp: ImagineUIWindowContent {
     func spawnCircles() {
         circles.removeAll()
 
-        let count = 1
+        let count = 0
         let radiusRange: ClosedRange<Double> = 25.0...50.0
         let velocityRange: ClosedRange<Double> = -100.0...100.0
         let sizeVec = self.size.asVector2D
