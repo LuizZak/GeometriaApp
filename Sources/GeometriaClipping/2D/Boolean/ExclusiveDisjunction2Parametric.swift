@@ -31,6 +31,7 @@ public struct ExclusiveDisjunction2Parametric: Boolean2Parametric {
 
     @inlinable
     public func allContours() -> [Contour] {
+        /*
         typealias Graph = Simplex2Graph
 
         var graph = Graph.fromParametricIntersections(
@@ -66,15 +67,16 @@ public struct ExclusiveDisjunction2Parametric: Boolean2Parametric {
         graph.prune()
 
         return graph.recombine()
+        // */
 
-        /*
+        //*
         // An exclusive disjunction can be expressed as a union followed by a
         // subtraction of the intersection
         let union = union(tolerance: tolerance, self.contours)
         let intersection = intersection(tolerance: tolerance, self.contours)
 
         return subtraction(union, [intersection]).allContours()
-        */
+        // */
     }
 
     @inlinable

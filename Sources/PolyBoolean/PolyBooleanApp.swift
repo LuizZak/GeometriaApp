@@ -6,6 +6,8 @@ import GeometriaClipping
 
 open class PolyBooleanApp: ImagineUIWindowContent {
     var _updateTimer: SchedulerTimerType?
+    var _lastRender: TimeInterval = UISettings.timeInSeconds()
+    var _mouseLocation: UIPoint = .zero
 
     var isMouseDown: Bool = false
     var isShiftHeld: Bool = false
@@ -30,10 +32,6 @@ open class PolyBooleanApp: ImagineUIWindowContent {
     var mousePoly: CirclePoly = .init(circle: .unit)
 
     #endif
-
-    let labelStackView = StackView(orientation: .vertical)
-    let intersectCountLabel = Label(textColor: .black, fontSize: 20)
-    let mouseLocationLabel = Label(textColor: .black, fontSize: 20)
 
     #if true
     func effectivePolys() -> [any ParametricClip2Geometry] {
@@ -104,23 +102,12 @@ open class PolyBooleanApp: ImagineUIWindowContent {
         mousePoly.circle.radius = sizeVec.x / 20
 
         #endif
-
-        rootView.addSubview(labelStackView)
-        labelStackView.addArrangedSubview(intersectCountLabel)
-        labelStackView.addArrangedSubview(mouseLocationLabel)
-        labelStackView.layout.makeConstraints { make in
-            make.top == rootView + 5
-            make.left == rootView + 5
-        }
-
-        intersectCountLabel.text = "Total intersections: Computing..."
-        mouseLocationLabel.text = "Mouse location: (0, 0)"
     }
 
     func spawnCircles() {
         circles.removeAll()
 
-        let count = 0
+        let count = 50
         let radiusRange: ClosedRange<Double> = 25.0...50.0
         let velocityRange: ClosedRange<Double> = -100.0...100.0
         let sizeVec = self.size.asVector2D
@@ -185,7 +172,7 @@ open class PolyBooleanApp: ImagineUIWindowContent {
     open override func mouseMoved(event: MouseEventArgs) {
         super.mouseMoved(event: event)
 
-        mouseLocationLabel.text = "Mouse location: (\(event.location.x), \(event.location.y))"
+        _mouseLocation = event.location
 
         #if true
         mousePoly.circle2.center = event.location.asVector2D
@@ -246,15 +233,33 @@ open class PolyBooleanApp: ImagineUIWindowContent {
         //render(polys: polys, renderer: renderer)
 
         renderer.setStroke(
-            .init(color: .black, width: 5, startCap: .round, endCap: .round, joinStyle: .round)
+            .init(color: .black, width: 3, startCap: .round, endCap: .round, joinStyle: .round)
         )
         //renderUnion(polys: polys, renderer: renderer)
-        //renderSubtraction(polys: polys, renderer: renderer)
-        renderXor(polys: polys, renderer: renderer)
+        renderSubtraction(polys: polys, renderer: renderer)
+        //renderXor(polys: polys, renderer: renderer)
         //renderIntersection(polys: polys, renderer: renderer)
         //testEllipseNormals(renderer: renderer)
 
         //renderIntersections(polys: polys, renderer: renderer)
+
+        renderLabels(renderer: renderer, clipRegion: clipRegion)
+    }
+
+    func renderLabels(renderer: any Renderer, clipRegion: any ClipRegionType) {
+        renderer.setFill(.black)
+
+        let delta = UISettings.timeInSeconds() - _lastRender
+        _lastRender = UISettings.timeInSeconds()
+
+        let mouseLocationText = TextLayout(
+            font: Fonts.defaultFont(size: 20),
+            text: "Mouse location: (\(_mouseLocation.x), \(_mouseLocation.y))"
+        )
+        renderer.fillTextLayout(mouseLocationText, at: .init(x: 5, y: 5))
+
+        let delayText = TextLayout(font: Fonts.defaultFont(size: 20), text: "Delay: \(delta * 1000)ms")
+        renderer.fillTextLayout(delayText, at: .init(x: 5, y: mouseLocationText.size.height + 5))
     }
 
     func renderUnion(
@@ -290,7 +295,12 @@ open class PolyBooleanApp: ImagineUIWindowContent {
             return
         }
 
-        let base = subtraction(tolerance: 1e-14, first, Array(polys.dropFirst()))
+        let overlapping =
+            polys
+            .dropFirst()
+            .filter { $0.intersects(first) }
+
+        let base = subtraction(tolerance: 1e-14, first, overlapping)
 
         render(poly: base, renderer: renderer)
     }
@@ -481,6 +491,10 @@ open class PolyBooleanApp: ImagineUIWindowContent {
     struct DemoCircle {
         var circle: Circle2Parametric
         var velocity: Vector2D
+
+        var bounds: AABB2D {
+            circle.bounds
+        }
 
         func makeHollow() -> Compound2Parametric {
             var inner = circle.reversed()

@@ -101,6 +101,27 @@ public enum Parametric2GeometrySimplex<Vector: Vector2Real>: Parametric2Simplex,
         startPeriod + (endPeriod - startPeriod) * ratio
     }
 
+    /// Splits this simplex at a given period, returning two simplexes that join
+    /// to form the same range of periods/strokes that this simplex spans.
+    ///
+    /// - precondition: `period` is a valid period contained within `startPeriod..<endPeriod`.
+    @inlinable
+    public func split(at period: Period) -> (Self, Self) {
+        precondition(periodRange.contains(period))
+
+        switch self {
+        case .lineSegment2(let lineSegment2):
+            let (left, right) = lineSegment2.split(at: period)
+
+            return (.lineSegment2(left), .lineSegment2(right))
+
+        case .circleArc2(let circleArc2):
+            let (left, right) = circleArc2.split(at: period)
+
+            return (.circleArc2(left), .circleArc2(right))
+        }
+    }
+
     /// Clamps this simplex so its contained geometry is only present within a
     /// given period range.
     ///
@@ -130,6 +151,69 @@ public enum Parametric2GeometrySimplex<Vector: Vector2Real>: Parametric2Simplex,
     }
 
     // MARK: - Intersection
+
+    /// Returns `true` if there are any intersections between this simplex and
+    /// `other`.
+    @inlinable
+    public func intersects(_ other: Self) -> Bool {
+        switch (self, other) {
+        case (.lineSegment2(let lhs), .lineSegment2(let rhs)):
+            // MARK: Line / Line
+            guard let intersection = lhs.lineSegment.intersection(with: rhs.lineSegment) else {
+                return false
+            }
+            guard
+                Self.isWithinAbsoluteBounds(intersection.line1NormalizedMagnitude),
+                Self.isWithinAbsoluteBounds(intersection.line2NormalizedMagnitude)
+            else {
+                return false
+            }
+
+            return true
+
+        case (.lineSegment2(let lhs), .circleArc2(let rhs)):
+            // MARK: Line / Arc
+            let intersections = rhs.circleArc.intersections(with: lhs.lineSegment).intersections
+            return intersections.contains { intersection in
+                return
+                    Self.circleArcIntersectionRatio(
+                        rhs,
+                        intersection: intersection
+                    ) != nil
+            }
+
+        case (.circleArc2(let lhs), .lineSegment2(let rhs)):
+            // MARK: Arc / Line
+            let intersections = lhs.circleArc.intersections(with: rhs.lineSegment).intersections
+            return intersections.contains { intersection in
+                return
+                    Self.circleArcIntersectionRatio(
+                        lhs,
+                        intersection: intersection
+                    ) != nil
+            }
+
+        case (.circleArc2(let lhs), .circleArc2(let rhs)):
+            // MARK: Arc / Arc
+            let intersections =
+                lhs.asCircle2
+                .intersection(with: rhs.asCircle2)
+                .pointNormals
+
+            return intersections.contains { intersection in
+                return
+                    Self.circleArcIntersectionRatio(
+                        lhs,
+                        intersection: intersection
+                    ) != nil
+                    &&
+                    Self.circleArcIntersectionRatio(
+                        rhs,
+                        intersection: intersection
+                    ) != nil
+            }
+        }
+    }
 
     /// Returns a list of pairs for periods where `self` and `other` intersect
     /// in space.

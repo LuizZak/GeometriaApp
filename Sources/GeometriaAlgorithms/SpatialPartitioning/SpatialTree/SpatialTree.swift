@@ -15,6 +15,12 @@ public struct SpatialTree<Element: BoundableType>: SpatialTreeType where Element
     @usableFromInline
     internal var root: Subdivision
 
+    /// Fetches a read-only view of this spatial tree's subdivisions structure,
+    /// starting at the root subdivision.
+    public var rootView: SubdivisionView {
+        SubdivisionView(subdivision: root)
+    }
+
     /// The maximal subdivisions allowed currently affecting this spatial tree.
     public var maxSubdivisions: Int
 
@@ -196,23 +202,46 @@ public struct SpatialTree<Element: BoundableType>: SpatialTreeType where Element
     /// In case removal results in an empty set of subdivisions for a subdivision,
     /// the subdivisions are collapsed and removed.
     @inlinable
-    public mutating func remove(at index: Index) {
+    public mutating func remove(at index: Index, collapseEmpty: Bool = false) {
         ensureUnique()
-        if !root.remove(at: index.path) {
+        if !root.remove(at: index.path, collapseEmpty: collapseEmpty) {
             fatalError("Index \(index) is not part of this spatial tree.")
         }
     }
 
     /// Removes a given element from this spatial tree.
-    ///
-    /// In case removal results in an empty set of subdivisions for a subdivision,
-    /// the subdivisions are collapsed and removed.
-    public mutating func remove(_ element: Element) where Element: Equatable {
+    public mutating func remove(_ element: Element, collapseEmpty: Bool = false) where Element: Equatable {
         let bounds = element.bounds
-        root.query(bounds) { (subdivision, _) in
-            subdivision.elements.removeAll(where: { $0 == element })
+        root.visitBounds(bounds) { subdivision in
+            for i in (0..<subdivision.elements.count).reversed() {
+                if subdivision.elements[i] == element {
+                    subdivision.elements.remove(at: i)
+                }
+            }
+
+            return .visitSubdivisions
         }
-        root.collapseEmpty()
+        if collapseEmpty {
+            root.collapseEmpty()
+        }
+    }
+
+    /// Removes the first occurrence of a given element from this spatial tree.
+    public mutating func removeFirst(_ element: Element, collapseEmpty: Bool = false) where Element: Equatable {
+        let bounds = element.bounds
+        root.visitBounds(bounds) { subdivision in
+            for i in (0..<subdivision.elements.count).reversed() {
+                if subdivision.elements[i] == element {
+                    subdivision.elements.remove(at: i)
+                    return .stop
+                }
+            }
+
+            return .visitSubdivisions
+        }
+        if collapseEmpty {
+            root.collapseEmpty()
+        }
     }
 
     /// Removes all elements contained within this spatial tree, resetting its
@@ -228,6 +257,34 @@ public struct SpatialTree<Element: BoundableType>: SpatialTreeType where Element
             subdivisions: nil,
             depth: 0
         )
+    }
+
+    /// A read-only view into a subdivision of a spatial tree.
+    public struct SubdivisionView {
+        var subdivision: Subdivision
+
+        /// Gets the bounds for this subdivision view.
+        public var bounds: Bounds {
+            subdivision.bounds
+        }
+
+        /// Gets the elements for this subdivision view.
+        public var elements: [Element] {
+            subdivision.elements
+        }
+
+        /// Gets the subdivisions contained within this subdivision view.
+        public var subdivisions: [SubdivisionView]? {
+            guard let subdivisions = subdivision.subdivisions else {
+                return nil
+            }
+
+            return subdivisions.map(SubdivisionView.init(subdivision:))
+        }
+
+        init(subdivision: Subdivision) {
+            self.subdivision = subdivision
+        }
     }
 
     /// A subdivision of a spatial tree.
@@ -350,6 +407,40 @@ public struct SpatialTree<Element: BoundableType>: SpatialTreeType where Element
             }
         }
 
+        @inlinable
+        func visitBounds<Bounds: BoundableType>(
+            _ area: Bounds,
+            visit: (Subdivision) -> VisitResult
+        ) where Bounds.Vector == Vector {
+            let bounds = area.bounds
+            var queue = [self]
+
+            while !queue.isEmpty {
+                let next = queue.removeFirst()
+
+                guard next.bounds.intersects(bounds) else {
+                    continue
+                }
+
+                switch visit(next) {
+                case .skipSubdivisions:
+                    continue
+
+                case .stop:
+                    return
+
+                case .visitSubdivisions:
+                    break
+                }
+
+                for subdivision in (next.subdivisions ?? []) {
+                    if subdivision.bounds.contains(bounds) {
+                        queue.append(subdivision)
+                    }
+                }
+            }
+        }
+
         /// Returns `true` if no elements are contained within this subdivision,
         /// or any of its inner subdivisions.
         @inlinable
@@ -463,7 +554,9 @@ public struct SpatialTree<Element: BoundableType>: SpatialTreeType where Element
         @inlinable
         func forEachSubdivision(_ block: (Subdivision) -> Void) {
             if let subdivisions {
-                subdivisions.forEach(block)
+                for subdivision in subdivisions {
+                    block(subdivision)
+                }
             }
         }
 
@@ -549,7 +642,7 @@ public struct SpatialTree<Element: BoundableType>: SpatialTreeType where Element
         /// Returns `true` if the element index existed within this subdivision
         /// tree and was successfully removed.
         @inlinable
-        func remove(at path: ElementPath) -> Bool {
+        func remove(at path: ElementPath, collapseEmpty: Bool = false) -> Bool {
             switch path {
             case .element(let index):
                 elements.remove(at: index)
@@ -565,8 +658,10 @@ public struct SpatialTree<Element: BoundableType>: SpatialTreeType where Element
                 }
 
                 // Collapse subdivision
-                if areSubdivisionsEmpty() {
-                    self.subdivisions = nil
+                if collapseEmpty {
+                    if areSubdivisionsEmpty() {
+                        self.subdivisions = nil
+                    }
                 }
 
                 return true
@@ -621,6 +716,18 @@ public struct SpatialTree<Element: BoundableType>: SpatialTreeType where Element
                     index.withPath(path)
                 )
             }
+        }
+
+        @usableFromInline
+        enum VisitResult {
+            /// Visits subdivisions of the current subdivision.
+            case visitSubdivisions
+
+            /// Skips subdivisions of the current subdivision.
+            case skipSubdivisions
+
+            /// Ends visiting of all subdivisions queued up.
+            case stop
         }
 
         @usableFromInline

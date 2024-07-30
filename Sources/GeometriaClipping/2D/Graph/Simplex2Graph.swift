@@ -2,6 +2,7 @@ import MiniDigraph
 import RealModule
 import Geometria
 import GeometriaAlgorithms
+import OrderedCollections
 
 /// A graph that describes a set of geometry vertices + intersection points, with
 /// edges that correspond to simplexes of a 2-dimensional geometry.
@@ -12,7 +13,19 @@ public struct Simplex2Graph {
     public typealias Contour = Parametric2Contour<Vector>
 
     /// Internal cached graph implementation.
-    var graph: CachingDirectedGraph<Node, Edge>
+    private(set) var graph: CachingDirectedGraph<InternalGraph>
+
+    /// Nodes sorted by `Node.id`.
+    @inlinable
+    var sortedNodes: [Node] {
+        Array(nodes)
+    }
+
+    /// Edges sorted by `Edge.id`.
+    @usableFromInline
+    var sortedEdges: [Edge] {
+        Array(edges)
+    }
 
     /// kd-tree of nodes.
     @usableFromInline
@@ -22,16 +35,30 @@ public struct Simplex2Graph {
     @usableFromInline
     var edgeTree: QuadTree<Edge> = .init(maxSubdivisions: 4, maxElementsPerLevelBeforeSplit: 10)
 
+    /// The next available node ID to be used when adding contours.
+    var nodeId: Int = 0
+
     /// The next available edge ID to be used when adding contours.
     var edgeId: Int = 0
 
     public var contours: [Contour]
 
-    public var nodes: Set<Node> {
+    public var nodes: OrderedSet<Node> {
         graph.nodes
     }
-    public var edges: Set<Edge> {
+    public var edges: OrderedSet<Edge> {
         graph.edges
+    }
+
+    public init() {
+        self.graph = .init()
+        self.contours = []
+    }
+
+    @usableFromInline
+    mutating func nextNodeId() -> Int {
+        defer { nodeId += 1 }
+        return nodeId
     }
 
     @usableFromInline
@@ -57,11 +84,22 @@ public struct Simplex2Graph {
     public class Node: Hashable, CustomStringConvertible {
         public typealias ShapeIndex = Int
 
+        public var id: Int
         public var location: Vector
         public var kind: Kind
 
+        public var geometries: [Kind.SharedGeometryEntry] {
+            switch kind {
+            case .geometry(let shapeIndex, let period):
+                return [.init(shapeIndex: shapeIndex, period: period)]
+
+            case .sharedGeometry(let entries):
+                return entries
+            }
+        }
+
         public var description: String {
-            "Node(location: \(location), kind: \(kind))"
+            "Node(id: \(id), location: \(location), kind: \(kind))"
         }
 
         public var isIntersection: Bool {
@@ -73,9 +111,24 @@ public struct Simplex2Graph {
         }
 
         @usableFromInline
-        init(location: Vector, kind: Kind) {
+        init(
+            id: Int,
+            location: Vector,
+            kind: Kind
+        ) {
+            self.id = id
             self.location = location
             self.kind = kind
+        }
+
+        @inlinable
+        func references(shapeIndex: Int, period: Period) -> Bool {
+            let query = Kind.SharedGeometryEntry(
+                shapeIndex: shapeIndex,
+                period: period
+            )
+
+            return geometries.contains(query)
         }
 
         public func hash(into hasher: inout Hasher) {
@@ -211,7 +264,7 @@ public struct Simplex2Graph {
         public var winding: Parametric2Contour<Vector>.Winding
 
         public var description: String {
-            return "\(ObjectIdentifier(start)) -(\(kind), \(geometry))-> \(ObjectIdentifier(end))"
+            return "\(start.id) -(\(kind), \(geometry))-> \(end.id)"
         }
 
         public internal(set) var bounds: AABB<Vector> = .zero
@@ -272,29 +325,7 @@ public struct Simplex2Graph {
         }
 
         @inlinable
-        func inverted(edgeId: Int) -> Edge {
-            var totalWinding = self.totalWinding
-            switch winding {
-            case .clockwise:
-                totalWinding -= 1
-
-            case .counterClockwise:
-                totalWinding += 1
-            }
-
-            return Edge(
-                id: edgeId,
-                start: end,
-                end: start,
-                kind: kind.inverse,
-                geometry: geometry.map { $0.inverse },
-                totalWinding: totalWinding,
-                winding: winding.inverse
-            )
-        }
-
-        @inlinable
-        func queryPoint(_ center: (Period, Period) -> Period) -> Vector {
+        func queryPoint() -> Vector {
             let primitive = materializePrimitive()
             return primitive.centerPoint
         }
@@ -688,6 +719,7 @@ public struct Simplex2Graph {
             return .notCoincident
         }
 
+        @inlinable
         public func materialize(
             startPeriod: Period,
             endPeriod: Period
@@ -769,22 +801,6 @@ public struct Simplex2Graph {
                 sweepAngle: Angle<Vector.Scalar>
             )
 
-            @inlinable
-            var inverse: Self {
-                switch self {
-                case .line:
-                    return self
-
-                case .circleArc(let center, let radius, let startAngle, let sweepAngle):
-                    return .circleArc(
-                        center: center,
-                        radius: radius,
-                        startAngle: startAngle + sweepAngle,
-                        sweepAngle: -sweepAngle
-                    )
-                }
-            }
-
             public var description: String {
                 switch self {
                 case .line:
@@ -850,15 +866,6 @@ public struct Simplex2Graph {
             @inlinable
             public var periodRange: Range<Period> {
                 startPeriod..<endPeriod
-            }
-
-            @inlinable
-            var inverse: Self {
-                .init(
-                    shapeIndex: shapeIndex,
-                    startPeriod: endPeriod,
-                    endPeriod: startPeriod
-                )
             }
 
             public var description: String {
@@ -987,6 +994,33 @@ public struct Simplex2Graph {
             }
         }
     }
+
+    struct InternalGraph: MutableDirectedGraphType {
+        var nodes: OrderedSet<Node>
+        var edges: OrderedSet<Edge>
+
+        init() {
+            nodes = []
+            edges = []
+        }
+
+        mutating func addNode(_ node: Node) {
+            nodes.append(node)
+        }
+
+        mutating func removeNode(_ node: Node) {
+            nodes.remove(node)
+        }
+
+        mutating func addEdge(_ edge: Edge) -> Edge {
+            edges.append(edge)
+            return edge
+        }
+
+        mutating func removeEdge(_ edge: Edge) {
+            edges.remove(edge)
+        }
+    }
 }
 
 extension Simplex2Graph: DirectedGraphType {
@@ -998,15 +1032,15 @@ extension Simplex2Graph: DirectedGraphType {
         edge.end
     }
 
-    public func edges(from node: Node) -> Set<Edge> {
+    public func edges(from node: Node) -> [Edge] {
         graph.edges(from: node)
     }
 
-    public func edges(towards node: Node) -> Set<Edge> {
+    public func edges(towards node: Node) -> [Edge] {
         graph.edges(towards: node)
     }
 
-    public func edges(from start: Node, to end: Node) -> Set<Edge> {
+    public func edges(from start: Node, to end: Node) -> [Edge] {
         graph.edges(from: start, to: end)
     }
 
@@ -1020,25 +1054,49 @@ extension Simplex2Graph: DirectedGraphType {
 }
 
 extension Simplex2Graph: MutableDirectedGraphType {
-    public init() {
-        self.graph = .init()
-        self.contours = []
-    }
-
     public mutating func addNode(_ node: Node) {
+        guard !graph.containsNode(node) else {
+            return
+        }
+
         nodeTree.insert(node)
 
         graph.addNode(node)
     }
 
     public mutating func removeNode(_ node: Node) {
+        let relatedEdges = allEdges(for: node)
+
+        for edge in relatedEdges {
+            edgeTree.remove(edge)
+        }
+
         nodeTree.remove(node)
 
         graph.removeNode(node)
     }
 
+    @discardableResult
+    public mutating func addEdge(_ edge: Edge) -> Edge {
+        guard !graph.containsEdge(edge) else {
+            return edge
+        }
+
+        edgeTree.insert(edge)
+
+        return graph.addEdge(edge)
+    }
+
+    public mutating func removeEdge(_ edge: Edge) {
+        edgeTree.remove(edge)
+
+        graph.removeEdge(edge)
+    }
+
     public mutating func removeNodes(_ nodes: some Sequence<Node>) {
-        for edge in nodes.flatMap({ allEdges(for: $0) }) {
+        let relatedEdges = nodes.flatMap({ allEdges(for: $0) })
+
+        for edge in relatedEdges {
             edgeTree.remove(edge)
         }
         for node in nodes {
@@ -1048,20 +1106,9 @@ extension Simplex2Graph: MutableDirectedGraphType {
         graph.removeNodes(nodes)
     }
 
-    @discardableResult
-    public mutating func addEdge(_ edge: Edge) -> Edge {
-        edgeTree.insert(edge)
-
-        return graph.addEdge(edge)
-    }
-
-    public mutating func removeEdge(_ edge: Edge) {
-        graph.removeEdge(edge)
-
-        edgeTree.remove(edge)
-    }
-
     public mutating func removeEdges(_ edgesToRemove: some Sequence<Edge>) {
+        let edgesToRemove = Array(edgesToRemove)
+
         for edge in edgesToRemove {
             edgeTree.remove(edge)
         }

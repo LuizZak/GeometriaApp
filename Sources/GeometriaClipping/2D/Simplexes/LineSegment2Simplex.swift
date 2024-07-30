@@ -22,6 +22,24 @@ public struct LineSegment2Simplex<Vector: Vector2FloatingPoint>: Parametric2Simp
         lineSegment.bounds
     }
 
+    /// Initializes a new line segment simplex value with a line segment that spans
+    /// the given start/end points.
+    public init(
+        start: Vector,
+        end: Vector,
+        startPeriod: Period,
+        endPeriod: Period
+    ) {
+        self.init(
+            lineSegment: .init(
+                start: start,
+                end: end
+            ),
+            startPeriod: startPeriod,
+            endPeriod: endPeriod
+        )
+    }
+
     /// Initializes a new line segment simplex value with a given line segment.
     public init(
         lineSegment: LineSegment2<Vector>,
@@ -91,6 +109,33 @@ public struct LineSegment2Simplex<Vector: Vector2FloatingPoint>: Parametric2Simp
             lineSegment: .init(start: lineSegment.end, end: lineSegment.start),
             startPeriod: startPeriod,
             endPeriod: endPeriod
+        )
+    }
+
+    /// Splits this simplex at a given period, returning two simplexes that join
+    /// to form the same range of periods/strokes that this simplex spans.
+    ///
+    /// - precondition: `period` is a valid period contained within `startPeriod..<endPeriod`.
+    @inlinable
+    public func split(at period: Period) -> (Self, Self) {
+        precondition(periodRange.contains(period))
+        let ratio = ratioForPeriod(period)
+
+        let midPoint = lineSegment.projectedNormalizedMagnitude(ratio)
+
+        return (
+            .init(
+                start: lineSegment.start,
+                end: midPoint,
+                startPeriod: startPeriod,
+                endPeriod: period
+            ),
+            .init(
+                start: midPoint,
+                end: lineSegment.end,
+                startPeriod: period,
+                endPeriod: endPeriod
+            )
         )
     }
 }

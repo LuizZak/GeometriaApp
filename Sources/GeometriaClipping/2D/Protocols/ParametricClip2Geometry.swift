@@ -37,6 +37,10 @@ public protocol ParametricClip2Geometry: ParametricClipGeometry {
     /// Performs a point-containment check against this parametric geometry.
     func contains(_ point: Vector) -> Bool
 
+    /// Returns `true` if this parametric geometry intersects a contour of another
+    /// geometry.
+    func intersects<Geometry: ParametricClip2Geometry>(_ other: Geometry) -> Bool
+
     /// Returns `true` if the given periods have a precedence of `lhs < rhs`.
     ///
     /// Periods are first normalized to be within `startPeriod` and `endPeriod`
@@ -113,6 +117,25 @@ extension ParametricClip2Geometry {
 
                 case .counterClockwise:
                     return false
+                }
+            }
+        }
+
+        return false
+    }
+
+    @inlinable
+    public func intersects<Geometry: ParametricClip2Geometry>(_ other: Geometry) -> Bool {
+        guard bounds.intersects(other.bounds) else {
+            return false
+        }
+
+        let otherContours = other.allContours()
+
+        for contour in allContours() {
+            for otherContour in otherContours {
+                if contour.intersects(otherContour) {
+                    return true
                 }
             }
         }

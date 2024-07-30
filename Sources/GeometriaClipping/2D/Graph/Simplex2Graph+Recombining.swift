@@ -10,7 +10,7 @@ extension Simplex2Graph {
 
         var visitedOverall: Set<Node> = []
 
-        guard let firstEdge = edges.min(by: { $0.id < $1.id }) else {
+        guard let firstEdge = edges.first else {
             return resultOverall.allContours(applyWindingFiltering: false)
         }
 
@@ -62,7 +62,7 @@ extension Simplex2Graph {
             // start traversing on any remaining nodes
             prune()
 
-            guard let next = edges.min(by: { $0.id < $1.id }) else {
+            guard let next = edges.first else {
                 break
             }
 
