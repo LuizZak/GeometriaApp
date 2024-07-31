@@ -75,7 +75,7 @@ public struct ExclusiveDisjunction2Parametric: Boolean2Parametric {
         let union = union(tolerance: tolerance, self.contours)
         let intersection = intersection(tolerance: tolerance, self.contours)
 
-        return subtraction(union, [intersection]).allContours()
+        return subtraction(tolerance: tolerance, union, [intersection]).allContours()
         // */
     }
 

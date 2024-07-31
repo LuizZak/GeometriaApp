@@ -300,7 +300,7 @@ open class PolyBooleanApp: ImagineUIWindowContent {
             .dropFirst()
             .filter { $0.intersects(first) }
 
-        let base = subtraction(tolerance: 1e-14, first, overlapping)
+        let base = subtraction(tolerance: 1e-14, first, Array(overlapping))
 
         render(poly: base, renderer: renderer)
     }

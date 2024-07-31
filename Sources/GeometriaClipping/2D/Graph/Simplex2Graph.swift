@@ -122,6 +122,16 @@ public struct Simplex2Graph {
         }
 
         @inlinable
+        func append(shapeIndex: Int, period: Period) {
+            let entry = Kind.SharedGeometryEntry(
+                shapeIndex: shapeIndex,
+                period: period
+            )
+
+            kind = .sharedGeometry([entry] + geometries)
+        }
+
+        @inlinable
         func references(shapeIndex: Int, period: Period) -> Bool {
             let query = Kind.SharedGeometryEntry(
                 shapeIndex: shapeIndex,

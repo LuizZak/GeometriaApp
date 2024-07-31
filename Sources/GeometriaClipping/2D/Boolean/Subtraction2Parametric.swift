@@ -66,7 +66,7 @@ public func subtraction(
     let shapes = shapes
         .map({ Compound2Parametric($0.reversed()) })
 
-    return union([Compound2Parametric(shape1)] + shapes)
+    return union(tolerance: tolerance, [Compound2Parametric(shape1)] + shapes)
 }
 
 /// Performs a subtraction operation across all given parametric contours.
@@ -78,5 +78,5 @@ public func subtraction(
 ) -> Compound2Parametric {
     let shapes = shapes.map({ $0.reversed() })
 
-    return union(shape1 + shapes)
+    return union(tolerance: tolerance, shape1 + shapes)
 }
