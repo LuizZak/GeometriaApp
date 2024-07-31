@@ -16,6 +16,7 @@ from os import PathLike
 
 win32_debug_args = [
     # "-Xswiftc", "-DDUMP_CONSTRAINTS_TO_DESKTOP", # For debugging UI constraint resolution problems
+    "-Xswiftc", "-DUSE_QUADRATIC_FORMULA", # For debugging UI constraint resolution problems
     "-Xswiftc", "-g",
     "-Xswiftc", "-debug-info-format=codeview",
     "-Xlinker", "-debug",
@@ -23,6 +24,7 @@ win32_debug_args = [
     "-Xlinker", "/ignore:4217", # For ignoring a very verbose set of warnings in debug builds on Windows
 ]
 win32_release_args = [
+    "-Xswiftc", "-DUSE_QUADRATIC_FORMULA",
     "-Xswiftc", "-debug-info-format=codeview",
     "-Xswiftc", "-whole-module-optimization",
     "-Xlinker", "/ignore:4217", # For ignoring a very verbose set of warnings in debug builds on Windows

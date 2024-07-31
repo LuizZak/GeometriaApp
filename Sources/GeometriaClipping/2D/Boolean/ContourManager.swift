@@ -3,13 +3,15 @@ import MiniDigraph
 
 /// Manages inclusions/merging of contour objects.
 @usableFromInline
-class ContourManager<Vector: Vector2Real> {
+class ContourManager {
+    public typealias Vector = Vector2D
+
     private typealias ContourContainmentGraph = CachingDirectedGraph<AbstractDirectedGraph<Int, DirectedGraph<Int>.Edge>>
 
     @usableFromInline
-    typealias Contour = Parametric2Contour<Vector>
+    typealias Contour = Parametric2Contour
     @usableFromInline
-    typealias Simplex = Parametric2GeometrySimplex<Vector>
+    typealias Simplex = Parametric2GeometrySimplex
     @usableFromInline
     typealias Period = Vector.Scalar
 
@@ -253,9 +255,9 @@ private extension DirectedGraphType {
 private extension CachingDirectedGraph where Graph: MutableSimpleEdgeDirectedGraphType, Graph.Node == Int {
     /// Traverses the graph, ensuring that the nested winding number of each
     /// contour matches the contour's winding.
-    mutating func pruneByWinding<Vector>(
+    mutating func pruneByWinding(
         windingNumber: (Node) -> Int,
-        winding: (Node) -> Parametric2Contour<Vector>.Winding
+        winding: (Node) -> Parametric2Contour.Winding
     ) {
         func _removeNode(_ node: Node) {
             let nodesFrom = nodesConnected(from: node)

@@ -10,7 +10,7 @@ public struct Simplex2Graph {
     public typealias Vector = Vector2D
     public typealias Scalar = Vector.Scalar
     public typealias Period = Scalar
-    public typealias Contour = Parametric2Contour<Vector>
+    public typealias Contour = Parametric2Contour
 
     /// Internal cached graph implementation.
     private(set) var graph: CachingDirectedGraph<InternalGraph>
@@ -34,6 +34,10 @@ public struct Simplex2Graph {
     /// Quad-tree of edges.
     @usableFromInline
     var edgeTree: QuadTree<Edge> = .init(maxSubdivisions: 4, maxElementsPerLevelBeforeSplit: 10)
+
+    /// Quad-tree of contours.
+    @usableFromInline
+    var contourTree: QuadTree<ContourEntry> = .init(maxSubdivisions: 4, maxElementsPerLevelBeforeSplit: 10)
 
     /// The next available node ID to be used when adding contours.
     var nodeId: Int = 0
@@ -78,6 +82,25 @@ public struct Simplex2Graph {
     func edgeForPeriod(_ period: Period, shapeIndex: Int) -> Edge? {
         edges.first { edge in
             edge.references(shapeIndex: shapeIndex, at: period)
+        }
+    }
+
+    @usableFromInline
+    struct ContourEntry: BoundableType {
+        @usableFromInline
+        var contour: Contour
+
+        @usableFromInline
+        var bounds: AABB2D
+
+        @usableFromInline
+        var index: Int
+
+        @usableFromInline
+        internal init(contour: Contour, bounds: AABB2D, index: Int) {
+            self.contour = contour
+            self.bounds = bounds
+            self.index = index
         }
     }
 
@@ -271,7 +294,7 @@ public struct Simplex2Graph {
         }
 
         public var totalWinding: Int
-        public var winding: Parametric2Contour<Vector>.Winding
+        public var winding: Parametric2Contour.Winding
 
         public var description: String {
             return "\(start.id) -(\(kind), \(geometry))-> \(end.id)"
@@ -289,7 +312,7 @@ public struct Simplex2Graph {
             startPeriod: Period,
             endPeriod: Period,
             totalWinding: Int = 0,
-            winding: Parametric2Contour<Vector>.Winding = .clockwise
+            winding: Parametric2Contour.Winding = .clockwise
         ) {
             self.init(
                 id: id,
@@ -315,7 +338,7 @@ public struct Simplex2Graph {
             kind: Kind,
             geometry: [SharedGeometryEntry],
             totalWinding: Int = 0,
-            winding: Parametric2Contour<Vector>.Winding = .clockwise
+            winding: Parametric2Contour.Winding = .clockwise
         ) {
             self.id = id
             self.start = start
@@ -733,7 +756,7 @@ public struct Simplex2Graph {
         public func materialize(
             startPeriod: Period,
             endPeriod: Period
-        ) -> Parametric2GeometrySimplex<Vector> {
+        ) -> Parametric2GeometrySimplex {
             switch kind {
             case .line:
                 return .lineSegment2(

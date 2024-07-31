@@ -4,7 +4,7 @@ import Geometria
 /// intersect in space.
 public struct Union2Parametric: Boolean2Parametric {
     public typealias Vector = Vector2D
-    public typealias Contour = Parametric2Contour<Vector>
+    public typealias Contour = Parametric2Contour
 
     public let contours: [Contour]
     public let tolerance: Scalar
@@ -32,82 +32,20 @@ public struct Union2Parametric: Boolean2Parametric {
     public func allContours() -> [Contour] {
         typealias Graph = Simplex2Graph
 
-        var graph = Graph.fromParametricIntersections(
+        let graph = Graph.fromParametricIntersections(
             contours: contours,
             tolerance: tolerance
         )
 
-        // Remove all edges that have incompatible total windings according to
-        // their contour windings
-        for edge in graph.edges {
-            let shouldRemove: Bool
-
+        return graph.recombine { edge in
             switch edge.winding {
             case .clockwise:
-                shouldRemove = edge.totalWinding != 1
+                return edge.totalWinding == 1
 
             case .counterClockwise:
-                shouldRemove = edge.totalWinding != 0
-            }
-
-            if shouldRemove {
-                graph.removeEdge(edge)
+                return edge.totalWinding == 0
             }
         }
-
-        graph.prune()
-
-        /*
-        let resultOverall = ContourManager<Vector>()
-
-        func candidateIsAscending(_ lhs: Graph.Edge, _ rhs: Graph.Edge) -> Bool {
-            return lhs.id < rhs.id
-        }
-
-        var visitedOverall: Set<Graph.Node> = []
-
-        guard var current = graph.edges.min(by: candidateIsAscending)?.start else {
-            return resultOverall.allContours(applyWindingFiltering: false)
-        }
-
-        // TODO: Refactor this common part out of Intersection2Parametric
-
-        // Keep visiting nodes on the graph, removing them after each complete visit
-        while visitedOverall.insert(current).inserted {
-            let result = resultOverall.beginContour()
-            var visited: Set<Graph.Node> = []
-
-            // Visit all reachable nodes
-            // The existing edges shouldn't matter as long as we pick any
-            // suitable edge in a stable fashion for unit testing
-            while visited.insert(current).inserted {
-                guard let nextEdge = graph.edges(from: current).min(by: candidateIsAscending) else {
-                    break
-                }
-
-                graph.removeEdge(nextEdge)
-
-                result.append(nextEdge.materialize())
-                current = nextEdge.end
-            }
-
-            result.endContour(startPeriod: .zero, endPeriod: 1)
-
-            // Prune the graph by removing dead-end nodes and pull a new edge to
-            // start traversing on any remaining nodes
-            graph.prune()
-
-            guard let next = graph.edges.min(by: candidateIsAscending) else {
-                return resultOverall.allContours(applyWindingFiltering: false)
-            }
-
-            current = next.start
-        }
-
-        return resultOverall.allContours(applyWindingFiltering: false)
-        */
-
-        return graph.recombine()
     }
 
     @inlinable
@@ -141,7 +79,7 @@ public func union(
 @inlinable
 public func union(
     tolerance: Vector2D.Scalar = .leastNonzeroMagnitude,
-    _ contours: [Parametric2Contour<Vector2D>]
+    _ contours: [Parametric2Contour]
 ) -> Compound2Parametric {
     let op = Union2Parametric(
         contours: contours,

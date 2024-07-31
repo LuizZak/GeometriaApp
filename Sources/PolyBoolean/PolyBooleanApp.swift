@@ -446,7 +446,7 @@ open class PolyBooleanApp: ImagineUIWindowContent {
         }
     }
 
-    func render(contour: Parametric2Contour<Vector2D>, renderer: any Renderer) {
+    func render(contour: Parametric2Contour, renderer: any Renderer) {
         let simplexes = contour.clampedSimplexes(in: 0..<strokeAnimation)
         let actual = contour.compute(at: strokeAnimation).asUIPoint
 
@@ -454,13 +454,13 @@ open class PolyBooleanApp: ImagineUIWindowContent {
         renderPoint(actual, color: .green, renderer: renderer)
     }
 
-    func render(ops: [Parametric2GeometrySimplex<Vector2D>], renderer: any Renderer) {
+    func render(ops: [Parametric2GeometrySimplex], renderer: any Renderer) {
         for op in ops {
             render(op: op, renderer: renderer)
         }
     }
 
-    func render(op: Parametric2GeometrySimplex<Vector2D>, renderer: any Renderer) {
+    func render(op: Parametric2GeometrySimplex, renderer: any Renderer) {
         switch op {
         case .lineSegment2(let lineSegment2):
             render(op: lineSegment2, renderer: renderer)
@@ -470,13 +470,13 @@ open class PolyBooleanApp: ImagineUIWindowContent {
         }
     }
 
-    func render(op: LineSegment2Simplex<Vector2D>, renderer: any Renderer) {
+    func render(op: LineSegment2Simplex, renderer: any Renderer) {
         let line = op.lineSegment.asUILine
 
         renderer.stroke(line)
     }
 
-    func render(op: CircleArc2Simplex<Vector2D>, renderer: any Renderer) {
+    func render(op: CircleArc2Simplex, renderer: any Renderer) {
         let arc = op.circleArc.asUICircleArc
 
         renderer.stroke(arc)

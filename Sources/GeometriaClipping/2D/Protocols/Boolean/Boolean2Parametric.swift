@@ -14,9 +14,9 @@ public protocol Boolean2Parametric {
     typealias Period = Vector.Scalar
 
     /// The contour type produced by this parametric geometry.
-    typealias Contour = Parametric2Contour<Vector>
+    typealias Contour = Parametric2Contour
     /// The simplex type produced by this parametric geometry.
-    typealias Simplex = Parametric2GeometrySimplex<Vector>
+    typealias Simplex = Parametric2GeometrySimplex
 
     /// Generates the contours for this boolean parametric.
     ///

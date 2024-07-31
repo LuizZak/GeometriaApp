@@ -6,19 +6,19 @@ import RealModule
 /// [geometric line]: https://en.wikipedia.org/wiki/Line_(geometry)
 public struct Line<Vector: VectorType>: LineType {
     public typealias Scalar = Vector.Scalar
-    
+
     /// An initial point a line tracing from infinity passes through before
     /// being projected through `b` and extending to infinity in a straight line.
     public var a: Vector
-    
+
     /// A secondary point a line tracing from `a` passes through before
     /// being projected to infinity in a straight line.
     public var b: Vector
-    
+
     public var description: String {
         "\(type(of: self))(a: \(a), b: \(b))"
     }
-    
+
     @_transparent
     public init(a: Vector, b: Vector) {
         self.a = a
@@ -49,18 +49,18 @@ extension Line: LineMultiplicative where Vector: VectorMultiplicative {
     public func withPointsScaledBy(_ factor: Vector) -> Self {
         Self(a: a * factor, b: b * factor)
     }
-    
+
     @_transparent
     public func withPointsScaledBy(_ factor: Vector, around center: Vector) -> Self {
         let newA: Vector = (a - center) * factor + center
         let newB: Vector = (b - center) * factor + center
-        
+
         return Self(a: newA, b: newB)
     }
 }
 
 extension Line: LineDivisible where Vector: VectorDivisible {
-    
+
 }
 
 @_specializeExtension
@@ -73,17 +73,19 @@ extension Line: LineFloatingPoint & PointProjectableType & SignedDistanceMeasura
     ///
     /// [geometric line]: https://en.wikipedia.org/wiki/Line_(geometry)
     @_transparent
+    @_specialize(exported: true, kind: full, where Vector == Vector2D)
     @_specialize(exported: true, kind: full, where Vector == Vector3D)
     public func containsProjectedNormalizedMagnitude(_ scalar: Vector.Scalar) -> Bool {
         !scalar.isNaN
     }
-    
+
     /// Returns a projected normalized magnitude that is guaranteed to be
     /// contained in this line.
     ///
     /// For ``Line``, this is the full range of representable scalars, -∞ to ∞,
     /// resulting in the same value as `scalar` being returned for all inputs.
     @_transparent
+    @_specialize(exported: true, kind: full, where Vector == Vector2D)
     @_specialize(exported: true, kind: full, where Vector == Vector3D)
     public func clampProjectedNormalizedMagnitude(_ scalar: Vector.Scalar) -> Vector.Scalar {
         scalar
@@ -91,5 +93,5 @@ extension Line: LineFloatingPoint & PointProjectableType & SignedDistanceMeasura
 }
 
 extension Line: LineReal where Vector: VectorReal {
-    
+
 }

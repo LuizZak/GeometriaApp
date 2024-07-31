@@ -4,7 +4,7 @@ import Geometria
 /// intersect in space.
 public struct Subtraction2Parametric: Boolean2Parametric {
     public typealias Vector = Vector2D
-    public typealias Contour = Parametric2Contour<Vector>
+    public typealias Contour = Parametric2Contour
 
     public let lhsContours: [Contour]
     public let rhsContours: [Contour]
@@ -73,8 +73,8 @@ public func subtraction(
 @inlinable
 public func subtraction(
     tolerance: Vector2D.Scalar = .leastNonzeroMagnitude,
-    _ shape1: [Parametric2Contour<Vector2D>],
-    _ shapes: [Parametric2Contour<Vector2D>]
+    _ shape1: [Parametric2Contour],
+    _ shapes: [Parametric2Contour]
 ) -> Compound2Parametric {
     let shapes = shapes.map({ $0.reversed() })
 

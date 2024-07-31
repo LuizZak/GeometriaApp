@@ -11,9 +11,9 @@ public protocol ParametricClip2Geometry: ParametricClipGeometry {
     typealias Period = Vector.Scalar
 
     /// The simplex type produced by this parametric geometry.
-    typealias Simplex = Parametric2GeometrySimplex<Vector>
+    typealias Simplex = Parametric2GeometrySimplex
     /// The contour type produced by this parametric geometry.
-    typealias Contour = Parametric2Contour<Vector>
+    typealias Contour = Parametric2Contour
 
     /// The inclusive lower bound period within this geometry.
     var startPeriod: Period { get }

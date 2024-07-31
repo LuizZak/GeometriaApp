@@ -3,12 +3,13 @@ import Geometria
 /// Represents a contour, or a non-intersecting segment of a parametric geometry,
 /// which has its own set of simplexes, and has a winding value specifying how
 /// its simplexes wind in relation to its parent geometry.
-public struct Parametric2Contour<Vector: Vector2Real> {
+public struct Parametric2Contour {
+    public typealias Vector = Vector2D
     public typealias Scalar = Vector.Scalar
     public typealias Period = Vector.Scalar
 
     /// The simplex type produced by this parametric geometry.
-    public typealias Simplex = Parametric2GeometrySimplex<Vector>
+    public typealias Simplex = Parametric2GeometrySimplex
 
     public var simplexes: [Simplex] {
         didSet { bounds = simplexes.bounds() }
@@ -413,14 +414,16 @@ extension Collection {
     /// Renormalizes the contours within this collection such that the periods
     /// of the contours have a given start/end period range.
     @inlinable
-    func normalized<Vector>(
-        startPeriod: Vector.Scalar,
-        endPeriod: Vector.Scalar
-    ) -> [Element] where Element == Parametric2Contour<Vector> {
+    func normalized(
+        startPeriod: Double,
+        endPeriod: Double
+    ) -> [Element] where Element == Parametric2Contour {
         return map {
-            .init(normalizing: $0.allSimplexes(),
-            startPeriod: startPeriod,
-            endPeriod: endPeriod)
+            .init(
+                normalizing: $0.allSimplexes(),
+                startPeriod: startPeriod,
+                endPeriod: endPeriod
+            )
         }
     }
 }

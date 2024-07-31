@@ -42,8 +42,9 @@ extension Simplex2Graph {
 
         var result = Self()
 
-        let bounds = AABB(aabbs: contours.map(\.bounds))
-        result.edgeTree.ensureContains(bounds: bounds)
+        let contourBounds = AABB(aabbs: contours.map(\.bounds))
+        result.edgeTree.ensureContains(bounds: contourBounds)
+        result.contourTree.ensureContains(bounds: contourBounds)
 
         let (contours, intersections) = Self.splitContours(contours: contours, tolerance: tolerance)
 
@@ -56,9 +57,19 @@ extension Simplex2Graph {
         if result.computeInterferences(intersections: intersections, tolerance: tolerance).hasMergedEdges {
             // If interferences where found, we need to recompute the contours
             // based on the new edges
-            let recombined = result.recombine()
+            let recombined = result.recombine { edge in
+                switch edge.winding {
+                case .clockwise:
+                    return edge.totalWinding == 1
+
+                case .counterClockwise:
+                    return edge.totalWinding == 0
+                }
+            }
 
             var newGraph = Self()
+            newGraph.edgeTree.ensureContains(bounds: contourBounds)
+            newGraph.contourTree.ensureContains(bounds: contourBounds)
             for contour in recombined {
                 newGraph.appendContour(contour, tolerance: tolerance)
             }
@@ -66,9 +77,6 @@ extension Simplex2Graph {
             newGraph.assertIsValid()
             result = newGraph
         }
-
-        // Compute edge windings
-        result.computeWinding()
 
         result.assertIsValid()
 
@@ -117,8 +125,16 @@ extension Simplex2Graph {
         let simplexes = contour.allSimplexes()
         let shapeIndex = contours.count
 
+        contourTree.insert(
+            .init(
+                contour: contour,
+                bounds: contour.bounds,
+                index: shapeIndex
+            )
+        )
+
         // Create nodes
-        var nodes: [(Parametric2GeometrySimplex<Vector>, Node)] = []
+        var nodes: [(Parametric2GeometrySimplex, Node)] = []
         for simplex in simplexes {
             if let neighbor = nodeTree.nearestNeighbor(to: simplex.start) {
                 if neighbor.location.distanceSquared(to: simplex.start) < tolerance * 2 {
@@ -463,33 +479,6 @@ extension Simplex2Graph {
         prune()
 
         return (hasMergedNodes, hasMergedEdges)
-    }
-
-    /// Re-computes edge windings within this simplex graph.
-    @inlinable
-    internal mutating func computeWinding() {
-        let queue = OperationQueue()
-        let enumeratedContours = Array(contours.enumerated())
-
-        for edge in edges {
-            guard let geometry = edge.geometry.first else {
-                continue
-            }
-
-            let contour = contours[geometry.shapeIndex]
-            edge.winding = contour.winding
-            let center = edge.queryPoint()
-
-            queue.addOperation {
-                edge.totalWinding =
-                    enumeratedContours
-                    .filter({ $0.offset != geometry.shapeIndex })
-                    .filter({ $0.element.contains(center) })
-                    .reduce(edge.winding.value, { $0 + $1.element.winding.value })
-            }
-        }
-
-        queue.waitUntilAllOperationsAreFinished()
     }
 
     /// Prunes all nodes that have no ingoing and/or outgoing connections.

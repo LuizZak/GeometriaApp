@@ -5,7 +5,7 @@ import Geometria
 /// contours that are occupied by any one contour but not another.
 public struct ExclusiveDisjunction2Parametric: Boolean2Parametric {
     public typealias Vector = Vector2D
-    public typealias Contour = Parametric2Contour<Vector>
+    public typealias Contour = Parametric2Contour
 
     public let contours: [Contour]
     public let tolerance: Scalar
@@ -116,7 +116,7 @@ public func xor(
 @inlinable
 public func xor(
     tolerance: Double = .leastNonzeroMagnitude,
-    _ contours: [Parametric2Contour<Vector2D>]
+    _ contours: [Parametric2Contour]
 ) -> Compound2Parametric {
     let op = ExclusiveDisjunction2Parametric(
         contours: contours,

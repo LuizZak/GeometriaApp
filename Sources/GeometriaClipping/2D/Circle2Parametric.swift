@@ -5,8 +5,8 @@ import RealModule
 public struct Circle2Parametric: ParametricClip2Geometry, Equatable {
     public typealias Vector = Vector2D
     public typealias Scalar = Vector.Scalar
-    public typealias Simplex = Parametric2GeometrySimplex<Vector>
-    public typealias Contour = Parametric2Contour<Vector>
+    public typealias Simplex = Parametric2GeometrySimplex
+    public typealias Contour = Parametric2Contour
 
     public var description: String {
         "\(type(of: self))(circle2: \(circle2), isReversed: \(isReversed), startPeriod: \(startPeriod), endPeriod: \(endPeriod))"

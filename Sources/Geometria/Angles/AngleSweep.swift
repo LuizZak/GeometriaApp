@@ -7,15 +7,18 @@ public struct AngleSweep<Scalar: FloatingPoint & ElementaryFunctions>: Hashable 
     public var sweep: Angle<Scalar>
 
     /// Returns `start + sweep`.
+    @inlinable
     public var stop: Angle<Scalar> {
         start + sweep
     }
 
+    @inlinable
     public init(start startInRadians: Scalar, sweep sweepInRadians: Scalar) {
         self.start = .init(radians: startInRadians)
         self.sweep = .init(radians: sweepInRadians)
     }
 
+    @inlinable
     public init(start: Angle<Scalar>, sweep: Angle<Scalar>) {
         self.start = start
         self.sweep = sweep
@@ -26,6 +29,8 @@ public struct AngleSweep<Scalar: FloatingPoint & ElementaryFunctions>: Hashable 
     ///
     /// This method ignores the signs of the sweeps, and only compares the covered
     /// circular arc of both angle sweeps.
+    @inlinable
+    @_specialize(exported: true, kind: full, where Scalar == Double)
     public func isEquivalent(to other: Self) -> Bool {
         let (selfStart, selfStop) = self.normalizedStartStop(from: .zero)
         let (otherStart, otherStop) = other.normalizedStartStop(from: .zero)
@@ -41,6 +46,8 @@ public struct AngleSweep<Scalar: FloatingPoint & ElementaryFunctions>: Hashable 
     ///
     /// The result is `true` also for angle sweeps that overlap only on their
     /// end-points, i.e. the check is inclusive.
+    @inlinable
+    @_specialize(exported: true, kind: full, where Scalar == Double)
     public func intersects(_ other: Self) -> Bool {
         if contains(other.start) || contains(other.stop) {
             return true
@@ -54,6 +61,8 @@ public struct AngleSweep<Scalar: FloatingPoint & ElementaryFunctions>: Hashable 
 
     /// Returns `true` if this circular arc contains a given angle value within
     /// its start + sweep region.
+    @inlinable
+    @_specialize(exported: true, kind: full, where Scalar == Double)
     public func contains(_ angle: Angle<Scalar>) -> Bool {
         // If the sweep is of a full circle or more, the it contains all angles.
         guard sweep.radians.magnitude < Scalar.pi * 2 else {
@@ -72,6 +81,8 @@ public struct AngleSweep<Scalar: FloatingPoint & ElementaryFunctions>: Hashable 
 
     /// Returns the result of clamping a given angle so it is contained within
     /// this angle sweep.
+    @inlinable
+    @_specialize(exported: true, kind: full, where Scalar == Double)
     public func clamped(_ angle: Angle<Scalar>) -> Angle<Scalar> {
         // Sweeps of full circles don't clamp any angle
         guard sweep.radians.magnitude < Scalar.pi * 2 else {
@@ -99,6 +110,8 @@ public struct AngleSweep<Scalar: FloatingPoint & ElementaryFunctions>: Hashable 
     ///
     /// - note: Angle sweeps that are greater than `2π` will not properly map
     /// into a ratio due to the overlapping angle ranges.
+    @inlinable
+    @_specialize(exported: true, kind: full, where Scalar == Double)
     public func ratioOfAngle(_ angle: Angle<Scalar>) -> Scalar {
         // TODO: Examine replacing the complex wrapping logic with 'angle.normalized(from: start.radians)'
 
@@ -149,6 +162,8 @@ public struct AngleSweep<Scalar: FloatingPoint & ElementaryFunctions>: Hashable 
         return result
     }
 
+    @inlinable
+    @_specialize(exported: true, kind: full, where Scalar == Double)
     func normalizedStartStop(from lowerBound: Scalar) -> (normalStart: Scalar, normalStop: Scalar) {
         var normalStart = start.normalized(from: lowerBound)
         var normalStop = (start + sweep).normalized(from: lowerBound)

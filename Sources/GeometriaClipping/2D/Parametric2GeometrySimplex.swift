@@ -2,14 +2,15 @@ import Geometria
 import RealModule
 
 /// The parametric simplex type produced by a `ParametricClip2Geometry`.
-public enum Parametric2GeometrySimplex<Vector: Vector2Real>: Parametric2Simplex, Equatable {
+public enum Parametric2GeometrySimplex: Parametric2Simplex, Equatable {
+    public typealias Vector = Vector2D
     public typealias Scalar = Vector.Scalar
 
     /// A circular arc simplex.
-    case circleArc2(CircleArc2Simplex<Vector>)
+    case circleArc2(CircleArc2Simplex)
 
     /// A line segment simplex.
-    case lineSegment2(LineSegment2Simplex<Vector>)
+    case lineSegment2(LineSegment2Simplex)
 
     public var description: String {
         switch self {
@@ -358,7 +359,7 @@ public enum Parametric2GeometrySimplex<Vector: Vector2Real>: Parametric2Simplex,
 
     @inlinable
     static func circleArcIntersectionRatio(
-        _ circleArc: CircleArc2Simplex<Vector>,
+        _ circleArc: CircleArc2Simplex,
         intersection: LineIntersection<Vector>.Intersection
     ) -> Period? {
         return circleArcIntersectionRatio(
@@ -369,7 +370,7 @@ public enum Parametric2GeometrySimplex<Vector: Vector2Real>: Parametric2Simplex,
 
     @inlinable
     static func circleArcIntersectionRatio(
-        _ circleArc: CircleArc2Simplex<Vector>,
+        _ circleArc: CircleArc2Simplex,
         intersection: LineIntersectionPointNormal<Vector>
     ) -> Period? {
         return circleArcIntersectionRatio(
@@ -380,7 +381,7 @@ public enum Parametric2GeometrySimplex<Vector: Vector2Real>: Parametric2Simplex,
 
     @inlinable
     static func circleArcIntersectionRatio(
-        _ circleArc: CircleArc2Simplex<Vector>,
+        _ circleArc: CircleArc2Simplex,
         intersection: PointNormal<Vector>
     ) -> Period? {
         return circleArcIntersectionRatio(
@@ -424,9 +425,9 @@ extension Sequence {
     /// within a given range.
     ///
     /// If no simplex overlaps the given region, an empty array is returned, instead.
-    public func clampedSimplexes<Vector>(
-        in range: Range<Vector.Scalar>
-    ) -> [Parametric2GeometrySimplex<Vector>] where Element == Parametric2GeometrySimplex<Vector> {
+    public func clampedSimplexes(
+        in range: Range<Double>
+    ) -> [Parametric2GeometrySimplex] where Element == Parametric2GeometrySimplex {
         compactMap { simplex in
             simplex.clamped(in: range)
         }
@@ -437,9 +438,9 @@ extension Sequence {
     ///
     /// If no simplex overlaps the given region, an array of empty arrays is
     /// returned, one for each element in this array, instead.
-    public func clampedSimplexes<Vector>(
-        in range: Range<Vector.Scalar>
-    ) -> [[Parametric2GeometrySimplex<Vector>]] where Element == [Parametric2GeometrySimplex<Vector>] {
+    public func clampedSimplexes(
+        in range: Range<Double>
+    ) -> [[Parametric2GeometrySimplex]] where Element == [Parametric2GeometrySimplex] {
         map { $0.clampedSimplexes(in: range) }
     }
 }
@@ -448,22 +449,22 @@ extension Collection {
     /// Computes the minimal bounding box capable of containing this collection
     /// of simplexes.
     @inlinable
-    func bounds<Vector>() -> AABB2<Vector> where Element == Parametric2GeometrySimplex<Vector> {
+    func bounds() -> AABB2D where Element == Parametric2GeometrySimplex {
         return AABB2(aabbs: self.map(\.bounds))
     }
 
     @inlinable
-    func allIntersectionPeriods<C: Collection, Vector>(
+    func allIntersectionPeriods<C: Collection>(
         with other: C,
-        tolerance: Vector.Scalar,
-        normalizedCenterSelf: (_ left: Vector.Scalar, _ right: Vector.Scalar) -> Vector.Scalar,
-        otherContainsSelf: (Vector.Scalar) -> Bool,
-        normalizedCenterOther: (_ left: Vector.Scalar, _ right: Vector.Scalar) -> Vector.Scalar,
-        selfContainsOther: (Vector.Scalar) -> Bool
-    ) -> [ParametricClip2Intersection<Vector.Scalar>] where Element == Parametric2GeometrySimplex<Vector>, C.Element == Parametric2GeometrySimplex<Vector> {
-        typealias Period = Vector.Scalar
+        tolerance: Double,
+        normalizedCenterSelf: (_ left: Double, _ right: Double) -> Double,
+        otherContainsSelf: (Double) -> Bool,
+        normalizedCenterOther: (_ left: Double, _ right: Double) -> Double,
+        selfContainsOther: (Double) -> Bool
+    ) -> [ParametricClip2Intersection<Double>] where Element == Parametric2GeometrySimplex, C.Element == Parametric2GeometrySimplex {
+        typealias Period = Double
 
-        typealias Intersection = ParametricClip2Intersection<Vector.Scalar>
+        typealias Intersection = ParametricClip2Intersection<Double>
         typealias Atom = Intersection.Atom
 
         /// Returns `true` if the mid point between `left` and `right` produces
@@ -580,8 +581,8 @@ extension Collection {
     /// of the simplexes have a sequential value within the given start and end
     /// periods, relative to each simplex's length.
     @inlinable
-    func normalized<Vector>(startPeriod: Vector.Scalar, endPeriod: Vector.Scalar) -> [Element] where Element == Parametric2GeometrySimplex<Vector> {
-        typealias Scalar = Vector.Scalar
+    func normalized(startPeriod: Double, endPeriod: Double) -> [Element] where Element == Parametric2GeometrySimplex {
+        typealias Scalar = Double
 
         let perimeterSequence = self.map { simplex in
             (simplex.lengthSquared.squareRoot(), simplex)

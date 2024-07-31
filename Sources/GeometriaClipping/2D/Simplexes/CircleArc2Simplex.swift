@@ -2,7 +2,8 @@ import Geometria
 import RealModule
 
 /// A 2-dimensional simplex composed of a circular arc segment.
-public struct CircleArc2Simplex<Vector: Vector2Real>: Parametric2Simplex, Equatable {
+public struct CircleArc2Simplex: Parametric2Simplex, Equatable {
+    public typealias Vector = Vector2D
     public typealias Scalar = Vector.Scalar
 
     public var description: String {

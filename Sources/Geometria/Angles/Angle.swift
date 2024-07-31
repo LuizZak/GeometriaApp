@@ -9,17 +9,21 @@ public struct Angle<Scalar: FloatingPoint & ElementaryFunctions>: Hashable, Cust
     /// Gets the radian value associated with this angle.
     public let radians: Scalar
 
+    @inlinable
     public var description: String {
         "\(type(of: self))(radians: \(radians))"
     }
 
     /// Initializes this angle with a given radians angle value.
+    @inlinable
     public init(radians: Scalar) {
         self.radians = radians
     }
 
     /// Returns `true` if `self` and `other` refer to the same angle, after
     /// normalization.
+    @inlinable
+    @_specialize(exported: true, kind: full, where Scalar == Double)
     public func isEquivalent(to other: Self) -> Bool {
         let normalizedSelf = self.normalized(from: .zero)
         let normalizedOther = other.normalized(from: .zero)
@@ -29,6 +33,8 @@ public struct Angle<Scalar: FloatingPoint & ElementaryFunctions>: Hashable, Cust
 
     /// Returns this angle's normalized representation, starting from a given
     /// offset, such that the angle is confined to `[lowerBound, lowerBound + π)`
+    @inlinable
+    @_specialize(exported: true, kind: full, where Scalar == Double)
     public func normalized(from lowerBound: Scalar) -> Scalar {
         Self.normalize(radians, offset: lowerBound, period: .pi * 2)
     }
@@ -40,6 +46,8 @@ public struct Angle<Scalar: FloatingPoint & ElementaryFunctions>: Hashable, Cust
     ///
     /// If `self` and `other` point to the same angle, `shortest` will be `.zero`
     /// and `longest` will be `Angle(radians: .pi + .pi)`
+    @inlinable
+    @_specialize(exported: true, kind: full, where Scalar == Double)
     public func relativeAngles(to other: Self) -> (shortest: Self, longest: Self) {
         let twoPi: Scalar = .pi + .pi
 
@@ -62,6 +70,8 @@ public struct Angle<Scalar: FloatingPoint & ElementaryFunctions>: Hashable, Cust
 
     /// Normalizes an input value to `a - k` where `k` is an integer that satisfies
     /// `offset <= a - k < offset + period`.
+    @inlinable
+    @_specialize(exported: true, kind: full, where Scalar == Double)
     static func normalize(
         _ a: Scalar,
         offset: Scalar,
@@ -183,26 +193,31 @@ extension Angle: AdditiveArithmetic {
     public static var zero: Angle { .init(radians: .zero) }
 
     /// Flips the sign of the angle while maintaining its absolute magnitude.
+    @inlinable
     public static prefix func - (value: Angle) -> Angle {
         .init(radians: -value.radians)
     }
 
     /// Adds two angles by summing their radians representation.
+    @inlinable
     public static func + (lhs: Angle, rhs: Angle) -> Angle {
         .init(radians: lhs.radians + rhs.radians)
     }
 
     /// Subtracts two angles by subtracting their radians representation.
+    @inlinable
     public static func - (lhs: Angle, rhs: Angle) -> Angle {
         .init(radians: lhs.radians - rhs.radians)
     }
 
     /// Adds a scalar and an angle, producing an angle value.
+    @inlinable
     public static func + (lhs: Angle, rhs: Scalar) -> Angle {
         .init(radians: lhs.radians + rhs)
     }
 
     /// Subtracts a scalar from an angle, producing an angle value
+    @inlinable
     public static func - (lhs: Angle, rhs: Scalar) -> Angle {
         .init(radians: lhs.radians - rhs)
     }
@@ -211,10 +226,12 @@ extension Angle: AdditiveArithmetic {
 extension Angle: Numeric {
     public var magnitude: Scalar { radians.magnitude }
 
+    @inlinable
     public init(integerLiteral value: Scalar.IntegerLiteralType) {
         self.init(radians: Scalar(integerLiteral: value))
     }
 
+    @inlinable
     public init?<T>(exactly source: T) where T : BinaryInteger {
         guard let value = Scalar(exactly: source) else {
             return nil
@@ -223,34 +240,42 @@ extension Angle: Numeric {
         self.init(radians: value)
     }
 
+    @inlinable
     public static func * (lhs: Angle, rhs: Angle) -> Angle {
         .init(radians: lhs.radians * rhs.radians)
     }
 
+    @inlinable
     public static func / (lhs: Angle, rhs: Angle) -> Angle {
         .init(radians: lhs.radians / rhs.radians)
     }
 
+    @inlinable
     public static func * (lhs: Angle, rhs: Scalar) -> Angle {
         .init(radians: lhs.radians * rhs)
     }
 
+    @inlinable
     public static func / (lhs: Angle, rhs: Scalar) -> Angle {
         .init(radians: lhs.radians / rhs)
     }
 
+    @inlinable
     public static func *= (lhs: inout Angle, rhs: Angle) {
         lhs = lhs * rhs
     }
 
+    @inlinable
     public static func /= (lhs: inout Angle, rhs: Angle) {
         lhs = lhs / rhs
     }
 
+    @inlinable
     public static func *= (lhs: inout Angle, rhs: Scalar) {
         lhs = lhs * rhs
     }
 
+    @inlinable
     public static func /= (lhs: inout Angle, rhs: Scalar) {
         lhs = lhs / rhs
     }

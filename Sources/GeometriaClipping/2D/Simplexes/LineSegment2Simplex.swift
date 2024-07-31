@@ -1,7 +1,8 @@
 import Geometria
 
 /// A 2-dimensional simplex composed of a line segment.
-public struct LineSegment2Simplex<Vector: Vector2FloatingPoint>: Parametric2Simplex, Equatable {
+public struct LineSegment2Simplex: Parametric2Simplex, Equatable {
+    public typealias Vector = Vector2D
     public typealias Scalar = Vector.Scalar
 
     public var description: String {

@@ -98,6 +98,7 @@ extension NSphere: ConvexType & PointProjectableType where Vector: VectorFloatin
     ///
     /// If `vector` == ``center``, an arbitrary point is chosen, instead.
     @inlinable
+    @_specialize(exported: true, kind: full, where Vector == Vector2D)
     @_specialize(exported: true, kind: full, where Vector == Vector3D)
     public func project(_ vector: Vector) -> Vector {
         if vector == center {
@@ -109,6 +110,7 @@ extension NSphere: ConvexType & PointProjectableType where Vector: VectorFloatin
 
     /// Returns `true` if this N-sphere's area intersects the given line type.
     @inlinable
+    @_specialize(exported: true, kind: full, where Line == LineSegment2D)
     @_specialize(exported: true, kind: full, where Line == LineSegment3D)
     @_specialize(exported: true, kind: full, where Line == DirectionalRay3D)
     public func intersects<Line: LineFloatingPoint>(line: Line) -> Bool where Line.Vector == Vector {
@@ -119,6 +121,7 @@ extension NSphere: ConvexType & PointProjectableType where Vector: VectorFloatin
     /// two points representing the entrance and exit intersections against this
     /// N-sphere's outer perimeter.
     @inlinable
+    @_specialize(exported: true, kind: full, where Line == LineSegment2D)
     @_specialize(exported: true, kind: full, where Line == LineSegment3D)
     @_specialize(exported: true, kind: full, where Line == DirectionalRay3D)
     public func intersection<Line: LineFloatingPoint>(with line: Line) -> ConvexLineIntersection<Vector> where Line.Vector == Vector {
@@ -156,7 +159,7 @@ extension NSphere: ConvexType & PointProjectableType where Vector: VectorFloatin
 
         if disc == .zero {
             if line.containsProjectedNormalizedMagnitude(t0) {
-                return .singlePoint(makePointNormal(at: t0p))
+                return .singlePoint(makePointNormal(at: t0p, normalizedMagnitude: t0))
             }
 
             return .noIntersection
@@ -167,11 +170,11 @@ extension NSphere: ConvexType & PointProjectableType where Vector: VectorFloatin
 
         switch (line.containsProjectedNormalizedMagnitude(t0), line.containsProjectedNormalizedMagnitude(t1)) {
         case (true, true):
-            return .enterExit(makePointNormal(at: t0p), makePointNormal(at: t1p, inverted: true))
+            return .enterExit(makePointNormal(at: t0p, normalizedMagnitude: t0), makePointNormal(at: t1p, normalizedMagnitude: t1, inverted: true))
         case (true, false):
-            return .enter(makePointNormal(at: t0p))
+            return .enter(makePointNormal(at: t0p, normalizedMagnitude: t0))
         case (false, true):
-            return .exit(makePointNormal(at: t1p, inverted: true))
+            return .exit(makePointNormal(at: t1p, normalizedMagnitude: t1, inverted: true))
         case (false, false):
             return t0.sign == t1.sign ? .noIntersection : .contained
         }
