@@ -359,8 +359,22 @@ public struct Simplex2Graph {
 
         @inlinable
         func queryPoint() -> Vector {
-            let primitive = materializePrimitive()
-            return primitive.centerPoint
+            switch kind {
+            case .line:
+                return (start.location + end.location) / 2
+
+            case .circleArc(let center, let radius, let startAngle, let sweepAngle):
+                let arc = CircleArc2(
+                    center: center,
+                    radius: radius,
+                    startAngle: startAngle,
+                    sweepAngle: sweepAngle
+                )
+
+                return arc.pointOnAngle(
+                    startAngle + sweepAngle / 2.0
+                )
+            }
         }
 
         /// Returns `true` if `self` references a given shape index.

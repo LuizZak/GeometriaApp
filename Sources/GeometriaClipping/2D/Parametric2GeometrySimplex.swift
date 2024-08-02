@@ -94,6 +94,35 @@ public enum Parametric2GeometrySimplex: Parametric2Simplex, Equatable {
         }
     }
 
+    public func intersectsHorizontalLine(start: Vector, tolerance: Scalar) -> Bool {
+        switch self {
+        case .lineSegment2(let lineSegment):
+            return lineSegment.intersectsHorizontalLine(
+                start: start,
+                tolerance: tolerance
+            )
+
+        case .circleArc2(let circleArc):
+            return circleArc.intersectsHorizontalLine(
+                start: start,
+                tolerance: tolerance
+            )
+        }
+    }
+
+    /// Returns the closest period to a given point, along with the distance squared
+    /// to that point.
+    @inlinable
+    public func closestPeriod(to point: Vector) -> (Period, distanceSquared: Vector.Scalar) {
+        switch self {
+        case .lineSegment2(let lineSegment):
+            return lineSegment.closestPeriod(to: point)
+
+        case .circleArc2(let circleArc):
+            return circleArc.closestPeriod(to: point)
+        }
+    }
+
     /// Returns `startPeriod + (endPeriod - startPeriod) * ratio`.
     ///
     /// - note: The result is unclamped.
@@ -353,15 +382,15 @@ public enum Parametric2GeometrySimplex: Parametric2Simplex, Equatable {
     }
 
     @inlinable
-    static func isWithinAbsoluteBounds(_ period: Period) -> Bool {
-        period >= .zero && period < 1
+    static func isWithinAbsoluteBounds(_ scalar: Scalar) -> Bool {
+        scalar >= .zero && scalar < 1
     }
 
     @inlinable
     static func circleArcIntersectionRatio(
         _ circleArc: CircleArc2Simplex,
         intersection: LineIntersection<Vector>.Intersection
-    ) -> Period? {
+    ) -> Scalar? {
         return circleArcIntersectionRatio(
             circleArc.circleArc,
             intersection: intersection.lineIntersectionPointNormal
@@ -372,7 +401,7 @@ public enum Parametric2GeometrySimplex: Parametric2Simplex, Equatable {
     static func circleArcIntersectionRatio(
         _ circleArc: CircleArc2Simplex,
         intersection: LineIntersectionPointNormal<Vector>
-    ) -> Period? {
+    ) -> Scalar? {
         return circleArcIntersectionRatio(
             circleArc.circleArc,
             intersection: intersection
@@ -383,7 +412,7 @@ public enum Parametric2GeometrySimplex: Parametric2Simplex, Equatable {
     static func circleArcIntersectionRatio(
         _ circleArc: CircleArc2Simplex,
         intersection: PointNormal<Vector>
-    ) -> Period? {
+    ) -> Scalar? {
         return circleArcIntersectionRatio(
             circleArc.circleArc,
             intersection: intersection
@@ -394,7 +423,7 @@ public enum Parametric2GeometrySimplex: Parametric2Simplex, Equatable {
     static func circleArcIntersectionRatio(
         _ circleArc: CircleArc2<Vector>,
         intersection: LineIntersectionPointNormal<Vector>
-    ) -> Period? {
+    ) -> Scalar? {
         return circleArcIntersectionRatio(
             circleArc,
             intersection: intersection.pointNormal
@@ -405,18 +434,41 @@ public enum Parametric2GeometrySimplex: Parametric2Simplex, Equatable {
     static func circleArcIntersectionRatio(
         _ circleArc: CircleArc2<Vector>,
         intersection: PointNormal<Vector>
-    ) -> Period? {
-        let point = intersection.point
-        let intersectionAngle = circleArc.center.angle(to: point)
+    ) -> Scalar? {
+        return circleArcIntersectionRatio(
+            circleArc,
+            point: intersection.point
+        )
+    }
 
-        let angleSweep = circleArc.asAngleSweep
+    @inlinable
+    static func circleArcIntersectionRatio(
+        _ circleArc: CircleArc2<Vector>,
+        point: Vector
+    ) -> Scalar? {
+        let ratio = unclampedCircleArcIntersectionRatio(
+            circleArc,
+            point: point
+        )
 
-        let ratio = angleSweep.ratioOfAngle(intersectionAngle)
         if ratio >= 0 && ratio < 1.0 {
             return ratio
         } else {
             return nil
         }
+    }
+
+    @inlinable
+    static func unclampedCircleArcIntersectionRatio(
+        _ circleArc: CircleArc2<Vector>,
+        point: Vector
+    ) -> Scalar {
+        let intersectionAngle = circleArc.center.angle(to: point)
+
+        let angleSweep = circleArc.asAngleSweep
+
+        let ratio = angleSweep.ratioOfAngle(intersectionAngle)
+        return ratio
     }
 }
 

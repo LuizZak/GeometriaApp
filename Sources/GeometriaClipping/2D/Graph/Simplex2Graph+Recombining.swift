@@ -76,7 +76,7 @@ extension Simplex2Graph {
             // The existing edges shouldn't matter as long as we pick any
             // suitable edge in a stable fashion for unit testing
             while visited.insert(current).inserted {
-                let edges = edges(from: current)
+                let edges = sortedEdges.intersection(edges(from: current))
                 guard let nextEdge = edges.min(by: candidateIsAscending) else {
                     break
                 }

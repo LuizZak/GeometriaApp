@@ -94,9 +94,10 @@ extension Simplex2Graph {
         let toleranceSquared = tolerance
         for (lhsIndex, lhs) in contours.enumerated() {
             for (rhsIndex, rhs) in contours.enumerated().dropFirst(lhsIndex + 1) {
+                // Compute edge-edge intersections
                 let intersections = lhs.rawIntersectionPeriods(rhs, tolerance: tolerance)
-
                 for intersection in intersections {
+                    /*
                     // Ignore interference intersections between vertices/edges
                     if lhs.isOnVertex(rhs.compute(at: intersection.other), toleranceSquared: toleranceSquared) {
                         continue
@@ -104,6 +105,7 @@ extension Simplex2Graph {
                     if rhs.isOnVertex(lhs.compute(at: intersection.`self`), toleranceSquared: toleranceSquared) {
                         continue
                     }
+                    */
 
                     contours[lhsIndex].split(at: intersection.`self`)
                     contours[rhsIndex].split(at: intersection.other)
@@ -112,6 +114,21 @@ extension Simplex2Graph {
                         lhsIndex, intersection.`self`,
                         rhsIndex, intersection.other
                     ))
+                }
+
+                // Compute edge-vertex interferences
+                for vertex in lhs.vertices {
+                    let (period, distanceSquared) = rhs.closestPeriod(to: vertex)
+                    if distanceSquared.squareRoot() <= toleranceSquared {
+                        contours[rhsIndex].split(at: period)
+                    }
+                }
+
+                for vertex in rhs.vertices {
+                    let (period, distanceSquared) = lhs.closestPeriod(to: vertex)
+                    if distanceSquared.squareRoot() <= toleranceSquared {
+                        contours[lhsIndex].split(at: period)
+                    }
                 }
             }
         }

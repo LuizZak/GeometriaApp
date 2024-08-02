@@ -80,6 +80,63 @@ public struct LineSegment2Simplex: Parametric2Simplex, Equatable {
         lineSegment.distanceSquared(to: vector) < toleranceSquared
     }
 
+    @inlinable
+    public func intersectsHorizontalLine(start: Vector, tolerance: Scalar) -> Bool {
+        if self.start.y < self.end.y {
+            //  •-s-->
+            //     \
+            //      e
+            if self.start.x > start.x && self.start.y == start.y {
+                return true
+            }
+
+            //   s
+            //    \
+            //  •--e->
+            if self.end.x > start.x && self.end.y == start.y {
+                return false
+            }
+        } else if self.start.y > end.y {
+            //  •--e->
+            //    /
+            //   s
+            if self.end.x > start.x && self.end.y == start.y {
+                return true
+            }
+
+            //      e
+            //     /
+            //  •-s--->
+            if self.start.x > start.x && self.start.y == start.y {
+                return false
+            }
+        } else if self.start.y == self.end.y && start.y == self.start.y {
+            // s--•--e->
+            if self.start.x < start.x && self.end.x > start.x {
+                return true
+            }
+        }
+
+        let ray = Ray2(start: start, b: start + .init(x: 1, y: 0))
+        return lineSegment.intersection(with: ray) != nil
+    }
+
+    /// Returns the closest period to a given point, along with the distance squared
+    /// to that point.
+    @inlinable
+    public func closestPeriod(to point: Vector) -> (Period, distanceSquared: Vector.Scalar) {
+        let normalized = lineSegment.projectAsScalar(point)
+        let clamped = lineSegment.clampProjectedNormalizedMagnitude(normalized)
+
+        let period = startPeriod + (endPeriod - startPeriod) * clamped
+        let distanceSquared =
+            lineSegment
+            .projectedNormalizedMagnitude(clamped)
+            .distanceSquared(to: point)
+
+        return (period, distanceSquared)
+    }
+
     /// Clamps this simplex so its contained geometry is only present within a
     /// given period range.
     ///

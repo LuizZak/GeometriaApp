@@ -1,5 +1,5 @@
 import Geometria
-import RealModule
+import Numerics
 
 /// A 2-dimensional simplex composed of a circular arc segment.
 public struct CircleArc2Simplex: Parametric2Simplex, Equatable {
@@ -114,6 +114,68 @@ public struct CircleArc2Simplex: Parametric2Simplex, Equatable {
     @inlinable
     public func isOnSurface(_ vector: Vector, toleranceSquared: Scalar) -> Bool {
         circleArc.distanceSquared(to: vector) < toleranceSquared
+    }
+
+    @inlinable
+    public func intersectsHorizontalLine(start point: Vector, tolerance: Scalar) -> Bool {
+        if self.start.y < self.end.y {
+            //  •-s-->
+            //     (
+            //      e
+            if self.start.x > point.x && self.start.y.isApproximatelyEqual(to: point.y, absoluteTolerance: tolerance) {
+                return true
+            }
+
+            //   s
+            //    (
+            //  •--e->
+            if self.end.x > point.x && self.end.y.isApproximatelyEqual(to: point.y, absoluteTolerance: tolerance) {
+                return false
+            }
+        } else if self.start.y > end.y {
+            //  •--e->
+            //    (
+            //   s
+            if self.end.x > point.x && self.end.y.isApproximatelyEqual(to: point.y, absoluteTolerance: tolerance) {
+                return true
+            }
+
+            //      e
+            //     (
+            //  •-s--->
+            if self.start.x > point.x && self.start.y.isApproximatelyEqual(to: point.y, absoluteTolerance: tolerance) {
+                return false
+            }
+        } else if
+            self.start.y.isApproximatelyEqual(to: self.end.y, absoluteTolerance: tolerance)
+            && self.start.y.isApproximatelyEqual(to: point.y, absoluteTolerance: tolerance)
+        {
+            // s--•--e->
+            if self.start.x < point.x && self.end.x > point.x {
+                return true
+            }
+        }
+
+        let ray = Ray2(start: point, b: point + .init(x: 1, y: 0))
+        let hasIntersections = circleArc.intersections(with: ray).intersections.count % 2 == 1
+        return hasIntersections
+    }
+
+    /// Returns the closest period to a given point, along with the distance squared
+    /// to that point.
+    @inlinable
+    public func closestPeriod(to point: Vector) -> (Period, distanceSquared: Vector.Scalar) {
+        let projected = circleArc.project(point)
+
+        let ratio = Parametric2GeometrySimplex.unclampedCircleArcIntersectionRatio(
+            circleArc,
+            point: projected
+        )
+
+        let period = startPeriod + (endPeriod - startPeriod) * ratio
+        let distanceSquared = projected.distanceSquared(to: point)
+
+        return (period, distanceSquared)
     }
 
     /// Clamps this simplex so its contained geometry is only present within a
