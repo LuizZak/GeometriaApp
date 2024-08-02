@@ -94,6 +94,7 @@ public enum Parametric2GeometrySimplex: Parametric2Simplex, Equatable {
         }
     }
 
+    @inlinable
     public func intersectsHorizontalLine(start: Vector, tolerance: Scalar) -> Bool {
         switch self {
         case .lineSegment2(let lineSegment):

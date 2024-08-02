@@ -24,7 +24,7 @@ extension Simplex2Graph {
                 edge.totalWinding =
                     contourTree
                     .queryPoint(center)
-                    .filter({ $0.contour.contains(center) && $0.index != geometry.shapeIndex })
+                    .filter({ $0.index != geometry.shapeIndex && $0.contour.contains(center) })
                     .reduce(edge.winding.value, { $0 + $1.contour.winding.value })
             }
 
@@ -38,9 +38,9 @@ extension Simplex2Graph {
         let resultOverall = ContourManager()
 
         var visitedOverall: Set<Node> = []
-        var sortedEdges = OrderedSet(edges.sorted(by: { $0.id < $1.id }))
+        var sortedEdges = OrderedSet(edges.sorted(by: { $0.id < $1.id }).filter(computeWindingAndFilter))
 
-        guard let firstEdge = sortedEdges.first(where: computeWindingAndFilter) else {
+        guard let firstEdge = sortedEdges.first else {
             return resultOverall.allContours(applyWindingFiltering: false)
         }
 
@@ -48,13 +48,6 @@ extension Simplex2Graph {
         var current = firstEdge.start
 
         func candidateIsAscending(_ lhs: Edge, _ rhs: Edge) -> Bool {
-            if !computeWindingAndFilter(lhs) {
-                return false
-            }
-            if !computeWindingAndFilter(rhs) {
-                return true
-            }
-
             switch (lhs.references(shapeIndex: currentShapeIndex), rhs.references(shapeIndex: currentShapeIndex)) {
             case (true, false):
                 return true
@@ -93,7 +86,7 @@ extension Simplex2Graph {
 
             result.endContour(startPeriod: .zero, endPeriod: 1)
 
-            guard let next = sortedEdges.first(where: computeWindingAndFilter) else {
+            guard let next = sortedEdges.first else {
                 break
             }
 

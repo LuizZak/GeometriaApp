@@ -77,7 +77,7 @@ class PolyBooleanScene {
             return
         }
 
-        let base = subtraction(tolerance: 1e-14, first, Array(polys.dropFirst()))
+        let base = subtraction(tolerance: 1e-12, first, Array(polys.dropFirst()))
 
         render(poly: base, renderer: renderer)
     }
