@@ -94,7 +94,7 @@ class PolyBooleanScene {
             return
         }
 
-        let base = xor(tolerance: 1e-12, polys)
+        let base = exclusiveDisjunction(tolerance: 1e-12, polys)
 
         render(poly: base, renderer: renderer)
     }

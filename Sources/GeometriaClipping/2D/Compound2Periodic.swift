@@ -94,10 +94,10 @@ public struct Compound2Parametric: ParametricClip2Geometry {
     /// - note: The period of the contained contours is not modified and is
     /// assumed to match the range `(startPeriod, endPeriod]`.
     public init(contours: [Contour], startPeriod: Period, endPeriod: Period) {
-        self._cache = _Cache()
         self.contours = contours
         self.startPeriod = startPeriod
         self.endPeriod = endPeriod
+        self._cache = _Cache()
     }
 
     private mutating func _ensureUnique() {

@@ -15,10 +15,26 @@ public struct LineSegment2Simplex: Parametric2Simplex, Equatable {
     public var startPeriod: Period
     public var endPeriod: Period
 
+    /// Convenience for `lineSegment.start`.
+    @inlinable
+    public var start: Vector {
+        get { lineSegment.start }
+        set { lineSegment.start = newValue }
+    }
+
+    /// Convenience for `lineSegment.end`.
+    @inlinable
+    public var end: Vector {
+        get { lineSegment.end }
+        set { lineSegment.end = newValue }
+    }
+
+    @inlinable
     var lengthSquared: Vector.Scalar {
         lineSegment.lengthSquared
     }
 
+    @inlinable
     public var bounds: AABB2<Vector> {
         lineSegment.bounds
     }
@@ -76,65 +92,64 @@ public struct LineSegment2Simplex: Parametric2Simplex, Equatable {
     }
 
     @inlinable
-    public func isOnSurface(_ vector: Vector, toleranceSquared: Scalar) -> Bool {
-        lineSegment.distanceSquared(to: vector) < toleranceSquared
-    }
-
-    @inlinable
-    public func intersectsHorizontalLine(start: Vector, tolerance: Scalar) -> Bool {
-        if self.start.y < self.end.y {
+    public func intersectsHorizontalLine(start point: Vector, tolerance: Scalar) -> Bool {
+        if
+            self.start.y.isApproximatelyEqualFast(to: self.end.y, tolerance: tolerance)
+            && self.start.y.isApproximatelyEqualFast(to: point.y, tolerance: tolerance)
+        {
+            // s--•--e->
+            if self.start.x < point.x && self.end.x > point.x {
+                return true
+            }
+            // •--s---e-> or •--e---s->
+            if self.start.x > point.x && self.end.x > point.x {
+                return false
+            }
+        } else if self.start.y < self.end.y {
             //  •-s-->
             //     \
             //      e
-            if self.start.x > start.x && self.start.y == start.y {
+            if self.start.x > point.x && self.start.y.isApproximatelyEqualFast(to: point.y, tolerance: tolerance) {
                 return true
             }
 
             //   s
             //    \
             //  •--e->
-            if self.end.x > start.x && self.end.y == start.y {
+            if self.end.x > point.x && self.end.y.isApproximatelyEqualFast(to: point.y, tolerance: tolerance) {
                 return false
             }
         } else if self.start.y > end.y {
             //  •--e->
             //    /
             //   s
-            if self.end.x > start.x && self.end.y == start.y {
+            if self.end.x > point.x && self.end.y.isApproximatelyEqualFast(to: point.y, tolerance: tolerance) {
                 return true
             }
 
             //      e
             //     /
             //  •-s--->
-            if self.start.x > start.x && self.start.y == start.y {
+            if self.start.x > point.x && self.start.y.isApproximatelyEqualFast(to: point.y, tolerance: tolerance) {
                 return false
-            }
-        } else if self.start.y == self.end.y && start.y == self.start.y {
-            // s--•--e->
-            if self.start.x < start.x && self.end.x > start.x {
-                return true
             }
         }
 
-        let ray = Ray2(start: start, b: start + .init(x: 1, y: 0))
+        let ray = Ray2(start: point, b: point + .init(x: 1, y: 0))
         return lineSegment.intersection(with: ray) != nil
     }
 
-    /// Returns the closest period to a given point, along with the distance squared
-    /// to that point.
     @inlinable
-    public func closestPeriod(to point: Vector) -> (Period, distanceSquared: Vector.Scalar) {
-        let normalized = lineSegment.projectAsScalar(point)
-        let clamped = lineSegment.clampProjectedNormalizedMagnitude(normalized)
+    public func isOnSurface(_ vector: Vector, toleranceSquared: Scalar) -> Bool {
+        lineSegment.distanceSquared(to: vector) < toleranceSquared
+    }
 
-        let period = startPeriod + (endPeriod - startPeriod) * clamped
-        let distanceSquared =
-            lineSegment
-            .projectedNormalizedMagnitude(clamped)
-            .distanceSquared(to: point)
+    @inlinable
+    public func closestPeriod(to vector: Vector) -> Period {
+        let scalar = lineSegment.projectAsScalar(vector)
+        let clamped = lineSegment.clampProjectedNormalizedMagnitude(scalar)
 
-        return (period, distanceSquared)
+        return startPeriod + clamped * (endPeriod - startPeriod)
     }
 
     /// Clamps this simplex so its contained geometry is only present within a
@@ -196,12 +211,4 @@ public struct LineSegment2Simplex: Parametric2Simplex, Equatable {
             )
         )
     }
-}
-
-extension LineSegment2Simplex {
-    @inlinable
-    public var start: Vector { lineSegment.start }
-
-    @inlinable
-    public var end: Vector { lineSegment.end }
 }

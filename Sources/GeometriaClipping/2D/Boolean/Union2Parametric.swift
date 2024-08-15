@@ -62,31 +62,21 @@ public struct Union2Parametric: Boolean2Parametric {
 /// Performs a union operation across all given parametric geometries.
 @inlinable
 public func union(
-    tolerance: Vector2D.Scalar = .leastNonzeroMagnitude,
+    tolerance: Double = .leastNonzeroMagnitude,
     _ shapes: [any ParametricClip2Geometry]
 ) -> Compound2Parametric {
-    let op = Union2Parametric(
-        contours: shapes.flatMap({ $0.allContours() }),
-        tolerance: tolerance
-    )
-
-    return Compound2Parametric(
-        contours: op.allContours()
+    return union(
+        tolerance: tolerance,
+        contours: shapes.flatMap({ $0.allContours() })
     )
 }
 
-/// Performs a union operation across all given parametric contours.
+/// Performs a union operation across all given parametric geometries.
 @inlinable
 public func union(
-    tolerance: Vector2D.Scalar = .leastNonzeroMagnitude,
-    _ contours: [Parametric2Contour]
+    tolerance: Double = .leastNonzeroMagnitude,
+    contours: [Parametric2Contour]
 ) -> Compound2Parametric {
-    let op = Union2Parametric(
-        contours: contours,
-        tolerance: tolerance
-    )
-
-    return Compound2Parametric(
-        contours: op.allContours()
-    )
+    let op = Union2Parametric(contours: contours, tolerance: tolerance)
+    return Compound2Parametric(contours: op.allContours())
 }

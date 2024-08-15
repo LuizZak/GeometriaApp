@@ -44,9 +44,18 @@ public struct LinePolygon2Parametric: ParametricClip2Geometry, Equatable {
         }
     }
 
-    @inlinable
-    public var bounds: AABB<Vector> {
-        linePolygon2.bounds
+    public init(
+        vertices: [Vector],
+        startPeriod: Period,
+        endPeriod: Period
+    ) {
+        let polygon = LinePolygon2(vertices: vertices)
+
+        self.init(
+            linePolygon2: polygon,
+            startPeriod: startPeriod,
+            endPeriod: endPeriod
+        )
     }
 
     public init(

@@ -24,7 +24,7 @@ extension Simplex2Graph {
 
     @inlinable
     public static func fromParametricIntersections(
-        geometries: [any ParametricClip2Geometry],
+        geometries: [some ParametricClip2Geometry],
         tolerance: Scalar
     ) -> Self {
 
@@ -94,8 +94,8 @@ extension Simplex2Graph {
         let toleranceSquared = tolerance
         for (lhsIndex, lhs) in contours.enumerated() {
             for (rhsIndex, rhs) in contours.enumerated().dropFirst(lhsIndex + 1) {
-                // Compute edge-edge intersections
                 let intersections = lhs.rawIntersectionPeriods(rhs, tolerance: tolerance)
+
                 for intersection in intersections {
                     // Ignore interference intersections between vertices/edges
                     if lhs.isOnVertex(rhs.compute(at: intersection.other), toleranceSquared: toleranceSquared) {
@@ -113,23 +113,6 @@ extension Simplex2Graph {
                         rhsIndex, intersection.other
                     ))
                 }
-
-                /*
-                // Compute edge-vertex interferences
-                for vertex in lhs.vertices {
-                    let (period, distanceSquared) = rhs.closestPeriod(to: vertex)
-                    if distanceSquared.squareRoot() <= toleranceSquared {
-                        contours[rhsIndex].split(at: period)
-                    }
-                }
-
-                for vertex in rhs.vertices {
-                    let (period, distanceSquared) = lhs.closestPeriod(to: vertex)
-                    if distanceSquared.squareRoot() <= toleranceSquared {
-                        contours[lhsIndex].split(at: period)
-                    }
-                }
-                */
             }
         }
 
@@ -210,7 +193,8 @@ extension Simplex2Graph {
         contours.append(contour)
     }
 
-    /// Computes interferences between edges and vertices.
+    /// Computes interferences between edges and vertices, merging interfering
+    /// edges and vertices.
     ///
     /// Interferences occur under a specified tolerance, where geometry is
     /// coincidental under that tolerance in space.
@@ -231,7 +215,7 @@ extension Simplex2Graph {
         }
 
         // MARK: Merge edges - part 1
-        var edgesToCheck: Set<Set<Edge>> = []
+        var edgesToCheck: OrderedSet<OrderedSet<Edge>> = []
         for edge in edges {
             let coincident =
                 edgeTree
@@ -242,11 +226,11 @@ extension Simplex2Graph {
                 continue
             }
 
-            edgesToCheck.insert(Set(coincident).union([edge]))
+            edgesToCheck.append(OrderedSet(coincident).union([edge]))
         }
 
         // Merge edge groups that appear multiple times
-        var minimal: [Set<Edge>] = []
+        var minimal: [OrderedSet<Edge>] = []
         for edgesToCheck in edgesToCheck {
             var merged = false
             for i in 0..<minimal.count {
@@ -464,10 +448,26 @@ extension Simplex2Graph {
                 continue
             }
 
-            edgesToCheck.insert(Set(coincident).union([edge]))
+            edgesToCheck.append(OrderedSet(coincident).union([edge]))
         }
 
+        minimal = []
         for edgesToCheck in edgesToCheck {
+            var merged = false
+            for i in 0..<minimal.count {
+                if !minimal[i].isDisjoint(with: edgesToCheck) {
+                    minimal[i].formUnion(edgesToCheck)
+                    merged = true
+                    break
+                }
+            }
+
+            if !merged {
+                minimal.append(edgesToCheck)
+            }
+        }
+
+        for edgesToCheck in minimal {
             let edges = edgesToCheck.sorted(by: { $0.id < $1.id })
             guard let first = edges.first else {
                 continue

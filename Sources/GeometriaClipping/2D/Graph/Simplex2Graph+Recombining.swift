@@ -31,16 +31,12 @@ extension Simplex2Graph {
             return edgeFilter(edge)
         }
 
-        func areEdgesAscending(_ lhs: Edge, _ rhs: Edge) -> Bool {
-            lhs.id < rhs.id
-        }
-
         let resultOverall = ContourManager()
 
         var visitedOverall: Set<Node> = []
-        var sortedEdges = OrderedSet(edges.sorted(by: { $0.id < $1.id }).filter(computeWindingAndFilter))
+        var sortedEdges = OrderedSet(edges.sorted(by: { $0.id < $1.id }))
 
-        guard let firstEdge = sortedEdges.first else {
+        guard let firstEdge = sortedEdges.first(where: computeWindingAndFilter) else {
             return resultOverall.allContours(applyWindingFiltering: false)
         }
 
@@ -48,6 +44,13 @@ extension Simplex2Graph {
         var current = firstEdge.start
 
         func candidateIsAscending(_ lhs: Edge, _ rhs: Edge) -> Bool {
+            if !computeWindingAndFilter(lhs) {
+                return false
+            }
+            if !computeWindingAndFilter(rhs) {
+                return true
+            }
+
             switch (lhs.references(shapeIndex: currentShapeIndex), rhs.references(shapeIndex: currentShapeIndex)) {
             case (true, false):
                 return true
@@ -86,7 +89,7 @@ extension Simplex2Graph {
 
             result.endContour(startPeriod: .zero, endPeriod: 1)
 
-            guard let next = sortedEdges.first else {
+            guard let next = sortedEdges.first(where: computeWindingAndFilter) else {
                 break
             }
 

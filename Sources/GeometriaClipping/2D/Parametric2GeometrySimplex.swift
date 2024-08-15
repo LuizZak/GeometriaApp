@@ -111,16 +111,14 @@ public enum Parametric2GeometrySimplex: Parametric2Simplex, Equatable {
         }
     }
 
-    /// Returns the closest period to a given point, along with the distance squared
-    /// to that point.
     @inlinable
-    public func closestPeriod(to point: Vector) -> (Period, distanceSquared: Vector.Scalar) {
+    public func closestPeriod(to vector: Vector) -> Period {
         switch self {
         case .lineSegment2(let lineSegment):
-            return lineSegment.closestPeriod(to: point)
+            return lineSegment.closestPeriod(to: vector)
 
         case .circleArc2(let circleArc):
-            return circleArc.closestPeriod(to: point)
+            return circleArc.closestPeriod(to: vector)
         }
     }
 
@@ -130,6 +128,14 @@ public enum Parametric2GeometrySimplex: Parametric2Simplex, Equatable {
     @inlinable
     func period(onRatio ratio: Scalar) -> Period {
         startPeriod + (endPeriod - startPeriod) * ratio
+    }
+
+    /// Returns `(period - startPeriod) / (endPeriod - startPeriod)`.
+    ///
+    /// - note: The result is unclamped.
+    @inlinable
+    func ratio(forPeriod period: Period) -> Scalar {
+        (period - startPeriod) / (endPeriod - startPeriod)
     }
 
     /// Splits this simplex at a given period, returning two simplexes that join
@@ -183,69 +189,6 @@ public enum Parametric2GeometrySimplex: Parametric2Simplex, Equatable {
 
     // MARK: - Intersection
 
-    /// Returns `true` if there are any intersections between this simplex and
-    /// `other`.
-    @inlinable
-    public func intersects(_ other: Self) -> Bool {
-        switch (self, other) {
-        case (.lineSegment2(let lhs), .lineSegment2(let rhs)):
-            // MARK: Line / Line
-            guard let intersection = lhs.lineSegment.intersection(with: rhs.lineSegment) else {
-                return false
-            }
-            guard
-                Self.isWithinAbsoluteBounds(intersection.line1NormalizedMagnitude),
-                Self.isWithinAbsoluteBounds(intersection.line2NormalizedMagnitude)
-            else {
-                return false
-            }
-
-            return true
-
-        case (.lineSegment2(let lhs), .circleArc2(let rhs)):
-            // MARK: Line / Arc
-            let intersections = rhs.circleArc.intersections(with: lhs.lineSegment).intersections
-            return intersections.contains { intersection in
-                return
-                    Self.circleArcIntersectionRatio(
-                        rhs,
-                        intersection: intersection
-                    ) != nil
-            }
-
-        case (.circleArc2(let lhs), .lineSegment2(let rhs)):
-            // MARK: Arc / Line
-            let intersections = lhs.circleArc.intersections(with: rhs.lineSegment).intersections
-            return intersections.contains { intersection in
-                return
-                    Self.circleArcIntersectionRatio(
-                        lhs,
-                        intersection: intersection
-                    ) != nil
-            }
-
-        case (.circleArc2(let lhs), .circleArc2(let rhs)):
-            // MARK: Arc / Arc
-            let intersections =
-                lhs.asCircle2
-                .intersection(with: rhs.asCircle2)
-                .pointNormals
-
-            return intersections.contains { intersection in
-                return
-                    Self.circleArcIntersectionRatio(
-                        lhs,
-                        intersection: intersection
-                    ) != nil
-                    &&
-                    Self.circleArcIntersectionRatio(
-                        rhs,
-                        intersection: intersection
-                    ) != nil
-            }
-        }
-    }
-
     /// Returns a list of pairs for periods where `self` and `other` intersect
     /// in space.
     ///
@@ -281,7 +224,8 @@ public enum Parametric2GeometrySimplex: Parametric2Simplex, Equatable {
                     let circleArcPeriod = Self.circleArcIntersectionRatio(
                         rhs,
                         intersection: intersection
-                    )
+                    ),
+                    Self.isWithinAbsoluteBounds(circleArcPeriod)
                 else {
                     return nil
                 }
@@ -298,7 +242,8 @@ public enum Parametric2GeometrySimplex: Parametric2Simplex, Equatable {
                     let circleArcPeriod = Self.circleArcIntersectionRatio(
                         lhs,
                         intersection: intersection
-                    )
+                    ),
+                    Self.isWithinAbsoluteBounds(circleArcPeriod)
                 else {
                     return nil
                 }
@@ -321,7 +266,8 @@ public enum Parametric2GeometrySimplex: Parametric2Simplex, Equatable {
                     let selfPeriod = Self.circleArcIntersectionRatio(
                         lhs,
                         intersection: intersection
-                    )
+                    ),
+                    Self.isWithinAbsoluteBounds(selfPeriod)
                 else {
                     return nil
                 }
@@ -331,7 +277,8 @@ public enum Parametric2GeometrySimplex: Parametric2Simplex, Equatable {
                     let otherPeriod = Self.circleArcIntersectionRatio(
                         rhs,
                         intersection: intersection
-                    )
+                    ),
+                    Self.isWithinAbsoluteBounds(otherPeriod)
                 else {
                     return nil
                 }
@@ -344,6 +291,7 @@ public enum Parametric2GeometrySimplex: Parametric2Simplex, Equatable {
 
     // MARK: -
 
+    @inlinable
     public func reversed() -> Self {
         switch self {
         case .lineSegment2(let simplex):
@@ -356,6 +304,7 @@ public enum Parametric2GeometrySimplex: Parametric2Simplex, Equatable {
 
     /// Reverses this simplex, also reversing its start/end period according to
     /// the given global start/end periods.
+    @inlinable
     public func reversed(globalStartPeriod: Period, globalEndPeriod: Period) -> Self {
         switch self {
         case .lineSegment2(let simplex):
@@ -383,15 +332,15 @@ public enum Parametric2GeometrySimplex: Parametric2Simplex, Equatable {
     }
 
     @inlinable
-    static func isWithinAbsoluteBounds(_ scalar: Scalar) -> Bool {
-        scalar >= .zero && scalar < 1
+    static func isWithinAbsoluteBounds(_ period: Period) -> Bool {
+        period >= .zero && period < 1
     }
 
     @inlinable
     static func circleArcIntersectionRatio(
         _ circleArc: CircleArc2Simplex,
         intersection: LineIntersection<Vector>.Intersection
-    ) -> Scalar? {
+    ) -> Period? {
         return circleArcIntersectionRatio(
             circleArc.circleArc,
             intersection: intersection.lineIntersectionPointNormal
@@ -402,7 +351,7 @@ public enum Parametric2GeometrySimplex: Parametric2Simplex, Equatable {
     static func circleArcIntersectionRatio(
         _ circleArc: CircleArc2Simplex,
         intersection: LineIntersectionPointNormal<Vector>
-    ) -> Scalar? {
+    ) -> Period? {
         return circleArcIntersectionRatio(
             circleArc.circleArc,
             intersection: intersection
@@ -413,7 +362,7 @@ public enum Parametric2GeometrySimplex: Parametric2Simplex, Equatable {
     static func circleArcIntersectionRatio(
         _ circleArc: CircleArc2Simplex,
         intersection: PointNormal<Vector>
-    ) -> Scalar? {
+    ) -> Period? {
         return circleArcIntersectionRatio(
             circleArc.circleArc,
             intersection: intersection
@@ -424,7 +373,7 @@ public enum Parametric2GeometrySimplex: Parametric2Simplex, Equatable {
     static func circleArcIntersectionRatio(
         _ circleArc: CircleArc2<Vector>,
         intersection: LineIntersectionPointNormal<Vector>
-    ) -> Scalar? {
+    ) -> Period? {
         return circleArcIntersectionRatio(
             circleArc,
             intersection: intersection.pointNormal
@@ -435,41 +384,39 @@ public enum Parametric2GeometrySimplex: Parametric2Simplex, Equatable {
     static func circleArcIntersectionRatio(
         _ circleArc: CircleArc2<Vector>,
         intersection: PointNormal<Vector>
-    ) -> Scalar? {
+    ) -> Period? {
         return circleArcIntersectionRatio(
             circleArc,
-            point: intersection.point
+            intersection: intersection.point
         )
     }
 
     @inlinable
     static func circleArcIntersectionRatio(
         _ circleArc: CircleArc2<Vector>,
-        point: Vector
-    ) -> Scalar? {
-        let ratio = unclampedCircleArcIntersectionRatio(
-            circleArc,
-            point: point
-        )
+        intersection: Vector
+    ) -> Period? {
+        let point = intersection
+        let intersectionAngle = circleArc.center.angle(to: point)
 
-        if ratio >= 0 && ratio < 1.0 {
-            return ratio
-        } else {
-            return nil
-        }
+        return circleArcIntersectionRatio(
+            circleArc,
+            angle: intersectionAngle
+        )
     }
 
     @inlinable
-    static func unclampedCircleArcIntersectionRatio(
+    static func circleArcIntersectionRatio(
         _ circleArc: CircleArc2<Vector>,
-        point: Vector
-    ) -> Scalar {
-        let intersectionAngle = circleArc.center.angle(to: point)
-
+        angle: Angle<Vector.Scalar>
+    ) -> Period? {
         let angleSweep = circleArc.asAngleSweep
 
-        let ratio = angleSweep.ratioOfAngle(intersectionAngle)
-        return ratio
+        guard angleSweep.contains(angle) else {
+            return nil
+        }
+
+        return angleSweep.ratioOfAngle(angle)
     }
 }
 
@@ -504,130 +451,6 @@ extension Collection {
     @inlinable
     func bounds() -> AABB2D where Element == Parametric2GeometrySimplex {
         return AABB2(aabbs: self.map(\.bounds))
-    }
-
-    @inlinable
-    func allIntersectionPeriods<C: Collection>(
-        with other: C,
-        tolerance: Double,
-        normalizedCenterSelf: (_ left: Double, _ right: Double) -> Double,
-        otherContainsSelf: (Double) -> Bool,
-        normalizedCenterOther: (_ left: Double, _ right: Double) -> Double,
-        selfContainsOther: (Double) -> Bool
-    ) -> [ParametricClip2Intersection<Double>] where Element == Parametric2GeometrySimplex, C.Element == Parametric2GeometrySimplex {
-        typealias Period = Double
-
-        typealias Intersection = ParametricClip2Intersection<Double>
-        typealias Atom = Intersection.Atom
-
-        /// Returns `true` if the mid point between `left` and `right` produces
-        /// a period that computes a point in `self` such that `other` contains it,
-        /// i.e. `other.contains(self.compute(at: mid(left, right))) == true`, or
-        /// if the same is true if `self.contains(other.compute(at: mid(left, right)))`.
-        func probeCenter(_ left: Atom, _ right: Atom) -> Bool {
-            let centerSelf = normalizedCenterSelf(
-                left.`self`,
-                right.`self`
-            )
-
-            if otherContainsSelf(centerSelf) {
-                return true
-            }
-
-            let centerOther = normalizedCenterOther(
-                left.other,
-                right.other
-            )
-
-            return selfContainsOther(centerOther)
-        }
-
-        var atoms: [Atom] = []
-        let selfSimplexes = self
-        let otherSimplexes = other
-
-        for selfSimplex in selfSimplexes {
-            for otherSimplex in otherSimplexes {
-                atoms.append(
-                    contentsOf: selfSimplex.intersectionPeriods(with: otherSimplex)
-                )
-            }
-        }
-
-        // Attempt to tie intersections as pairs by biasing the list of atoms as
-        // sorted periods on 'self', and working on sequential periods instead
-        // of sequential points of intersections
-        atoms = atoms.sorted(by: { $0.`self` < $1.`self` })
-
-        // Combine atoms with `tolerance`
-        if tolerance.isFinite {
-            var index = 0
-            while index < (atoms.count - 1) {
-                defer { atoms.formIndex(after: &index) }
-
-                let atom = atoms[index]
-                let next = atoms[atoms.index(after: index)]
-
-                if Intersection.areApproximatelyEqual(atom, next, tolerance: tolerance) {
-                    atoms.remove(at: atoms.index(after: index))
-                    atoms.formIndex(before: &index)
-                }
-            }
-        }
-
-        var intersections: [Intersection] = []
-
-        if atoms.count > 1, let lastAtom = atoms.last {
-            // Ensure that the mid-period between the first two atoms is always
-            // contained within 'other' before producing pairs so that the pairs
-            // are more likely to be properly ordered from the get-go
-            if probeCenter(lastAtom, atoms[0]) {
-                atoms = [lastAtom] + atoms.dropLast()
-            }
-
-            var remaining = atoms
-
-            while !remaining.isEmpty {
-                let candidate: Intersection
-
-                let current = remaining[0]
-
-                if remaining.count > 1 {
-                    let next = remaining[1]
-
-                    if probeCenter(current, next) {
-                        remaining.remove(at: 1)
-                        remaining.remove(at: 0)
-
-                        candidate = .pair(current, next)
-                    } else {
-                        remaining.remove(at: 0)
-
-                        candidate = .singlePoint(current)
-                    }
-                } else {
-                    // Any remaining point is single-point by definition
-                    candidate = .singlePoint(remaining[0])
-                    remaining.remove(at: 0)
-                }
-
-                if
-                    tolerance.isFinite,
-                    let last = intersections.last,
-                    let joined = last.attemptCombine(withNext: candidate, tolerance: tolerance)
-                {
-                    intersections[intersections.count - 1] = joined
-                } else {
-                    intersections.append(candidate)
-                }
-            }
-        } else if atoms.count == 1 {
-            intersections = [
-                .singlePoint(atoms[0])
-            ]
-        }
-
-        return intersections
     }
 
     /// Renormalizes the simplexes within this collection such that the periods

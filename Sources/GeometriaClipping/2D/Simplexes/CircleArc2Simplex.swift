@@ -11,42 +11,66 @@ public struct CircleArc2Simplex: Parametric2Simplex, Equatable {
     }
 
     /// The circular arc segment associated with this simplex.
-    public var circleArc: CircleArc2<Vector> {
-        didSet { bounds = circleArc.bounds() }
-    }
-    internal(set) public var bounds: AABB2<Vector>
+    public var circleArc: CircleArc2<Vector>
 
     public var startPeriod: Period
     public var endPeriod: Period
 
+    /// Convenience for `circleArc.center`.
     @inlinable
     public var center: Vector {
-        circleArc.center
+        get { circleArc.center }
+        set { circleArc.center = newValue }
     }
 
+    /// Convenience for `circleArc.radius`.
     @inlinable
     public var radius: Scalar {
-        circleArc.radius
+        get { circleArc.radius }
+        set { circleArc.radius = newValue }
     }
 
+    /// Convenience for `circleArc.startAngle`.
     @inlinable
-    public var startAngle: Angle<Double> {
-        circleArc.startAngle
+    public var startAngle: Angle<Scalar> {
+        get { circleArc.startAngle }
+        set { circleArc.startAngle = newValue }
     }
 
+    /// Convenience for `circleArc.sweepAngle`.
     @inlinable
-    public var sweepAngle: Angle<Double> {
-        circleArc.sweepAngle
+    public var sweepAngle: Angle<Scalar> {
+        get { circleArc.sweepAngle }
+        set { circleArc.sweepAngle = newValue }
     }
 
+    /// Convenience for `circleArc.stopAngle`.
     @inlinable
-    public var stopAngle: Angle<Double> {
-        circleArc.stopAngle
+    public var stopAngle: Angle<Scalar> {
+        get { circleArc.stopAngle }
+    }
+
+    /// Converts the circular arc represented by this circular arc simplex into
+    /// its full circular representation.
+    @inlinable
+    public var asCircle2: Circle2<Vector> {
+        circleArc.asCircle2
     }
 
     @inlinable
     var lengthSquared: Scalar {
         circleArc.arcLength * circleArc.arcLength
+    }
+
+    @inlinable
+    public var start: Vector { circleArc.startPoint }
+
+    @inlinable
+    public var end: Vector { circleArc.endPoint }
+
+    @inlinable
+    public var bounds: AABB2D {
+        circleArc.bounds()
     }
 
     /// Initializes a new circular arc segment simplex value with a given circular
@@ -79,7 +103,6 @@ public struct CircleArc2Simplex: Parametric2Simplex, Equatable {
         endPeriod: Period
     ) {
         self.circleArc = circleArc
-        self.bounds = circleArc.bounds()
         self.startPeriod = startPeriod
         self.endPeriod = endPeriod
     }
@@ -112,13 +135,44 @@ public struct CircleArc2Simplex: Parametric2Simplex, Equatable {
     }
 
     @inlinable
-    public func isOnSurface(_ vector: Vector, toleranceSquared: Scalar) -> Bool {
-        circleArc.distanceSquared(to: vector) < toleranceSquared
-    }
-
-    @inlinable
     public func intersectsHorizontalLine(start point: Vector, tolerance: Scalar) -> Bool {
-        if self.start.y < self.end.y {
+        if
+            self.start.y.isApproximatelyEqualFast(to: self.end.y, tolerance: tolerance)
+            && self.start.y.isApproximatelyEqualFast(to: point.y, tolerance: tolerance)
+        {
+            // s  •--e->
+            if self.start.x < point.x && self.end.x > point.x {
+                let center = self.compute(at: (self.startPeriod + self.endPeriod) / 2)
+
+                // s  •--e->  and  s----c-•--e->
+                //  \_c_/
+                if center.y >= self.start.y {
+                    return true
+                }
+                //   _c_
+                //  /   \
+                // s  •--e->
+                if center.y < self.start.y {
+                    return false
+                }
+            }
+            // e  •--s->
+            if self.start.x > point.x {
+                let center = self.compute(at: (self.startPeriod + self.endPeriod) / 2)
+
+                // e  •--s->  and  e----c-•--s->
+                //  \_c_/
+                if center.y >= self.start.y {
+                    return true
+                }
+                //   _c_
+                //  /   \
+                // e  •--s->
+                if center.y < self.start.y {
+                    return false
+                }
+            }
+        } else if self.start.y < self.end.y {
             //  •-s-->
             //     (
             //      e
@@ -146,14 +200,6 @@ public struct CircleArc2Simplex: Parametric2Simplex, Equatable {
             if self.start.x > point.x && self.start.y.isApproximatelyEqualFast(to: point.y, tolerance: tolerance) {
                 return false
             }
-        } else if
-            self.start.y.isApproximatelyEqualFast(to: self.end.y, tolerance: tolerance)
-            && self.start.y.isApproximatelyEqualFast(to: point.y, tolerance: tolerance)
-        {
-            // s--•--e->
-            if self.start.x < point.x && self.end.x > point.x {
-                return true
-            }
         }
 
         let ray = Ray2(start: point, b: point + .init(x: 1, y: 0))
@@ -161,21 +207,20 @@ public struct CircleArc2Simplex: Parametric2Simplex, Equatable {
         return hasIntersections
     }
 
-    /// Returns the closest period to a given point, along with the distance squared
-    /// to that point.
     @inlinable
-    public func closestPeriod(to point: Vector) -> (Period, distanceSquared: Vector.Scalar) {
-        let projected = circleArc.project(point)
+    public func isOnSurface(_ vector: Vector, toleranceSquared: Scalar) -> Bool {
+        circleArc.distanceSquared(to: vector) < toleranceSquared
+    }
 
-        let ratio = Parametric2GeometrySimplex.unclampedCircleArcIntersectionRatio(
-            circleArc,
-            point: projected
-        )
+    @inlinable
+    public func closestPeriod(to vector: Vector) -> Period {
+        let angle = center.angle(to: vector)
+        let angleSweep = circleArc.asAngleSweep
+        let clampedAngle = angleSweep.clamped(angle)
 
-        let period = startPeriod + (endPeriod - startPeriod) * ratio
-        let distanceSquared = projected.distanceSquared(to: point)
+        let ratio = angleSweep.ratioOfAngle(clampedAngle)
 
-        return (period, distanceSquared)
+        return startPeriod + ratio * (endPeriod - startPeriod)
     }
 
     /// Clamps this simplex so its contained geometry is only present within a
@@ -248,19 +293,4 @@ public struct CircleArc2Simplex: Parametric2Simplex, Equatable {
             )
         )
     }
-}
-
-extension CircleArc2Simplex {
-    /// Converts the circular arc represented by this circular arc simplex into
-    /// its full circular representation.
-    @inlinable
-    public var asCircle2: Circle2<Vector> {
-        circleArc.asCircle2
-    }
-
-    @inlinable
-    public var start: Vector { circleArc.startPoint }
-
-    @inlinable
-    public var end: Vector { circleArc.endPoint }
 }

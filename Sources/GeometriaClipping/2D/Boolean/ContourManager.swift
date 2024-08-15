@@ -232,6 +232,10 @@ class ContourManager {
 
             hasEnded = true
 
+            guard simplexes.count > 1 else {
+                return
+            }
+
             let contour = self.contour(startPeriod: startPeriod, endPeriod: endPeriod)
             manager.append(contour)
         }

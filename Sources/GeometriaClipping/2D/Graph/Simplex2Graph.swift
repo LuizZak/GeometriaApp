@@ -411,6 +411,19 @@ public struct Simplex2Graph {
             return geometry.isEmpty ? nil : self
         }
 
+        /// Subtracts a given shape index from the list of referenced shape indices
+        /// of this edge, returning `nil` if the operation results in no shape
+        /// indices left referenced by this edge.
+        @inlinable
+        func subtractingFirstNonEqual(shapeIndex: Int) -> Bool? {
+            if let index = geometry.firstIndex(where: { $0.shapeIndex != shapeIndex }) {
+                geometry.remove(at: index)
+                return geometry.isEmpty ? nil : true
+            }
+
+            return false
+        }
+
         /// Returns `true` if `self` and `other` have an overlapping shape index
         /// reference between them.
         @inlinable
@@ -1161,42 +1174,6 @@ extension Simplex2Graph: MutableDirectedGraphType {
         }
 
         graph.removeEdges(edgesToRemove)
-    }
-}
-
-extension DirectedGraphType {
-    func customBreadthFirstSearch(
-        start: Node,
-        reversed: Bool = false,
-        visitor: (DirectedGraphRecordingVisitElement<Edge, Node>) -> Set<Edge>?
-    ) {
-        var visited: Set<Node> = []
-        var queue: [VisitElement] = []
-
-        queue.append(.start(start))
-
-        while !queue.isEmpty {
-            let next = queue.removeFirst()
-            visited.insert(next.node)
-
-            guard let nextEdges = visitor(next) else {
-                return
-            }
-
-            for nextEdge in nextEdges {
-                var node: Node
-                if reversed {
-                    node = startNode(for: nextEdge)
-                } else {
-                    node = endNode(for: nextEdge)
-                }
-                if visited.contains(node) {
-                    continue
-                }
-
-                queue.append(next.appendingVisit(nextEdge, towards: node))
-            }
-        }
     }
 }
 

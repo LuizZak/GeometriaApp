@@ -36,18 +36,13 @@ public struct Parametric2Contour {
     /// This value is not part of the addressable period range.
     public var endPeriod: Period
 
-    @inlinable
-    public var vertices: [Vector] {
-        simplexes.map(\.start)
-    }
+    /// Returns the bounds for this parametric contour.
+    private(set) public var bounds: AABB<Vector>
 
-    @usableFromInline
+    @inlinable
     var periodRange: Period {
         endPeriod - startPeriod
     }
-
-    /// Returns the bounds for this parametric contour.
-    private(set) public var bounds: AABB<Vector>
 
     /// Initializes a new compound parametric with a given list of simplexes, using
     /// the start period of the first simplex and the end period of the last
@@ -113,7 +108,7 @@ public struct Parametric2Contour {
         self.winding = winding
         self.startPeriod = startPeriod
         self.endPeriod = endPeriod
-        self.bounds = AABB(aabbs: simplexes.map(\.bounds))
+        self.bounds = simplexes.bounds()
     }
 
     /// Performs a point-containment check against this parametric contour.
@@ -140,24 +135,6 @@ public struct Parametric2Contour {
         }
 
         return intersections % 2 == 1
-    }
-
-    /// Returns `true` if this contour intersects another.
-    @inlinable
-    public func intersects(_ other: Self) -> Bool {
-        guard bounds.intersects(other.bounds) else {
-            return false
-        }
-
-        for simplex in allSimplexes() {
-            for otherSimplex in other.allSimplexes() {
-                if simplex.intersects(otherSimplex) {
-                    return true
-                }
-            }
-        }
-
-        return false
     }
 
     /// Computes the point on this parametric geometry matching a given period.
@@ -205,21 +182,6 @@ public struct Parametric2Contour {
         return false
     }
 
-    /// Returns the closest period on this contour to a given point, along with
-    /// the squared distance to the point.
-    @inlinable
-    public func closestPeriod(to point: Vector) -> (Period, distanceSquared: Scalar) {
-        var closest: (Period, distanceSquared: Scalar) = (startPeriod, .infinity)
-        for simplex in simplexes {
-            let next = simplex.closestPeriod(to: point)
-            if next.distanceSquared < closest.distanceSquared {
-                closest = next
-            }
-        }
-
-        return closest
-    }
-
     /// Fetches all simplexes that form this 2-dimensional parametric geometry,
     /// ordered by their relative period within the geometry.
     @inlinable
@@ -253,34 +215,6 @@ public struct Parametric2Contour {
         allSimplexes().compactMap { simplex in
             simplex.clamped(in: range)
         }
-    }
-
-    /// Returns all unique intersection periods between `self` and `other`.
-    /// The resulting array of periods is guaranteed to not contain the same
-    /// period value twice for all `tuple.self` and for all `tuple.other`,
-    /// separately.
-    ///
-    /// The intersections are sorted by their occurrence within `self`, and
-    /// intersection pairs do not overlap with each other with respect to the
-    /// `intersection.self` side of each intersection.
-    ///
-    /// If two intersections have a difference smaller than `tolerance`, the
-    /// two intersections are elided from the result. Passing `.infinity` to
-    /// `tolerance` disables this behavior.
-    @inlinable
-    public func allIntersectionPeriods(
-        _ other: Self,
-        tolerance: Scalar
-    ) -> [ParametricClip2Intersection<Period>] {
-
-        self.allSimplexes().allIntersectionPeriods(
-            with: other.allSimplexes(),
-            tolerance: tolerance,
-            normalizedCenterSelf: self.normalizedCenter(_:_:),
-            otherContainsSelf: { other.contains(self.compute(at: $0)) },
-            normalizedCenterOther: other.normalizedCenter(_:_:),
-            selfContainsOther: { self.contains(other.compute(at: $0)) }
-        )
     }
 
     /// Returns the reverse of this parametric geometry by inverting the order
@@ -428,11 +362,9 @@ extension Collection {
         endPeriod: Double
     ) -> [Element] where Element == Parametric2Contour {
         return map {
-            .init(
-                normalizing: $0.allSimplexes(),
-                startPeriod: startPeriod,
-                endPeriod: endPeriod
-            )
+            .init(normalizing: $0.allSimplexes(),
+            startPeriod: startPeriod,
+            endPeriod: endPeriod)
         }
     }
 }

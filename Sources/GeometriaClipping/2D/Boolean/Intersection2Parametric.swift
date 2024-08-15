@@ -1,7 +1,7 @@
 import Geometria
 
-/// A Union boolean parametric that joins two shapes into a single shape, if they
-/// intersect in space.
+/// An Intersection boolean parametric that joins two shapes into a single shape,
+/// if they intersect in space.
 public struct Intersection2Parametric: Boolean2Parametric {
     public typealias Vector = Vector2D
     public typealias Contour = Parametric2Contour
@@ -60,37 +60,23 @@ public struct Intersection2Parametric: Boolean2Parametric {
 }
 
 /// Performs an intersection operation across all given parametric geometries.
-///
-/// - precondition: `shapes` is not empty.
 @inlinable
 public func intersection(
     tolerance: Double = .leastNonzeroMagnitude,
     _ shapes: [any ParametricClip2Geometry]
 ) -> Compound2Parametric {
-    let op = Intersection2Parametric(
-        contours: shapes.flatMap({ $0.allContours() }),
-        tolerance: tolerance
-    )
-
-    return Compound2Parametric(
-        contours: op.allContours()
+    return intersection(
+        tolerance: tolerance,
+        contours: shapes.flatMap({ $0.allContours() })
     )
 }
 
-/// Performs an intersection operation across all given parametric contours.
-///
-/// - precondition: `contours` is not empty.
+/// Performs an intersection operation across all given parametric geometries.
 @inlinable
 public func intersection(
     tolerance: Double = .leastNonzeroMagnitude,
-    _ contours: [Parametric2Contour]
+    contours: [Parametric2Contour]
 ) -> Compound2Parametric {
-    let op = Intersection2Parametric(
-        contours: contours,
-        tolerance: tolerance
-    )
-
-    return Compound2Parametric(
-        contours: op.allContours()
-    )
+    let op = Intersection2Parametric(contours: contours, tolerance: tolerance)
+    return Compound2Parametric(contours: op.allContours())
 }

@@ -31,6 +31,10 @@ public protocol Parametric2Simplex: ParametricSimplex where Vector: Vector2Type 
     /// the end, not necessarily in a straight line.
     func compute(at period: Period) -> Vector
 
+    /// Returns `true` if a given vector is at most `√(toleranceSquared)`-distance
+    /// away from this simplex's surface.
+    func isOnSurface(_ vector: Vector, toleranceSquared: Vector.Scalar) -> Bool
+
     /// Returns `true` if this simplex intersects a horizontal line going right
     /// (positive X axis), starting at a given point.
     ///
@@ -40,13 +44,8 @@ public protocol Parametric2Simplex: ParametricSimplex where Vector: Vector2Type 
     /// Used for point-containment checks of contours.
     func intersectsHorizontalLine(start: Vector, tolerance: Vector.Scalar) -> Bool
 
-    /// Returns `true` if a given vector is at most `√(toleranceSquared)`-distance
-    /// away from this simplex's surface.
-    func isOnSurface(_ vector: Vector, toleranceSquared: Vector.Scalar) -> Bool
-
-    /// Returns the closest period to a given point, along with the distance squared
-    /// to that point.
-    func closestPeriod(to point: Vector) -> (Period, distanceSquared: Vector.Scalar)
+    /// Returns the closest period to an input vector.
+    func closestPeriod(to vector: Vector) -> Period
 
     /// Reverses this simplex by swapping its start <-> end points, making it
     /// travel in the opposite direction.
@@ -64,6 +63,7 @@ public protocol Parametric2Simplex: ParametricSimplex where Vector: Vector2Type 
 
 extension Parametric2Simplex {
     /// Constructs `startPeriod..<endPeriod`
+    @inlinable
     public var periodRange: Range<Period> {
         startPeriod..<endPeriod
     }

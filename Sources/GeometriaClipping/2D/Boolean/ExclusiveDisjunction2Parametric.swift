@@ -1,8 +1,7 @@
-import MiniDigraph
 import Geometria
 
-/// An exclusive disjunction, or 'xor'- parametric combination that returns all
-/// contours that are occupied by any one contour but not another.
+/// An exclusive-disjunction boolean parametric that outputs the non-shared area
+/// between two or more geometries.
 public struct ExclusiveDisjunction2Parametric: Boolean2Parametric {
     public typealias Vector = Vector2D
     public typealias Contour = Parametric2Contour
@@ -31,56 +30,16 @@ public struct ExclusiveDisjunction2Parametric: Boolean2Parametric {
 
     @inlinable
     public func allContours() -> [Contour] {
-        /*
-        typealias Graph = Simplex2Graph
-
-        var graph = Graph.fromParametricIntersections(
-            contours: contours,
-            tolerance: tolerance
-        )
-
-        // Remove all edges that have incompatible total windings according to
-        // their contour windings
-        for edge in graph.edges {
-            let shouldRemove: Bool
-
-            switch edge.winding {
-            case .clockwise:
-                shouldRemove = edge.totalWinding != 1
-
-                if edge.totalWinding == 2 {
-                    let newEdge = edge.inverted(
-                        edgeId: graph.nextEdgeId()
-                    )
-                    graph.addEdge(newEdge)
-                }
-
-            case .counterClockwise:
-                shouldRemove = edge.totalWinding != 0
-            }
-
-            if shouldRemove {
-                graph.removeEdge(edge)
-            }
-        }
-
-        graph.prune()
-
-        return graph.recombine()
-        // */
-
-        //*
         // An exclusive disjunction can be expressed as a union followed by a
         // subtraction of the intersection
-        let union = union(tolerance: tolerance, self.contours)
-        let intersection = intersection(tolerance: tolerance, self.contours)
+        let union = union(tolerance: tolerance, contours: self.contours)
+        let intersection = intersection(tolerance: tolerance, contours: self.contours)
 
         return subtraction(tolerance: tolerance, union, [intersection]).allContours()
-        // */
     }
 
     @inlinable
-    public static func xor<T1: ParametricClip2Geometry, T2: ParametricClip2Geometry>(
+    public static func exclusiveDisjunction<T1: ParametricClip2Geometry, T2: ParametricClip2Geometry>(
         tolerance: Vector.Scalar = .leastNonzeroMagnitude,
         _ lhs: T1,
         _ rhs: T2
@@ -90,40 +49,28 @@ public struct ExclusiveDisjunction2Parametric: Boolean2Parametric {
     }
 }
 
-/// Performs an exclusive disjunction, or 'xor'- operation across all given
-/// parametric geometries.
+/// Performs an exclusive disjunction operation across all given parametric
+/// geometries.
 ///
 /// - precondition: `shapes` is not empty.
 @inlinable
-public func xor(
+public func exclusiveDisjunction(
     tolerance: Double = .leastNonzeroMagnitude,
     _ shapes: [any ParametricClip2Geometry]
 ) -> Compound2Parametric {
-    let op = ExclusiveDisjunction2Parametric(
-        contours: shapes.flatMap({ $0.allContours() }),
-        tolerance: tolerance
-    )
-
-    return Compound2Parametric(
-        contours: op.allContours()
+    return exclusiveDisjunction(
+        tolerance: tolerance,
+        contours: shapes.flatMap({ $0.allContours() })
     )
 }
 
-/// Performs an exclusive disjunction, or 'xor'- operation across all given
-/// parametric contours.
-///
-/// - precondition: `contours` is not empty.
+/// Performs an exclusive disjunction operation across all given parametric
+/// geometries.
 @inlinable
-public func xor(
+public func exclusiveDisjunction(
     tolerance: Double = .leastNonzeroMagnitude,
-    _ contours: [Parametric2Contour]
+    contours: [Parametric2Contour]
 ) -> Compound2Parametric {
-    let op = ExclusiveDisjunction2Parametric(
-        contours: contours,
-        tolerance: tolerance
-    )
-
-    return Compound2Parametric(
-        contours: op.allContours()
-    )
+    let op = ExclusiveDisjunction2Parametric(contours: contours, tolerance: tolerance)
+    return Compound2Parametric(contours: op.allContours())
 }

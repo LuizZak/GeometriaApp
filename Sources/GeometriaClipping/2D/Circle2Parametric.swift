@@ -20,19 +20,18 @@ public struct Circle2Parametric: ParametricClip2Geometry, Equatable {
     public var startPeriod: Period
     public var endPeriod: Period
 
+    /// Convenience for `circle.center`.
     @inlinable
     public var center: Vector {
-        circle2.center
+        get { circle2.center }
+        set { circle2.center = newValue }
     }
 
+    /// Convenience for `circle.radius`.
     @inlinable
     public var radius: Scalar {
-        circle2.radius
-    }
-
-    @inlinable
-    public var bounds: AABB<Vector> {
-        circle2.bounds
+        get { circle2.radius }
+        set { circle2.radius = newValue }
     }
 
     public init(
@@ -141,8 +140,7 @@ public struct Circle2Parametric: ParametricClip2Geometry, Equatable {
         return simplexes
     }
 
-    @inlinable
-    public func reversed() -> Self {
+    public func reversed() -> Circle2Parametric {
         var copy = self
         copy.isReversed = !isReversed
         return copy

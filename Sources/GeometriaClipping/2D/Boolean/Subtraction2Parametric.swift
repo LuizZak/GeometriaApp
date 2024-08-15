@@ -63,20 +63,18 @@ public func subtraction(
     _ shape1: any ParametricClip2Geometry,
     _ shapes: [any ParametricClip2Geometry]
 ) -> Compound2Parametric {
-    let shapes = shapes
-        .map({ Compound2Parametric($0.reversed()) })
-
+    let shapes = shapes.map({ Compound2Parametric($0.reversed()) })
     return union(tolerance: tolerance, [Compound2Parametric(shape1)] + shapes)
 }
 
-/// Performs a subtraction operation across all given parametric contours.
+/// Performs a subtraction operation by removing all given parametric geometries
+/// from `contour`.
 @inlinable
 public func subtraction(
-    tolerance: Vector2D.Scalar = .leastNonzeroMagnitude,
-    _ shape1: [Parametric2Contour],
-    _ shapes: [Parametric2Contour]
+    tolerance: Double = .leastNonzeroMagnitude,
+    contour1: Parametric2Contour,
+    contours: [Parametric2Contour]
 ) -> Compound2Parametric {
-    let shapes = shapes.map({ $0.reversed() })
-
-    return union(tolerance: tolerance, shape1 + shapes)
+    let contours = contours.map({ $0.reversed() })
+    return union(tolerance: tolerance, contours: [contour1] + contours)
 }
