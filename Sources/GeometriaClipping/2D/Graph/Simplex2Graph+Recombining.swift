@@ -1,3 +1,4 @@
+import Foundation
 import MiniDigraph
 import OrderedCollections
 import Geometria
@@ -10,33 +11,34 @@ extension Simplex2Graph {
         edgeFilter: (Edge) -> Bool
     ) -> [Contour] {
 
-        var edgesComputed: Set<Edge> = []
-        func computeWindingAndFilter(_ edge: Edge) -> Bool {
+        let queue = OperationQueue()
+
+        for edge in self.edges {
             guard let geometry = edge.geometry.first else {
-                return false
+                continue
             }
 
-            if edgesComputed.insert(edge).inserted {
-                let contour = contours[geometry.shapeIndex]
-                edge.winding = contour.winding
-                let center = edge.queryPoint()
+            let contour = contours[geometry.shapeIndex]
+            edge.winding = contour.winding
+            let center = edge.queryPoint()
 
+            queue.addOperation {
                 edge.totalWinding =
-                    contourTree
+                    self.contourTree
                     .queryPoint(center)
                     .filter({ $0.index != geometry.shapeIndex && $0.contour.contains(center) })
                     .reduce(edge.winding.value, { $0 + $1.contour.winding.value })
             }
-
-            return edgeFilter(edge)
         }
+
+        queue.waitUntilAllOperationsAreFinished()
 
         let resultOverall = ContourManager()
 
         var visitedOverall: Set<Node> = []
         var sortedEdges = OrderedSet(edges.sorted(by: { $0.id < $1.id }))
 
-        guard let firstEdge = sortedEdges.first(where: computeWindingAndFilter) else {
+        guard let firstEdge = sortedEdges.first(where: edgeFilter) else {
             return resultOverall.allContours(applyWindingFiltering: false)
         }
 
@@ -44,10 +46,10 @@ extension Simplex2Graph {
         var current = firstEdge.start
 
         func candidateIsAscending(_ lhs: Edge, _ rhs: Edge) -> Bool {
-            if !computeWindingAndFilter(lhs) {
+            if !edgeFilter(lhs) {
                 return false
             }
-            if !computeWindingAndFilter(rhs) {
+            if !edgeFilter(rhs) {
                 return true
             }
 
@@ -89,7 +91,7 @@ extension Simplex2Graph {
 
             result.endContour(startPeriod: .zero, endPeriod: 1)
 
-            guard let next = sortedEdges.first(where: computeWindingAndFilter) else {
+            guard let next = sortedEdges.first(where: edgeFilter) else {
                 break
             }
 

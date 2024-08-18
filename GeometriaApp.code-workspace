@@ -125,7 +125,7 @@
 						"-t", "GeometriaApp",
 						"-m", "Sources\\GeometriaWindows\\GeometriaApp.exe.manifest",
 						// NOTE: Currently crashes the compiler in Swift 5.10.1
-						// "-cross-module-optimization", // TODO: Validate whether cross-module-optimization offers performance advantages
+						"-cross-module-optimization", // TODO: Validate whether cross-module-optimization offers performance advantages
 					]
 				},
 				"linux": {

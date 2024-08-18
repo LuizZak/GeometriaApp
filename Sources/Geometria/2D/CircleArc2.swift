@@ -194,6 +194,47 @@ public extension CircleArc2 {
     func pointOnAngle(_ angle: Angle<Scalar>) -> Vector {
         return asCircle2.pointOnAngle(angle)
     }
+
+    /// Returns the result of an intersection test between this circular arc and
+    /// a given line.
+    func intersection<Line>(
+        with line: Line
+    ) -> PairLineIntersection<Vector> where Line: LineFloatingPoint, Vector == Line.Vector {
+        let circle = self.asCircle2
+        let intersections = circle.intersection(with: line)
+
+        func filter(_ pointNormal: LineIntersectionPointNormal<Vector>) -> Bool {
+            let angle = Angle(radians: (pointNormal.point - center).angle)
+            return contains(angle)
+        }
+
+        switch intersections {
+        case .noIntersection, .contained:
+            return .noIntersection
+
+        case .singlePoint(let pointNormal), .enter(let pointNormal), .exit(let pointNormal):
+            if filter(pointNormal) {
+                return .singlePoint(pointNormal)
+            } else {
+                return .noIntersection
+            }
+
+        case .enterExit(let enter, let exit):
+            switch (filter(enter), filter(exit)) {
+            case (true, true):
+                return .twoPoint(enter, exit)
+
+            case (true, false):
+                return .singlePoint(enter)
+
+            case (false, true):
+                return .singlePoint(exit)
+
+            case (false, false):
+                return .noIntersection
+            }
+        }
+    }
 }
 
 extension CircleArc2: LineIntersectableType {
@@ -201,16 +242,16 @@ extension CircleArc2: LineIntersectableType {
     @_specialize(exported: true, kind: full, where Line == LineSegment2D)
     public func intersections<Line>(
         with line: Line
-    ) -> LineIntersection<Vector> where Line : LineFloatingPoint, Vector == Line.Vector {
+    ) -> LineIntersection<Vector> where Line: LineFloatingPoint, Vector == Line.Vector {
         let circle = self.asCircle2
-        let intersections = circle.intersection(with: line).lineIntersectionPointNormals
+        let intersections = circle.intersection(with: line)
 
         var result = LineIntersection<Vector>(
             isContained: false,
             intersections: []
         )
 
-        for pointNormal in intersections {
+        func inspect(_ pointNormal: LineIntersectionPointNormal<Vector>) {
             let angle = Angle(radians: (pointNormal.point - center).angle)
 
             if contains(angle) {
@@ -218,6 +259,21 @@ extension CircleArc2: LineIntersectableType {
                     .point(pointNormal)
                 )
             }
+        }
+
+        switch intersections {
+        case .noIntersection:
+            break
+
+        case .contained:
+            result.isContained = true
+
+        case .singlePoint(let pointNormal), .enter(let pointNormal), .exit(let pointNormal):
+            inspect(pointNormal)
+
+        case .enterExit(let enter, let exit):
+            inspect(enter)
+            inspect(exit)
         }
 
         return result
