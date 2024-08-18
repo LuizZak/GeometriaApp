@@ -156,12 +156,16 @@ public struct Simplex2Graph {
 
         @inlinable
         func references(shapeIndex: Int, period: Period) -> Bool {
-            let query = Kind.SharedGeometryEntry(
-                shapeIndex: shapeIndex,
-                period: period
-            )
+            switch kind {
+            case .geometry(shapeIndex, period):
+                return true
 
-            return geometries.contains(query)
+            case .sharedGeometry(let entries):
+                return entries.contains(where: { $0.shapeIndex == shapeIndex && $0.period == period })
+
+            default:
+                return false
+            }
         }
 
         public func hash(into hasher: inout Hasher) {
@@ -272,7 +276,7 @@ public struct Simplex2Graph {
         }
     }
 
-    public class Edge: AbstractDirectedGraphEdge, Hashable, CustomStringConvertible {
+    public final class Edge: AbstractDirectedGraphEdge, Hashable, CustomStringConvertible {
         /// A unique identifier assigned during graph generation, used to sort
         /// edges by earliest generation.
         public var id: Int
@@ -509,7 +513,7 @@ public struct Simplex2Graph {
             case (
                 .circleArc(let lhsCenter, let lhsRadius, let lhsStart, let lhsSweep),
                 .circleArc(let rhsCenter, let rhsRadius, let rhsStart, let rhsSweep)
-                ) where lhsCenter == rhsCenter && lhsRadius == rhsRadius:
+                ) where lhsCenter.isApproximatelyEqualFast(to: rhsCenter, tolerance: tolerance) && lhsRadius.isApproximatelyEqualFast(to: rhsRadius, tolerance: tolerance):
                 let lhsSweep = AngleSweep(start: lhsStart, sweep: lhsSweep)
                 let rhsSweep = AngleSweep(start: rhsStart, sweep: rhsSweep)
 
@@ -629,10 +633,27 @@ public struct Simplex2Graph {
                     return .notCoincident
                 }
 
+                lhsPeriod = { scalar in
+                    self.geometry.map { geometry in
+                        .init(
+                            shapeIndex: geometry.shapeIndex,
+                            period: geometry.startPeriod + (geometry.endPeriod - geometry.startPeriod) * scalar
+                        )
+                    }
+                }
+                rhsPeriod = { scalar in
+                    other.geometry.map { geometry in
+                        .init(
+                            shapeIndex: geometry.shapeIndex,
+                            period: geometry.startPeriod + (geometry.endPeriod - geometry.startPeriod) * scalar
+                        )
+                    }
+                }
+
             case (
                 .circleArc(let lhsCenter, let lhsRadius, let lhsStartAngle, let lhsSweepAngle),
                 .circleArc(let rhsCenter, let rhsRadius, let rhsStartAngle, let rhsSweepAngle)
-                ) where lhsCenter == rhsCenter && lhsRadius == rhsRadius:
+                ) where lhsCenter.isApproximatelyEqualFast(to: rhsCenter, tolerance: tolerance) && lhsRadius.isApproximatelyEqualFast(to: rhsRadius, tolerance: tolerance):
                 let lhsSweep = AngleSweep(start: lhsStartAngle, sweep: lhsSweepAngle)
                 let rhsSweep = AngleSweep(start: rhsStartAngle, sweep: rhsSweepAngle)
 
@@ -642,8 +663,8 @@ public struct Simplex2Graph {
 
                 lhsStart = lhsSweep.start.radians
                 lhsEnd = lhsSweep.stop.radians
-                rhsStart = lhsSweep.start.radians
-                rhsEnd = lhsSweep.stop.radians
+                rhsStart = rhsSweep.start.radians
+                rhsEnd = rhsSweep.stop.radians
 
                 lhsContains = { value in
                     lhsSweep.contains(.init(radians: value))
@@ -691,25 +712,25 @@ public struct Simplex2Graph {
                     return .notCoincident
                 }
 
+                lhsPeriod = { scalar in
+                    self.geometry.map { geometry in
+                        return .init(
+                            shapeIndex: geometry.shapeIndex,
+                            period: geometry.startPeriod + (geometry.endPeriod - geometry.startPeriod) * lhsSweep.ratioOfAngle(.init(radians: scalar))
+                        )
+                    }
+                }
+                rhsPeriod = { scalar in
+                    other.geometry.map { geometry in
+                        return .init(
+                            shapeIndex: geometry.shapeIndex,
+                            period: geometry.startPeriod + (geometry.endPeriod - geometry.startPeriod) * rhsSweep.ratioOfAngle(.init(radians: scalar))
+                        )
+                    }
+                }
+
             default:
                 return .notCoincident
-            }
-
-            lhsPeriod = { scalar in
-                self.geometry.map { geometry in
-                    .init(
-                        shapeIndex: geometry.shapeIndex,
-                        period: geometry.startPeriod + (geometry.endPeriod - geometry.startPeriod) * scalar
-                    )
-                }
-            }
-            rhsPeriod = { scalar in
-                other.geometry.map { geometry in
-                    .init(
-                        shapeIndex: geometry.shapeIndex,
-                        period: geometry.startPeriod + (geometry.endPeriod - geometry.startPeriod) * scalar
-                    )
-                }
             }
 
             // lhs:  •------•

@@ -113,6 +113,31 @@ extension Simplex2Graph {
                         rhsIndex, intersection.other
                     ))
                 }
+
+                /*
+                // Perform interference splitting
+                for lhsSimplex in lhs.allSimplexes() {
+                    for rhsSimplex in rhs.allSimplexes() {
+                        if lhsSimplex.isOnSurface(rhsSimplex.start, toleranceSquared: toleranceSquared) {
+                            let period = lhsSimplex.closestPeriod(to: rhsSimplex.start)
+                            contours[lhsIndex].split(at: period)
+                        }
+                        if lhsSimplex.isOnSurface(rhsSimplex.end, toleranceSquared: toleranceSquared) {
+                            let period = lhsSimplex.closestPeriod(to: rhsSimplex.end)
+                            contours[lhsIndex].split(at: period)
+                        }
+
+                        if rhsSimplex.isOnSurface(lhsSimplex.start, toleranceSquared: toleranceSquared) {
+                            let period = rhsSimplex.closestPeriod(to: lhsSimplex.start)
+                            contours[rhsIndex].split(at: period)
+                        }
+                        if rhsSimplex.isOnSurface(lhsSimplex.end, toleranceSquared: toleranceSquared) {
+                            let period = rhsSimplex.closestPeriod(to: lhsSimplex.end)
+                            contours[rhsIndex].split(at: period)
+                        }
+                    }
+                }
+                */
             }
         }
 
@@ -216,6 +241,9 @@ extension Simplex2Graph {
 
         // MARK: Merge edges - part 1
         var edgesToCheck: OrderedSet<OrderedSet<Edge>> = []
+        var minimal: [OrderedSet<Edge>] = []
+
+        //*
         for edge in edges {
             let coincident =
                 edgeTree
@@ -230,7 +258,6 @@ extension Simplex2Graph {
         }
 
         // Merge edge groups that appear multiple times
-        var minimal: [OrderedSet<Edge>] = []
         for edgesToCheck in edgesToCheck {
             var merged = false
             for i in 0..<minimal.count {
@@ -297,6 +324,7 @@ extension Simplex2Graph {
                 }
             }
         }
+        // */
 
         // MARK: Merge nodes
         func areClose(_ v1: Vector, _ v2: Vector) -> Bool {
@@ -350,6 +378,10 @@ extension Simplex2Graph {
 
             var finalSet: Set<Node> = []
             for neighbor in neighbors {
+                guard neighbor !== node else {
+                    finalSet.insert(neighbor)
+                    continue
+                }
                 if areClose(neighbor.location, node.location) || areIntersection(node, neighbor) {
                     finalSet.insert(neighbor)
                 }
