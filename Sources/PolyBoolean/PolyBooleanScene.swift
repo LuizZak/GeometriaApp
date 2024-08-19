@@ -72,17 +72,16 @@ class PolyBooleanScene {
             render(poly: polys[0], renderer: renderer)
             return
         }
+        let compounds = polys.map({ Compound2Parametric(contours: $0.allContours()) })
 
-        let contours = polys.flatMap { $0.allContours() }
-
-        guard let first = contours.first else {
+        guard let first = compounds.first else {
             return
         }
 
         let base = subtraction(
             tolerance: 1e-12,
-            contour1: first,
-            contours: Array(contours.dropFirst())
+            first,
+            Array(compounds.dropFirst())
         )
 
         render(poly: base, renderer: renderer)
