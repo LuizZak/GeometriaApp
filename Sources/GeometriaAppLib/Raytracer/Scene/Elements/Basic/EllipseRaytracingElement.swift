@@ -1,5 +1,6 @@
 #if canImport(Geometria)
 import Geometria
+import RealModule
 #endif
 
 public typealias EllipseRaytracingElement = EllipseElement
@@ -19,12 +20,12 @@ extension EllipseRaytracingElement: RaytracingElement {
             results: &results
         )
     }
-    
+
     @inlinable
     public func contains(point: RVector3D) -> Bool {
         return geometry.contains(point)
     }
-    
+
     @inlinable
     public func fullyContainsRay(query: RayQuery) -> Bool {
         query.isFullyContained(by: geometry)

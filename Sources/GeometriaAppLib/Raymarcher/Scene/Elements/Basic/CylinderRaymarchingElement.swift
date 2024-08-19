@@ -1,5 +1,6 @@
 #if canImport(Geometria)
 import Geometria
+import RealModule
 #endif
 
 public typealias CylinderRaymarchingElement = CylinderElement
@@ -8,7 +9,7 @@ extension CylinderRaymarchingElement: RaymarchingElement {
     @inlinable
     public func signedDistance(to point: RVector3D, current: RaymarchingResult) -> RaymarchingResult {
         let distance = geometry.signedDistance(to: point)
-        
+
         guard distance < current.distance else {
             return current
         }

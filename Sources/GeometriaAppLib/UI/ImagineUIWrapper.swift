@@ -134,7 +134,7 @@ class ImagineUIWrapper {
         controlSystem.onKeyDown(event)
     }
 
-    func keyPress(event: KeyPressEventArgs) {
+    func keyPress(event: KeyPressEventArgs) -> Bool {
         controlSystem.onKeyPress(event)
     }
 
@@ -144,6 +144,10 @@ class ImagineUIWrapper {
 }
 
 extension ImagineUIWrapper: BaseControlSystemDelegate {
+    func viewForDialog(_ dialog: any UIDialog, location: UIDialogInitialLocation) -> View {
+        rootView
+    }
+
     func tooltipsManager() -> (any TooltipsManagerType)? {
         tooltipManager
     }

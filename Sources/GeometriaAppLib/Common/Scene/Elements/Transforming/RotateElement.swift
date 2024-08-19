@@ -1,5 +1,6 @@
 #if canImport(Geometria)
 import Geometria
+import RealModule
 #endif
 
 /// Element that encodes a rotation in 3D space of another element.

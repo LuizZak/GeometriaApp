@@ -146,7 +146,7 @@ class ProcessingPrinter {
         addDrawLine("")
     }
 
-    func add<V: Vector3Type>(pointNormal: LineIntersectionPointNormal<V>) {
+    func add<V: Vector3Type>(pointNormal: LineIntersectionPointNormal<V>) where V.Scalar == Double {
         add(pointNormal: pointNormal.pointNormal)
     }
 

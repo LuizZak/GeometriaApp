@@ -2,7 +2,7 @@ import MinWin32
 import ImagineUI_Win
 import GeometriaAppLib
 
-class GeometriaAppDelegate: ImagineUIAppDelegate {
+class GeometriaAppDelegate: MinWin32AppDelegate {
     var main: ImagineUIContentType?
 
     func appDidLaunch() {

@@ -1,5 +1,6 @@
 #if canImport(Geometria)
 import Geometria
+import RealModule
 #endif
 
 #if false // Sphere bounds
@@ -22,7 +23,7 @@ public extension ElementBounds {
 public extension RSphere3D {
     static let zero: Self = .init(center: .zero, radius: .zero)
 
-    /// Returns the smallest sphere capable of containing both `self` and the 
+    /// Returns the smallest sphere capable of containing both `self` and the
     /// provided sphere.
     @_transparent
     func union(_ other: RSphere3D) -> RSphere3D {
@@ -70,7 +71,7 @@ public extension ElementBounds {
     static func makeBounds<T: BoundableType>(for value: T) -> Self where T.Vector == RVector3D {
         value.bounds
     }
-    
+
     @_transparent
     func rotated(_ transform: Transform3x3, rotationCenter: RVector3D) -> Self {
         var points = vertices

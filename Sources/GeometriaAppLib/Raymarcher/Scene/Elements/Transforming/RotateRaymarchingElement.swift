@@ -1,5 +1,6 @@
 #if canImport(Geometria)
 import Geometria
+import RealModule
 #endif
 
 public typealias RotateRaymarchingElement<T: RaymarchingElement> = RotateElement<T>

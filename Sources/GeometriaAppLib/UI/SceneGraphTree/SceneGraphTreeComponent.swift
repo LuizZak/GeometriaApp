@@ -80,7 +80,7 @@ class SceneGraphTreeComponent: RaytracerUIComponent {
         treeView.dataSource = dataSource
     }
 
-    private class SceneDataSource: TreeViewDataSource {
+    private class SceneDataSource: TreeView.DataSource {
         var root: SceneGraphTreeNode
 
         init(root: SceneGraphTreeNode) {

@@ -45,7 +45,7 @@ class PolyBooleanScene {
     }
 
     func renderUnion(
-        polys: [any ParametricClip2Geometry],
+        polys: [any ParametricClip2Geometry<Vector2D>],
         renderer: any Renderer
     ) {
         if polys.isEmpty {
@@ -56,13 +56,13 @@ class PolyBooleanScene {
             return
         }
 
-        let base = union(tolerance: 1e-14, polys)
+        let base = union(tolerance: 1e-14, contours: polys.flatMap { $0.allContours() })
 
         render(poly: base, renderer: renderer)
     }
 
     func renderSubtraction(
-        polys: [any ParametricClip2Geometry],
+        polys: [any ParametricClip2Geometry<Vector2D>],
         renderer: any Renderer
     ) {
         if polys.isEmpty {
@@ -73,17 +73,23 @@ class PolyBooleanScene {
             return
         }
 
-        guard let first = polys.first else {
+        let contours = polys.flatMap { $0.allContours() }
+
+        guard let first = contours.first else {
             return
         }
 
-        let base = subtraction(tolerance: 1e-12, first, Array(polys.dropFirst()))
+        let base = subtraction(
+            tolerance: 1e-12,
+            contour1: first,
+            contours: Array(contours.dropFirst())
+        )
 
         render(poly: base, renderer: renderer)
     }
 
     func renderXor(
-        polys: [any ParametricClip2Geometry],
+        polys: [any ParametricClip2Geometry<Vector2D>],
         renderer: any Renderer
     ) {
         if polys.isEmpty {
@@ -94,13 +100,13 @@ class PolyBooleanScene {
             return
         }
 
-        let base = exclusiveDisjunction(tolerance: 1e-12, polys)
+        let base = exclusiveDisjunction(tolerance: 1e-12, contours: polys.flatMap { $0.allContours() })
 
         render(poly: base, renderer: renderer)
     }
 
     func renderIntersection(
-        polys: [any ParametricClip2Geometry],
+        polys: [any ParametricClip2Geometry<Vector2D>],
         renderer: any Renderer
     ) {
         if polys.isEmpty {
@@ -111,24 +117,24 @@ class PolyBooleanScene {
             return
         }
 
-        let base = intersection(tolerance: 1e-12, polys)
+        let base = intersection(tolerance: 1e-12, contours: polys.flatMap { $0.allContours() })
 
         render(poly: base, renderer: renderer)
     }
 
-    func render(polys: [any ParametricClip2Geometry], renderer: any Renderer) {
+    func render(polys: [any ParametricClip2Geometry<Vector2D>], renderer: any Renderer) {
         for poly in polys {
             render(poly: poly, renderer: renderer)
         }
     }
 
-    func render(poly: any ParametricClip2Geometry, renderer: any Renderer) {
+    func render<Polygon: ParametricClip2Geometry<Vector2D>>(poly: Polygon, renderer: any Renderer) {
         for contour in poly.allContours() {
             render(contour: contour, renderer: renderer)
         }
     }
 
-    func render(contour: Parametric2Contour, renderer: any Renderer) {
+    func render(contour: Parametric2Contour<Vector2D>, renderer: any Renderer) {
         let simplexes = contour.clampedSimplexes(in: 0..<strokeAnimation)
         let actual = contour.compute(at: strokeAnimation).asUIPoint
 
@@ -136,13 +142,13 @@ class PolyBooleanScene {
         renderPoint(actual, color: .green, renderer: renderer)
     }
 
-    func render(ops: [Parametric2GeometrySimplex], renderer: any Renderer) {
+    func render(ops: [Parametric2GeometrySimplex<Vector2D>], renderer: any Renderer) {
         for op in ops {
             render(op: op, renderer: renderer)
         }
     }
 
-    func render(op: Parametric2GeometrySimplex, renderer: any Renderer) {
+    func render(op: Parametric2GeometrySimplex<Vector2D>, renderer: any Renderer) {
         switch op {
         case .lineSegment2(let lineSegment2):
             render(op: lineSegment2, renderer: renderer)
@@ -152,13 +158,13 @@ class PolyBooleanScene {
         }
     }
 
-    func render(op: LineSegment2Simplex, renderer: any Renderer) {
+    func render(op: LineSegment2Simplex<Vector2D>, renderer: any Renderer) {
         let line = op.lineSegment.asUILine
 
         renderer.stroke(line)
     }
 
-    func render(op: CircleArc2Simplex, renderer: any Renderer) {
+    func render(op: CircleArc2Simplex<Vector2D>, renderer: any Renderer) {
         let arc = op.circleArc.asUICircleArc
 
         renderer.stroke(arc)
@@ -171,18 +177,18 @@ class PolyBooleanScene {
     }
 
     struct DemoCircle {
-        var circle: Circle2Parametric
+        var circle: Circle2Parametric<Vector2D>
         var velocity: Vector2D
 
         var bounds: AABB2D {
             circle.bounds
         }
 
-        func makeHollow() -> Compound2Parametric {
+        func makeHollow() -> Compound2Parametric<Vector2D> {
             var inner = circle.reversed()
             inner.circle2.radius *= 0.8
 
-            return Compound2Parametric(contours:
+            return Compound2Parametric<Vector2D>(contours:
                 circle.allContours() + inner.allContours()
             )
         }

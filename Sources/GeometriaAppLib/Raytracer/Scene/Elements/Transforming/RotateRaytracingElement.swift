@@ -1,5 +1,6 @@
 #if canImport(Geometria)
 import Geometria
+import RealModule
 #endif
 
 public typealias RotateRaytracingElement<T: RaytracingElement> = RotateElement<T>
@@ -25,20 +26,20 @@ extension RotateRaytracingElement: RaytracingElement {
 
         element.raycast(query: queryT, results: &results)
     }
-    
+
     @inlinable
     public func contains(point: RVector3D) -> Bool {
         let inv = rotation.mInv
         let pointT = point.rotatedBy(inv, around: rotationCenter)
-        
+
         return element.contains(point: pointT)
     }
-    
+
     @inlinable
     public func fullyContainsRay(query: RayQuery) -> Bool {
         let inv = rotation.mInv
         let queryT = query.rotatedBy(inv, around: rotationCenter)
-        
+
         return element.fullyContainsRay(query: queryT)
     }
 }

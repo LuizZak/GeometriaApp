@@ -6,7 +6,34 @@
       "location" : "https://github.com/LuizZak/CassowarySwift.git",
       "state" : {
         "branch" : "cassowary-swift-optimizations",
-        "revision" : "b2377a0bb3c0cb43f63278f1a2ef85384d370861"
+        "revision" : "eecee2e108fca14a002cf8bd6562f35722bc3627"
+      }
+    },
+    {
+      "identity" : "geometria",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/LuizZak/Geometria.git",
+      "state" : {
+        "branch" : "main",
+        "revision" : "e314fb07945f3c51d669ff65659d19cf7408bc4d"
+      }
+    },
+    {
+      "identity" : "imagineui",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/LuizZak/ImagineUI.git",
+      "state" : {
+        "branch" : "master",
+        "revision" : "347f65d4b007141cbe7b02cfc409689c4ecaf4f4"
+      }
+    },
+    {
+      "identity" : "imagineui-win",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/LuizZak/ImagineUI-Win.git",
+      "state" : {
+        "branch" : "main",
+        "revision" : "f91a241604f384ed20e469cafd8580dd809ff44b"
       }
     },
     {
@@ -19,12 +46,21 @@
       }
     },
     {
+      "identity" : "minwin32",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/LuizZak/MinWin32.git",
+      "state" : {
+        "branch" : "main",
+        "revision" : "eb666b4aeb63bc985c198cc3533445120ee98180"
+      }
+    },
+    {
       "identity" : "swift-bezier",
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/LuizZak/swift-bezier.git",
       "state" : {
-        "branch" : "main",
-        "revision" : "a4f9aa49910f61cca65ab3ff9f9068f33c1bf3d8"
+        "revision" : "7061d2e5396e006e6b80313510c3689917d9569d",
+        "version" : "0.6.0"
       }
     },
     {
@@ -33,7 +69,7 @@
       "location" : "https://github.com/LuizZak/swift-blend2d.git",
       "state" : {
         "branch" : "master",
-        "revision" : "39c6c0f932243f39056d525d655f0fde646a51f6"
+        "revision" : "855fe139f972fea76afceba23a289846df03ec5d"
       }
     },
     {

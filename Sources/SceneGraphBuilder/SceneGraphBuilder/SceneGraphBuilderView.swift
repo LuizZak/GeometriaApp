@@ -27,7 +27,7 @@ class SceneGraphBuilderView: RootView {
     }
 
     private func initialize() {
-        cacheAsBitmap = false
+        bitmapCacheBehavior = .noCaching
 
         backColor = Color(red: 37, green: 37, blue: 38)
     }

@@ -4,9 +4,9 @@ import Geometria
 import GeometriaClipping
 
 class ConvexHullScene: PolyBooleanScene {
-    var polys: [any ParametricClip2Geometry] = []
+    var polys: [any ParametricClip2Geometry<Vector2D>] = []
     var circles: [DemoCircle] = []
-    var mousePoly: Circle2Parametric = .init(circle: .unit)
+    var mousePoly: Circle2Parametric<Vector2D> = .init(circle: .unit)
 
     override func initialize(size: UIIntSize) {
         super.initialize(size: size)
@@ -49,7 +49,7 @@ class ConvexHullScene: PolyBooleanScene {
             let velocityX = Double.random(in: velocityRange)
             let velocityY = Double.random(in: velocityRange)
 
-            let circle = Circle2Parametric(
+            let circle = Circle2Parametric<Vector2D>(
                 center: .init(x: spawnX, y: spawnY),
                 radius: radius,
                 startPeriod: 0.0,
@@ -65,10 +65,10 @@ class ConvexHullScene: PolyBooleanScene {
         }
     }
 
-    func effectivePolys() -> [any ParametricClip2Geometry] {
+    func effectivePolys() -> [any ParametricClip2Geometry<Vector2D>] {
         let sizeVec = self.size.asVector2D
 
-        var result: [any ParametricClip2Geometry] = []
+        var result: [any ParametricClip2Geometry<Vector2D>] = []
 
         // Convex hull
         do {

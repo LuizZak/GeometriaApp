@@ -78,7 +78,7 @@ class SceneListComponent: RaytracerUIComponent {
         }
     }
 
-    private class SceneDataSource: TreeViewDataSource {
+    private class SceneDataSource: TreeView.DataSource {
         typealias ItemType = SceneEntry
 
         var scenes: [SceneEntry]

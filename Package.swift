@@ -2,95 +2,33 @@
 import PackageDescription
 import class Foundation.ProcessInfo
 
-let reportingSwiftSettings: [SwiftSetting] = [
-    .unsafeFlags([
-        "-driver-time-compilation",
-        "-Xfrontend",
-        "-warn-long-function-bodies=1000",
-        "-Xfrontend",
-        "-warn-long-expression-type-checking=300"
-    ])
-]
+// MARK: - Embedded Geometria target
 
 var packageDependencies: [Package.Dependency] =  [
     .package(url: "https://github.com/apple/swift-numerics.git", from: "1.0.0"),
     .package(url: "https://github.com/LuizZak/ImagineUI.git", branch: "master"),    //.package(url: "https://github.com/LuizZak/ImagineUI.git", branch: "master"),
     .package(url: "https://github.com/LuizZak/swift-blend2d.git", branch: "master"), //.package(url: "https://github.com/LuizZak/swift-blend2d.git", branch: "master")
-    .package(url: "https://github.com/LuizZak/MiniDigraph.git", exact: "0.8.1"),
-    .package(url: "https://github.com/apple/swift-collections.git", from: "1.1.2"),
 ]
 
-var targets: [Target] = []
-
-// MARK: - Target definitions
-
-var geometriaAppTarget: Target = .executableTarget(
-    name: "GeometriaApp"
-)
-
-var geometriaAppLibTarget: Target = .target(
-    name: "GeometriaAppLib",
-    dependencies: [
-        .product(name: "Numerics", package: "swift-numerics"),
-        .product(name: "SwiftBlend2D", package: "swift-blend2d"),
-        .product(name: "ImagineUI", package: "ImagineUI"),
-        .product(name: "Blend2DRenderer", package: "ImagineUI"),
-        "Geometria",
-        "GeometriaAlgorithms",
-    ],
-    exclude: [
-        "Resources/FiraCode-License.txt"
-    ],
-    resources: [
-        .copy("Resources/FiraCode-Bold.ttf"),
-        .copy("Resources/FiraCode-Light.ttf"),
-        .copy("Resources/FiraCode-Medium.ttf"),
-        .copy("Resources/FiraCode-Regular.ttf"),
-        .copy("Resources/FiraCode-Retina.ttf"),
-        .copy("Resources/FiraCode-SemiBold.ttf"),
-        .copy("Resources/NotoSans-Regular.ttf"),
-    ],
-    swiftSettings: [
-
-    ]
-)
-
-var polyBooleanTarget: Target = .target(
-    name: "PolyBoolean",
-    dependencies: [
-        .product(name: "SwiftBlend2D", package: "swift-blend2d"),
-        .product(name: "ImagineUI", package: "ImagineUI"),
-        .product(name: "Blend2DRenderer", package: "ImagineUI"),
-        "Geometria",
-        "GeometriaAppLib",
-        "GeometriaClipping",
-    ]
-)
-
-if ProcessInfo.processInfo.environment["REPORT_BUILD_TIME"] == "YES" {
-    geometriaAppLibTarget.swiftSettings?.append(contentsOf: reportingSwiftSettings)
-}
-
-var sceneGraphBuilderTarget: Target = .target(
-    name: "SceneGraphBuilder",
-    dependencies: [
-        "GeometriaAppLib",
-        "Geometria",
-    ],
-    swiftSettings: [
-
-    ]
-)
-
-// MARK: - Embedded Geometria target
+let geometriaDependency: Target.Dependency
+let geometriaAlgorithmsDependency: Target.Dependency
+let geometriaClippingDependency: Target.Dependency
 
 // TODO: When Swift properly supports -Xswiftc -cross-module-optimization, re-enable external Geometria import by default.
 // TODO: For now, code is embedded directly into this repository.
-if ProcessInfo.processInfo.environment["USE_GEOMETRIA_DEPENDENCY"] == "YES" {
-    packageDependencies.append(
-        .package(url: "https://github.com/LuizZak/Geometria.git", branch: "main")
-    )
+if ProcessInfo.processInfo.environment["USE_EMBEDDED_GEOMETRIA"] != "YES" {
+    packageDependencies.append(contentsOf: [
+        .package(url: "https://github.com/LuizZak/Geometria.git", branch: "main"),
+    ])
+
+    geometriaDependency = .product(name: "Geometria", package: "Geometria")
+    geometriaAlgorithmsDependency = .product(name: "GeometriaAlgorithms", package: "Geometria")
+    geometriaClippingDependency = .product(name: "GeometriaClipping", package: "Geometria")
 } else {
+    packageDependencies.append(contentsOf: [
+        .package(url: "https://github.com/LuizZak/MiniDigraph.git", exact: "0.8.1"),
+        .package(url: "https://github.com/apple/swift-collections.git", from: "1.1.2"),
+    ])
     targets.append(contentsOf: [
         .target(
             name: "Geometria",
@@ -122,7 +60,84 @@ if ProcessInfo.processInfo.environment["USE_GEOMETRIA_DEPENDENCY"] == "YES" {
     geometriaAppLibTarget.swiftSettings?.append(
         .define("GEOMETRIA_EMBEDDED")
     )
+
+    geometriaDependency = "Geometria"
+    geometriaAlgorithmsDependency = "GeometriaAlgorithms"
+    geometriaClippingDependency = "GeometriaClipping"
 }
+
+let reportingSwiftSettings: [SwiftSetting] = [
+    .unsafeFlags([
+        "-driver-time-compilation",
+        "-Xfrontend",
+        "-warn-long-function-bodies=1000",
+        "-Xfrontend",
+        "-warn-long-expression-type-checking=300"
+    ])
+]
+
+var targets: [Target] = []
+
+// MARK: - Target definitions
+
+var geometriaAppTarget: Target = .executableTarget(
+    name: "GeometriaApp"
+)
+
+var geometriaAppLibTarget: Target = .target(
+    name: "GeometriaAppLib",
+    dependencies: [
+        .product(name: "Numerics", package: "swift-numerics"),
+        .product(name: "SwiftBlend2D", package: "swift-blend2d"),
+        .product(name: "ImagineUI", package: "ImagineUI"),
+        .product(name: "Blend2DRenderer", package: "ImagineUI"),
+        geometriaDependency,
+        geometriaAlgorithmsDependency,
+    ],
+    exclude: [
+        "Resources/FiraCode-License.txt"
+    ],
+    resources: [
+        .copy("Resources/FiraCode-Bold.ttf"),
+        .copy("Resources/FiraCode-Light.ttf"),
+        .copy("Resources/FiraCode-Medium.ttf"),
+        .copy("Resources/FiraCode-Regular.ttf"),
+        .copy("Resources/FiraCode-Retina.ttf"),
+        .copy("Resources/FiraCode-SemiBold.ttf"),
+        .copy("Resources/NotoSans-Regular.ttf"),
+    ],
+    swiftSettings: [
+
+    ]
+)
+
+var polyBooleanTarget: Target = .target(
+    name: "PolyBoolean",
+    dependencies: [
+        .product(name: "SwiftBlend2D", package: "swift-blend2d"),
+        .product(name: "ImagineUI", package: "ImagineUI"),
+        .product(name: "Blend2DRenderer", package: "ImagineUI"),
+        geometriaDependency,
+        geometriaAlgorithmsDependency,
+        geometriaClippingDependency,
+        "GeometriaAppLib",
+    ]
+)
+
+if ProcessInfo.processInfo.environment["REPORT_BUILD_TIME"] == "YES" {
+    geometriaAppLibTarget.swiftSettings?.append(contentsOf: reportingSwiftSettings)
+}
+
+var sceneGraphBuilderTarget: Target = .target(
+    name: "SceneGraphBuilder",
+    dependencies: [
+        geometriaDependency,
+        "GeometriaAppLib",
+    ],
+    swiftSettings: [
+
+    ]
+)
 
 #if os(Windows)
 

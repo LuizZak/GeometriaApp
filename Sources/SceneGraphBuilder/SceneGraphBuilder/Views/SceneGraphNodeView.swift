@@ -26,7 +26,7 @@ class SceneGraphNodeView: RootView {
     }
 
     private func initialize() {
-        cacheAsBitmap = false
+        bitmapCacheBehavior = .noCaching
 
         strokeWidth = 2
         cornerRadius = 4

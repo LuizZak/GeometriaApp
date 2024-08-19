@@ -4,9 +4,9 @@ import Geometria
 import GeometriaClipping
 
 class HollowCirclesScene: PolyBooleanScene {
-    var polys: [any ParametricClip2Geometry] = []
+    var polys: [any ParametricClip2Geometry<Vector2D>] = []
     var circles: [DemoCircle] = []
-    var mousePoly: Circle2Parametric = .init(circle: .unit)
+    var mousePoly: Circle2Parametric<Vector2D> = .init(circle: .unit)
 
     override func initialize(size: UIIntSize) {
         super.initialize(size: size)
@@ -16,7 +16,7 @@ class HollowCirclesScene: PolyBooleanScene {
         spawnCircles()
 
         polys = [
-            Circle2Parametric(circle: .init(center: .init(x: 355, y: 214), radius: sizeVec.x / 20)),
+            Circle2Parametric<Vector2D>(circle: .init(center: .init(x: 355, y: 214), radius: sizeVec.x / 20)),
         ]
         mousePoly.circle2.radius = sizeVec.x / 20
     }
@@ -50,7 +50,7 @@ class HollowCirclesScene: PolyBooleanScene {
             let velocityX = Double.random(in: velocityRange)
             let velocityY = Double.random(in: velocityRange)
 
-            let circle = Circle2Parametric(
+            let circle = Circle2Parametric<Vector2D>(
                 center: .init(x: spawnX, y: spawnY),
                 radius: radius,
                 startPeriod: 0.0,
@@ -66,8 +66,8 @@ class HollowCirclesScene: PolyBooleanScene {
         }
     }
 
-    func effectivePolys() -> [any ParametricClip2Geometry] {
-        var result: [any ParametricClip2Geometry] =
+    func effectivePolys() -> [any ParametricClip2Geometry<Vector2D>] {
+        var result: [any ParametricClip2Geometry<Vector2D>] =
             circles.map({ $0.makeHollow() })
             + polys
 

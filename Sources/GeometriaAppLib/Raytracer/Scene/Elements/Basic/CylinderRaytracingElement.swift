@@ -1,5 +1,6 @@
 #if canImport(Geometria)
 import Geometria
+import RealModule
 #endif
 
 public typealias CylinderRaytracingElement = CylinderElement
@@ -19,12 +20,12 @@ extension CylinderRaytracingElement: RaytracingElement {
             results: &results
         )
     }
-    
+
     @inlinable
     public func contains(point: RVector3D) -> Bool {
         return geometry.contains(point)
     }
-    
+
     @inlinable
     public func fullyContainsRay(query: RayQuery) -> Bool {
         query.isFullyContained(by: geometry)

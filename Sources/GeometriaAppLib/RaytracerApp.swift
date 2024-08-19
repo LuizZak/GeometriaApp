@@ -325,7 +325,7 @@ open class RaytracerApp: RaytracerUI {
 
     // MARK: - UI
 
-    open override func keyPress(event: KeyPressEventArgs) {
+    open override func keyPress(event: KeyPressEventArgs) -> Bool {
         if event.keyChar == " " {
             togglePause()
             event.handled = true
@@ -344,7 +344,9 @@ open class RaytracerApp: RaytracerUI {
         }
 
         if !event.handled {
-            super.keyPress(event: event)
+            return super.keyPress(event: event)
+        } else {
+            return true
         }
     }
 
