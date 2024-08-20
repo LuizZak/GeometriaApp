@@ -8,6 +8,12 @@ public class IconLibrary {
 
     // MARK: - Red icons (geometry primitives)
 
+    public static let vector3Icon: Image = makeIcon(geometryPrimitiveColor) { (renderer, size) in
+        let circle = UICircle(center: size.asUIPoint / 2, radius: size.width * 0.15)
+
+        renderer.fill(circle)
+    }
+
     public static let aabbIcon: Image = makeAABBIcon(geometryPrimitiveColor)
 
     public static let cubeIcon: Image = makeAABBIcon(geometryPrimitiveColor, aabbSizeScale: .init(x: 0.6, y: 0.6))
@@ -170,6 +176,29 @@ public class IconLibrary {
         )
     }
 
+    // MARK: - Misc icons
+
+    public static let rgbIcon: Image = makeIcon(.red) { (renderer, size) in
+        let triangle =
+            UITriangle
+            .unitEquilateral
+            .offsetBy(size.asUIPoint / 2)
+            .scaledBy(size.asUIPoint * 0.3)
+
+        let red = UICircle(center: triangle.p0, radius: size.width * 0.3)
+        let green = UICircle(center: triangle.p1, radius: size.width * 0.3)
+        let blue = UICircle(center: triangle.p2, radius: size.width * 0.3)
+
+        renderer.setCompositionMode(.plus)
+
+        renderer.setFill(.red)
+        renderer.fill(red)
+        renderer.setFill(.green)
+        renderer.fill(green)
+        renderer.setFill(.blue)
+        renderer.fill(blue)
+    }
+
     // MARK: -
 
     private static func makeAABBIcon(_ color: Color, aabbSizeScale: UIVector = UIVector(x: 0.6, y: 0.4)) -> Image {
@@ -204,6 +233,7 @@ public class IconLibrary {
         return context.withRenderer { renderer in
             renderer.clear()
             renderer.setStroke(color)
+            renderer.setFill(color)
 
             closure(renderer, UISize(size))
         }

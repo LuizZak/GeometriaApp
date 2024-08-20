@@ -1,9 +1,11 @@
 import SwiftBlend2D
+import GeometriaAppLib
 
 public class ColorGraphNode: SceneGraphNode {
     public override var displayInformation: DisplayInformation {
         .init(
-            title: "Color"
+            title: "Color",
+            icon: IconLibrary.rgbIcon
         )
     }
 

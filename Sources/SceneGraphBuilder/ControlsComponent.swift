@@ -44,10 +44,9 @@ class ControlsComponent: RaytracerUIComponent {
             button.strokeColor = .transparentBlack
             button.strokeWidth = 0.0
 
-            // TODO: Make Button.setBackgroundColor public in ImagineUI
-            // button.setBackgroundColor(.transparentWhite, forState: .normal)
-            // button.setBackgroundColor(.white.withTransparency(20), forState: .highlighted)
-            // button.setBackgroundColor(.black.withTransparency(20), forState: .selected)
+            button.setBackgroundColor(.transparentWhite, forState: .normal)
+            button.setBackgroundColor(.white.withTransparency(20), forState: .highlighted)
+            button.setBackgroundColor(.black.withTransparency(20), forState: .selected)
 
             button.label.attributedText = "\(" ", attributes: [.image: ImageAttribute(image: image)])"
 

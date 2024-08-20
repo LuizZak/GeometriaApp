@@ -26,12 +26,16 @@ class SceneGraphBuilderController {
             aabb: .init(minimum: .zero, maximum: .one),
             material: .defaultMaterial
         )
-        let node2 = RaymarchingSceneNode()
-        let node3 = RaymarcherNode()
+        let node2 = ColorGraphNode()
+        let node3 = Vector3GraphNode(vector: .init(x: 0, y: 1, z: 2))
+        let node4 = RaymarchingSceneNode()
+        let node5 = RaymarcherNode()
 
         addNode(node1)?.location = .init(x: 300, y: 100)
-        addNode(node2)?.location = .init(x: 350, y: 200)
-        addNode(node3)?.location = .init(x: 550, y: 210)
+        addNode(node2)?.location = .init(x: 320, y: 230)
+        addNode(node3)?.location = .init(x: 400, y: 300)
+        addNode(node4)?.location = .init(x: 550, y: 200)
+        addNode(node5)?.location = .init(x: 750, y: 210)
     }
 
     // MARK: - Events - Mouse

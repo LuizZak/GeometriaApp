@@ -592,6 +592,7 @@ class SceneGraphNodeView: RootView {
 
             _titleSeparator.isInteractiveEnabled = false
             _titleSeparator.backColor = .lightGray
+            _stackView.alignment = .centered
 
             _updateStackView()
         }

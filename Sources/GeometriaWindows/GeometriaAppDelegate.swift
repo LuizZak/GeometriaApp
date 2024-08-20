@@ -13,9 +13,9 @@ class GeometriaAppDelegate: MinWin32AppDelegate {
         GeometriaLogger.logger = WinLoggerWrapper.instance
         ImagineUILogger.logger = WinLoggerWrapper.instance
 
-        let main = PolyBooleanWindow(size: .init(width: 1000, height: 750))
+        //let main = PolyBooleanWindow(size: .init(width: 1000, height: 750))
         //let main = GeometriaWindow(size: .init(width: 1000, height: 750))
-        //let main = SceneGraphWindow(size: .init(width: 1000, height: 750))
+        let main = SceneGraphWindow(size: .init(width: 1000, height: 750))
         app.show(content: main, position: .centered)
 
         self.main = main
