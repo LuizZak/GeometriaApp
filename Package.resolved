@@ -10,24 +10,6 @@
       }
     },
     {
-      "identity" : "geometria",
-      "kind" : "remoteSourceControl",
-      "location" : "https://github.com/LuizZak/Geometria.git",
-      "state" : {
-        "branch" : "main",
-        "revision" : "e314fb07945f3c51d669ff65659d19cf7408bc4d"
-      }
-    },
-    {
-      "identity" : "imagineui",
-      "kind" : "remoteSourceControl",
-      "location" : "https://github.com/LuizZak/ImagineUI.git",
-      "state" : {
-        "branch" : "master",
-        "revision" : "347f65d4b007141cbe7b02cfc409689c4ecaf4f4"
-      }
-    },
-    {
       "identity" : "imagineui-win",
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/LuizZak/ImagineUI-Win.git",

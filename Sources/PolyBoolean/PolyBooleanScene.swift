@@ -46,6 +46,7 @@ class PolyBooleanScene {
 
     func renderUnion(
         polys: [any ParametricClip2Geometry<Vector2D>],
+        tolerance: Double = 1e-14,
         renderer: any Renderer
     ) {
         if polys.isEmpty {
@@ -56,13 +57,14 @@ class PolyBooleanScene {
             return
         }
 
-        let base = union(tolerance: 1e-14, contours: polys.flatMap { $0.allContours() })
+        let base = union(tolerance: tolerance, contours: polys.flatMap { $0.allContours() })
 
         render(poly: base, renderer: renderer)
     }
 
     func renderSubtraction(
         polys: [any ParametricClip2Geometry<Vector2D>],
+        tolerance: Double = 1e-12,
         renderer: any Renderer
     ) {
         if polys.isEmpty {
@@ -79,7 +81,7 @@ class PolyBooleanScene {
         }
 
         let base = subtraction(
-            tolerance: 1e-12,
+            tolerance: tolerance,
             first,
             Array(compounds.dropFirst())
         )
@@ -89,6 +91,7 @@ class PolyBooleanScene {
 
     func renderXor(
         polys: [any ParametricClip2Geometry<Vector2D>],
+        tolerance: Double = 1e-12,
         renderer: any Renderer
     ) {
         if polys.isEmpty {
@@ -99,13 +102,14 @@ class PolyBooleanScene {
             return
         }
 
-        let base = exclusiveDisjunction(tolerance: 1e-12, contours: polys.flatMap { $0.allContours() })
+        let base = exclusiveDisjunction(tolerance: tolerance, contours: polys.flatMap { $0.allContours() })
 
         render(poly: base, renderer: renderer)
     }
 
     func renderIntersection(
         polys: [any ParametricClip2Geometry<Vector2D>],
+        tolerance: Double = 1e-12,
         renderer: any Renderer
     ) {
         if polys.isEmpty {
@@ -116,7 +120,7 @@ class PolyBooleanScene {
             return
         }
 
-        let base = intersection(tolerance: 1e-12, contours: polys.flatMap { $0.allContours() })
+        let base = intersection(tolerance: tolerance, contours: polys.flatMap { $0.allContours() })
 
         render(poly: base, renderer: renderer)
     }

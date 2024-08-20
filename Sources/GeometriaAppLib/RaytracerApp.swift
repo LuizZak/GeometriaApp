@@ -325,31 +325,6 @@ open class RaytracerApp: RaytracerUI {
 
     // MARK: - UI
 
-    open override func keyPress(event: KeyPressEventArgs) -> Bool {
-        if event.keyChar == " " {
-            togglePause()
-            event.handled = true
-        }
-        if event.keyChar == "r" {
-            restartRendering()
-            event.handled = true
-        }
-        if event.keyChar == "s" {
-            toggleDpiScalingMode()
-            event.handled = true
-        }
-        if event.keyChar == "o" {
-            debugAtMousePointer()
-            event.handled = true
-        }
-
-        if !event.handled {
-            return super.keyPress(event: event)
-        } else {
-            return true
-        }
-    }
-
     open override func keyDown(event: KeyEventArgs) {
         if event.keyCode == .space {
             togglePause()

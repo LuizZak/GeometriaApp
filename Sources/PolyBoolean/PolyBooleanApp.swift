@@ -9,7 +9,7 @@ open class PolyBooleanApp: ImagineUIWindowContent {
     var _lastRender: TimeInterval = UISettings.timeInSeconds()
     var _mouseLocation: UIPoint = .zero
 
-    var scene: PolyBooleanScene = HollowCirclesScene()
+    var scene: PolyBooleanScene = CapsuleSegmentsScene()
 
     var isShiftHeld: Bool = false
 
